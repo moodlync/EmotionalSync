@@ -1,0 +1,9 @@
+This is a placeholder for the futuristic-music.mp3 file.
+
+To make the background music feature work properly, you need to:
+
+1. Add an MP3 audio file named "futuristic-music.mp3" to the /client/public/assets/ directory
+2. The audio should have futuristic music that complements the app's theme about emotional connections
+3. The music should be royalty-free or properly licensed for your use
+
+The background music controls have already been set up in the welcome page.
