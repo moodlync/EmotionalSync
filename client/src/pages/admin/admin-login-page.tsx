@@ -62,14 +62,16 @@ export default function AdminLoginPage() {
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100 p-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-blue-900 p-4">
+      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:16px] mask-image" />
+      <div className="absolute h-full w-full backdrop-blur-[1px]" />
+      <Card className="w-full max-w-md shadow-xl backdrop-blur-sm bg-white/95 border-gray-300 border-opacity-30 z-10">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
-            MoodSync Admin
+            Secure Admin Portal
           </CardTitle>
           <CardDescription className="text-center">
-            Enter your credentials to access the admin panel
+            Authentication required - Enter administrator credentials
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -82,7 +84,22 @@ export default function AdminLoginPage() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter username" {...field} disabled={isLoading} />
+                      <div className="relative">
+                        <Input 
+                          placeholder="Enter username" 
+                          className="pr-10"
+                          autoComplete="off"
+                          {...field} 
+                          disabled={isLoading} 
+                          aria-autocomplete="none"
+                          data-lpignore="true"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -96,7 +113,24 @@ export default function AdminLoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} disabled={isLoading} />
+                      <div className="relative">
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          className="pr-10 font-mono tracking-widest" 
+                          autoComplete="off"
+                          {...field} 
+                          disabled={isLoading} 
+                          aria-autocomplete="none"
+                          data-lpignore="true"
+                          data-form-type="password"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -117,20 +151,11 @@ export default function AdminLoginPage() {
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col items-center space-y-3">
-          <Button
-            variant="outline"
-            type="button"
-            size="sm"
-            className="text-xs"
-            onClick={() => {
-              form.setValue("username", "test");
-              form.setValue("password", "aaaaaa");
-            }}
-          >
-            Auto-fill Test Credentials
-          </Button>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-bold">
             Protected area - Authorized personnel only
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Secure access with high-level encryption
           </p>
         </CardFooter>
       </Card>
