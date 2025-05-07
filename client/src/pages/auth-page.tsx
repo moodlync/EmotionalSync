@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,13 +20,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import authImage from "@/assets/auth-hero.jpeg";
 import logoImage from '@/assets/moodlync-logo.png';
-import { StaticProductDialog } from '@/components/learn-more/detailed-product-description';
-
-// Lazy load product descriptions for better performance
-const EmotionMatchingDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.EmotionMatchingDescription })));
-const EmotionalJournalDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.EmotionalJournalDescription })));
-const EmotionalNFTsDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.EmotionalNFTsDescription })));
-const TokenRewardsDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.TokenRewardsDescription })));
 
 // Helper to determine if we're in development mode
 const isDevelopment = import.meta.env.MODE === 'development';
@@ -1053,7 +1046,13 @@ export default function AuthPage() {
                     {/* Form-level validation errors */}
                     {registerForm.formState.errors.root && (
                       <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-md text-sm text-amber-700 dark:text-amber-400 flex items-start">
-                        <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 text-amber-500" />
+                        <div className="h-5 w-5 mr-2 flex-shrink-0 text-amber-500">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                            <path d="M12 9v4"></path>
+                            <path d="M12 17h.01"></path>
+                          </svg>
+                        </div>
                         <div>
                           <p className="font-medium">Registration Issue</p>
                           <p>{registerForm.formState.errors.root.message}</p>
@@ -1064,7 +1063,13 @@ export default function AuthPage() {
                     {/* Registration status messages */}
                     {registerMutation.isError && (
                       <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 rounded-md text-sm text-red-600 dark:text-red-400 flex items-start">
-                        <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 text-red-500" />
+                        <div className="h-5 w-5 mr-2 flex-shrink-0 text-red-500">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                          </svg>
+                        </div>
                         <div>
                           <p className="font-medium">Registration failed</p>
                           <p>{registerMutation.error?.message || "Please check your information and try again."}</p>
@@ -1129,11 +1134,17 @@ export default function AuthPage() {
                 Connect with others who share your current emotional state for authentic, meaningful conversations using our AI-powered emotion detection system.
               </p>
               <div className="mt-2">
-                <StaticProductDialog 
-                  description={EmotionMatchingDescription}
-                  buttonVariant="outline"
-                  buttonClassName="bg-white/10 text-white/70 border-white/20 hover:bg-white/20"
-                />
+                <button 
+                  className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                  onClick={() => {
+                    toast({
+                      title: "Emotion Matching",
+                      description: "Connect with others who share your current emotions",
+                    });
+                  }}
+                >
+                  Learn more
+                </button>
               </div>
             </div>
             
@@ -1148,11 +1159,17 @@ export default function AuthPage() {
                 Track your emotional journey with our comprehensive journaling tools that provide insights and patterns into your emotional wellbeing.
               </p>
               <div className="mt-2">
-                <StaticProductDialog 
-                  description={EmotionalJournalDescription}
-                  buttonVariant="outline"
-                  buttonClassName="bg-white/10 text-white/70 border-white/20 hover:bg-white/20"
-                />
+                <button 
+                  className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                  onClick={() => {
+                    toast({
+                      title: "Emotional Journal",
+                      description: "Track your emotional journey with our comprehensive journaling tools",
+                    });
+                  }}
+                >
+                  Learn more
+                </button>
               </div>
             </div>
           </div>
@@ -1194,11 +1211,17 @@ export default function AuthPage() {
               Premium members earn unique NFTs that evolve with your emotional journey, unlocking real-world perks and benefits.
             </p>
             <div className="mt-2">
-              <StaticProductDialog 
-                description={EmotionalNFTsDescription}
-                buttonVariant="outline"
-                buttonClassName="bg-white/10 text-white/70 border-white/20 hover:bg-white/20"
-              />
+              <button 
+                className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                onClick={() => {
+                  toast({
+                    title: "Emotional NFTs",
+                    description: "Unlock premium digital collectibles that evolve with your emotional journey",
+                  });
+                }}
+              >
+                Learn more
+              </button>
             </div>
           </div>
         </div>
