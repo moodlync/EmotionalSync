@@ -54,28 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Check if the response is ok before trying to parse the JSON
         if (!res.ok) {
-          let errorMessage = "Login failed. Please check your username and password.";
-          
-          try {
-            // Try to parse error as JSON
-            const contentType = res.headers.get('content-type');
-            console.log("Response content type:", contentType);
-            
-            if (contentType && contentType.includes('application/json')) {
-              const errorData = await res.json();
-              console.log("Login error data:", errorData);
-              errorMessage = errorData.error || errorData.message || errorMessage;
-            } else {
-              // Otherwise get as text
-              const errorText = await res.text();
-              console.log("Login error text:", errorText);
-              if (errorText) errorMessage = errorText;
-            }
-          } catch (parseError) {
-            console.error("Error parsing login error response:", parseError);
-          }
-          
-          throw new Error(errorMessage);
+          // Display user-friendly error message regardless of actual error
+          throw new Error("Login failed. Please check your username and password.");
         }
         
         // Parse the successful response

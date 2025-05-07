@@ -1215,6 +1215,29 @@ export class MemStorage implements IStorage {
     this.adminUsers.set(1, defaultAdmin);
     console.log('Default admin account created successfully');
     
+    // Add Sagar as an admin user with the same credentials used for the regular user account
+    const sagarAdminId = this.adminId++;
+    const sagarAdmin: AdminUser = {
+      id: sagarAdminId,
+      username: 'Sagar',
+      password: 'Queanbeyan@9', // Same as the Sagar user account
+      email: 'sagar@moodsync.app',
+      firstName: 'Sagar',
+      lastName: 'Admin',
+      role: 'admin' as AdminRole,
+      isActive: true,
+      lastLogin: null,
+      createdAt: new Date(),
+      permissions: ['users.view', 'users.edit', 'content.view', 'content.edit', 'system.view', 'system.edit'],
+      avatarUrl: null,
+      contactPhone: null,
+      department: null
+    };
+    
+    // Store Sagar admin user in the map
+    this.adminUsers.set(sagarAdminId, sagarAdmin);
+    console.log('Sagar admin account created successfully');
+    
     this.supportTickets = new Map();
     this.ticketResponses = new Map();
     this.refundRequests = new Map();

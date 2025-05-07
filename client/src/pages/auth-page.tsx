@@ -159,8 +159,21 @@ export default function AuthPage() {
             ? error.message 
             : "An unexpected error occurred during login";
           
-          // Map error messages to specific form fields
-          if (errorMessage.toLowerCase().includes('username') || errorMessage.toLowerCase().includes('not found')) {
+          // First check for technical errors that should never be shown to users
+          if (errorMessage.includes('TypeError') || 
+              errorMessage.includes('single') || 
+              errorMessage.includes('undefined') || 
+              errorMessage.includes('null') ||
+              errorMessage.includes('Cannot read') ||
+              errorMessage.includes('is not a function')) {
+            // For technical errors, show a generic user-friendly message
+            loginForm.setError('root', {
+              type: 'manual',
+              message: "We're experiencing some technical issues. Please try again in a few moments."
+            });
+          }
+          // Map user-friendly error messages to specific form fields
+          else if (errorMessage.toLowerCase().includes('username') || errorMessage.toLowerCase().includes('not found')) {
             loginForm.setError('username', { 
               type: 'manual',
               message: "Username not found. Please check your username or register for a new account."
@@ -177,32 +190,31 @@ export default function AuthPage() {
               message: "Network error. Please check your internet connection and try again."
             });
           } else {
-            // General error message
+            // General error message - make sure not to expose technical details
             loginForm.setError('root', {
               type: 'manual',
-              message: errorMessage
+              message: "Login failed. Please check your credentials and try again."
             });
           }
         }
       });
     } catch (error) {
+      // Log the actual error for debugging purposes
       console.error("Error in login form submission:", error);
       
-      // If there's a client-side error, show a toast message
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "An unknown error occurred during login";
+      // Never expose technical error details to users
+      // Instead, show a user-friendly message
       
       // Set a general error message at the form level
       loginForm.setError('root', {
         type: 'manual',
-        message: errorMessage
+        message: "We couldn't process your login request. Please try again."
       });
       
-      // Also display a toast for better visibility
+      // Also display a toast for better visibility with a user-friendly message
       toast({
         title: "Login Error",
-        description: errorMessage,
+        description: "We encountered an issue with your login. Please check your information and try again.",
         variant: "destructive",
       });
     }
@@ -295,8 +307,21 @@ export default function AuthPage() {
           
           console.error("Registration mutation error:", errorMessage);
           
-          // Map error messages to specific form fields
-          if (errorMessage.toLowerCase().includes('username') || errorMessage.toLowerCase().includes('taken')) {
+          // First check for technical errors that should never be shown to users
+          if (errorMessage.includes('TypeError') || 
+              errorMessage.includes('single') || 
+              errorMessage.includes('undefined') || 
+              errorMessage.includes('null') ||
+              errorMessage.includes('Cannot read') ||
+              errorMessage.includes('is not a function')) {
+            // For technical errors, show a generic user-friendly message
+            registerForm.setError('root', {
+              type: 'manual',
+              message: "We're experiencing some technical issues. Please try again in a few moments."
+            });
+          }
+          // Map user-friendly error messages to specific form fields
+          else if (errorMessage.toLowerCase().includes('username') || errorMessage.toLowerCase().includes('taken')) {
             registerForm.setError('username', { 
               type: 'manual',
               message: "This username is already taken. Please choose a different one."
@@ -318,34 +343,31 @@ export default function AuthPage() {
               message: "Network error. Please check your internet connection and try again."
             });
           } else {
-            // General error message
+            // General error message - make sure not to expose technical details
             registerForm.setError('root', {
               type: 'manual',
-              message: errorMessage
+              message: "Registration could not be completed. Please try again later."
             });
           }
         }
       });
     } catch (error) {
+      // Log the actual error for debugging purposes only
       console.error("Error in registration form submission:", error);
       
-      // If there's a client-side error, show a toast message
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "An unknown error occurred during registration";
+      // Never expose technical error details to users in UI
+      console.error("Registration form error details:", error);
       
-      console.error("Registration form error:", errorMessage);
-      
-      // Set a general error message at the form level
+      // Set a user-friendly general error message at the form level
       registerForm.setError('root', {
         type: 'manual',
-        message: errorMessage
+        message: "We couldn't complete your registration. Please try again later."
       });
       
-      // Also display a toast for better visibility
+      // Also display a toast for better visibility with user-friendly message
       toast({
         title: "Registration Error",
-        description: errorMessage,
+        description: "We encountered an issue while creating your account. Please check your information and try again.",
         variant: "destructive",
       });
     }
@@ -508,11 +530,11 @@ export default function AuthPage() {
                       />
                     </Button>
                     
-                    {/* Login status messages */}
+                    {/* Login status messages - show user-friendly message */}
                     {loginMutation.isError && (
                       <div className="mt-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-600 dark:text-red-400">
                         <p className="font-medium">Login failed</p>
-                        <p>{loginMutation.error?.message || "Invalid username or password."}</p>
+                        <p>{"Please check your username and password and try again."}</p>
                       </div>
                     )}
                   </form>

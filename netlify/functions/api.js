@@ -18,7 +18,9 @@ const fallbackRegisterRoutes = (app) => {
       
       // Simple validation
       if (!username || !email || !password) {
-        return res.status(400).json({ error: 'Username, email and password are required' });
+        return res.status(400).json({ 
+          error: 'Registration failed. Please provide username, email and password.' 
+        });
       }
       
       // Create user (mock)
@@ -40,10 +42,12 @@ const fallbackRegisterRoutes = (app) => {
         createdAt: new Date().toISOString()
       });
     } catch (error) {
+      // Log the actual error for debugging but don't expose it to users
       console.error('Registration error:', error);
+      
+      // Return a user-friendly error message
       return res.status(500).json({ 
-        error: 'Registration failed',
-        details: error.message
+        error: 'Registration could not be completed. Please try again later.'
       });
     }
   });
@@ -55,7 +59,9 @@ const fallbackRegisterRoutes = (app) => {
       
       // Simple validation
       if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password required' });
+        return res.status(400).json({ 
+          error: 'Login failed. Please provide both username and password.' 
+        });
       }
       
       // Mock successful login
@@ -72,10 +78,12 @@ const fallbackRegisterRoutes = (app) => {
         role: username === 'admin' ? 'admin' : 'user'
       });
     } catch (error) {
+      // Log the actual error for debugging but don't expose it to users
       console.error('Login error:', error);
+      
+      // Return a user-friendly error message
       return res.status(500).json({ 
-        error: 'Login failed',
-        details: error.message
+        error: 'Login failed. Please check your username and password and try again.'
       });
     }
   });

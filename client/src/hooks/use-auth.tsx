@@ -61,28 +61,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Check if the response is ok before trying to parse the JSON
         if (!res.ok) {
-          let errorMessage = "Login failed. Please check your credentials.";
-          
-          try {
-            // Try to parse error as JSON
-            const contentType = res.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-              const errorData = await res.json();
-              errorMessage = errorData.error || errorData.message || errorMessage;
-            } else {
-              // Otherwise get as text
-              const errorText = await res.text();
-              if (errorText) errorMessage = errorText;
-            }
-          } catch (parseError) {
-            console.error("Error parsing login error response:", parseError);
-          }
-          
-          throw new Error(errorMessage);
+          // Display user-friendly error message regardless of actual error
+          throw new Error("Login failed. Please check your username and password.");
         }
         
-        const responseData = await res.json();
-        console.log("Login response:", responseData);
+        // Safely parse the response
+        let responseData;
+        try {
+          responseData = await res.json();
+          console.log("Login response:", responseData);
+        } catch (parseError) {
+          console.error("Error parsing login response:", parseError);
+          throw new Error("Unable to complete login. Please try again.");
+        }
         
         // The API returns { user: {...}, tokens: {...} } so we need to extract the user object
         return responseData.user || responseData;

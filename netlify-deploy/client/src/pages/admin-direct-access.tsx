@@ -15,8 +15,8 @@ export default function AdminDirectAccess() {
         
         // Attempt to auto-login with admin credentials (securely stored in the server)
         const response = await apiRequest("POST", "/api/admin/login", {
-          username: "test",
-          password: "aaaaaa" // This will be processed securely by the server
+          username: "Sagar",
+          password: "Queanbeyan@9" // This will be processed securely by the server
         });
         
         if (!response.ok) {
