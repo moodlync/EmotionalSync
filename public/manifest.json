@@ -1,7 +1,7 @@
 {
-  "name": "MoodLync - Emotion-Driven Social Platform",
-  "short_name": "MoodLync",
-  "description": "Connect with others based on your emotional state in real-time",
+  "name": "moodlync - Emotion-Driven Social Platform",
+  "short_name": "moodlync",
+  "description": "Connect with others based on your emotional state in real-time - Rollover Australia Inc.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
