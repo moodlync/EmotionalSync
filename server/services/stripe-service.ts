@@ -676,6 +676,32 @@ export async function updateSubscription(
   }
 }
 
+/**
+ * Verify a completed payment and return payment details
+ * 
+ * @param paymentIntentId The ID of the payment intent to verify
+ * @returns The payment intent object if valid, or null if verification fails
+ */
+export async function verifyPayment(paymentIntentId: string): Promise<Stripe.PaymentIntent | null> {
+  try {
+    const stripe = getStripeClient();
+    
+    // Retrieve the payment intent
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    
+    // Verify that the payment was successful
+    if (paymentIntent.status !== 'succeeded') {
+      console.warn(`Payment verification failed: Payment intent ${paymentIntentId} has status ${paymentIntent.status}`);
+      return null;
+    }
+    
+    return paymentIntent;
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    return null;
+  }
+}
+
 // Export the Stripe service functions
 export const stripeService = {
   initializeStripe,
@@ -688,6 +714,7 @@ export const stripeService = {
   cancelSubscription,
   cancelSubscriptionImmediately,
   updateSubscription,
+  verifyPayment,
 };
 
 export default stripeService;

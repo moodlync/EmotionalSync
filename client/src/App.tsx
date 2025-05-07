@@ -53,6 +53,8 @@ const PremiumPage = lazy(() => import("@/pages/premium-page"));
 const PremiumFeaturesPage = lazy(() => import("@/pages/premium-features-page"));
 const PremiumComparisonPage = lazy(() => import("@/pages/premium-comparison-page"));
 const PremiumChatPage = lazy(() => import("@/pages/premium-chat-page"));
+const CheckoutPage = lazy(() => import("@/pages/checkout"));
+const CheckoutSuccessPage = lazy(() => import("@/pages/checkout-success"));
 const ContactPage = lazy(() => import("@/pages/contact-page"));
 const ReferralPage = lazy(() => import("@/pages/referral-page"));
 const UserChallengesPage = lazy(() => import("@/pages/user-challenges-page"));
@@ -150,6 +152,8 @@ const RouterComponent = () => {
     { path: "/premium/features", component: PremiumFeaturesPage },
     { path: "/premium/chat", component: PremiumChatPage },
     { path: "/premium/chat/:id", component: PremiumChatPage },
+    { path: "/checkout/:planId", component: CheckoutPage },
+    { path: "/checkout-success", component: CheckoutSuccessPage },
     { path: "/family", component: FamilyPlanPage },
     { path: "/nft-collection", component: NftCollectionPage },
     { path: "/user-challenges", component: UserChallengesPage },
