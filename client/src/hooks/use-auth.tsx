@@ -68,7 +68,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error(errorMessage);
         }
         
-        return await res.json();
+        const responseData = await res.json();
+        console.log("Login response:", responseData);
+        
+        // The API returns { user: {...}, tokens: {...} } so we need to extract the user object
+        return responseData.user || responseData;
       } catch (error) {
         console.error("Login request error:", error);
         throw error;
@@ -157,9 +161,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error(errorMessage);
         }
         
-        const userData = await res.json();
-        console.log("Registration successful, user data:", userData);
-        return userData;
+        try {
+          const userData = await res.json();
+          console.log("Registration successful, user data:", userData);
+          
+          // If the response is an object with properties, it's valid
+          if (userData && typeof userData === 'object') {
+            return userData;
+          } else {
+            console.error("Invalid registration response format:", userData);
+            throw new Error("Server returned an invalid response format. Please try again.");
+          }
+        } catch (jsonError) {
+          console.error("Error parsing registration success response:", jsonError);
+          throw new Error("Unable to process the server response. Please try again or contact support.");
+        }
       } catch (error) {
         console.error("Registration request error:", error);
         

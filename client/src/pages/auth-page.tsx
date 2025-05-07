@@ -119,8 +119,93 @@ export default function AuthPage() {
     return () => subscription.unsubscribe();
   }, [registerForm]);
 
-  const onLoginSubmit = (values: z.infer<typeof loginSchema>) => {
-    loginMutation.mutate(values);
+  const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
+    try {
+      // Add detailed logs for debugging
+      console.log("Login form data being submitted:", {
+        username: values.username,
+        password: values.password ? '********' : undefined // Don't log actual password
+      });
+      
+      // Network connection check
+      if (!navigator.onLine) {
+        const errorMessage = "You appear to be offline. Please check your internet connection and try again.";
+        loginForm.setError('root', {
+          type: 'manual',
+          message: errorMessage
+        });
+        
+        // Also show a toast for better visibility
+        toast({
+          title: "Connection Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Create a loading message
+      toast({
+        title: "Logging in",
+        description: "Please wait while we sign you in...",
+      });
+      
+      loginMutation.mutate(values, {
+        onError: (error) => {
+          console.error("Login mutation error:", error);
+          
+          // Handle login errors by setting form field errors
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : "An unexpected error occurred during login";
+          
+          // Map error messages to specific form fields
+          if (errorMessage.toLowerCase().includes('username') || errorMessage.toLowerCase().includes('not found')) {
+            loginForm.setError('username', { 
+              type: 'manual',
+              message: "Username not found. Please check your username or register for a new account."
+            });
+          } else if (errorMessage.toLowerCase().includes('password') || errorMessage.toLowerCase().includes('invalid')) {
+            loginForm.setError('password', { 
+              type: 'manual',
+              message: "Incorrect password. Please try again or use the forgot password option."
+            });
+          } else if (errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('connection')) {
+            // Network-related errors
+            loginForm.setError('root', {
+              type: 'manual',
+              message: "Network error. Please check your internet connection and try again."
+            });
+          } else {
+            // General error message
+            loginForm.setError('root', {
+              type: 'manual',
+              message: errorMessage
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error in login form submission:", error);
+      
+      // If there's a client-side error, show a toast message
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "An unknown error occurred during login";
+      
+      // Set a general error message at the form level
+      loginForm.setError('root', {
+        type: 'manual',
+        message: errorMessage
+      });
+      
+      // Also display a toast for better visibility
+      toast({
+        title: "Login Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   };
 
   const onRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {
@@ -337,6 +422,18 @@ export default function AuthPage() {
               <TabsContent value="login">
                 <Form {...loginForm}>
                   <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                    {/* Display form-level errors */}
+                    {loginForm.formState.errors.root && (
+                      <div className="bg-destructive/10 p-3 rounded-md mb-4 border border-destructive/20">
+                        <div className="flex gap-2 items-start">
+                          <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                          <div className="text-destructive text-sm font-medium">
+                            {loginForm.formState.errors.root.message}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     <FormField
                       control={loginForm.control}
                       name="username"
@@ -458,6 +555,18 @@ export default function AuthPage() {
               <TabsContent value="register">
                 <Form {...registerForm}>
                   <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                    {/* Display form-level errors */}
+                    {registerForm.formState.errors.root && (
+                      <div className="bg-destructive/10 p-3 rounded-md mb-4 border border-destructive/20">
+                        <div className="flex gap-2 items-start">
+                          <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                          <div className="text-destructive text-sm font-medium">
+                            {registerForm.formState.errors.root.message}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Personal Information Section */}
                     <div className="space-y-4">
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300">Personal Information</h3>
