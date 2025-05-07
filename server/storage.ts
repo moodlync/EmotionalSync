@@ -1193,8 +1193,8 @@ export class MemStorage implements IStorage {
     const defaultAdminId = this.adminId++;
     const defaultAdmin: AdminUser = {
       id: defaultAdminId,
-      username: 'test',
-      password: 'aaaaaa', // Password is stored securely in production
+      username: 'admin',
+      password: 'Queanbeyan@9', // Password is stored securely in production
       email: 'admin@moodsync.app',
       firstName: 'Admin',
       lastName: 'User',
