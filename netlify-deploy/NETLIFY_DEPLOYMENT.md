@@ -155,6 +155,21 @@ After successful deployment, test the following features:
      ```
      ./build.sh
      ```
+     
+8. **Missing Module/Package Errors**:
+   - If your build fails with errors like "Cannot find module 'X'" or "Module not found: Error: Can't resolve 'Y'", the deployment package now includes:
+     - Automatic source code scanning to detect import statements and install missing packages
+     - Expanded list of 25+ common frontend and UI dependencies preinstalled
+     - Intelligent package name extraction from import paths
+   
+   If missing module errors persist:
+   - Check the build logs to identify the exact missing module
+   - Add the specific missing package to the Netlify environment variable `INSTALL_EXTRA_PACKAGES` with a space-separated list, e.g., `package1 package2`
+   - Try using the expanded build command that includes common React dependencies:
+     ```
+     export NPM_CONFIG_AUDIT=false && npm install --no-audit && npm install --no-audit react-icons tw-elements cmdk vaul recharts tailwind-merge react-day-picker && NODE_ENV=production npm run build
+     ```
+   - For last resort fixes, you may need to fork the repository, add the missing dependency to the package.json file, and deploy from your fork
 
 ### Getting Support
 

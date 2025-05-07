@@ -96,7 +96,27 @@ const essentialDeps = [
   'vite',
   '@vitejs/plugin-react',
   'typescript',
-  'esbuild'
+  'esbuild',
+  'react-scripts',
+  'react',
+  'react-dom',
+  'react-helmet-async',
+  'react-hook-form',
+  'react-icons',
+  'react-day-picker',
+  'react-resizable-panels',
+  '@hookform/resolvers',
+  'zod',
+  'tailwindcss',
+  'postcss',
+  'autoprefixer',
+  '@tailwindcss/typography',
+  'tailwindcss-animate',
+  'framer-motion',
+  'recharts',
+  'wouter',
+  'memorystore',
+  'lucide-react'
 ];
 
 const missingDeps = essentialDeps.filter(dep => !dependencies[dep]);
@@ -184,6 +204,112 @@ if (packageJson.scripts.build !== updatedBuildScript) {
   packageJson.scripts.build = updatedBuildScript;
   fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2));
   console.log(`${colors.green}Updated build script in package.json to use explicit path${colors.reset}`);
+}
+
+// Scan source files for imports to detect missing dependencies
+console.log(`\n${colors.blue}Scanning source code for import statements...${colors.reset}`);
+
+function scanDirectory(dir, fileExtensions = ['.js', '.jsx', '.ts', '.tsx']) {
+  const imports = new Set();
+  
+  try {
+    const files = fs.readdirSync(dir, { withFileTypes: true });
+    
+    for (const file of files) {
+      const fullPath = path.join(dir, file.name);
+      
+      if (file.isDirectory() && !file.name.startsWith('node_modules') && !file.name.startsWith('.')) {
+        // Recursively scan subdirectories
+        const subDirImports = scanDirectory(fullPath, fileExtensions);
+        subDirImports.forEach(imp => imports.add(imp));
+      } else if (file.isFile() && fileExtensions.some(ext => file.name.endsWith(ext))) {
+        // Process file if it has a supported extension
+        const content = fs.readFileSync(fullPath, 'utf8');
+        
+        // Match import statements
+        const importMatches = content.match(/import\s+(?:(?:{[^}]*}|\*\s+as\s+[^;]+)\s+from\s+)?['"]([^'"./][^'"]*)['"]/g) || [];
+        importMatches.forEach(match => {
+          const moduleName = match.match(/['"]([^'"./][^'"]*)['"]/)[1];
+          
+          // Extract package name (before any /)
+          const packageName = moduleName.split('/')[0];
+          if (packageName.startsWith('@')) {
+            // For scoped packages like @tanstack/react-query, include the scope
+            const scopedPackage = moduleName.split('/').slice(0, 2).join('/');
+            imports.add(scopedPackage);
+          } else {
+            imports.add(packageName);
+          }
+        });
+        
+        // Match require statements
+        const requireMatches = content.match(/require\s*\(\s*['"]([^'"./][^'"]*)['"]\s*\)/g) || [];
+        requireMatches.forEach(match => {
+          const moduleName = match.match(/['"]([^'"./][^'"]*)['"]/)[1];
+          
+          // Extract package name (before any /)
+          const packageName = moduleName.split('/')[0];
+          if (packageName.startsWith('@')) {
+            // For scoped packages like @tanstack/react-query, include the scope
+            const scopedPackage = moduleName.split('/').slice(0, 2).join('/');
+            imports.add(scopedPackage);
+          } else {
+            imports.add(packageName);
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.error(`${colors.red}Error scanning directory ${dir}: ${error.message}${colors.reset}`);
+  }
+  
+  return imports;
+}
+
+try {
+  // Scan client, server, and shared directories
+  const clientImports = fs.existsSync('client') ? scanDirectory('client') : new Set();
+  const serverImports = fs.existsSync('server') ? scanDirectory('server') : new Set();
+  const sharedImports = fs.existsSync('shared') ? scanDirectory('shared') : new Set();
+  
+  // Combine all imports
+  const allImports = new Set([...clientImports, ...serverImports, ...sharedImports]);
+  
+  // Filter out imports that are already installed
+  const missingImports = [...allImports].filter(imp => !dependencies[imp] && !essentialDeps.includes(imp));
+  
+  // Check for INSTALL_EXTRA_PACKAGES environment variable
+  if (process.env.INSTALL_EXTRA_PACKAGES) {
+    console.log(`${colors.blue}Found INSTALL_EXTRA_PACKAGES environment variable${colors.reset}`);
+    const extraPackages = process.env.INSTALL_EXTRA_PACKAGES.split(/\s+/).filter(Boolean);
+    
+    if (extraPackages.length > 0) {
+      console.log(`${colors.blue}Adding manually specified packages: ${extraPackages.join(', ')}${colors.reset}`);
+      extraPackages.forEach(pkg => {
+        if (!missingImports.includes(pkg) && !dependencies[pkg] && !essentialDeps.includes(pkg)) {
+          missingImports.push(pkg);
+        }
+      });
+    }
+  }
+  
+  if (missingImports.length > 0) {
+    console.log(`${colors.yellow}Detected possibly missing packages from source code: ${missingImports.join(', ')}${colors.reset}`);
+    console.log(`${colors.blue}Attempting to install detected packages...${colors.reset}`);
+    
+    try {
+      execSync(`npm install --no-audit --no-fund ${missingImports.join(' ')}`, { stdio: 'inherit' });
+      console.log(`${colors.green}Successfully installed detected packages${colors.reset}`);
+    } catch (error) {
+      console.log(`${colors.yellow}Note: Some packages may be false positives or part of other packages.${colors.reset}`);
+      console.log(`${colors.yellow}If build still fails, install specific missing packages manually.${colors.reset}`);
+      console.log(`${colors.yellow}You can use the INSTALL_EXTRA_PACKAGES environment variable in Netlify to specify additional packages.${colors.reset}`);
+    }
+  } else {
+    console.log(`${colors.green}No missing packages detected from source code imports.${colors.reset}`);
+  }
+} catch (error) {
+  console.error(`${colors.red}Error during import scanning: ${error.message}${colors.reset}`);
 }
 
 console.log(`\n${colors.green}✅ Build fix script completed successfully${colors.reset}`);
