@@ -201,14 +201,17 @@ export default function AuthPage() {
                     <img 
                       src={logoImage} 
                       alt="moodlync Logo" 
-                      className="w-full h-full object-contain rounded-full"
+                      className="object-contain"
                       style={{
-                        background: 'white',
-                        boxShadow: 'inset 0 0 20px 5px rgba(96, 82, 199, 0.1), 0 0 15px 4px rgba(96, 82, 199, 0.2)',
+                        backgroundColor: 'white',
+                        boxShadow: '0 6px 16px rgba(96, 82, 199, 0.3)',
                         width: '320px',
-                        height: '320px',
+                        height: '120px',
+                        borderRadius: '9999px', 
+                        padding: '10px 20px',
+                        border: '2px solid rgba(96, 82, 199, 0.2)',
                         filter: 'brightness(1.05) contrast(1.1)',
-                        border: '8px solid white'
+                        background: 'linear-gradient(to right, white, #f8f9fa)'
                       }}
                     />
                   </div>
