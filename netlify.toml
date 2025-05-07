@@ -10,7 +10,7 @@
     # Try to run the ES module version first, fall back to CommonJS if that fails
     node netlify/functions/install.mjs || node netlify/functions/install.cjs
   """
-  publish = "dist/client"
+  publish = "dist/public"
   functions = "netlify/functions"
   
 [build.environment]
@@ -32,7 +32,35 @@ package = "@netlify/plugin-functions-install-core"
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
 
+# Admin routes
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Specific routes that need to be handled by the SPA
+[[redirects]]
+  from = "/auth"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/profile/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/emotions/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Default catch-all route for SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"

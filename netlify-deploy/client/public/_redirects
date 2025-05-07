@@ -1,0 +1,11 @@
+# Netlify redirects file
+# Defines URL redirects and rewrites for Netlify deployment
+
+# API requests go to the Netlify Functions
+/api/*  /.netlify/functions/api/:splat  200
+
+# Admin routes handled by SPA
+/admin/*  /index.html  200
+
+# All other routes are handled by the SPA
+/*  /index.html  200

@@ -1,32 +1,18 @@
-// Safely import dependencies with fallbacks for Netlify deployment
-let express, serverless, cors, bodyParser, session, MemoryStore;
-
-try {
-  express = require('express');
-  serverless = require('serverless-http');
-  cors = require('cors');
-  bodyParser = require('body-parser');
-  session = require('express-session');
-  MemoryStore = require('memorystore');
-} catch (e) {
-  console.error('Failed to load dependencies via require:', e);
-  try {
-    // Try ES module imports as fallback
-    express = (await import('express')).default;
-    serverless = (await import('serverless-http')).default;
-    cors = (await import('cors')).default;
-    bodyParser = (await import('body-parser')).default;
-    session = (await import('express-session')).default;
-    MemoryStore = (await import('memorystore')).default;
-  } catch (esImportError) {
-    console.error('Failed to load dependencies via ES imports:', esImportError);
-    throw new Error('Critical dependencies missing. Check serverless-http and cors installation.');
-  }
-}
+// NOTE: This file is in ES Module format
+// Import required dependencies
+import express from 'express';
+import serverless from 'serverless-http';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import session from 'express-session';
+import createMemoryStore from 'memorystore';
 
 // Import application routes and auth setup
 import { registerRoutes } from '../../server/routes.js';
 import { setupAuth } from '../../server/auth.js';
+
+// Initialize MemoryStore
+const MemoryStore = createMemoryStore(session);
 
 // Initialize Express
 const app = express();
@@ -42,9 +28,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Session setup
-const MemoryStoreSession = MemoryStore(session);
 app.use(session({
-  store: new MemoryStoreSession({
+  store: new MemoryStore({
     checkPeriod: 86400000 // Prune expired entries every 24h
   }),
   secret: process.env.SESSION_SECRET || 'moodsync-secret-key',

@@ -88,7 +88,7 @@ This is an optimized package for deploying MoodSync to Netlify.
 
 1. Upload this directory to Netlify
 2. Set the build command to: `npm run build`
-3. Set the publish directory to: `dist/client`
+3. Set the publish directory to: `dist/public`
 4. Configure environment variables:
    - Run the included script: `./netlify-env-setup.sh` for guidance
    - Add necessary environment variables in the Netlify dashboard
