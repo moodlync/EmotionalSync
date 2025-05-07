@@ -1,19 +1,13 @@
 {
-  "name": "moodsync-api-functions",
+  "name": "moodlync-netlify-functions",
   "version": "1.0.0",
-  "description": "MoodSync API functions for Netlify",
-  "type": "module",
+  "description": "Netlify functions for moodlync",
   "dependencies": {
     "serverless-http": "^3.2.0",
+    "cors": "^2.8.5",
     "express": "^4.21.2",
     "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
     "express-session": "^1.18.1",
-    "memorystore": "^1.6.7",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "drizzle-orm": "^0.39.1",
-    "stripe": "^18.1.0",
-    "@neondatabase/serverless": "^0.10.4"
+    "memorystore": "^1.6.7"
   }
 }
