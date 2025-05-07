@@ -109,6 +109,20 @@ After successful deployment, test the following features:
 
 4. **Build Failures**: Check the Netlify build logs for specific errors and fix them in your repository before redeploying.
 
+5. **Serverless Function Dependency Issues**:
+   - If you encounter errors about missing `serverless-http` or `cors` dependencies, the following solutions have been implemented:
+     - Enhanced `netlify.toml` build command that explicitly installs required dependencies
+     - Custom installation script (`netlify/functions/install.js`) that handles dependency installation  
+     - Compatibility mode function (`api.cjs`) that provides a fallback API
+     - `.npmrc` configuration in the functions directory to bypass audit warnings
+   
+   If these issues persist:
+   - Run this build command manually in Netlify settings:
+     ```
+     export NPM_CONFIG_AUDIT=false && npm install --no-audit --legacy-peer-deps serverless-http cors express body-parser express-session memorystore uuid && NODE_ENV=production npm run build && node netlify/functions/install.js
+     ```
+   - Add the environment variable `NPM_CONFIG_LEGACY_PEER_DEPS=true` in Netlify settings
+
 ### Getting Support
 
 If you need assistance with your Netlify deployment, try these steps:

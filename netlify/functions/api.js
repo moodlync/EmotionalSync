@@ -1,10 +1,31 @@
-import express from 'express';
-import serverless from 'serverless-http';
+// Safely import dependencies with fallbacks for Netlify deployment
+let express, serverless, cors, bodyParser, session, MemoryStore;
+
+try {
+  express = require('express');
+  serverless = require('serverless-http');
+  cors = require('cors');
+  bodyParser = require('body-parser');
+  session = require('express-session');
+  MemoryStore = require('memorystore');
+} catch (e) {
+  console.error('Failed to load dependencies via require:', e);
+  try {
+    // Try ES module imports as fallback
+    express = (await import('express')).default;
+    serverless = (await import('serverless-http')).default;
+    cors = (await import('cors')).default;
+    bodyParser = (await import('body-parser')).default;
+    session = (await import('express-session')).default;
+    MemoryStore = (await import('memorystore')).default;
+  } catch (esImportError) {
+    console.error('Failed to load dependencies via ES imports:', esImportError);
+    throw new Error('Critical dependencies missing. Check serverless-http and cors installation.');
+  }
+}
+
+// Import application routes and auth setup
 import { registerRoutes } from '../../server/routes.js';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import session from 'express-session';
-import MemoryStore from 'memorystore';
 import { setupAuth } from '../../server/auth.js';
 
 // Initialize Express
