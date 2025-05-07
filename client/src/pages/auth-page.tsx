@@ -200,14 +200,15 @@ export default function AuthPage() {
                   }}>
                     <img 
                       src={logoImage} 
-                      alt="MoodLync Logo" 
-                      className="w-full h-full object-contain rounded-full shadow-md"
+                      alt="moodlync Logo" 
+                      className="w-full h-full object-contain rounded-full"
                       style={{
-                        boxShadow: 'inset 0 0 20px 5px rgba(96, 82, 199, 0.15), 0 2px 10px 2px rgba(96, 82, 199, 0.1)',
-                        width: '280px',
-                        height: '280px',
-                        filter: 'brightness(1.02) contrast(1.05)',
-                        imageRendering: 'high-quality'
+                        background: 'white',
+                        boxShadow: 'inset 0 0 20px 5px rgba(96, 82, 199, 0.1), 0 0 15px 4px rgba(96, 82, 199, 0.2)',
+                        width: '320px',
+                        height: '320px',
+                        filter: 'brightness(1.05) contrast(1.1)',
+                        border: '8px solid white'
                       }}
                     />
                   </div>
