@@ -16,6 +16,12 @@ cp netlify.toml $DEPLOY_DIR/
 echo "Copying Netlify functions..."
 cp -r netlify $DEPLOY_DIR/
 
+# Create package-lock for functions to ensure dependencies are installed correctly
+echo "Ensuring Netlify functions dependencies..."
+mkdir -p $DEPLOY_DIR/netlify/functions/node_modules
+cd $DEPLOY_DIR/netlify/functions && npm install --package-lock-only
+cd ../../../
+
 # Copy client source files (needed for build)
 echo "Copying client source files..."
 mkdir -p $DEPLOY_DIR/client
