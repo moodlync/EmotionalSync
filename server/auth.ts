@@ -56,6 +56,7 @@ export function setupAuth(app: Express) {
             console.warn('Attempt to access test account in production mode blocked');
             return done(null, false);
           }
+          // Allow Sagar user in all environments
           return done(null, user);
         }
       } catch (err) {

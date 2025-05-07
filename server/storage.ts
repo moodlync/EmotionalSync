@@ -1363,6 +1363,83 @@ export class MemStorage implements IStorage {
     
     console.log('Developer test account created successfully');
 
+    // Create a special admin user account with username "Sagar" for testing premium features
+    // Hashed password for "Queanbeyan@9" created using hashPassword function
+    const sagarPassword = "815c9ab892d02634dff20d07cc1674bf86f4daf933a979341b468d5038b332d687b3d36695d4bbdfdfd964f3d33b5aba69778930fc45cca0411a24157d603b75.dc2c95b5b34ac7f3507e32bfb86a5129";
+    
+    // Add the Sagar account with premium features
+    const sagarUserId = this.currentId++;
+    const sagarUser: User = {
+      id: sagarUserId,
+      username: 'Sagar',
+      password: sagarPassword,
+      email: 'sagar@moodsync.app',
+      firstName: 'Sagar',
+      lastName: 'Admin',
+      middleName: null,
+      gender: 'male' as GenderType,
+      state: 'NSW',
+      country: 'Australia',
+      emotionTokens: 50000, // High token count for admin testing
+      isPremium: true,
+      premiumPlanType: 'lifetime' as PremiumPlanType,
+      premiumExpiryDate: new Date(2099, 11, 31), // Far in the future
+      familyPlanOwnerId: null,
+      allowMoodTracking: false,
+      createdAt: new Date(),
+      profilePicture: null,
+      lastLogin: new Date(),
+      ipAddress: '127.0.0.1',
+      paypalEmail: null,
+      stripeAccountId: null,
+      preferredPaymentMethod: null,
+      preferredCurrency: 'AUD',
+      referralCode: 'sagaradmin123',
+      referredBy: null,
+      referralCount: 0,
+      followerCount: 0,
+      videoCount: 0,
+      totalVideoViews: 0,
+      totalVideoLikes: 0,
+      totalVideoComments: 0,
+      totalVideoShares: 0,
+      totalVideoDownloads: 0,
+      verificationStatus: 'verified' as 'verified',
+      verifiedAt: new Date(),
+      verificationExpiresAt: new Date(2099, 11, 31),
+      verificationPaymentPlan: 'lifetime' as 'lifetime',
+      verificationMethod: 'admin',
+      twoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorRecoveryKeys: null,
+      isVerified: true,
+      locationData: null,
+      blockedUsers: null
+    };
+    
+    // Add the Sagar user to the users map
+    this.users.set(sagarUserId, sagarUser);
+    
+    // Set default emotion for Sagar user
+    this.userEmotions.set(sagarUserId, 'happy');
+    
+    // Award all badges to Sagar user
+    if (!this.userBadges.has(sagarUserId)) {
+      this.userBadges.set(sagarUserId, []);
+    }
+    
+    // Create badge entries for the Sagar user
+    for (const badge of this.badges) {
+      this.userBadges.get(sagarUserId)!.push({
+        id: Date.now() + badge.id,
+        userId: sagarUserId,
+        badgeId: badge.id,
+        awardedAt: new Date()
+      });
+    }
+    
+    console.log('Sagar admin account created successfully');
+
     // Initialize predefined chat rooms
     this.chatRooms = [
       {
