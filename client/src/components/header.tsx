@@ -95,10 +95,11 @@ export default function Header() {
         <Link to="/" className="flex items-center">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
             <HeaderLogoWithText 
-              logoSize={70} 
+              logoSize={100} 
               textSize="lg" 
               enableHeartbeat={logoHeartbeat}
               hideText={true}
+              className="bg-white dark:bg-white dark:bg-opacity-10 p-1 rounded-full"
             />
           </div>
         </Link>
@@ -149,130 +150,7 @@ export default function Header() {
             </TooltipProvider>
           )}
           
-          {/* Hide less important buttons on mobile */}
-          {user && (
-            <div className="hidden md:block">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/referrals" className="block">
-                      <Button 
-                        variant="ghost" 
-                        className="h-10 rounded-full bg-gray-100 dark:bg-white/20 hover:bg-gray-200 dark:hover:bg-white/30 transition-colors"
-                      >
-                        <Share2 className="h-4 w-4 text-gray-600 dark:text-white" />
-                      </Button>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Invite Friends</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          
-          {user && (
-            <div className="hidden md:block">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/videos" className="block">
-                      <Button 
-                        variant="ghost" 
-                        className="h-10 rounded-full bg-gray-100 dark:bg-white/20 hover:bg-gray-200 dark:hover:bg-white/30 transition-colors"
-                      >
-                        <Video className="h-4 w-4 text-gray-600 dark:text-white" />
-                      </Button>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Premium Videos</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          
-          {user && (
-            <div className="hidden md:block">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/friends" className="block">
-                      <Button 
-                        variant="ghost" 
-                        className="h-10 rounded-full bg-gray-100 dark:bg-white/20 hover:bg-gray-200 dark:hover:bg-white/30 transition-colors"
-                      >
-                        <Users className="h-4 w-4 text-gray-600 dark:text-white" />
-                      </Button>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Friend Book</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          
-          {user && (
-            <div className="hidden md:block">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/emotional-imprints" className="block">
-                      <Button 
-                        variant="ghost" 
-                        className="h-10 rounded-full bg-gray-100 dark:bg-white/20 hover:bg-gray-200 dark:hover:bg-white/30 transition-colors"
-                      >
-                        <Heart className="h-4 w-4 text-pink-400" />
-                      </Button>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Emotional Imprints</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          
-          {user && (
-            <div className="hidden md:block">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/contact" className="block">
-                      <Button 
-                        variant="ghost" 
-                        className="h-10 rounded-full bg-gray-100 dark:bg-white/20 hover:bg-gray-200 dark:hover:bg-white/30 transition-colors"
-                      >
-                        <HelpCircle className="h-4 w-4 text-gray-600 dark:text-white" />
-                      </Button>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Contact Support</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          
-          {/* System Test Button - Hide on mobile */}
-          <div className="hidden md:block">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <AppTestPanel />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>System Test</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+          {/* Removed buttons from header as requested */}
 
           {/* Notification Bell */}
           {user && (
@@ -404,6 +282,11 @@ export default function Header() {
                     <HelpCircle className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span className="truncate">Contact Support</span>
                   </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <div className="w-full">
+                    <AppTestPanel />
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>

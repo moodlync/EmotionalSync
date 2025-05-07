@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to login");
+        throw new Error(errorData.error || errorData.message || "Failed to login");
       }
       
       const adminUser = await response.json();
