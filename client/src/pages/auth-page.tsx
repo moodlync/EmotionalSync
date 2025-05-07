@@ -186,15 +186,9 @@ export default function AuthPage() {
             <div className="flex flex-col items-center justify-center py-4">
               {/* Logo with minimal glow and heartbeat effect */}
               <div className="mb-3">
-                <div className="relative flex items-center justify-center" style={{ width: "280px", height: "280px" }}>
-                  {/* Minimized background glow effect */}
-                  <div className="absolute inset-[-10%] scale-110 rounded-full bg-primary/5 blur-lg animate-pulse-slow" />
-                  
-                  {/* Minimal inner shadow */}
-                  <div className="absolute inset-[5%] rounded-full bg-white/40 blur-sm" />
-                  
+                <div className="flex items-center justify-center">
                   {/* Heartbeat container */}
-                  <div className="relative z-10 animate-heartbeat" style={{ 
+                  <div className="animate-heartbeat" style={{ 
                     transformOrigin: 'center',
                     animationDelay: '0.5s'
                   }}>
