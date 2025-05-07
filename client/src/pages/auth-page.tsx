@@ -181,12 +181,12 @@ export default function AuthPage() {
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Auth forms */}
       <div className="flex-1 flex items-center justify-center p-4 md:p-8">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-xl">
           <CardHeader className="space-y-4">
             <div className="flex flex-col items-center justify-center py-4">
               {/* Logo with minimal glow and heartbeat effect */}
               <div className="mb-3">
-                <div className="relative flex items-center justify-center" style={{ width: "200px", height: "200px" }}>
+                <div className="relative flex items-center justify-center" style={{ width: "280px", height: "280px" }}>
                   {/* Minimized background glow effect */}
                   <div className="absolute inset-[-10%] scale-110 rounded-full bg-primary/5 blur-lg animate-pulse-slow" />
                   
@@ -204,8 +204,10 @@ export default function AuthPage() {
                       className="w-full h-full object-contain rounded-full shadow-md"
                       style={{
                         boxShadow: 'inset 0 0 20px 5px rgba(96, 82, 199, 0.15), 0 2px 10px 2px rgba(96, 82, 199, 0.1)',
-                        width: '200px',
-                        height: '200px'
+                        width: '280px',
+                        height: '280px',
+                        filter: 'brightness(1.02) contrast(1.05)',
+                        imageRendering: 'high-quality'
                       }}
                     />
                   </div>
