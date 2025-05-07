@@ -9,6 +9,7 @@ import UserNftCollection from '@/components/premium-features/user-nft-collection
 import TokenPoolStats from '@/components/premium-features/token-pool-stats';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import MainLayout from '@/components/layout/main-layout';
 import { 
   Sparkles, 
   Info, 
@@ -39,12 +40,12 @@ export default function NftCollectionPage() {
     : 0;
 
   return (
-    <>
+    <MainLayout showBackButton={true} title="Emotional NFT Collection">
       <Helmet>
         <title>Emotional NFT Collection | MoodSync</title>
       </Helmet>
 
-      <div className="container max-w-6xl mx-auto py-8 px-4">
+      <div className="container max-w-6xl mx-auto py-4 px-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2 flex items-center">
@@ -247,6 +248,6 @@ export default function NftCollectionPage() {
           </Card>
         )}
       </div>
-    </>
+    </MainLayout>
   );
 }

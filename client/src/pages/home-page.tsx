@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import Header from '@/components/header';
-import BottomNavigation from '@/components/bottom-navigation';
 import ConnectTab from '@/components/connect-tab';
 import GlobalMapTab from '@/components/global-map-tab';
 import JournalTab from '@/components/journal-tab';
@@ -10,6 +8,8 @@ import GamificationTab from '@/components/gamification-tab';
 import RewardsCard from '@/components/rewards-card';
 import MoodSelectionModal from '@/components/mood-selection-modal';
 import StreakReminder from '@/components/gamification/streak-reminder';
+import BottomNavigation from '@/components/bottom-navigation';
+import MainLayout from '@/components/layout/main-layout';
 import Footer from '@/components/footer';
 import { EmotionType, emotions } from '@/lib/emotions';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -106,9 +106,7 @@ export default function HomePage() {
   const emotion = emotions[currentEmotion || 'neutral'];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
+    <MainLayout>
       <main className="container mx-auto px-4 pt-6 pb-20 flex-grow">
         {/* Enhanced Mood Snapshot (Hero Section) with improved visual effects */}
         <div className="flex flex-col items-center mb-8 md:mb-12 relative">
@@ -597,14 +595,11 @@ export default function HomePage() {
 
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       
-      {/* Import and use the Footer component */}
-      <Footer />
-      
       <MoodSelectionModal 
         isOpen={isModalOpen} 
         onClose={closeModal} 
         onSelectEmotion={handleEmotionChange}
       />
-    </div>
+    </MainLayout>
   );
 }

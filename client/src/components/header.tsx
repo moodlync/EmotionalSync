@@ -92,7 +92,7 @@ export default function Header() {
   return (
     <header className="bg-white dark:bg-black text-black dark:text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
             <HeaderLogoWithText 
               logoSize={100} 
