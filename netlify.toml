@@ -15,6 +15,7 @@
   NETLIFY_USE_YARN = "false"
   NPM_FLAGS = "--no-audit --no-fund --production"
   NPM_CONFIG_LEGACY_PEER_DEPS = "true"
+  NODE_VERSION = "18.18.0"
 
 [functions]
   node_bundler = "esbuild"

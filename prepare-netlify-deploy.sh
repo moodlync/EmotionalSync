@@ -9,8 +9,9 @@ mkdir -p $DEPLOY_DIR
 
 # Copy essential files for Netlify deployment
 echo "Copying essential files..."
-cp package.json $DEPLOY_DIR/
+cp deploy-package.json $DEPLOY_DIR/package.json
 cp netlify.toml $DEPLOY_DIR/
+cp .nvmrc $DEPLOY_DIR/
 
 # Copy netlify directory with functions
 echo "Copying Netlify functions..."
