@@ -561,8 +561,8 @@ var init_storage = __esm({
         const defaultAdminId = this.adminId++;
         const defaultAdmin = {
           id: defaultAdminId,
-          username: "test",
-          password: "aaaaaa",
+          username: "admin",
+          password: "Queanbeyan@9",
           // Password is stored securely in production
           email: "admin@moodsync.app",
           firstName: "Admin",
@@ -9469,34 +9469,45 @@ function setupAuth(app2) {
       next(err);
     }
   });
-  app2.post("/api/login", passport.authenticate("local"), async (req, res) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ error: "Authentication failed" });
+  app2.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ error: "Internal server error during authentication" });
       }
-      const tokensEarned = 10;
-      const rewardActivity = await storage.createRewardActivity(
-        req.user.id,
-        "daily_login",
-        tokensEarned,
-        "Daily login reward"
-      );
-      const tokenBalance = await storage.getUserTokens(req.user.id);
-      res.status(200).json({
-        user: req.user,
-        tokens: {
-          balance: tokenBalance,
-          earned: tokensEarned
+      if (!user) {
+        return res.status(401).json({
+          error: "Authentication failed",
+          message: "Invalid username or password"
+        });
+      }
+      req.logIn(user, async (loginErr) => {
+        if (loginErr) {
+          console.error("Login session error:", loginErr);
+          return res.status(500).json({ error: "Failed to create login session" });
+        }
+        try {
+          const tokensEarned = 10;
+          const rewardActivity = await storage.createRewardActivity(
+            user.id,
+            "daily_login",
+            tokensEarned,
+            "Daily login reward"
+          );
+          const tokenBalance = await storage.getUserTokens(user.id);
+          return res.status(200).json({
+            user,
+            tokens: {
+              balance: tokenBalance,
+              earned: tokensEarned
+            }
+          });
+        } catch (error) {
+          console.error("Error processing login rewards:", error);
+          return res.status(200).json(user);
         }
       });
-    } catch (error) {
-      console.error("Error processing login rewards:", error);
-      if (req.user) {
-        res.status(200).json(req.user);
-      } else {
-        res.status(500).json({ error: "Internal server error" });
-      }
-    }
+    })(req, res, next);
   });
   app2.post("/api/logout", (req, res, next) => {
     req.logout((err) => {
@@ -10155,74 +10166,120 @@ async function registerRoutes(app2) {
   setupAuth(app2);
   app2.use("/uploads", express3.static(path2.join(__dirname, "../uploads")));
   const httpServer = createServer(app2);
-  const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+  let wss;
+  const initializeWebSocketServer = () => {
+    try {
+      if (wss) {
+        try {
+          wss.close();
+          console.log("Closed existing WebSocket server");
+        } catch (wsCloseError) {
+          console.error("Error closing existing WebSocket server:", wsCloseError);
+        }
+      }
+      wss = new WebSocketServer({
+        server: httpServer,
+        path: "/ws",
+        // Prevent crashing on connection errors
+        clientTracking: true,
+        perMessageDeflate: {
+          zlibDeflateOptions: {
+            chunkSize: 1024,
+            memLevel: 7,
+            level: 3
+          },
+          zlibInflateOptions: {
+            chunkSize: 10 * 1024
+          },
+          // Below options specified as default values
+          concurrencyLimit: 10,
+          threshold: 1024
+        }
+      });
+      const address = httpServer.address();
+      const port = typeof address === "object" && address ? address.port : "unknown";
+      console.log(`WebSocket server initialized on port ${port}`);
+      httpServer.wss = wss;
+      setupWebSocketHandlers();
+      return true;
+    } catch (error) {
+      console.error("Failed to initialize WebSocket server:", error);
+      return false;
+    }
+  };
   const clients = [];
   setupAutomaticChallengeUpdates();
   setupTrialCheckSchedule();
-  wss.on("connection", (socket) => {
-    console.log("WebSocket client connected");
-    socket.on("message", async (message) => {
-      try {
-        const data = JSON.parse(message.toString());
-        if (data.type === "register" && data.userId) {
-          const existingClientIndex = clients.findIndex((c) => c.id === data.userId);
-          if (existingClientIndex >= 0) {
-            clients[existingClientIndex].socket = socket;
-            clients[existingClientIndex].emotion = data.emotion || "neutral";
-          } else {
-            clients.push({
-              id: data.userId,
-              socket,
-              emotion: data.emotion || "neutral"
-            });
-          }
-          socket.send(JSON.stringify({
-            type: "registered",
-            success: true
-          }));
-        } else if (data.type === "emotion_update" && data.userId && data.emotion) {
-          const client = clients.find((c) => c.id === data.userId);
-          if (client) {
-            client.emotion = data.emotion;
+  const setupWebSocketHandlers = () => {
+    if (!wss) {
+      console.error("WebSocket server not initialized yet");
+      return;
+    }
+    wss.on("connection", (socket) => {
+      console.log("WebSocket client connected");
+      socket.on("message", async (message) => {
+        try {
+          const data = JSON.parse(message.toString());
+          if (data.type === "register" && data.userId) {
+            const existingClientIndex = clients.findIndex((c) => c.id === data.userId);
+            if (existingClientIndex >= 0) {
+              clients[existingClientIndex].socket = socket;
+              clients[existingClientIndex].emotion = data.emotion || "neutral";
+            } else {
+              clients.push({
+                id: data.userId,
+                socket,
+                emotion: data.emotion || "neutral"
+              });
+            }
+            socket.send(JSON.stringify({
+              type: "registered",
+              success: true
+            }));
+          } else if (data.type === "emotion_update" && data.userId && data.emotion) {
+            const client = clients.find((c) => c.id === data.userId);
+            if (client) {
+              client.emotion = data.emotion;
+              clients.forEach((c) => {
+                if (c.id !== data.userId && c.emotion === data.emotion && c.socket.readyState === WebSocket.OPEN) {
+                  c.socket.send(JSON.stringify({
+                    type: "new_connection",
+                    emotion: data.emotion
+                  }));
+                }
+              });
+            }
+          } else if (data.type === "chat_message" && data.roomId && data.userId && data.message) {
+            const roomEmotion = data.roomEmotion;
             clients.forEach((c) => {
-              if (c.id !== data.userId && c.emotion === data.emotion && c.socket.readyState === WebSocket.OPEN) {
+              if (c.emotion === roomEmotion && c.socket.readyState === WebSocket.OPEN) {
                 c.socket.send(JSON.stringify({
-                  type: "new_connection",
-                  emotion: data.emotion
+                  type: "chat_message",
+                  roomId: data.roomId,
+                  userId: data.userId,
+                  username: data.username,
+                  message: data.message,
+                  encrypted: data.encrypted || false,
+                  // Pass through the encryption flag
+                  timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+                  avatarUrl: data.avatarUrl || null
                 }));
               }
             });
           }
-        } else if (data.type === "chat_message" && data.roomId && data.userId && data.message) {
-          const roomEmotion = data.roomEmotion;
-          clients.forEach((c) => {
-            if (c.emotion === roomEmotion && c.socket.readyState === WebSocket.OPEN) {
-              c.socket.send(JSON.stringify({
-                type: "chat_message",
-                roomId: data.roomId,
-                userId: data.userId,
-                username: data.username,
-                message: data.message,
-                encrypted: data.encrypted || false,
-                // Pass through the encryption flag
-                timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-                avatarUrl: data.avatarUrl || null
-              }));
-            }
-          });
+        } catch (error) {
+          console.error("Error processing WebSocket message:", error);
         }
-      } catch (error) {
-        console.error("Error processing WebSocket message:", error);
-      }
+      });
+      socket.on("close", () => {
+        console.log("WebSocket client disconnected");
+        const index = clients.findIndex((c) => c.socket === socket);
+        if (index !== -1) {
+          clients.splice(index, 1);
+        }
+      });
     });
-    socket.on("close", () => {
-      console.log("WebSocket client disconnected");
-      const index = clients.findIndex((c) => c.socket === socket);
-      if (index !== -1) {
-        clients.splice(index, 1);
-      }
-    });
-  });
+  };
   app2.get("/api/user/premium-status", requireAuth5, (req, res) => {
     res.json({
       isPremium: req.user?.isPremium || false,
@@ -13799,6 +13856,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Server error" });
     }
   });
+  httpServer.initializeWebSocketServer = initializeWebSocketServer;
   return httpServer;
 }
 
@@ -13945,12 +14003,77 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
-  const port = 5e3;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true
-  }, () => {
-    log(`MoodLync server running on port ${port}`);
-  });
+  let boundPort = null;
+  let websocketInitialized = false;
+  const replitPort = process.env.PORT ? parseInt(process.env.PORT, 10) : null;
+  const tryListen = (port, maxRetries = 3, retryCount = 0) => {
+    if (boundPort !== null) {
+      log(`Server already running on port ${boundPort}`);
+      return;
+    }
+    if (replitPort && port !== replitPort) {
+      log(`Using Replit-assigned port: ${replitPort}`);
+      port = replitPort;
+    }
+    const serverOpts = {
+      port,
+      host: "0.0.0.0",
+      reusePort: true
+    };
+    try {
+      if (server._handle) server.close();
+    } catch (error) {
+    }
+    try {
+      if (process.env.NODE_ENV === "development") {
+        log(`Attempting to force bind to port ${port} for Replit compatibility`);
+      }
+    } catch (error) {
+    }
+    server.listen(serverOpts, () => {
+      try {
+        const address = server.address();
+        const actualPort = typeof address === "object" && address ? address.port : port;
+        boundPort = actualPort;
+        log(`MoodLync server running on port ${actualPort}`);
+        if (!websocketInitialized) {
+          const initializeWebSocketServer = server["initializeWebSocketServer"];
+          if (typeof initializeWebSocketServer === "function") {
+            try {
+              initializeWebSocketServer();
+              websocketInitialized = true;
+              log(`WebSocket server initialized on port ${actualPort}`);
+            } catch (error) {
+              console.error("Failed to initialize WebSocket server:", error);
+            }
+          } else {
+            console.warn("WebSocket server initialization function not found");
+          }
+        }
+      } catch (error) {
+        console.error("Error during server initialization:", error);
+      }
+    }).on("error", (err) => {
+      if (err.code === "EADDRINUSE" && retryCount < maxRetries) {
+        const nextPort = replitPort || port + 1;
+        if (replitPort && replitPort === port) {
+          log(`Replit port ${port} is in use, but we must use this port. Attempting forced bind...`);
+          setTimeout(() => tryListen(port, maxRetries, retryCount + 1), 1e3);
+        } else {
+          log(`Port ${port} is already in use, trying port ${nextPort}...`);
+          tryListen(nextPort, maxRetries, retryCount + 1);
+        }
+      } else {
+        console.error(`Failed to start server: ${err.message}`);
+        if (process.env.NODE_ENV === "development" && !replitPort) {
+          const emergencyPort = 8080;
+          log(`Trying emergency port ${emergencyPort}...`);
+          tryListen(emergencyPort, 0, 0);
+        } else {
+          process.exit(1);
+        }
+      }
+    });
+  };
+  tryListen(replitPort || 5e3);
 })();
