@@ -8,6 +8,44 @@
     image-rendering: crisp-edges;
     -ms-interpolation-mode: nearest-neighbor;
   }
+  
+  /* Soft breathing animations for mood-related elements */
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.015);
+    }
+  }
+  
+  @keyframes mood-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.01);
+    }
+  }
+  
+  @keyframes micro-bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+  
+  .animate-micro-bounce {
+    animation: micro-bounce 2s ease-in-out infinite;
+  }
+  
+  .emotion-orb {
+    transition: all 0.5s ease-in-out;
+  }
 }
 
 @layer base {
@@ -206,6 +244,10 @@
     transform: translateY(0) translateX(0);
     opacity: 0.3;
   }
+}
+
+.animate-float {
+  animation: float 15s ease-in-out infinite;
 }
 
 :root {
@@ -688,6 +730,21 @@
 
 .animate-fadeIn {
   animation: fadeIn 1s ease both;
+}
+
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 /* Wave animation for AI-generated video */

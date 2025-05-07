@@ -1,0 +1,139 @@
+*when a user logs in the interior of the app looks very minimal and simplistic make it more eye appealing to the user
+
+UI/UX Design Prompt
+Goal: Transform Moodlync’s post-login dashboard into a visually immersive yet clean experience that delights users while prioritizing mood tracking and social connection.
+
+1. Core Principles
+"Calm Complexity": Simple layout with micro-interactions (e.g., gentle pulses when moods update).
+
+2. Key Sections to Elevate
+A. Mood Snapshot (Hero Section)
+
+Dynamic "Mood Orb":
+
+A live blob (like a lava lamp) that shifts color/opacity based on real-time mood.
+
+Tap to log feelings; hold to see AI insights (e.g., “Your orb is 70% calm today”).
+
+Minimalist Stats:
+
+“Weekly streak: 5 days 🔥” (tiny animated fire).
+
+B. Social Connection Hub
+
+"Live Mood Map":
+
+A minimal globe with glowing dots (friends’ moods); pinch to zoom.
+
+Example: Blue dot = calm; gold dot = happy.
+
+Quick Actions:
+
+Floating "+" button that expands to:
+
+Sync (match moods),
+
+Chat (open #GratefulToday room).
+
+C. AI Insights Panel
+
+"Pattern Cards":
+
+Sleek, swipeable cards like:
+“You’re 40% calmer after yoga. Try now?”
+
+AI Coach Avatar:
+
+A subtle abstract face (e.g., two dots + curve) that winks when new insights arrive.
+
+3. Micro-Interactions
+Mood Logging:
+
+Emoji slider sparks confetti when dragged to “Happy.”
+
+Notifications:
+
+Pulse from the app icon like a heartbeat.
+
+5. Dark/Light Mode
+Dark: Deep space blue (#0D0D15) with neon teal accents.
+
+Light: Oat milk (#F2EFE5) with pastel highlights.
+
+🎯 Example Output Description
+*"After login, users see their Mood Orb (a shimmering teal blob) centered on a serene dark blue screen. Below, the Live Mood Map shows three glowing dots (friends). A ‘+’ button floats at the bottom—tapping it reveals ‘Sync’ and ‘Chat’ options with a honeycomb animation. Swiping left shows AI cards like, ‘You journaled 5x this week. Keep going! 🌱’ in soft gold text."*
+
+🚀 Tools to Execute
+Figma/Canva: For mockups.
+
+Lottie: For micro-animations.
+
+AI Tools: MidJourney for mood orb inspo.
+
+*Also
+
+1) Remove all Learn more buttons from /welcome page
+2) Also remove Premium Features
+View all premium features from /welcome page
+
+*Also List more key features on /welcome page under Explore Our Key Features
+
+*Important create exclusive login creditentials for the admin to login through /auth page and test all the trial or premium features without any payment required.
+once the admin logs in through the front end of the app he will be able to join any premium subscriptions without any payments required and once he hits the subscribe or join button he is given access to any premium subscription plan he wants to test.
+Create login creditentials with user name as Sagar and Password as Queanbeyan@9
+
+*Under Premium Plans Comparison - Design the family plan page in more professional way as it is all cluttered and features are hard to compare.
+All update these changes on all pages of the app and also on /auth and /welcome page and also when a user logs in to see these pages or compare or see plan features when they are logged in.
+
+*Also make changes in the premium subscription plans:
+
+
+*For individual plans change it to only monthly, yearly and 5 year remove quaterly and lifetime plans. Include a trail version as well, user can start a trial for 14 days and he can try all the premium app features. Once the trial period ends the subscription is downgraded to a normal user with all normal functionalities till the time they choose a subscription plan.
+*In individual plan under Gold subscriptions user get access to all "core features" " All AI powered features" "all premium content features"
+*In individual plan under Platinum subscriptions user get access to all "core features" " All AI powered features" "all premium content features" "Advanced tools like - Global Mood map"
+*In individual plan under Diamond subscriptions user get access to all "core features" " All AI powered features" "all premium content features" "Advanced tools like - Time Machine Journal, Vip challanges and Global Mood map"
+*In individual plan under Legacy subscriptions user get access to all "core features" " All AI powered features" "all premium content features" "All Advanced tools"
+
+*Also update the price for Individual plans as below:
+
+For Gold Monthly set to : $6.99
+For Platinum Monthly set to : $9.99
+For Diamond Monthly set to : $14.99
+For Legacy Monthly set to : $19.99
+
+For Gold Yearly set to : $79.99
+For Platinum Yearly set to : $109.99
+For Diamond Yearly set to : $149.99
+For Legacy Yearly set to : $219.99
+
+For Gold 5 year set to : $249.99
+For Platinum 5 years to : $369.99
+For Diamond 5 years set to : $499.99
+For Legacy 5 years set to : $699.99
+
+*For family plans change it to only monthly, yearly and 5 year remove lifetime plans. Include a trail version as well, user can start a trial for 14 days and they can try all the premium app features. Once the trial period ends the subscription is downgraded to a normal user with all normal functionalities till the time they choose a subscription plan.
+*Also update the price for Family plans as below:
+
+For Family Gold Monthly set to : $14.99
+For Family Diamond Monthly set to : $19.99
+For Family Legacy Monthly set to : $24.99
+
+For Family Gold yearly set to : $149.99
+For Family Diamond yearly set to : $249.99
+For Family Legacy yearly set to : $399.99
+
+For Family Gold 5 yearly set to : $299.99
+For Family Diamond 5 yearly set to : $449.99
+For Family Legacy 5 yearly set to : $699.99
+
+*Also on the /welcome page remove VIP Membership
+Premium Subscription Plans section.
+
+*Also create a Premium plan section on /welcome page above the success stories section
+
+
+
+
+
+
+
