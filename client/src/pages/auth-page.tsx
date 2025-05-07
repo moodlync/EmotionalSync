@@ -10,9 +10,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import { 
-  Loader2, Heart, Eye, EyeOff, Info, ArrowRight, Brain, Shield, Star,
-  Sparkles, MapPin, MessageCircle, Users, Gamepad, BarChart3, Crown, Bot
+  Loader2, Heart, Eye, EyeOff, Info, ArrowRight, Brain, Shield, Star, AlertCircle, AlertTriangle,
+  Sparkles, MapPin, MessageCircle, Users, Gamepad, BarChart3, Crown, Bot, CheckCircle
 } from "lucide-react";
 import DynamicLogoWithText from "@/components/logo/dynamic-logo-with-text";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -54,6 +55,7 @@ const registerSchema = insertUserSchema.extend({
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
+  const { toast } = useToast();
   const [location, navigate] = useLocation();
   const [userGender, setUserGender] = useState<GenderType | null>(null);
   const [showDevPanel, setShowDevPanel] = useState<boolean>(false);
@@ -1048,18 +1050,42 @@ export default function AuthPage() {
                       />
                     </Button>
                     
+                    {/* Form-level validation errors */}
+                    {registerForm.formState.errors.root && (
+                      <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-md text-sm text-amber-700 dark:text-amber-400 flex items-start">
+                        <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 text-amber-500" />
+                        <div>
+                          <p className="font-medium">Registration Issue</p>
+                          <p>{registerForm.formState.errors.root.message}</p>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Registration status messages */}
                     {registerMutation.isError && (
-                      <div className="mt-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-600 dark:text-red-400">
-                        <p className="font-medium">Registration failed</p>
-                        <p>{registerMutation.error?.message || "Please check your information and try again."}</p>
+                      <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 rounded-md text-sm text-red-600 dark:text-red-400 flex items-start">
+                        <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 text-red-500" />
+                        <div>
+                          <p className="font-medium">Registration failed</p>
+                          <p>{registerMutation.error?.message || "Please check your information and try again."}</p>
+                          <ul className="mt-2 list-disc list-inside space-y-1 text-xs">
+                            <li>Check if your username contains only letters, numbers, underscores or hyphens</li>
+                            <li>Ensure your password is at least 8 characters long</li>
+                            <li>Verify your email address is correct</li>
+                            <li>Check your internet connection</li>
+                          </ul>
+                          <p className="mt-2 text-xs">If you continue to have issues, please contact support at <span className="font-medium">support@moodlync.com</span></p>
+                        </div>
                       </div>
                     )}
                     
                     {registerMutation.isSuccess && (
-                      <div className="mt-4 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md text-sm text-green-600 dark:text-green-400">
-                        <p className="font-medium">Account created successfully!</p>
-                        <p>You are now logged in to MoodLync. Redirecting you to the app...</p>
+                      <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-md text-sm text-green-600 dark:text-green-400 flex items-start">
+                        <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                        <div>
+                          <p className="font-medium">Account created successfully!</p>
+                          <p>You are now logged in to MoodLync. Redirecting you to the app...</p>
+                        </div>
                       </div>
                     )}
                   </form>
