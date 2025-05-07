@@ -2,6 +2,8 @@
   # Comprehensive build command with explicit dependency installation and custom installation script
   command = """
     export NPM_CONFIG_AUDIT=false &&
+    npm install --no-audit --no-fund --production &&
+    node netlify-build-fix.js &&
     npm install --no-audit --no-fund --production serverless-http cors express body-parser express-session memorystore uuid && 
     NODE_ENV=production npm run build && 
     node netlify/functions/install.js

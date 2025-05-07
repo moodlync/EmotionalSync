@@ -122,8 +122,9 @@ After successful deployment, test the following features:
 6. **Serverless Function Dependency Issues**:
    - If you encounter errors about missing `serverless-http` or `cors` dependencies, the following solutions have been implemented:
      - Enhanced `netlify.toml` build command that explicitly installs required dependencies
-     - Custom installation script (`netlify/functions/install.js`) that handles dependency installation  
-     - Compatibility mode function (`api.cjs`) that provides a fallback API
+     - Custom installation script (`netlify/functions/install.js`) that handles dependency installation
+     - CommonJS compatibility mode (`api.cjs`) that provides a fallback API implementation
+     - Fallback entry point (`netlify.js`) that resolves to the CJS module when needed
      - `.npmrc` configuration in the functions directory to bypass audit warnings
    
    If these issues persist:
@@ -132,6 +133,7 @@ After successful deployment, test the following features:
      export NPM_CONFIG_AUDIT=false && npm install --no-audit --legacy-peer-deps serverless-http cors express body-parser express-session memorystore uuid && NODE_ENV=production npm run build && node netlify/functions/install.js
      ```
    - Add the environment variable `NPM_CONFIG_LEGACY_PEER_DEPS=true` in Netlify settings
+   - If the problem is specifically with `serverless-http`, try renaming `netlify/functions/api.cjs` to `netlify/functions/api.js` to force using the CommonJS version
 
 ### Getting Support
 
