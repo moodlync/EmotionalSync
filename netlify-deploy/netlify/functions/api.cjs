@@ -6,6 +6,19 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const path = require('path');
+
+// Use a safer approach for determining paths in Netlify environment
+let projectRoot;
+try {
+  // Standard approach
+  projectRoot = path.resolve(__dirname, '../..');
+} catch (error) {
+  // Fallback for Netlify Functions environment
+  console.log("Using fallback method for file paths in Netlify environment");
+  projectRoot = process.cwd();
+}
 
 // Create the express app
 const app = express();
@@ -63,8 +76,50 @@ app.get('/.netlify/functions/api/auth/status', (req, res) => {
   });
 });
 
+// Registration endpoint
+app.post('/.netlify/functions/api/register', (req, res) => {
+  try {
+    const { username, email, password, firstName, lastName, gender, state, country } = req.body;
+    
+    // Simple validation
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email and password are required' });
+    }
+    
+    // Check if username already exists (simple mock check)
+    if (username === 'admin') {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+    
+    // Create user (mock)
+    const userId = Math.floor(Math.random() * 1000) + 1;
+    
+    // Auto-login the user
+    req.session.userId = userId;
+    req.session.username = username;
+    
+    return res.status(201).json({
+      id: userId,
+      username,
+      email,
+      firstName: firstName || '',
+      lastName: lastName || '',
+      gender: gender || 'prefer_not_to_say',
+      state: state || '',
+      country: country || '',
+      createdAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    return res.status(500).json({ 
+      error: 'Registration failed',
+      details: error.message
+    });
+  }
+});
+
 // Add mock login endpoint for testing
-app.post('/.netlify/functions/api/auth/login', (req, res) => {
+app.post('/.netlify/functions/api/login', (req, res) => {
   const { username, password } = req.body;
   
   // Simple validation
@@ -73,13 +128,17 @@ app.post('/.netlify/functions/api/auth/login', (req, res) => {
   }
   
   // Mock successful login
-  req.session.userId = 1;
+  const userId = Math.floor(Math.random() * 1000) + 1;
+  req.session.userId = userId;
   req.session.username = username;
   
   return res.json({
-    success: true,
-    message: 'Login successful',
-    user: { id: 1, username }
+    id: userId,
+    username,
+    firstName: 'Test',
+    lastName: 'User',
+    email: `${username}@example.com`,
+    role: username === 'admin' ? 'admin' : 'user'
   });
 });
 

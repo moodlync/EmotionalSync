@@ -20,6 +20,76 @@ try {
   // Provide fallback implementations if imports fail
   registerRoutes = (app) => {
     console.log('Using fallback routes implementation');
+    
+    // Add registration endpoint
+    app.post('/.netlify/functions/api/register', (req, res) => {
+      try {
+        const { username, email, password, firstName, lastName, gender, state, country } = req.body;
+        
+        // Simple validation
+        if (!username || !email || !password) {
+          return res.status(400).json({ error: 'Username, email and password are required' });
+        }
+        
+        // Create user (mock)
+        const userId = Math.floor(Math.random() * 1000) + 1;
+        
+        // Auto-login the user
+        req.session.userId = userId;
+        req.session.username = username;
+        
+        return res.status(201).json({
+          id: userId,
+          username,
+          email,
+          firstName: firstName || '',
+          lastName: lastName || '',
+          gender: gender || 'prefer_not_to_say',
+          state: state || '',
+          country: country || '',
+          createdAt: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error('Registration error:', error);
+        return res.status(500).json({ 
+          error: 'Registration failed',
+          details: error.message
+        });
+      }
+    });
+    
+    // Add login endpoint
+    app.post('/.netlify/functions/api/login', (req, res) => {
+      try {
+        const { username, password } = req.body;
+        
+        // Simple validation
+        if (!username || !password) {
+          return res.status(400).json({ error: 'Username and password required' });
+        }
+        
+        // Mock successful login
+        const userId = Math.floor(Math.random() * 1000) + 1;
+        req.session.userId = userId;
+        req.session.username = username;
+        
+        return res.json({
+          id: userId,
+          username,
+          firstName: 'Test',
+          lastName: 'User',
+          email: `${username}@example.com`,
+          role: username === 'admin' ? 'admin' : 'user'
+        });
+      } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ 
+          error: 'Login failed',
+          details: error.message
+        });
+      }
+    });
+    
     return app;
   };
   setupAuth = (app) => {
