@@ -32,19 +32,32 @@ const defaultContextValue: AuthContextType = {
 export const AuthContext = createContext<AuthContextType>(defaultContextValue);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+  
+  // Check if we're running in Netlify environment for API paths
+  const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
+  const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
+  
+  console.log(`Using API path for user data: ${userApiPath} (Netlify: ${isNetlify})`);
+  
   const {
     data: user,
     error,
     isLoading,
   } = useQuery<SelectUser | null, Error>({
-    queryKey: ["/api/user"],
+    queryKey: [userApiPath],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       try {
-        const res = await apiRequest("POST", "/api/login", credentials);
+        // Check if we're running in Netlify environment
+        const isNetlify = window.location.hostname.includes('netlify.app');
+        const apiPath = isNetlify ? "/.netlify/functions/api/login" : "/api/login";
+        
+        console.log(`Using API path for login: ${apiPath} (Netlify: ${isNetlify})`);
+        
+        const res = await apiRequest("POST", apiPath, credentials);
         
         // Check if the response is ok before trying to parse the JSON
         if (!res.ok) {
@@ -79,7 +92,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     onSuccess: (user: SelectUser) => {
-      queryClient.setQueryData(["/api/user"], user);
+      // Update cache using the same path that was used to fetch user data
+      const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
+      const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
+      
+      queryClient.setQueryData([userApiPath], user);
       toast({
         title: "Welcome back!",
         description: `You're logged in as ${user.username}`,
@@ -107,7 +124,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error("You appear to be offline. Please check your internet connection and try again.");
         }
         
-        const res = await apiRequest("POST", "/api/register", credentials);
+        // Check if we're running in Netlify environment
+        const isNetlify = window.location.hostname.includes('netlify.app');
+        const apiPath = isNetlify ? "/.netlify/functions/api/register" : "/api/register";
+        
+        console.log(`Using API path for registration: ${apiPath} (Netlify: ${isNetlify})`);
+        
+        const res = await apiRequest("POST", apiPath, credentials);
         console.log("Registration response status:", res.status, res.statusText);
         
         // Check if the response is ok before trying to parse the JSON
@@ -193,7 +216,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     onSuccess: (user: SelectUser) => {
-      queryClient.setQueryData(["/api/user"], user);
+      // Update cache using the same path that was used to fetch user data
+      const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
+      const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
+      
+      queryClient.setQueryData([userApiPath], user);
       toast({
         title: "Account created!",
         description: `Welcome to MoodSync, ${user.username}!`,
@@ -211,10 +238,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      // Check if we're running in Netlify environment
+      const isNetlify = window.location.hostname.includes('netlify.app');
+      const apiPath = isNetlify ? "/.netlify/functions/api/logout" : "/api/logout";
+      
+      console.log(`Using API path for logout: ${apiPath} (Netlify: ${isNetlify})`);
+      
+      await apiRequest("POST", apiPath);
     },
     onSuccess: () => {
-      queryClient.setQueryData(["/api/user"], null);
+      // Update cache using the same path that was used to fetch user data
+      const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
+      const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
+      
+      queryClient.setQueryData([userApiPath], null);
       toast({
         title: "Logged out",
         description: "You've been successfully logged out",
