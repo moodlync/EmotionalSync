@@ -1,0 +1,25 @@
+Create a verification button next to the User profile once they sign up as premium member.
+
+Once the user sign up as premium member of the app their account is still not verified and a button next to their name will show as not verified with a red circle displayed in front of it.
+
+In order to be verified the customer has to click on the not verified button, once the button is pressed the customer will be presented with a new tab or page which will ask them for the additional information for verification.
+
+The form will include
+Full legal name or any middle name
+DOB
+Address which matched their Id 
+State , country, post code or zip code.
+Form of Identification.
+Present customer with a list of identification accepted depending on the country they are from.
+Please search the internet and provide customer with relevant id option to choose from as a drop down menu.
+The customer has to update any 2 form of identification suggested
+Give them the option to upload their id from all type of devices and also the capability to take a picture of their id and submit.
+Create a verification system in the backend when identification files are submitted the system automatically verifies and authenticates the users profile.
+Once the identification is all verified the customer profile will be shown as verified and it will be also verified to other users of the app.
+Once the identification process is completed and authenticated by the system the customer profile will display a symbol of man saluting them with a green verified button in the front of it.
+
+In order to complete the verification process the customer should be asked to pay $2.99 monthly fees to they can also go for a yearly fees of $19.99
+
+Once the customer has selected the plan they want they should be taken to payment options like credit card or debit card or PayPal or Stripe 
+
+Once the payment goes through the verification process will begin in the backend and the customer profile will start showing a verified sign on the profile with in 24 hours.

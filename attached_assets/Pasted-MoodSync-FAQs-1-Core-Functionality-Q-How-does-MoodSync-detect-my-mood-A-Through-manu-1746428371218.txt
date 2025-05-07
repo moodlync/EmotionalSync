@@ -1,0 +1,357 @@
+MoodSync FAQs 
+
+1. Core Functionality 
+
+Q: How does MoodSync detect my mood? 
+
+A: Through manual input (emoji sliders), optional AI selfie analysis (via Affectiva), and journal sentiment tracking. Standout: Combines tech + human choice for accuracy. 
+
+Q: Can I use MoodSync anonymously? 
+
+A: Yes! Use a pseudonym and disable face detection. Standout: Privacy-first design in a social app. 
+
+Q: How do mood-based chat rooms work? 
+
+A: Join rooms like "#HappyVibes" or "#NeedSupport" matched to your current mood. Standout: No small talk—connect over shared emotions. 
+
+ 
+
+2. Token Economy & Rewards 
+
+Q: How do I earn tokens? 
+
+A: Logging in daily (+5), journaling (+10), sharing milestones (+15), or referring friends (+20). Standout: Rewards consistency, not just engagement. 
+
+Q: What can I redeem tokens for? 
+
+A: Premium features (e.g., 1-day pass = 50 tokens), charity donations ($1 = 1000 tokens). Standout: Real-world value beyond the app. 
+
+Q: Why decrease token rewards by 75%? 
+
+A: To encourage meaningful engagement (e.g., journaling > spamming). Standout: Anti-addiction design. 
+
+ 
+
+3. Premium Features 
+
+Q: Is the family plan worth it? 
+
+A: Yes! Track moods of consenting members (e.g., teens/elders) and pool tokens. Standout: Unique "emotional wellness for families" focus. 
+
+Q: What’s in the AI video editor? 
+
+A: Auto-captioning mood themes (e.g., "Calm Morning") + B-roll suggestions. Standout: Helps creators share mental health stories easily. 
+
+ 
+
+4. Privacy & Safety 
+
+Q: Who sees my mood data? 
+
+A: Only you, unless you share it (e.g., family plan) or join public rooms. Standout: Granular control over data sharing. 
+
+Q: How do you moderate harmful content? 
+
+A: AI flags keywords + human moderators review reports. Standout: Proactive mental health safeguards. 
+
+ 
+
+5. Technical Issues 
+
+Q: Why no Spotify integration for music? 
+
+A: Licensing costs—but we offer royalty-free classical/lo-fi. Standout: No ads or paywalls in music. 
+
+Q: Can I use MoodSync offline? 
+
+A: Yes! Journal and track moods offline; syncs when back online. Standout: Built for low-connectivity users. 
+
+ 
+
+Why MoodSync Stands Out 
+
+Emotion-Centric Socializing 
+
+Unlike Facebook (status updates) or TikTok (entertainment), MoodSync fosters connections based on real-time emotional states. 
+
+Token Economy with Purpose 
+
+Unlike gamified apps (Duolingo), tokens support mental health habits and real-world impact (donations). 
+
+Family Wellness Focus 
+
+No competitor offers consent-based mood tracking for families + token gifting to motivate loved ones. 
+
+AI That Reflects, Not Just Reacts 
+
+Journal insights go beyond generic advice (e.g., "You use ‘anxiety’ 5x more on Sundays—try these meditations"). 
+
+Ethical Design 
+
+No mood data sold to advertisers. Premium features are accessible via tokens without paywalls. 
+
+ 
+
+Potential User Concerns & Reassurances 
+
+"Isn’t mood tracking invasive?" → Opt-out of AI detection; manual input only. 
+
+"Why social features?" → Loneliness worsens mental health; MoodSync encourages meaningful connections. 
+
+"Is this just another therapy app?" → No—it’s a hybrid of social support, self-reflection, and preventive care. 
+
+ 
+
+ 
+
+MoodSync: Detailed FAQ Guide 
+
+1. Core Functionality 
+
+Q: How does MoodSync detect my mood? 
+A: MoodSync uses a multi-layered approach for accuracy and flexibility: 
+
+Manual Input: Slide emoji scales (😢→😊) or pick from 50+ nuanced moods (e.g., "Anxious but hopeful"). 
+
+AI Detection (Optional): Enable camera to analyze facial expressions via Affectiva’s emotion recognition API (e.g., raised eyebrows = surprise). 
+
+Text Analysis: Journals scan for keywords + sentiment (e.g., "overwhelmed" flags stress). 
+Why It Stands Out: Unlike apps that only use AI (which can misread), MoodSync combines tech with human self-awareness. 
+
+ 
+
+Q: Can I use MoodSync anonymously? 
+A: Absolutely. Here’s how we protect privacy: 
+
+No Real Names: Sign up with a pseudonym (e.g., "SunnySide22"). 
+
+Incognito Mode: Disable face detection and location sharing. 
+
+Data Control: Delete mood logs anytime—we don’t store them permanently. 
+Why It Stands Out: Competitors like Facebook require real identities; MoodSync prioritizes emotional honesty without exposure. 
+
+ 
+
+Q: How do mood-based chat rooms work? 
+A: A dynamic system to match emotional needs: 
+
+Auto-Suggested Rooms: Join "#GratefulToday" if you log "happy" or "#NeedAHug" if you’re "lonely." 
+
+Support/Mirror Toggle: 
+
+Support Mode: Connect with opposite moods (e.g., calm users comfort anxious ones). 
+
+Mirror Mode: Bond with similar moods (e.g., excited users hype each other up). 
+
+Safety Features: Rooms are moderated; users can report toxicity. 
+Why It Stands Out: Unlike Discord’s interest-based chats, MoodSync rooms are emotionally intentional. 
+
+ 
+
+2. Token Economy & Rewards 
+
+Q: How do I earn tokens? 
+A: Tokens reward consistent self-care, not just engagement: 
+
+Activity 
+
+Tokens 
+
+Cap 
+
+Daily Login 
+
++5 
+
+35/week 
+
+Journal Entry (50+ words) 
+
++10 
+
+70/week 
+
+Sharing a Milestone 
+
++15 
+
+30/week 
+
+Referring a Friend 
+
++20 
+
+100 lifetime 
+
+Why It Stands Out: Apps like Duolingo reward streaks alone; MoodSync incentivizes depth (e.g., journaling > mindless scrolling). 
+
+ 
+
+ 
+
+ 
+
+Q: What can I redeem tokens for? 
+A: Real-world value, not just digital fluff: 
+
+Premium Access: 1-day pass (50 tokens), 1-week pass (300 tokens). 
+
+ 
+
+Q: Why decrease token rewards by 75%? 
+A: To combat exploitative design: 
+
+Old System: Users earned 100 tokens/day by spamming low-effort journals. 
+
+New System: Focus on quality—e.g., a thoughtful 7-day journal streak now earns a 50-token bonus. 
+Why It Stands Out: We prioritize mental health over addictive hooks. 
+
+ 
+
+3. Premium Features 
+
+Q: Is the family plan worth it? 
+Mood Insights: Spot patterns (e.g., "Teen’s anxiety spikes on school nights"). 
+
+Token Pooling: Parents can gift tokens to reward kids for healthy habits. 
+
+Emergency Alerts: Notify trusted members if severe moods (e.g., "depressed") persist. 
+Why It Stands Out: No other app offers cross-generational emotional support. 
+
+ 
+
+Q: What’s in the AI video editor? 
+A: Premium users get tools to visually express emotions: 
+
+Auto-Themes: AI suggests filters/music based on mood tags (e.g., "melancholic" → blue tint + piano). 
+
+Captions: Generates subtitles like "This week I struggled, but grew" from journal keywords. 
+
+B-Roll Library: 500+ free clips (e.g., rain for sadness, sunrises for hope). 
+Why It Stands Out: TikTok edits for views; MoodSync edits for self-reflection. 
+
+ 
+
+4. Privacy & Safety 
+
+Q: Who sees my mood data? 
+A: You control visibility: 
+
+Private: Only you (default for journals). 
+
+Shared: With consent (e.g., family plan or therapist). 
+
+Public: Aggregated heatmaps (no personal IDs). 
+Why It Stands Out: Unlike apps that sell data, MoodSync is ad-free and HIPAA-compliant. 
+
+ 
+
+Q: How do you moderate harmful content? 
+A: A 3-layer system: 
+
+AI Filters: Flag keywords (e.g., self-harm) → auto-hide + suggest resources. 
+
+Human Moderators: Review reports  
+
+User Controls: Block/mute + restrict DMs to "friends only." 
+Why It Stands Out: Proactive care (e.g., Crisis Text Line integration) vs. reactive reporting. 
+
+ 
+
+5. Technical Issues 
+
+Q: Why no Spotify integration? 
+A: Two reasons: 
+
+Cost: Licensing fees would force ads/subscriptions. 
+
+Focus: Our royalty-free playlists are curated for mental states (e.g., "Focus Flow" for ADHD). 
+Why It Stands Out: No disruptive ads or paywalls—just pure mood-matched music. 
+
+ 
+
+Q: Can I use MoodSync offline? 
+A: Yes! Key offline features: 
+
+Journaling: Write entries; syncs when back online. 
+
+Mood Tracking: Log emotions; updates your timeline later. 
+
+Meditation: Download audio guides in advance. 
+Why It Stands Out: Critical for users with spotty internet (e.g., rural areas, travelers). 
+
+ 
+
+Why MoodSync Stands Out: Summary 
+
+Hybrid Model: Social support + self-care tools + family wellness. 
+
+Ethical Monetization: No ads, paywalls, or data sales—just value-driven subscriptions. 
+
+Real-World Impact: Tokens convert to charity donations or gift cards. 
+
+Adaptive Design: Works for introverts (private journals) and extroverts (chat rooms). 
+
+"Emotion NFTs" (Non-Fungible Tokens for Mental Growth) 
+
+Concept: A blockchain-powered system where users can mint their emotional milestones as soulbound NFTs (non-transferable tokens tied to their identity). These represent progress in mental wellness  
+
+How It Works: 
+
+Mint Your Growth 
+
+When users hit emotional milestones (e.g., "30-day gratitude streak" or "Overcame social anxiety"), they can mint a dynamic NFT that visually represents their journey. 
+
+Example: A "Calm Mind NFT" evolves from a stormy cloud → a sun as meditation hours increase. 
+
+Tokenized Therapy & Rewards 
+
+Unlock Real-World Perks: 
+
+Show your "1 Year Sober NFT" to get a 500 token reward credited to your account. 
+
+Use a "Family Support NFT" to access group therapy sessions. 
+
+Charity Impact: Burn an NFT to donate its value to mental health nonprofits. 
+
+Privacy-First Blockchain 
+
+Uses zero-knowledge proofs (ZKPs) so no personal data is exposed—just the emotional achievement’s metadata (e.g., "User #X completed 100 journal entries"). 
+
+Soulbound (can’t be sold) to prevent exploitation. 
+
+Family & Community DAOs 
+
+Families/communities create Decentralized Autonomous Organizations (DAOs) to pool NFT-based achievements and unlock group rewards. 
+
+Example: A family’s "Collective 100 Happy Days NFT" grants them a 2500 token reward 
+
+ 
+
+Why This Is Revolutionary: 
+
+Turns Emotional Growth into Tangible Assets: Unlike generic fitness apps (e.g., Strava badges), these NFTs have real-world utility. 
+
+Anti-Social Media: No comparison/competition—each NFT is personal and non-transferable. 
+
+Web3 for Good: Uses blockchain ethically (no speculation, just proof of progress). 
+
+Potential Partnerships: 
+
+Therapists could validate milestones (e.g., "Certified Progress NFT"). 
+
+Employers could reward "Resilience NFTs" with mental health days. 
+
+ 
+
+Example User Journey: 
+
+Day 1: User logs anxiety in MoodSync. 
+
+Day 30: After consistent journaling, they mint an "Emotional Resilience NFT." 
+
+Day 60: NFT unlocks a 250 token reward 
+
+Day 100: Burns NFT to get a 400 token reward to their account. 
+
+Tagline: "Your emotions are priceless—now they’re powerful." 

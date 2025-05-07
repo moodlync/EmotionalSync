@@ -1,0 +1,52 @@
+In the premium subscription add.
+
+Earn tokens to complete different activities listed on the app or helping friends or your families.
+Redeem your tokens in to real cash once your balance reaches 1000 tokens
+Give a helping hand to your family or friend’s by transferring the amount redeemed if they are in need. 
+Donate your earnings to help the communities in need.
+
+Only premium users can earn the tokens and can redeem them to cash.
+
+A user can redeem once their token balance reaches 1000 tokens
+
+1000 tokens is equal to $5. Once the users account balance reaches $10 they will be able to convert it in to real cash and withdraw them to their PayPal or Stripe account.
+
+Create an option in the premium user section to add their PayPal or Stripe account information.
+
+Premium users should be able to withdraw their earnings in their local currencies or in USD dollars.
+
+Users will be liable for any fees associated with the withdrawals.
+
+Update the user sign up page as:
+
+First name
+
+Middle name
+
+Last name
+
+Gender should be all that is present today. Create a list of options for users to choose.
+
+State 
+
+Country 
+
+Email
+
+Username
+
+Password
+
+Confirm password
+
+Once signed up the user should be presented with a dynamic Color based on their gender chosen
+
+No inequality in terms of gender, racial profile or sexual orientation should be shown to the app user.
+
+No content should be published or posted by anyone with represents discrimination, child abuse, pornography or any other materials which goes against the rules of countries and states in the world.
+
+Note stop people from creating duplicate accounts. Capture the Ip address during the signup. If a user tries to create a duplicate account under different name using same email address, stop them from doing so.
+
+Create a roll over logo dynamic, eye catching, distinctive, professional and as per the market trend with dynamic eye catch colours  resembling the idea of the app
+
+The premium user section colour changes as per the mood of the user.

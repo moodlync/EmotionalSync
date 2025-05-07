@@ -1,0 +1,173 @@
+Prompt for Web & Mobile App Development 
+
+App Name: [Insert Name] 
+Purpose: [Briefly describe the core functionality, e.g., "A task management app for teams with real-time collaboration"] 
+
+Key Features: 
+
+Core Functionality: 
+
+[Feature 1, e.g., "Task creation, assignment, and prioritization"] 
+
+[Feature 2, e.g., "Real-time chat and notifications"] 
+
+[Feature 3, e.g., "Cross-platform sync between web and mobile"] 
+
+Platform-Specific Needs: 
+
+Mobile App: Offline mode, push notifications, camera/QR integration. 
+
+Web App: Dashboard analytics, keyboard shortcuts, browser compatibility. 
+
+User Experience (UX): 
+
+Target Audience: [e.g., "Busy professionals, remote teams"] 
+
+Design Style: [e.g., "Minimalist, dark/light mode, Material Design"] 
+
+Technical Requirements: 
+
+Backend: [e.g., "Firebase/Node.js"] 
+
+Frameworks: [e.g., "React for web, React Native/Flutter for mobile"] 
+
+APIs: [e.g., "Google Calendar API for scheduling"] 
+
+Additional Asks: 
+
+Scalability for 10K+ users. 
+
+Security: End-to-end encryption for sensitive data. 
+
+Monetization: [e.g., "Freemium model with paid features"]. 
+
+Inspiration: [Reference apps, e.g., "Trello for task management, Slack for messaging"] 
+
+ 
+
+Example (Fitness App): 
+
+Purpose: "A fitness tracker with personalized workouts and progress analytics." 
+Mobile Features: GPS run tracking, wearable sync. 
+Web Features: Detailed performance graphs, workout planner. 
+UX: Motivational UI with gamification (badges, streaks). 
+
+ 
+
+MoodSync App Development Prompt 
+
+Project Type: Cross-platform (Web + Mobile) emotional wellness social network with token economy and premium tiers. 
+
+1. Core Requirements 
+
+Platforms: 
+
+Web: Responsive (React.js/Vue.js) + Mobile: iOS/Android (React Native/Flutter). 
+
+Shared Backend: Node.js/Django with Firebase for real-time updates. 
+
+Must-Have Features: 
+
+Emotion Networking: 
+
+Real-time mood detection via user input/API (e.g., Affectiva). 
+
+Live global emotion heatmap (Google Maps API + WebSocket updates). 
+
+Mood-based chat rooms (Socket.io for real-time messaging). 
+
+Token System: 
+
+Earn tokens for logins, journals, sharing. 
+
+Track milestones with progress bars. 
+
+Redemption for rewards (e.g., "1 token = $0.01" display). 
+
+Auth & Security: 
+
+JWT-based auth (Email + Social Login). 
+
+Admin dashboard (user management, analytics). 
+
+2. Premium Features (Monetization) 
+
+Update premium plans 
+
+Subscription Tiers: 
+
+Individual: Trial →Monthly ($9.99)→Quaterly ($14.99) Yearly($49.99) → 5 years ($199.99) Lifetime ($249.99). 
+
+Family Plan: 149.99 per year or $349.99 for 5 years or $499.99 for lifetime (5 members max). 
+
+Token-Based Access: Allow temporary premium access via tokens. 
+
+Premium Perks: 
+
+Private chat rooms, custom themes, video editor (AI tools), health video sharing. 
+
+Family Plan: Mood monitoring consent flow + token pooling. 
+
+3. UI/UX Specifications 
+
+Design: 
+
+Mobile: Bottom nav bar, vertical scroll, adaptive logo sizing. 
+
+Social Sharing: Animated buttons, milestone cards ("I earned 100 tokens!"). 
+
+Media: 
+
+Mini music player (classical, background playback). 
+
+Video editor (FFmpeg integration for premium users). 
+
+4. Technical Details 
+
+APIs & Integrations: 
+
+Emotion Detection: Affectiva/TensorFlow.js. 
+
+Maps: Google Maps API for heatmap. 
+
+Payments: Stripe/Paypal/Apple Pay/Google Pay. 
+
+AI Components: 
+
+AI Companion: GPT-3.5/4 for dynamic responses (e.g., "How are you feeling today?"). 
+
+Support Chatbot: Dialogflow for ticket handling. 
+
+Admin Tools: 
+
+Default credentials: test/aaaaaa (force reset on first login). 
+
+Metrics: User growth, token redemption rates, premium conversions. 
+
+5. Quality & Compliance 
+
+Testing: Unit tests (Jest), E2E (Cypress). 
+
+Security: GDPR compliance, data encryption. 
+
+Scalability: Cloud hosting (AWS/Azure), load testing for 10K+ users. 
+
+Inspiration: 
+
+Social: Discord (chat rooms) + Strava (heatmaps). 
+
+Monetization: Calm (subscription tiers) + Duolingo (token economy). 
+
+ 
+
+Next Steps 
+
+Wireframes: Provide Figma/Adobe XD mockups for approval. 
+
+Dev Phases: 
+
+Phase 1: Auth + Basic Mood Features (MVP). 
+
+Phase 2: Token System + Premium. 
+
+Phase 3: AI + Admin Tools. 

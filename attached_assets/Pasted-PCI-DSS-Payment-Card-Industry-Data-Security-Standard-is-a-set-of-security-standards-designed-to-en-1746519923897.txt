@@ -1,0 +1,143 @@
+PCI DSS (Payment Card Industry Data Security Standard) is a set of security standards designed to ensure that all companies that process, store, or transmit credit card information maintain a secure environment. If your web app handles credit/debit card transactions (even through third-party processors like Stripe or PayPal), PCI compliance is mandatory.
+
+Key PCI DSS Requirements for Web Apps
+
+Secure Network
+Use firewalls to protect cardholder data.
+Avoid storing sensitive data (CVV, full card numbers) unless necessary.
+Encryption
+TLS 1.2+ (HTTPS) for all data in transit.
+AES-256 encryption for stored cardholder data.
+Access Control
+Role-Based Access (RBAC) for admin panels.
+Unique IDs + MFA for anyone accessing payment data.
+Vulnerability Management
+Regular penetration testing (annual requirement).
+Patch systems against known vulnerabilities.
+Monitoring & Logging
+Track all access to payment data.
+Logs must be retained for at least 1 year.
+Third-Party Compliance
+If using Stripe/PayPal, ensure they are PCI Level 1 certified.
+Never store CVV after authorization.
+PCI Compliance Prompt for Web App Development
+Objective: Ensure the web app meets PCI DSS standards for handling payment data securely.
+1. Secure Payment Processing
+* Do NOT store full credit card numbers, CVV, or magnetic stripe data.
+* Use PCI-compliant processors (Stripe, PayPal, Braintree) with embedded iframes/APIs.
+* Tokenize payments (replace card data with tokens for future transactions).
+2. Encryption & Network Security
+* Enforce HTTPS (TLS 1.2+) with HSTS headers.
+* Disable weak ciphers (SSLv3, TLS 1.0/1.1).
+* Encrypt stored data (AES-256) if handling partial cardholder info (e.g., last 4 digits).
+3. Access & Authentication
+* MFA required for admin access to payment logs.
+* RBAC implementation – restrict payment data access to only necessary roles.
+* Session timeout: 15 minutes of inactivity.
+4. Logging & Monitoring
+* Log all payment transactions (success/failures).
+* Alert on suspicious activity (e.g., multiple failed payments).
+* Store logs securely (encrypted, immutable).
+5. Vulnerability Management
+* Quarterly ASV scans (Approved Scanning Vendor).
+* Annual penetration testing (required for PCI Level 1).
+* Automated dependency checks (e.g., npm audit, Snyk).
+6. Compliance Documentation
+* Maintain an AOC (Attestation of Compliance) if handling payments directly.
+* Self-Assessment Questionnaire (SAQ) if using Stripe/PayPal (likely SAQ A or SAQ A-EP).
+
+Example Implementation for MoodSync
+* Payment Flow:
+    * Use Stripe Elements (PCI-DSS compliant).
+    * Tokenize cards → store only last4 + brand for UX.
+* Admin Panel:
+    * Mask card details in logs (****-****-****-4242).
+    * Require MFA + IP whitelisting for finance team.
+* Logging:
+    * AWS CloudTrail + GuardDuty for anomaly detection.
+
+Prompt for Developers
+
+
+"Build a PCI-compliant payment system for MoodSync where:  
+1. Users can subscribe via credit card without exposing full PAN/CVV.  
+2. Admins can view only masked card details (last4 digits).  
+3. All transactions are logged securely with audit trails.  
+4. Penetration tests are run annually, and ASV scans quarterly.  
+5. Stripe handles PCI compliance (SAQ A), but our app enforces HTTPS, MFA, and encryption for logs."  
+Next Steps:
+1. Integrate Stripe.js (PCI SAQ A compliant).
+2. Set up SIEM monitoring (Splunk/ELK).
+3. Schedule ASV scans (e.g., Qualys, Trustwave).
+
+PCI DSS Compliance Implementation Prompt
+Objective: Build a secure payment system that meets PCI DSS standards while integrating with third-party processors (Stripe/PayPal).
+Core Requirements:
+1. Data Handling
+    * Never store full credit card numbers, CVV, or magnetic stripe data
+    * If storing, only keep:
+        * Last 4 digits of card (masked as ****-****-****-4242)
+        * Card brand/type (Visa, Mastercard)
+        * Expiration month/year (if required for recurring payments)
+2. Secure Transmission
+    * Enforce TLS 1.2+ across entire application
+    * Implement HSTS headers with 180-day minimum
+    * Disable SSLv3, TLS 1.0, and TLS 1.1
+3. Payment Processing
+    * Use PCI-compliant iframe solutions:
+        * Stripe Elements
+        * Braintree Hosted Fields
+        * PayPal Smart Payment Buttons
+    * Tokenize all payment methods before processing
+4. Access Control
+    * Implement RBAC for payment-related functions:
+        * Tier 1: Customer (can view own payment methods)
+        * Tier 2: Support (can refund, no card data access)
+        * Tier 3: Finance (limited masked data access)
+    * Require MFA for all admin accounts
+5. Monitoring & Logging
+    * Log all payment events with:
+        * Timestamp
+        * User ID
+        * Action type
+        * Amount
+        * Last 4 digits of card
+    * Retain logs for minimum 1 year (encrypted at rest)
+6. Vulnerability Management
+    * Schedule quarterly ASV scans
+    * Conduct annual penetration tests
+    * Implement automated dependency scanning (npm audit, Snyk)
+7. Third-Party Compliance
+    * Use only PCI Level 1 certified providers
+    * Maintain current Attestation of Compliance (AOC) documents
+    * Complete appropriate SAQ annually (likely SAQ A or A-EP)
+Implementation Checklist:
+* Configure WAF rules for payment endpoints
+* Implement CSP headers to prevent injection attacks
+* Set up automated certificate rotation
+* Create data flow diagrams for PCI audit
+* Document encryption key management procedures
+Example Code Snippet (Stripe Integration):
+javascript
+
+// Server-side
+const stripe = require('stripe')(API_KEY);
+app.post('/payment', async (req, res) => {
+  const paymentMethod = await stripe.paymentMethods.create({
+    type: 'card',
+    card: req.body.token // From Stripe Elements
+  });
+  // Store only paymentMethod.id + last4
+});
+Deliverables:
+1. Architecture diagram showing payment data flow
+2. Completed Self-Assessment Questionnaire (SAQ)
+3. Evidence of quarterly vulnerability scans
+4. Incident response plan for payment data breaches
+Exclusions:
+* Physical security requirements (if no on-prem servers)
+* Point-of-sale systems (for web-only applications)
+Next Steps:
+1. Select PCI-compliant payment processor
+2. Schedule initial ASV scan
+3. Train developers on secure coding practices

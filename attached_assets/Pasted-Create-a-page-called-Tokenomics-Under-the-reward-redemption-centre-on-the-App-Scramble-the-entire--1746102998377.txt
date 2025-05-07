@@ -1,0 +1,60 @@
+Create a page called Tokenomics 
+
+Under the reward redemption centre on the App
+Scramble the entire app and create a list of a detailed report about how people can earn tokens on the app by completing different activities regularly and also make a list of tokens they will get in return for completing individual activities.
+
+Also list that premium customer can hit the bounty by explaining them how. Make a detailed report about this so users can have proper knowledge about it.
+
+Also update hit the bounty page if a normal user who is not the premium member and he refers the app to other users and if 5 of the other users who are not the part of the app as a premium member joins and subscribe any premium subscription the normal member will be rewarded with 300 token credited to their account. 
+
+Also update in the token system guide
+Minimum 5000 tokens required for redemption.
+Current conversion rate: $.0020 per token 
+
+
+Also update under Premium features for all non premium members.
+
+Access premium features without a subscription 
+1500 tokens required = 1 week of premium access 
+2500 tokens required  = 2 week of premium access
+4000 tokens required = 3 weeks of premium access
+7000 tokens required = 4 weeks of premium access
+
+In the reward center 
+
+Update progress to 5000 tokens 
+
+Also update in the Token redemption center Under “Your token Balance”
+The Available tokens should be calculated based on the current conversion rate suggested in the token system guide and the estimated value should be calculated based on that.
+
+Update AI companion to be more interactive and suggestive to the user ask them the questions donot repeat the same thing back and forth.
+
+Reward customers with creative badges when they complete a certain activity or a level , create a happy feeling 
+
+When the customer click on the logo take them to the Home Screen.
+
+Also include social sharing in the invite friend section under referrals to invite a friend.
+
+Create a new plan in the premium section  under Choose your plan as a “ Family plan” and “Family life time” 
+
+Create a premium family plan for families only where family members can look after their loved one’s and can perform share different activities on the app
+
+Also, maybe a family plan for tracking loved ones' moods with consent. Safety features like crisis support integration could be part of premium. Exclusive events like virtual workshops or mindfulness sessions.
+
+Drop down menu
+
+Family plan price is $149.99 for a year includes all features available in the app
+
+Family plan price life time is $349.99for lifetime.
+
+How will a family member add other members of the family to their profile.
+
+1) Share the referral link of the app to your loved one’s.
+2) Once your loved ones become a member on the app ask them to provide them with their username they have created while joining the app.
+3) Create a blank search drop down menu for the family member who wish to add another family member to their profile using their username name.
+4) Once the username appears in their profile click add.
+5) The other party has to give their consent before accepting any oncoming requests from their family members to be added to their account for any account activity.
+6) If the other family member who has been added by the primary  family account holder is not a premium member on the app he will not be able to redeem any tokens in their account but they will have the ability to transfer it to the primary family account holder for redemption of the tokens earned.
+7) Create a redeem, transfer and donate button for primary premium family account holder for their tokens earned.
+
+All features available in the app either premium or non premium are included in the family plan and family plan lifetime.

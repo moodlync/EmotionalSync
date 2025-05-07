@@ -1,0 +1,110 @@
+Sprint Plan: Encryption & Authentication
+
+Goal: Implement core security features in 2-3 sprints (2-week cycles).
+
+Sprint 1: Encryption Foundation
+
+Tasks:
+
+HTTPS/TLS Setup
+Acquire SSL cert (Let’s Encrypt).
+Enforce HTTPS redirect (Nginx/Apache config).
+Definition of Done (DoD): All routes show "Secure" in browser.
+Database Encryption
+Configure AES-256 encryption for:
+User profiles (email, name).
+Mood logs/journal entries.
+Tools: AWS RDS Encryption or SQLCipher (local).
+DoD: Verified via SELECT pgp_sym_decrypt() (PostgreSQL) or equivalent.
+E2EE for Journals
+Generate user-specific keys (WebCrypto API).
+Encrypt/decrypt client-side before DB storage.
+DoD: Test with dummy data → ciphertext in DB, plaintext only in-app.
+Sprint 2: Authentication Hardening
+
+Tasks:
+
+MFA Integration
+Add TOTP (Google Authenticator) via speakeasy or Auth0.
+UI: "Enable MFA" toggle in settings + QR scanner.
+DoD: Users can enroll and log in with MFA.
+Biometric Auth
+Implement WebAuthn for Face ID/fingerprint.
+Fallback to PIN if unsupported.
+DoD: Works on iOS/Android browsers.
+Role-Based Access
+Define roles (user, admin, therapist).
+Middleware to block unauthorized API calls.
+DoD: Admins can access dashboard; users cannot.
+Sprint 3: Testing & Compliance
+
+Tasks:
+
+Penetration Testing
+Run OWASP ZAP scans for SQLi/XSS.
+Fix critical issues (e.g., sanitize inputs).
+Audit Logs
+Log all auth attempts/data access.
+Store in SIEM (e.g., AWS CloudTrail).
+Compliance Documentation Templates
+
+1. Privacy Policy (GDPR/CCPA)
+
+[Your Company Name]
+Last Updated: [Date]
+
+Data Collected:
+
+Email, mood logs, journal entries (encrypted).
+Purpose: Personalization, analytics (opt-in).
+User Rights:
+
+Request data access/deletion via [Settings > Privacy].
+CCPA: Opt out of data sales [here].
+Security Measures:
+
+AES-256 encryption, MFA, annual audits.
+Third Parties:
+
+AWS (hosting), Firebase (auth). DPAs available on request.
+2. Data Processing Agreement (DPA)
+
+Between: [Your Company] & [Vendor, e.g., AWS]
+
+Scope:
+
+Vendor processes user data per Appendix A.
+Security Obligations:
+
+Encryption, breach notification (<72 hrs).
+Termination:
+
+Vendor deletes data upon contract end.
+3. Breach Response Plan
+
+Detection: Monitor logs/SIEM alerts.
+Containment: Disable compromised accounts.
+Notification:
+GDPR: Report to DPA within 72 hrs.
+CCPA: Notify users if SSN/financial data exposed.
+4. Consent Management Template (UI)
+
+html
+<div class="consent-banner">  
+  <p>We use cookies for analytics. Accept?</p>  
+  <button id="accept">Accept</button>  
+  <button id="reject">Reject</button>  
+  <a href="/privacy">Details</a>  
+</div>  
+<script>  
+  // Log preference to DB and set cookie.  
+</script>
+Tools to Accelerate Development
+
+Encryption: AWS KMS, OpenSSL.
+Auth: Auth0, Firebase Auth.
+Compliance: OneTrust (automated policy updates).
+Next Steps:
+
+Assign sprint tasks to devs (e.g., Alice owns E2EE).
+Draft policies using templates → legal review.
