@@ -136,12 +136,22 @@ After successful deployment, test the following features:
      ```
    
    If warnings about unknown fields in mise configuration persist:
-   - Try removing the `.mise.toml` file and using only the `.mise/config.toml` file
-   - Alternatively, directly edit the `.mise.toml` file to match the specific structure expected by your version of mise
-   - Add these environment variables in Netlify settings:
-     - `MISE_DISABLE_WARNINGS=true`
-     - `NODE_VERSION_WARNING=ignore`
-   - Note that these warnings are just informational and should not affect your build functionality
+   - The deployment package now includes updated `.mise.toml` and `.mise/config.toml` files that address the following issues:
+     - Removed the deprecated `settings.idiomatic_version_files` configuration
+     - Removed the unknown field `config` section that was causing warnings
+     - Simplified the configuration to use only the minimum necessary settings
+     - Added a `.mise-disable-warning` file to completely suppress mise warnings
+   - If you still see warnings, try these solutions:
+     - Remove the `.mise.toml` file entirely and use only the `.mise/config.toml` file
+     - Add these environment variables in Netlify settings:
+       - `MISE_DISABLE_WARNINGS=true`
+       - `NODE_VERSION_WARNING=ignore`
+     - Create an empty `.mise-disable-warning` file in the root directory
+   - Common mise warnings and their fixes:
+     - "unknown field `settings.idiomatic_version_files`" - Use the updated configuration that removes this field
+     - "deprecated configuration `[idiomatic_version_file_enable_tools]`" - Remove any references to idiomatic_version_file_enable_tools
+     - "mise: config error: unknown field `config`" - This field has been removed in the updated mise configuration
+   - Note that these warnings are just informational and should not affect your build functionality, but they may cause failures in some CI/CD environments
 
 6. **Serverless Function Dependency Issues**:
    - If you encounter errors about missing `serverless-http` or `cors` dependencies, the following solutions have been implemented:

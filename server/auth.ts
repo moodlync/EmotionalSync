@@ -166,42 +166,56 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/login", passport.authenticate("local"), async (req, res) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ error: 'Authentication failed' });
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ error: 'Internal server error during authentication' });
       }
       
-      // Reward user with tokens for daily login
-      // In a real app, you would check if they've already received the daily login bonus today
-      // For now, we'll give them tokens every time they log in
-      const tokensEarned = 10; // 10 tokens for logging in
-      const rewardActivity = await storage.createRewardActivity(
-        req.user.id,
-        'daily_login',
-        tokensEarned,
-        'Daily login reward'
-      );
+      if (!user) {
+        return res.status(401).json({ 
+          error: 'Authentication failed',
+          message: 'Invalid username or password'
+        });
+      }
       
-      // Get the updated token balance to send to client
-      const tokenBalance = await storage.getUserTokens(req.user.id);
-      
-      res.status(200).json({
-        user: req.user,
-        tokens: {
-          balance: tokenBalance,
-          earned: tokensEarned
+      // Log the user in
+      req.logIn(user, async (loginErr) => {
+        if (loginErr) {
+          console.error("Login session error:", loginErr);
+          return res.status(500).json({ error: 'Failed to create login session' });
+        }
+        
+        try {
+          // Reward user with tokens for daily login
+          // In a real app, you would check if they've already received the daily login bonus today
+          // For now, we'll give them tokens every time they log in
+          const tokensEarned = 10; // 10 tokens for logging in
+          const rewardActivity = await storage.createRewardActivity(
+            user.id,
+            'daily_login',
+            tokensEarned,
+            'Daily login reward'
+          );
+          
+          // Get the updated token balance to send to client
+          const tokenBalance = await storage.getUserTokens(user.id);
+          
+          return res.status(200).json({
+            user: user,
+            tokens: {
+              balance: tokenBalance,
+              earned: tokensEarned
+            }
+          });
+        } catch (error) {
+          console.error('Error processing login rewards:', error);
+          // Even if there's an error with rewards, the user should still be logged in
+          return res.status(200).json(user);
         }
       });
-    } catch (error) {
-      console.error('Error processing login rewards:', error);
-      // Even if there's an error with rewards, the user should still be logged in
-      if (req.user) {
-        res.status(200).json(req.user);
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    }
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res, next) => {

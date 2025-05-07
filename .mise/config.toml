@@ -1,8 +1,7 @@
+# Simple mise configuration - only specify what's needed
 [tools]
 node = "18.18.0"
 
 [env]
-USE_IDIOMATIC_VERSION_FILES = "true"
-
-[settings]
-idiomatic_version_files = true
+NODE_VERSION = "18.18.0"
+MISE_DISABLE_WARNINGS = "true"

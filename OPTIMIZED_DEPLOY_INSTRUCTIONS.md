@@ -84,5 +84,17 @@ If you encounter issues:
 1. **Build failures**: Check the logs for specific error messages
 2. **Missing dependencies**: The package includes all necessary configuration files, but you may need to run `npm install` before building
 3. **Environment variable issues**: Ensure all required variables are set in Netlify dashboard
+4. **Node.js version warnings**: The optimized package includes updated version configuration files:
+   - Updated `.mise.toml` and `.mise/config.toml` files with simplified configurations
+   - Added `.mise-disable-warning` file to suppress mise warnings
+   - Set `NODE_VERSION = "18.18.0"` in all relevant configuration files
+   - If you see warnings about "unknown field" or "deprecated configuration" in the mise files, they shouldn't affect the build but you can add `MISE_DISABLE_WARNINGS=true` to your environment variables
 
-For more detailed deployment instructions, refer to the `NETLIFY_DEPLOYMENT.md` file included in the package.
+5. **Mise configuration issues**: If you encounter warnings about mise configuration:
+   - The optimized package includes fixed mise configuration files that address:
+     - Removed deprecated `settings.idiomatic_version_files` configuration
+     - Removed the unknown field `config` section that was causing warnings
+     - Simplified to use only the minimum necessary settings
+   - If warnings persist, try adding `MISE_DISABLE_WARNINGS=true` and `NODE_VERSION_WARNING=ignore` to your environment variables
+
+For more detailed deployment instructions and troubleshooting, refer to the `NETLIFY_DEPLOYMENT.md` file included in the package.
