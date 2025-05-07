@@ -12,8 +12,8 @@ echo "Copying essential files..."
 cp deploy-package.json $DEPLOY_DIR/package.json
 cp netlify.toml $DEPLOY_DIR/
 cp .nvmrc $DEPLOY_DIR/
-cp netlify-build-fix.js $DEPLOY_DIR/
-chmod +x $DEPLOY_DIR/netlify-build-fix.js
+cp netlify-build-fix.cjs $DEPLOY_DIR/
+chmod +x $DEPLOY_DIR/netlify-build-fix.cjs
 
 # Copy netlify directory with functions
 echo "Copying Netlify functions..."

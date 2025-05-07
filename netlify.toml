@@ -3,9 +3,9 @@
   command = """
     export NPM_CONFIG_AUDIT=false &&
     npm install --no-audit --no-fund &&
-    node netlify-build-fix.js &&
+    node netlify-build-fix.cjs &&
     npm install --no-audit --no-fund --production serverless-http cors express body-parser express-session memorystore uuid &&
-    npm install --no-audit --no-fund vite esbuild @vitejs/plugin-react typescript &&
+    npm install --no-audit --no-fund vite esbuild @vitejs/plugin-react typescript react-scripts &&
     NODE_ENV=production npm run build && 
     node netlify/functions/install.js
   """

@@ -137,7 +137,7 @@ After successful deployment, test the following features:
 
 7. **Vite Command Not Found Error**:
    - If you see an error like "sh: 1: vite: not found" (exit code 127), the issue is that Vite isn't accessible during the build. The following fixes have been implemented:
-     - Automatic build-fix script (`netlify-build-fix.js`) that runs before the build
+     - Automatic build-fix script (`netlify-build-fix.cjs`) that runs before the build
      - Updated build command that explicitly installs Vite and its dependencies
      - Fallback build.sh script as a last resort option
 

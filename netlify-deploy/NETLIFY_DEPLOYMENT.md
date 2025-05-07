@@ -135,6 +135,23 @@ After successful deployment, test the following features:
    - Add the environment variable `NPM_CONFIG_LEGACY_PEER_DEPS=true` in Netlify settings
    - If the problem is specifically with `serverless-http`, try renaming `netlify/functions/api.cjs` to `netlify/functions/api.js` to force using the CommonJS version
 
+7. **Vite Command Not Found Error**:
+   - If you see an error like "sh: 1: vite: not found" (exit code 127), the issue is that Vite isn't accessible during the build. The following fixes have been implemented:
+     - Automatic build-fix script (`netlify-build-fix.cjs`) that runs before the build
+     - Updated build command that explicitly installs Vite and its dependencies
+     - Fallback build.sh script as a last resort option
+
+   If these issues persist:
+   - Try updating the build command in Netlify settings to:
+     ```
+     export NPM_CONFIG_AUDIT=false && npm install && npm install --no-audit vite @vitejs/plugin-react typescript esbuild && NODE_ENV=production ./node_modules/.bin/vite build
+     ```
+   - Add the environment variable `PATH="./node_modules/.bin:$PATH"` in Netlify settings
+   - If all else fails, use the included fallback script by changing the build command to:
+     ```
+     ./build.sh
+     ```
+
 ### Getting Support
 
 If you need assistance with your Netlify deployment, try these steps:
