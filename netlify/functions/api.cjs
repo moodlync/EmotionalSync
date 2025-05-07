@@ -1,56 +1,87 @@
-// CommonJS version of the serverless function for maximum compatibility
+// CommonJS version for Netlify Functions
 const express = require('express');
 const serverless = require('serverless-http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const createMemoryStore = require('memorystore');
+const MemoryStore = require('memorystore')(session);
+const { v4: uuidv4 } = require('uuid');
 
-// Initialize Express
+// Create the express app
 const app = express();
 
-// Enable CORS
+// Configure middleware
 app.use(cors({
-  origin: process.env.NETLIFY ? process.env.URL : 'http://localhost:3000',
+  origin: true,
   credentials: true
 }));
 
-// Parse requests
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Session setup
-const MemoryStore = createMemoryStore(session);
-app.use(session({
+// Session middleware with MemoryStore
+const sessionMiddleware = session({
+  cookie: { 
+    maxAge: 86400000,
+    secure: process.env.NODE_ENV === 'production'
+  },
   store: new MemoryStore({
-    checkPeriod: 86400000 // Prune expired entries every 24h
+    checkPeriod: 86400000
   }),
-  secret: process.env.SESSION_SECRET || 'moodsync-secret-key',
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  secret: process.env.SESSION_SECRET || 'moodlync-dev-secret-key'
+});
+
+app.use(sessionMiddleware);
+
+// Setup initial routes to ensure API is accessible
+app.get('/.netlify/functions/api', (req, res) => {
+  res.json({
+    message: 'MoodLync API is running',
+    env: process.env.NODE_ENV,
+    node_version: process.version
+  });
+});
+
+// Register all API routes
+// We can't use direct imports here due to CJS format
+// Instead we'll create a minimal set of routes
+app.get('/.netlify/functions/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// API route for authentication status
+app.get('/.netlify/functions/api/auth/status', (req, res) => {
+  res.json({
+    authenticated: req.session && req.session.userId ? true : false,
+    userId: req.session && req.session.userId ? req.session.userId : null
+  });
+});
+
+// Add mock login endpoint for testing
+app.post('/.netlify/functions/api/auth/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  // Simple validation
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password required' });
   }
-}));
-
-// Simple API endpoints for fallback mode
-app.get('/.netlify/functions/api/status', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    mode: 'fallback', 
-    message: 'API is running in fallback mode. Some features may be limited.',
-    timestamp: new Date().toISOString()
+  
+  // Mock successful login
+  req.session.userId = 1;
+  req.session.username = username;
+  
+  return res.json({
+    success: true,
+    message: 'Login successful',
+    user: { id: 1, username }
   });
 });
 
-app.get('/.netlify/functions/api/*', (req, res) => {
-  res.json({ 
-    status: 'warning',
-    message: 'Running in compatibility mode. Full features available in main deployment.',
-    path: req.path 
-  });
-});
-
-// Export the serverless function
+// Export the serverless handler function
 exports.handler = serverless(app);

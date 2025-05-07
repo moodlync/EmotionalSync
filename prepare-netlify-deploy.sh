@@ -23,6 +23,13 @@ mkdir -p $DEPLOY_DIR/netlify/functions
 touch $DEPLOY_DIR/netlify/functions/.npmrc
 chmod +x $DEPLOY_DIR/netlify/functions/install.js
 
+# Ensure CJS fallback files are included
+if [ -f netlify/functions/api.cjs ]; then
+  echo "Including serverless-http CJS fallback solutions..."
+  cp netlify/functions/api.cjs $DEPLOY_DIR/netlify/functions/
+  cp netlify/functions/netlify.js $DEPLOY_DIR/netlify/functions/
+fi
+
 # Create package-lock for functions to ensure dependencies are installed correctly
 echo "Setting up Netlify functions dependencies..."
 cd $DEPLOY_DIR/netlify/functions 
