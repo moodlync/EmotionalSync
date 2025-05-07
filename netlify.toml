@@ -24,12 +24,15 @@
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["express", "serverless-http", "cors", "body-parser", "express-session", "memorystore", "uuid"]
   
   # Define environment variables for functions
   [functions.environment]
     NODE_ENV = "production"
     # Force path handling in JS to use current working directory
     FUNCTIONS_PATH_MODE = "cwd"
+    # Explicitly tell Netlify functions to use ES modules
+    ES_MODULE_SUPPORT = "true"
 
 [[plugins]]
 package = "@netlify/plugin-functions-install-core"
