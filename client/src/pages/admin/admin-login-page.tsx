@@ -67,7 +67,7 @@ export default function AdminLoginPage() {
       <div className="absolute h-full w-full backdrop-blur-[1px]" />
       <Card className="w-full max-w-md shadow-xl backdrop-blur-sm bg-white/95 border-gray-300 border-opacity-30 z-10">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+          <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-purple-700 to-blue-600 bg-clip-text text-transparent">
             Secure Admin Portal
           </CardTitle>
           <CardDescription className="text-center">

@@ -7,7 +7,8 @@
     npm install --no-audit --no-fund --production serverless-http cors express body-parser express-session memorystore uuid &&
     npm install --no-audit --no-fund vite esbuild @vitejs/plugin-react typescript react-scripts &&
     NODE_ENV=production npm run build && 
-    node netlify/functions/install.js
+    # Try to run the ES module version first, fall back to CommonJS if that fails
+    node netlify/functions/install.mjs || node netlify/functions/install.cjs
   """
   publish = "dist/client"
   functions = "netlify/functions"
