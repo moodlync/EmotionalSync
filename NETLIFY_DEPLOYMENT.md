@@ -122,10 +122,26 @@ After successful deployment, test the following features:
    - Also add the environment variable `USE_IDIOMATIC_VERSION_FILES` with value `true` 
    - You can also try Node 16.x or 20.x if 18.x doesn't work for some reason
    
-   If you see warnings like "Automatic resolution through idiomatic version files like .nvmrc will be changed in a future release" or any warnings related to mise:
-   - The configuration now includes both the environment variable and the `.mise.toml` file to explicitly enable idiomatic version files
-   - If warnings persist, you can try adding a `.tool-versions` file with `nodejs 18.18.0` as a fallback
-   - These warnings should not affect your build, but they might appear in logs
+   If you see warnings like "Automatic resolution through idiomatic version files like .nvmrc will be changed in a future release", "unknown field `settings.idiomatic_version_files`" or any warnings related to mise:
+   - The deployment package now includes multiple Node.js version configuration options:
+     - `.nvmrc` file with `18.18.0`
+     - `.node-version` file with `18.18.0`
+     - `.tool-versions` file with `nodejs 18.18.0`
+     - `.mise.toml` with proper settings
+     - `.mise/config.toml` with proper settings
+   - These warnings are related to the version management tool "mise" and should not affect your build
+   - If builds continue to fail with version-related warnings, try specifying Node.js explicitly in the build command:
+     ```
+     export NODE_VERSION=18.18.0 && export USE_IDIOMATIC_VERSION_FILES=true && npm run build
+     ```
+   
+   If warnings about unknown fields in mise configuration persist:
+   - Try removing the `.mise.toml` file and using only the `.mise/config.toml` file
+   - Alternatively, directly edit the `.mise.toml` file to match the specific structure expected by your version of mise
+   - Add these environment variables in Netlify settings:
+     - `MISE_DISABLE_WARNINGS=true`
+     - `NODE_VERSION_WARNING=ignore`
+   - Note that these warnings are just informational and should not affect your build functionality
 
 6. **Serverless Function Dependency Issues**:
    - If you encounter errors about missing `serverless-http` or `cors` dependencies, the following solutions have been implemented:

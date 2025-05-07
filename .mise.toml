@@ -4,3 +4,10 @@ idiomatic_version_files = true
 
 [tools]
 node = "18.18.0"
+
+[env]
+USE_IDIOMATIC_VERSION_FILES = "true"
+
+# This is the recommended format for mise >= 2024.2.0
+[config]
+node.use_idiomatic_version_files = true

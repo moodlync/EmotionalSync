@@ -12,6 +12,10 @@ echo "Copying essential files..."
 cp deploy-package.json $DEPLOY_DIR/package.json
 cp netlify.toml $DEPLOY_DIR/
 cp .nvmrc $DEPLOY_DIR/
+cp .tool-versions $DEPLOY_DIR/ 2>/dev/null || :
+cp .mise.toml $DEPLOY_DIR/ 2>/dev/null || :
+cp .mise.config.toml $DEPLOY_DIR/ 2>/dev/null || :
+cp .mise-disable-warning $DEPLOY_DIR/ 2>/dev/null || :
 cp netlify-build-fix.cjs $DEPLOY_DIR/
 chmod +x $DEPLOY_DIR/netlify-build-fix.cjs
 

@@ -122,10 +122,22 @@ After successful deployment, test the following features:
    - Also add the environment variable `USE_IDIOMATIC_VERSION_FILES` with value `true` 
    - You can also try Node 16.x or 20.x if 18.x doesn't work for some reason
    
-   If you see warnings like "Automatic resolution through idiomatic version files like .nvmrc will be changed in a future release" or any warnings related to mise:
-   - The configuration now includes both the environment variable and the `.mise.toml` file to explicitly enable idiomatic version files
-   - If warnings persist, you can try adding a `.tool-versions` file with `nodejs 18.18.0` as a fallback
-   - These warnings should not affect your build, but they might appear in logs
+   If you see warnings like "Automatic resolution through idiomatic version files like .nvmrc will be changed in a future release" or any warnings related to mise configurations:
+   - The deployment package now includes multiple version configuration files:
+     - `.nvmrc` - Standard Node.js version file
+     - `.tool-versions` - For asdf version manager
+     - `.mise.toml` - Mise configuration with both tools and config sections
+     - `.mise.config.toml` - Alternative mise configuration format
+     - `USE_IDIOMATIC_VERSION_FILES = "true"` in netlify.toml
+   
+   If warnings about unknown fields in mise configuration persist:
+   - The deployment package includes a `.mise-disable-warning` file to suppress Node version warnings
+   - Try removing the `.mise.toml` file and using only the `.mise.config.toml` file
+   - Alternatively, directly edit the `.mise.toml` file to match the specific structure expected by your version of mise
+   - Add these environment variables in Netlify settings:
+     - `MISE_DISABLE_WARNINGS=true`
+     - `NODE_VERSION_WARNING=ignore`
+   - Note that these warnings are just informational and will not affect your build functionality
 
 6. **Serverless Function Dependency Issues**:
    - If you encounter errors about missing `serverless-http` or `cors` dependencies, the following solutions have been implemented:

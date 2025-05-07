@@ -418,8 +418,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   
-  // Set up WebSocket server
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  // Set up WebSocket server with retry logic
+  let wss: WebSocketServer;
+  
+  // We'll initialize this in the tryListen function in server/index.ts
+  // This prevents port conflict errors by attaching to the same port
+  // that the HTTP server successfully binds to
+  const initializeWebSocketServer = () => {
+    try {
+      // If an existing WebSocket server exists, attempt to close it first
+      if (wss) {
+        try {
+          wss.close();
+          console.log('Closed existing WebSocket server');
+        } catch (wsCloseError) {
+          console.error('Error closing existing WebSocket server:', wsCloseError);
+        }
+      }
+      
+      // Create a new WebSocket server on the current HTTP server
+      wss = new WebSocketServer({ 
+      server: httpServer, 
+      path: '/ws',
+      // Prevent crashing on connection errors
+      clientTracking: true,
+      perMessageDeflate: {
+        zlibDeflateOptions: {
+          chunkSize: 1024,
+          memLevel: 7,
+          level: 3
+        },
+        zlibInflateOptions: {
+          chunkSize: 10 * 1024
+        },
+        // Below options specified as default values
+        concurrencyLimit: 10,
+        threshold: 1024
+      }
+    });
+    
+    // Log current port number for clarity
+    const address = httpServer.address();
+    const port = typeof address === 'object' && address ? address.port : 'unknown';
+    console.log(`WebSocket server initialized on port ${port}`);
+    
+    // Make the WebSocket server available to the HTTP server
+    // @ts-ignore - Adding dynamic property
+    httpServer.wss = wss;
+    
+    // Set up handlers for the WebSocket server
+    setupWebSocketHandlers();
+    
+    return true;
+    } catch (error) {
+      console.error('Failed to initialize WebSocket server:', error);
+      return false;
+    }
+  };
   
   // Store connected clients
   const clients: Client[] = [];
@@ -430,7 +485,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup trial expiration checks
   setupTrialCheckSchedule();
 
-  wss.on('connection', (socket) => {
+  // This function will be called after WebSocket server is initialized
+  const setupWebSocketHandlers = () => {
+    if (!wss) {
+      console.error("WebSocket server not initialized yet");
+      return;
+    }
+    
+    wss.on('connection', (socket) => {
     console.log('WebSocket client connected');
     
     socket.on('message', async (message) => {
@@ -520,6 +582,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   });
+  }; // End of setupWebSocketHandlers
 
   // API routes
   
@@ -5269,5 +5332,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Expose the initialization function to the HTTP server
+  // @ts-ignore - Adding dynamic property
+  httpServer.initializeWebSocketServer = initializeWebSocketServer;
+  
   return httpServer;
-}
+};

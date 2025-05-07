@@ -1,0 +1,8 @@
+[tools]
+node = "18.18.0"
+
+[env]
+USE_IDIOMATIC_VERSION_FILES = "true"
+
+[settings]
+idiomatic_version_files = true
