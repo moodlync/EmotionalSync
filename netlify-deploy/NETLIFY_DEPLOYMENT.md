@@ -114,10 +114,14 @@ After successful deployment, test the following features:
      - A `NODE_VERSION = "18.18.0"` setting in netlify.toml
      - An `.nvmrc` file with Node 18.18.0 specified
      - A proper `engines` field in package.json
+     - The `USE_IDIOMATIC_VERSION_FILES = "true"` setting in netlify.toml
    
    If Node version issues persist:
    - Manually set the Node.js version in Netlify site settings under "Environment" → "Environment variables": add `NODE_VERSION` with value `18.18.0`
+   - Also add the environment variable `USE_IDIOMATIC_VERSION_FILES` with value `true` 
    - You can also try Node 16.x or 20.x if 18.x doesn't work for some reason
+   
+   If you see warnings about "idiomatic version files like .nvmrc", the configuration now includes the proper settings to enable these files. This prevents the warning from affecting your build.
 
 6. **Serverless Function Dependency Issues**:
    - If you encounter errors about missing `serverless-http` or `cors` dependencies, the following solutions have been implemented:

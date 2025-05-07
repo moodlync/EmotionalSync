@@ -19,6 +19,7 @@
   NPM_FLAGS = "--no-audit --no-fund --production"
   NPM_CONFIG_LEGACY_PEER_DEPS = "true"
   NODE_VERSION = "18.18.0"
+  USE_IDIOMATIC_VERSION_FILES = "true"
 
 [functions]
   node_bundler = "esbuild"
