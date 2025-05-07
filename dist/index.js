@@ -13963,9 +13963,25 @@ function serveStatic(app2) {
 }
 
 // server/index.ts
+import cors from "cors";
 var app = express5();
 app.use(express5.json());
 app.use(express5.urlencoded({ extended: false }));
+app.use(cors({
+  origin: true,
+  // Allow any origin
+  credentials: true,
+  // Allow credentials
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  next();
+});
 app.use((req, res, next) => {
   const start = Date.now();
   const path5 = req.path;
@@ -14005,7 +14021,7 @@ app.use((req, res, next) => {
   }
   let boundPort = null;
   let websocketInitialized = false;
-  const replitPort = process.env.PORT ? parseInt(process.env.PORT, 10) : null;
+  const replitPort = 5e3;
   const tryListen = (port, maxRetries = 3, retryCount = 0) => {
     if (boundPort !== null) {
       log(`Server already running on port ${boundPort}`);
@@ -14075,5 +14091,5 @@ app.use((req, res, next) => {
       }
     });
   };
-  tryListen(replitPort || 5e3);
+  tryListen(replitPort);
 })();

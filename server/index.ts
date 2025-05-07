@@ -1,10 +1,28 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: true, // Allow any origin
+  credentials: true, // Allow credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Add headers for Replit compatibility
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -60,8 +78,8 @@ app.use((req, res, next) => {
   let boundPort: number | null = null;
   let websocketInitialized = false;
   
-  // For Replit compatibility, if PORT env var is set, we should use it
-  const replitPort = process.env.PORT ? parseInt(process.env.PORT, 10) : null;
+  // For Replit compatibility, we need to use port 5000 to match workflow config
+  const replitPort = 5000;
   
   // Try to serve the app on port 5000 or fallback to alternate ports
   // This serves both the API and the client
@@ -165,6 +183,6 @@ app.use((req, res, next) => {
     });
   };
 
-  // Start with the default port 5000 or Replit-assigned port
-  tryListen(replitPort || 5000);
+  // Always use the Replit port in Replit environment
+  tryListen(replitPort);
 })();
