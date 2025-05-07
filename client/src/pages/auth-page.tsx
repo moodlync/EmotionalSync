@@ -184,17 +184,14 @@ export default function AuthPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-4">
             <div className="flex flex-col items-center justify-center py-4">
-              {/* Logo with enhanced background glow and heartbeat effect */}
+              {/* Logo with minimal glow and heartbeat effect */}
               <div className="mb-3">
                 <div className="relative flex items-center justify-center" style={{ width: "200px", height: "200px" }}>
-                  {/* Reduced multi-layered background glow effect */}
-                  <div className="absolute inset-[-35%] scale-150 rounded-full bg-primary/10 blur-2xl animate-pulse-slow" />
-                  <div className="absolute inset-[-25%] scale-140 rounded-full bg-secondary/10 blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
-                  <div className="absolute inset-[-15%] scale-125 rounded-full bg-primary/5 blur-xl animate-pulse-slow" style={{ animationDelay: '0.7s' }} />
-                  <div className="absolute inset-[-8%] scale-115 rounded-full bg-secondary/15 blur-lg animate-pulse-slow" style={{ animationDelay: '2s' }} />
+                  {/* Minimized background glow effect */}
+                  <div className="absolute inset-[-10%] scale-110 rounded-full bg-primary/5 blur-lg animate-pulse-slow" />
                   
-                  {/* Expanded inner shadow */}
-                  <div className="absolute inset-[5%] rounded-full bg-white/60 blur-md" />
+                  {/* Minimal inner shadow */}
+                  <div className="absolute inset-[5%] rounded-full bg-white/40 blur-sm" />
                   
                   {/* Heartbeat container */}
                   <div className="relative z-10 animate-heartbeat" style={{ 
@@ -204,9 +201,9 @@ export default function AuthPage() {
                     <img 
                       src={logoImage} 
                       alt="MoodLync Logo" 
-                      className="w-full h-full object-contain rounded-full shadow-lg"
+                      className="w-full h-full object-contain rounded-full shadow-md"
                       style={{
-                        boxShadow: 'inset 0 0 40px 15px rgba(96, 82, 199, 0.3), 0 5px 20px 10px rgba(96, 82, 199, 0.3)',
+                        boxShadow: 'inset 0 0 20px 5px rgba(96, 82, 199, 0.15), 0 2px 10px 2px rgba(96, 82, 199, 0.1)',
                         width: '200px',
                         height: '200px'
                       }}
