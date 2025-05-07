@@ -1219,12 +1219,12 @@ export class MemStorage implements IStorage {
     const sagarAdminId = this.adminId++;
     const sagarAdmin: AdminUser = {
       id: sagarAdminId,
-      username: 'Sagar',
-      password: 'Queanbeyan@9', // Same as the Sagar user account
+      username: 'admin',
+      password: 'Queanbeyan@9', // Updated to username 'admin' with the same password
       email: 'sagar@moodsync.app',
       firstName: 'Sagar',
       lastName: 'Admin',
-      role: 'admin' as AdminRole,
+      role: 'SUPER_ADMIN' as AdminRole, // Updated role to ensure full access
       isActive: true,
       lastLogin: null,
       createdAt: new Date(),

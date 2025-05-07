@@ -99,34 +99,13 @@ export default function Header() {
               textSize="lg" 
               enableHeartbeat={logoHeartbeat}
               hideText={true}
-              className="bg-white dark:bg-white dark:bg-opacity-10 p-1 rounded-full"
+              isWelcomeScreen={true} /* Changed from rounded to welcome page style */
             />
           </div>
         </Link>
         
-        {/* Search Component */}
-        <div className="hidden md:flex items-center relative mx-4">
-          <div className={`flex items-center ${isSearchOpen ? 'w-64' : 'w-10'} transition-all duration-300 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden`}>
-            <button 
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="flex items-center justify-center h-10 w-10 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              <Search className="h-4 w-4" />
-            </button>
-            
-            {isSearchOpen && (
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search MoodLync..."
-                className="flex-1 h-10 px-2 bg-transparent border-none focus:outline-none text-sm"
-              />
-            )}
-          </div>
-        </div>
-
         <div className="flex items-center space-x-2 md:space-x-4">
+          {/* Token Display - Only for logged in users */}
           {user && (
             <TooltipProvider>
               <Tooltip>
@@ -149,10 +128,56 @@ export default function Header() {
               </Tooltip>
             </TooltipProvider>
           )}
-          
-          {/* Removed buttons from header as requested */}
 
-          {/* Notification Bell */}
+          {/* Desktop Search Component - Only visible on desktop */}
+          {user && (
+            <div className="hidden md:flex items-center relative">
+              <div className={`flex items-center ${isSearchOpen ? 'w-64' : 'w-10'} transition-all duration-300 bg-gray-100 dark:bg-white rounded-full overflow-hidden`}>
+                <button 
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="flex items-center justify-center h-10 w-10 text-gray-500 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-800"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+                
+                {isSearchOpen && (
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search MoodLync..."
+                    className="flex-1 h-10 px-2 bg-transparent border-none focus:outline-none text-sm dark:text-gray-800"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Mobile Search Component - Only visible on mobile */}
+          {user && (
+            <div className="flex md:hidden items-center relative">
+              <div className={`flex items-center ${isSearchOpen ? 'w-32' : 'w-8'} transition-all duration-300 bg-gray-100 dark:bg-white rounded-full overflow-hidden`}>
+                <button 
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="flex items-center justify-center h-8 w-8 text-gray-500 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-800"
+                >
+                  <Search className="h-3.5 w-3.5" />
+                </button>
+                
+                {isSearchOpen && (
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search..."
+                    className="flex-1 h-8 px-2 bg-transparent border-none focus:outline-none text-xs dark:text-gray-800"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Notification Bell - Always visible */}
           {user && (
             <div>
               <TooltipProvider>
@@ -168,8 +193,8 @@ export default function Header() {
             </div>
           )}
           
-          {/* Theme Toggle Button */}
-          <div>
+          {/* Theme Toggle Button - Hidden on mobile, moved to account dropdown */}
+          <div className="hidden md:block">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
@@ -286,6 +311,18 @@ export default function Header() {
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <div className="w-full">
                     <AppTestPanel />
+                  </div>
+                </DropdownMenuItem>
+                {/* Mobile-only Theme Toggle in Dropdown */}
+                <DropdownMenuSeparator className="md:hidden" />
+                <DropdownMenuItem className="md:hidden flex items-center justify-between" asChild>
+                  <div className="w-full flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Sun className="h-4 w-4 mr-2 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute h-4 w-4 mr-2 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      <span>Theme</span>
+                    </div>
+                    <ThemeToggle />
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
