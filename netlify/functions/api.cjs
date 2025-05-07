@@ -6,6 +6,19 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const path = require('path');
+
+// Use a safer approach for determining paths in Netlify environment
+let projectRoot;
+try {
+  // Standard approach
+  projectRoot = path.resolve(__dirname, '../..');
+} catch (error) {
+  // Fallback for Netlify Functions environment
+  console.log("Using fallback method for file paths in Netlify environment");
+  projectRoot = process.cwd();
+}
 
 // Create the express app
 const app = express();

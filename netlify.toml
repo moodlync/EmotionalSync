@@ -24,6 +24,12 @@
 
 [functions]
   node_bundler = "esbuild"
+  
+  # Define environment variables for functions
+  [functions.environment]
+    NODE_ENV = "production"
+    # Force path handling in JS to use current working directory
+    FUNCTIONS_PATH_MODE = "cwd"
 
 [[plugins]]
 package = "@netlify/plugin-functions-install-core"

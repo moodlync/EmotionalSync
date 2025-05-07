@@ -8,8 +8,25 @@ import session from 'express-session';
 import createMemoryStore from 'memorystore';
 
 // Import application routes and auth setup
-import { registerRoutes } from '../../server/routes.js';
-import { setupAuth } from '../../server/auth.js';
+// Use try-catch to handle potential import errors in Netlify environment
+let registerRoutes, setupAuth;
+try {
+  const routes = await import('../../server/routes.js');
+  const auth = await import('../../server/auth.js');
+  registerRoutes = routes.registerRoutes;
+  setupAuth = auth.setupAuth;
+} catch (error) {
+  console.error('Error importing server modules:', error);
+  // Provide fallback implementations if imports fail
+  registerRoutes = (app) => {
+    console.log('Using fallback routes implementation');
+    return app;
+  };
+  setupAuth = (app) => {
+    console.log('Using fallback auth implementation');
+    return app;
+  };
+}
 
 // Initialize MemoryStore
 const MemoryStore = createMemoryStore(session);

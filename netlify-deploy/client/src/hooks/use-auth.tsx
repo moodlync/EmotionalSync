@@ -43,8 +43,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      try {
+        console.log("Login mutation - submitting data:", { 
+          username: credentials.username,
+          hasPassword: !!credentials.password
+        });
+        
+        const res = await apiRequest("POST", "/api/login", credentials);
+        console.log("Login response status:", res.status, res.statusText);
+        
+        // Check if the response is ok before trying to parse the JSON
+        if (!res.ok) {
+          let errorMessage = "Login failed. Please check your username and password.";
+          
+          try {
+            // Try to parse error as JSON
+            const contentType = res.headers.get('content-type');
+            console.log("Response content type:", contentType);
+            
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await res.json();
+              console.log("Login error data:", errorData);
+              errorMessage = errorData.error || errorData.message || errorMessage;
+            } else {
+              // Otherwise get as text
+              const errorText = await res.text();
+              console.log("Login error text:", errorText);
+              if (errorText) errorMessage = errorText;
+            }
+          } catch (parseError) {
+            console.error("Error parsing login error response:", parseError);
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        // Parse the successful response
+        const data = await res.json();
+        console.log("Login successful, received user data");
+        return data;
+      } catch (error) {
+        console.error("Login error:", error);
+        throw error;
+      }
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);

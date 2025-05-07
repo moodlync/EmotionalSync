@@ -1,11 +1,29 @@
-# Netlify redirects file
-# Defines URL redirects and rewrites for Netlify deployment
+# Netlify redirects file for MoodLync SPA
 
-# API requests go to the Netlify Functions
+# API routes - proxy to Netlify functions
 /api/*  /.netlify/functions/api/:splat  200
 
-# Admin routes handled by SPA
+# Admin routes - handle with the SPA
 /admin/*  /index.html  200
 
-# All other routes are handled by the SPA
+# Specific SPA routes
+/auth  /index.html  200
+/profile/*  /index.html  200
+/emotions/*  /index.html  200
+/community/*  /index.html  200
+/marketplace/*  /index.html  200
+/chat/*  /index.html  200
+/nft/*  /index.html  200
+/journal/*  /index.html  200
+/settings/*  /index.html  200
+/challenges/*  /index.html  200
+/premium/*  /index.html  200
+/tokens/*  /index.html  200
+/notifications/*  /index.html  200
+/friends/*  /index.html  200
+/map/*  /index.html  200
+/games/*  /index.html  200
+/support/*  /index.html  200
+
+# Fallback for all other routes - handle with the SPA
 /*  /index.html  200

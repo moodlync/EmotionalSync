@@ -16,8 +16,17 @@ import crypto from "crypto";
 // Note: Account and subscription management routes are imported dynamically in registerRoutes function
 
 // Since __dirname is not available in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Use a safer approach for Netlify functions that works in both dev and production
+let __dirname;
+try {
+  // Try the standard ES modules approach first
+  const __filename = fileURLToPath(import.meta.url);
+  __dirname = path.dirname(__filename);
+} catch (error) {
+  // Fallback for Netlify Functions environment where import.meta.url might be undefined
+  console.log("Using fallback method for __dirname in Netlify environment");
+  __dirname = process.cwd();
+}
 import { AdminUser } from "@shared/schema";
 
 // Extend Express Request interface to include admin user

@@ -79,7 +79,8 @@ export function setupAuth(app: Express) {
       console.log("Registration request received:", { 
         username: req.body.username,
         email: req.body.email,
-        hasPassword: !!req.body.password 
+        hasPassword: !!req.body.password,
+        hasReferralCode: !!req.body.referralCode
       });
       
       // Validate required fields are present
@@ -107,6 +108,26 @@ export function setupAuth(app: Express) {
         const existingEmail = await storage.findUserByEmail(req.body.email);
         if (existingEmail) {
           return res.status(400).json({ error: "Email already exists" });
+        }
+      }
+      
+      // Check referral code validity if provided
+      if (req.body.referralCode) {
+        try {
+          const referral = await storage.getReferralByCode(req.body.referralCode);
+          if (!referral) {
+            return res.status(400).json({ error: "Invalid referral code" });
+          }
+          
+          // Check if the referral has expired
+          if (referral.status === 'expired' || new Date(referral.expiresAt) < new Date()) {
+            return res.status(400).json({ error: "Referral code has expired" });
+          }
+        } catch (refError) {
+          console.error("Error checking referral code:", refError);
+          // Instead of failing, we'll allow registration to proceed without a valid referral
+          // But we'll set the referralCode to null to indicate it wasn't valid
+          req.body.referralCode = null;
         }
       }
       
