@@ -93,7 +93,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
       try {
+        console.log("Registration mutation - submitting data:", { 
+          ...credentials, 
+          password: credentials.password ? "********" : undefined // Don't log actual password
+        });
+        
         const res = await apiRequest("POST", "/api/register", credentials);
+        console.log("Registration response status:", res.status, res.statusText);
         
         // Check if the response is ok before trying to parse the JSON
         if (!res.ok) {
@@ -102,12 +108,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           try {
             // Try to parse error as JSON
             const contentType = res.headers.get('content-type');
+            console.log("Response content type:", contentType);
+            
             if (contentType && contentType.includes('application/json')) {
               const errorData = await res.json();
+              console.log("Registration error data:", errorData);
               errorMessage = errorData.error || errorData.message || errorMessage as string;
             } else {
               // Otherwise get as text
               const errorText = await res.text();
+              console.log("Registration error text:", errorText);
               if (errorText) errorMessage = errorText;
             }
           } catch (parseError) {
@@ -117,7 +127,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error(errorMessage);
         }
         
-        return await res.json();
+        const userData = await res.json();
+        console.log("Registration successful, user data:", userData);
+        return userData;
       } catch (error) {
         console.error("Registration request error:", error);
         throw error;
