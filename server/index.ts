@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from 'cors';
+import * as http from 'http';
 
 const app = express();
 app.use(express.json());
@@ -78,10 +79,11 @@ app.use((req, res, next) => {
   let boundPort: number | null = null;
   let websocketInitialized = false;
   
-  // For Replit compatibility, we need to use port 5000 to match workflow config
-  const replitPort = 5000;
+  // For Replit compatibility, try to use port 5000 directly
+  const primaryPort = 5000;
+  const alternativePort = 8080;
   
-  // Try to serve the app on port 5000 or fallback to alternate ports
+  // Try to serve the app on port 5000 first
   // This serves both the API and the client
   const tryListen = (port: number, maxRetries = 3, retryCount = 0) => {
     // If we already have a bound port, don't try to bind again
@@ -90,17 +92,15 @@ app.use((req, res, next) => {
       return;
     }
     
-    // For Replit compatibility, force port 5000 if we're in a workflow
-    if (replitPort && port !== replitPort) {
-      log(`Using Replit-assigned port: ${replitPort}`);
-      port = replitPort;
-    }
+    // Always try port 5000 first to satisfy Replit workflow
+    const usePort = port;
     
     const serverOpts = {
-      port,
+      port: usePort,
       host: "0.0.0.0" as const,
-      reusePort: true,
     };
+    
+    log(`Attempting to start server on an available port...`);
 
     // Kill any existing server instances just to be safe
     try {
@@ -108,18 +108,6 @@ app.use((req, res, next) => {
       if (server._handle) server.close();
     } catch (error) {
       // Ignore errors during cleanup
-    }
-
-    // Before binding, let's kill any process that might be using our port
-    // This is especially important in development environments like Replit
-    try {
-      // Force kill any process using this port before we try to bind
-      // This is a bit aggressive but needed for development environments
-      if (process.env.NODE_ENV === 'development') {
-        log(`Attempting to force bind to port ${port} for Replit compatibility`);
-      }
-    } catch (error) {
-      // Ignore errors during port cleanup
     }
 
     server.listen(serverOpts, () => {
@@ -155,25 +143,18 @@ app.use((req, res, next) => {
       }
     }).on('error', (err: any) => {
       if (err.code === 'EADDRINUSE' && retryCount < maxRetries) {
-        // Port is in use, try next port
-        const nextPort = replitPort || (port + 1);
+        log(`Port ${usePort} is in use, trying a different port...`);
         
-        // If we're on Replit and using the assigned port, we shouldn't try other ports
-        if (replitPort && replitPort === port) {
-          log(`Replit port ${port} is in use, but we must use this port. Attempting forced bind...`);
-          // Force a tiny delay to let any cleanup happen
-          setTimeout(() => tryListen(port, maxRetries, retryCount + 1), 1000);
-        } else {
-          log(`Port ${port} is already in use, trying port ${nextPort}...`);
-          tryListen(nextPort, maxRetries, retryCount + 1);
-        }
+        // Try next available port with a slight delay
+        const emergencyPort = 9090 + retryCount;
+        setTimeout(() => tryListen(emergencyPort, maxRetries, retryCount + 1), 500);
       } else {
         // Either not an EADDRINUSE error or we've exhausted retries
         console.error(`Failed to start server: ${err.message}`);
         
         // In development, try to continue on a different port anyway as a last resort
-        if (process.env.NODE_ENV === 'development' && !replitPort) {
-          const emergencyPort = 8080;
+        if (process.env.NODE_ENV === 'development') {
+          const emergencyPort = 7777;
           log(`Trying emergency port ${emergencyPort}...`);
           tryListen(emergencyPort, 0, 0);
         } else {
@@ -183,6 +164,10 @@ app.use((req, res, next) => {
     });
   };
 
-  // Always use the Replit port in Replit environment
-  tryListen(replitPort);
+  // Skip the port checking and directly try to bind
+  log(`Replit workflow requires port 5000, attempting to start server...`);
+  
+  // Try to directly start on port 5000 first - Replit workflow needs this
+  // We can still fall back to alternative ports if needed
+  setTimeout(() => tryListen(primaryPort), 100);
 })();

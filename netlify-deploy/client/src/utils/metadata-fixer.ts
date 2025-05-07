@@ -5,7 +5,7 @@
 
 export function removeReplitMetadata() {
   // Only run this in production builds
-  if (import.meta.env.PROD) {
+  if (process.env.NODE_ENV === 'production') {
     // Wait for DOM to be ready
     document.addEventListener('DOMContentLoaded', () => {
       // Find all elements with data-replit-metadata attribute

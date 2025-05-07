@@ -28,7 +28,7 @@ const EmotionalNFTsDescription = lazy(() => import('@/components/learn-more/prod
 const TokenRewardsDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.TokenRewardsDescription })));
 
 // Helper to determine if we're in development mode
-const isDevelopment = import.meta.env.MODE === 'development';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
