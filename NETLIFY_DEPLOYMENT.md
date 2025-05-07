@@ -48,7 +48,7 @@ This method is strongly recommended over uploading a zip file:
 3. Connect to GitHub and select your MoodSync repository
 4. Configure build settings:
    - Build command: `npm run build`
-   - Publish directory: `dist/client`
+   - Publish directory: `dist/public`
 
 ### 3. Set Environment Variables
 
@@ -79,10 +79,11 @@ If you prefer to deploy using a zip file instead of GitHub:
 1. Make sure you've updated your code with the Replit metadata fix in `client/src/main.tsx` and `client/src/utils/metadata-fixer.ts`
 2. Run a local build: `npm run build`
 3. Create a zip file containing the following:
-   - `dist/` directory
+   - `dist/` directory (ensure it contains `dist/public` with the built application files)
    - `netlify/` directory 
    - `netlify.toml` file
    - `package.json` file
+   - `_redirects` file
 4. In Netlify dashboard, go to Sites > Add new site > Deploy manually
 5. Upload your zip file
 6. Configure environment variables as described in section 3
@@ -200,6 +201,71 @@ After successful deployment, test the following features:
      export NPM_CONFIG_AUDIT=false && npm install --no-audit && npm install --no-audit react-icons tw-elements cmdk vaul recharts tailwind-merge react-day-picker && NODE_ENV=production npm run build
      ```
    - For last resort fixes, you may need to fork the repository, add the missing dependency to the package.json file, and deploy from your fork
+
+### 9. "Page Not Found" (404) Errors
+
+If you're experiencing 404 "Page not found" errors after deployment, here are targeted fixes:
+
+1. **Check Site Configuration**: Verify that the publish directory is set to `dist/public` in both netlify.toml and Netlify site settings.
+
+2. **Verify _redirects File**: Make sure the `_redirects` file exists in the publish directory with these rules:
+   ```
+   # API requests go to the Netlify Functions
+   /api/*  /.netlify/functions/api/:splat  200
+   
+   # Admin routes handled by SPA
+   /admin/*  /index.html  200
+   
+   # All other routes are handled by the SPA
+   /*  /index.html  200
+   ```
+
+3. **Check netlify.toml Redirects**: Ensure your netlify.toml has comprehensive redirect rules for SPA routing:
+   ```toml
+   [[redirects]]
+     from = "/api/*"
+     to = "/.netlify/functions/api/:splat"
+     status = 200
+     force = true
+   
+   [[redirects]]
+     from = "/*"
+     to = "/index.html"
+     status = 200
+   ```
+
+4. **Add 404.html Page**: Include a custom 404.html page that redirects to the main application with route information preserved:
+   ```html
+   <script>
+     // Save the path to localStorage
+     localStorage.setItem('redirectPath', window.location.pathname + window.location.search);
+     // Redirect to the homepage
+     window.location.href = '/';
+   </script>
+   ```
+
+5. **Update Main App Entry**: Add deep link handling in your main app entry point to properly restore routes after redirects:
+   ```javascript
+   // In main.tsx or similar entry file
+   function handleDeepLinking() {
+     const savedPath = localStorage.getItem('redirectPath');
+     if (savedPath && window.location.pathname === '/') {
+       localStorage.removeItem('redirectPath');
+       window.history.replaceState({}, document.title, savedPath);
+     }
+   }
+   handleDeepLinking();
+   ```
+
+6. **Function Compatibility**: Ensure your Netlify functions properly handle both ES modules and CommonJS:
+   ```javascript
+   // In netlify.js
+   try {
+     exports.handler = require('./api.js').handler;
+   } catch (e) {
+     exports.handler = require('./api.cjs').handler;
+   }
+   ```
 
 ### Getting Support
 
