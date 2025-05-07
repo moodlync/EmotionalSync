@@ -1,0 +1,6 @@
+# Explicitly enable idiomatic version files for mise (used by Netlify)
+[settings]
+idiomatic_version_files = true
+
+[tools]
+node = "18.18.0"
