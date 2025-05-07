@@ -165,15 +165,15 @@
 
 @keyframes heartbeat {
   0% { transform: scale(1); }
-  15% { transform: scale(1.15); }
-  25% { transform: scale(1.07); }
-  35% { transform: scale(1.2); }
+  15% { transform: scale(1.01); }
+  25% { transform: scale(1); }
+  35% { transform: scale(1.015); }
   50% { transform: scale(1); }
   100% { transform: scale(1); }
 }
 
 .animate-heartbeat {
-  animation: heartbeat 2s infinite ease-in-out;
+  animation: heartbeat 40s infinite ease-in-out;
 }
 
 .scrollbar-hide::-webkit-scrollbar {

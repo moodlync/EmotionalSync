@@ -109,7 +109,17 @@ After successful deployment, test the following features:
 
 4. **Build Failures**: Check the Netlify build logs for specific errors and fix them in your repository before redeploying.
 
-5. **Serverless Function Dependency Issues**:
+5. **Node.js Version Issues**:
+   - If you see an error like "Line 21 of the build logs shows that the build is using Node version v22.15.0, which is not a valid Node version," the deployment package now includes:
+     - A `NODE_VERSION = "18.18.0"` setting in netlify.toml
+     - An `.nvmrc` file with Node 18.18.0 specified
+     - A proper `engines` field in package.json
+   
+   If Node version issues persist:
+   - Manually set the Node.js version in Netlify site settings under "Environment" → "Environment variables": add `NODE_VERSION` with value `18.18.0`
+   - You can also try Node 16.x or 20.x if 18.x doesn't work for some reason
+
+6. **Serverless Function Dependency Issues**:
    - If you encounter errors about missing `serverless-http` or `cors` dependencies, the following solutions have been implemented:
      - Enhanced `netlify.toml` build command that explicitly installs required dependencies
      - Custom installation script (`netlify/functions/install.js`) that handles dependency installation  

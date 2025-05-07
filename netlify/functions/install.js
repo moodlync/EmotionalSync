@@ -7,6 +7,18 @@ const path = require('path');
 // Script to ensure all dependencies are installed properly for Netlify Functions
 console.log('🛠️ Installing dependencies for Netlify Functions...');
 
+// Check Node.js version
+const nodeVersion = process.version;
+console.log(`📊 Using Node.js ${nodeVersion}`);
+
+// Verify Node.js version
+const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0], 10);
+if (majorVersion < 16 || majorVersion > 20) {
+  console.warn(`⚠️ WARNING: You are using Node.js ${nodeVersion}. This may not be compatible with this project.`);
+  console.warn('⚠️ Recommended Node.js version is 18.x');
+  console.warn('⚠️ Set NODE_VERSION=18.18.0 in your Netlify environment variables');
+}
+
 // Check if we are in the functions directory
 const currentDir = process.cwd();
 const inFunctionsDir = currentDir.includes('netlify/functions');
@@ -40,6 +52,7 @@ strict-peer-deps=false
 package-lock=false
 save-exact=true
 engine-strict=false
+use-node-version=18.18.0
   `.trim());
 }
 

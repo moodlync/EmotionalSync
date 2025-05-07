@@ -76,13 +76,19 @@ This is an optimized package for deploying MoodSync to Netlify.
 1. Upload this directory to Netlify
 2. Set the build command to: `npm run build`
 3. Set the publish directory to: `dist/client`
-4. Configure environment variables as described in NETLIFY_DEPLOYMENT.md
+4. Configure environment variables:
+   - Run the included script: `./netlify-env-setup.sh` for guidance
+   - Add necessary environment variables in the Netlify dashboard
+   - Make sure to set NODE_VERSION=18.18.0 to avoid Node version errors
+5. See NETLIFY_DEPLOYMENT.md for detailed instructions and troubleshooting
 
 Note: This package includes only the essential files needed for building and deploying the application.
 EOF
 
-# Copy the deployment guide
+# Copy the deployment guide and environment setup script
 cp NETLIFY_DEPLOYMENT.md $DEPLOY_DIR/
+cp netlify-env-setup.sh $DEPLOY_DIR/
+chmod +x $DEPLOY_DIR/netlify-env-setup.sh
 
 echo "Creating .gitignore for deployment package..."
 cat > $DEPLOY_DIR/.gitignore << 'EOF'

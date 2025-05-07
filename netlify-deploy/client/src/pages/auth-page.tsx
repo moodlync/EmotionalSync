@@ -181,20 +181,17 @@ export default function AuthPage() {
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left side - Auth forms */}
       <div className="flex-1 flex items-center justify-center p-4 md:p-8">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-xl">
           <CardHeader className="space-y-4">
             <div className="flex flex-col items-center justify-center py-4">
-              {/* Logo with enhanced background glow and heartbeat effect */}
+              {/* Logo with minimal glow and heartbeat effect */}
               <div className="mb-3">
-                <div className="relative flex items-center justify-center" style={{ width: "200px", height: "200px" }}>
-                  {/* Reduced multi-layered background glow effect */}
-                  <div className="absolute inset-[-35%] scale-150 rounded-full bg-primary/10 blur-2xl animate-pulse-slow" />
-                  <div className="absolute inset-[-25%] scale-140 rounded-full bg-secondary/10 blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
-                  <div className="absolute inset-[-15%] scale-125 rounded-full bg-primary/5 blur-xl animate-pulse-slow" style={{ animationDelay: '0.7s' }} />
-                  <div className="absolute inset-[-8%] scale-115 rounded-full bg-secondary/15 blur-lg animate-pulse-slow" style={{ animationDelay: '2s' }} />
+                <div className="relative flex items-center justify-center" style={{ width: "280px", height: "280px" }}>
+                  {/* Minimized background glow effect */}
+                  <div className="absolute inset-[-10%] scale-110 rounded-full bg-primary/5 blur-lg animate-pulse-slow" />
                   
-                  {/* Expanded inner shadow */}
-                  <div className="absolute inset-[5%] rounded-full bg-white/60 blur-md" />
+                  {/* Minimal inner shadow */}
+                  <div className="absolute inset-[5%] rounded-full bg-white/40 blur-sm" />
                   
                   {/* Heartbeat container */}
                   <div className="relative z-10 animate-heartbeat" style={{ 
@@ -203,12 +200,18 @@ export default function AuthPage() {
                   }}>
                     <img 
                       src={logoImage} 
-                      alt="MoodLync Logo" 
-                      className="w-full h-full object-contain rounded-full shadow-lg"
+                      alt="moodlync Logo" 
+                      className="object-contain"
                       style={{
-                        boxShadow: 'inset 0 0 40px 15px rgba(96, 82, 199, 0.3), 0 5px 20px 10px rgba(96, 82, 199, 0.3)',
-                        width: '200px',
-                        height: '200px'
+                        backgroundColor: 'white',
+                        boxShadow: '0 6px 16px rgba(96, 82, 199, 0.3)',
+                        width: '320px',
+                        height: '120px',
+                        borderRadius: '9999px', 
+                        padding: '10px 20px',
+                        border: '2px solid rgba(96, 82, 199, 0.2)',
+                        filter: 'brightness(1.05) contrast(1.1)',
+                        background: 'linear-gradient(to right, white, #f8f9fa)'
                       }}
                     />
                   </div>
