@@ -98,27 +98,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           password: credentials.password ? "********" : undefined // Don't log actual password
         });
         
+        // Network connection check
+        if (!navigator.onLine) {
+          throw new Error("You appear to be offline. Please check your internet connection and try again.");
+        }
+        
         const res = await apiRequest("POST", "/api/register", credentials);
         console.log("Registration response status:", res.status, res.statusText);
         
         // Check if the response is ok before trying to parse the JSON
         if (!res.ok) {
-          let errorMessage = "Registration failed. Please try again.";
+          // Define user-friendly error messages based on status codes
+          let errorMessage = "We're having trouble completing your registration. Please try again in a few moments.";
+          
+          if (res.status === 400) {
+            errorMessage = "There's an issue with your registration information. Please review and try again.";
+          } else if (res.status === 409) {
+            errorMessage = "This username or email is already registered. Please try a different one or login to your existing account.";
+          } else if (res.status === 422) {
+            errorMessage = "Some information is missing or incorrect. Please fill in all required fields.";
+          } else if (res.status === 429) {
+            errorMessage = "Too many registration attempts. Please wait a few minutes before trying again.";
+          } else if (res.status >= 500) {
+            errorMessage = "Our system is currently experiencing issues. Please try again later or contact support.";
+          }
           
           try {
-            // Try to parse error as JSON
+            // Try to parse error as JSON for more specific messages
             const contentType = res.headers.get('content-type');
             console.log("Response content type:", contentType);
             
             if (contentType && contentType.includes('application/json')) {
               const errorData = await res.json();
               console.log("Registration error data:", errorData);
-              errorMessage = errorData.error || errorData.message || errorMessage as string;
+              
+              // Use specific error messages if available
+              if (errorData.error) {
+                if (errorData.error.includes("username")) {
+                  errorMessage = "This username is already taken. Please choose a different username.";
+                } else if (errorData.error.includes("email")) {
+                  errorMessage = "This email address is already registered. Please use a different email or login to your existing account.";
+                } else {
+                  errorMessage = errorData.error;
+                }
+              } else if (errorData.message) {
+                errorMessage = errorData.message;
+              }
             } else {
               // Otherwise get as text
               const errorText = await res.text();
               console.log("Registration error text:", errorText);
-              if (errorText) errorMessage = errorText;
+              if (errorText && errorText.length < 100) errorMessage = errorText;
             }
           } catch (parseError) {
             console.error("Error parsing registration error response:", parseError);
@@ -132,6 +162,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return userData;
       } catch (error) {
         console.error("Registration request error:", error);
+        
+        // Handle network errors
+        if (error instanceof TypeError && error.message.includes('Network')) {
+          throw new Error("Unable to connect to our services. Please check your internet connection and try again.");
+        }
+        
+        // Handle timeout errors
+        if (error.name === 'AbortError' || (error.message && error.message.includes('timeout'))) {
+          throw new Error("The registration request timed out. Please try again when you have a stronger internet connection.");
+        }
+        
         throw error;
       }
     },

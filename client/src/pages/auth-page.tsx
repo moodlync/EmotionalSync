@@ -130,16 +130,67 @@ export default function AuthPage() {
 
   const onRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {
     try {
+      // First, check if there are any validation errors in the form
+      const formErrors = registerForm.formState.errors;
+      if (Object.keys(formErrors).length > 0) {
+        console.log("Form has validation errors:", formErrors);
+        return; // Don't submit if there are validation errors
+      }
+
       // Remove confirmPassword as it's not part of the API schema
       const { confirmPassword, ...registerData } = values;
       
-      // Validate email format before submission to provide immediate feedback
-      if (registerData.email && !registerData.email.includes('@')) {
-        registerForm.setError('email', { 
+      // Additional email format validation
+      if (registerData.email) {
+        // More comprehensive email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(registerData.email)) {
+          registerForm.setError('email', { 
+            type: 'manual',
+            message: 'Please enter a valid email address'
+          });
+          return;
+        }
+      }
+      
+      // Check network connection
+      if (!navigator.onLine) {
+        const errorMessage = "You appear to be offline. Please check your internet connection and try again.";
+        registerForm.setError('root', {
           type: 'manual',
-          message: 'Please enter a valid email address'
+          message: errorMessage
+        });
+        
+        // Also show a toast for better visibility
+        toast({
+          title: "Connection Error",
+          description: errorMessage,
+          variant: "destructive",
         });
         return;
+      }
+      
+      // Password strength validation (could be expanded)
+      if (registerData.password) {
+        if (registerData.password.length < 8) {
+          registerForm.setError('password', { 
+            type: 'manual',
+            message: 'Password should be at least 8 characters long for better security'
+          });
+          return;
+        }
+      }
+      
+      // Username validation (no spaces, special characters)
+      if (registerData.username) {
+        const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+        if (!usernameRegex.test(registerData.username)) {
+          registerForm.setError('username', { 
+            type: 'manual',
+            message: 'Username can only contain letters, numbers, underscores and hyphens'
+          });
+          return;
+        }
       }
       
       // Add detailed logs for debugging
@@ -148,32 +199,75 @@ export default function AuthPage() {
         password: registerData.password ? '********' : undefined // Don't log actual password
       });
       
+      // Create a loading message
+      toast({
+        title: "Creating your account",
+        description: "Please wait while we set up your MoodSync experience...",
+      });
+      
       // The IP address will be captured on the server
-      registerMutation.mutate(registerData);
+      registerMutation.mutate(registerData, {
+        onError: (error) => {
+          // Handle registration errors by setting form field errors
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : "An unexpected error occurred during registration";
+          
+          console.error("Registration mutation error:", errorMessage);
+          
+          // Map error messages to specific form fields
+          if (errorMessage.toLowerCase().includes('username') || errorMessage.toLowerCase().includes('taken')) {
+            registerForm.setError('username', { 
+              type: 'manual',
+              message: "This username is already taken. Please choose a different one."
+            });
+          } else if (errorMessage.toLowerCase().includes('email') || errorMessage.toLowerCase().includes('already registered')) {
+            registerForm.setError('email', { 
+              type: 'manual',
+              message: "This email is already registered. Please use a different email or login to your existing account."
+            });
+          } else if (errorMessage.toLowerCase().includes('password')) {
+            registerForm.setError('password', { 
+              type: 'manual',
+              message: "Password doesn't meet security requirements. Please choose a stronger password."
+            });
+          } else if (errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('connection')) {
+            // Network-related errors
+            registerForm.setError('root', {
+              type: 'manual',
+              message: "Network error. Please check your internet connection and try again."
+            });
+          } else {
+            // General error message
+            registerForm.setError('root', {
+              type: 'manual',
+              message: errorMessage
+            });
+          }
+        }
+      });
     } catch (error) {
       console.error("Error in registration form submission:", error);
+      
       // If there's a client-side error, show a toast message
       const errorMessage = error instanceof Error 
         ? error.message 
         : "An unknown error occurred during registration";
       
-      // Use setError to display specific form field errors
-      if (errorMessage.toLowerCase().includes('username')) {
-        registerForm.setError('username', { 
-          type: 'manual',
-          message: errorMessage
-        });
-      } else if (errorMessage.toLowerCase().includes('email')) {
-        registerForm.setError('email', { 
-          type: 'manual',
-          message: errorMessage
-        });
-      } else if (errorMessage.toLowerCase().includes('password')) {
-        registerForm.setError('password', { 
-          type: 'manual',
-          message: errorMessage
-        });
-      }
+      console.error("Registration form error:", errorMessage);
+      
+      // Set a general error message at the form level
+      registerForm.setError('root', {
+        type: 'manual',
+        message: errorMessage
+      });
+      
+      // Also display a toast for better visibility
+      toast({
+        title: "Registration Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
