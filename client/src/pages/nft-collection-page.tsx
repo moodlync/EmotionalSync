@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
+import SEOHead from '@/components/seo/seo-head';
+import { seoConfig } from '@/components/seo/seo-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -41,9 +42,7 @@ export default function NftCollectionPage() {
 
   return (
     <MainLayout showBackButton={true} title="Emotional NFT Collection">
-      <Helmet>
-        <title>Emotional NFT Collection | MoodSync</title>
-      </Helmet>
+      <SEOHead {...seoConfig.nftCollection} />
 
       <div className="container max-w-6xl mx-auto py-4 px-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">

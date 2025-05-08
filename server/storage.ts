@@ -48,6 +48,9 @@ import {
   type InsertAdvertisement,
   type AdvertisementBooking,
   type InsertAdvertisementBooking,
+  type SeoConfiguration,
+  type InsertSeoConfiguration,
+  seoConfigurations,
   userPosts,
   postComments,
   postReactions,
@@ -164,6 +167,12 @@ export interface IStorage {
   startFreeTrial(userId: number, trialDays: number): Promise<User>;
   isUserInActiveTrial(userId: number): Promise<boolean>;
   checkAndExpireTrials(): Promise<void>;
+  
+  // SEO Management
+  getAllSeoConfigurations(): Promise<SeoConfiguration[]>;
+  getSeoConfigurationByKey(pageKey: string): Promise<SeoConfiguration | undefined>;
+  createSeoConfiguration(pageKey: string, config: Omit<InsertSeoConfiguration, 'pageKey'>): Promise<SeoConfiguration>;
+  updateSeoConfiguration(pageKey: string, config: Partial<Omit<InsertSeoConfiguration, 'pageKey'>>): Promise<SeoConfiguration>;
   
   // User session management
   createUserSession(sessionData: InsertUserSession): Promise<UserSession>;
@@ -636,6 +645,10 @@ export class MemStorage implements IStorage {
   private nextCustomMoodTagId = 1;
   public customMoodTags: Map<number, CustomMoodTag[]> = new Map(); // userId -> custom mood tags
   public weeklyMoodReports: Map<number, WeeklyMoodReport[]> = new Map(); // userId -> weekly reports
+  
+  // SEO Configurations
+  private nextSeoConfigId = 1;
+  public seoConfigurations: Map<string, SeoConfiguration> = new Map(); // pageKey -> config
   // User Session Management methods
   async createUserSession(sessionData: InsertUserSession): Promise<UserSession> {
     const session: UserSession = {
@@ -7121,6 +7134,54 @@ export class MemStorage implements IStorage {
       return this.expertTips.filter(tip => tip.category === category);
     }
     return this.expertTips;
+  }
+
+  /******************************
+   * SEO CONFIGURATION METHODS
+   ******************************/
+  
+  async getAllSeoConfigurations(): Promise<SeoConfiguration[]> {
+    return Array.from(this.seoConfigurations.values());
+  }
+  
+  async getSeoConfigurationByKey(pageKey: string): Promise<SeoConfiguration | undefined> {
+    return this.seoConfigurations.get(pageKey);
+  }
+  
+  async createSeoConfiguration(pageKey: string, config: Omit<InsertSeoConfiguration, 'pageKey'>): Promise<SeoConfiguration> {
+    // Check if configuration already exists
+    if (this.seoConfigurations.has(pageKey)) {
+      throw new Error(`SEO configuration for ${pageKey} already exists`);
+    }
+    
+    const newConfig: SeoConfiguration = {
+      id: this.nextSeoConfigId++,
+      pageKey,
+      ...config,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.seoConfigurations.set(pageKey, newConfig);
+    return newConfig;
+  }
+  
+  async updateSeoConfiguration(pageKey: string, config: Partial<Omit<InsertSeoConfiguration, 'pageKey'>>): Promise<SeoConfiguration> {
+    // Check if configuration exists
+    if (!this.seoConfigurations.has(pageKey)) {
+      throw new Error(`SEO configuration for ${pageKey} not found`);
+    }
+    
+    const existingConfig = this.seoConfigurations.get(pageKey)!;
+    
+    const updatedConfig: SeoConfiguration = {
+      ...existingConfig,
+      ...config,
+      updatedAt: new Date()
+    };
+    
+    this.seoConfigurations.set(pageKey, updatedConfig);
+    return updatedConfig;
   }
 }
 

@@ -20,6 +20,8 @@ import { useGamification } from '@/hooks/use-gamification';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import DynamicFeatures from '@/components/subscription/dynamic-features';
 import SubscriptionBanner from '@/components/subscription/subscription-banner';
+import SEOHead from '@/components/seo/seo-head';
+import { seoConfig } from '@/components/seo/seo-config';
 
 import { TabType } from '@/types/app-types';
 
@@ -110,6 +112,11 @@ export default function HomePage() {
 
   return (
     <MainLayout>
+      <SEOHead 
+        title={`MoodLync - ${emotion?.name || 'Mood Tracking'}`}
+        description={`Track your emotional well-being and connect with people who share your emotional state. Currently feeling ${emotion?.name || 'neutral'}.`}
+        keywords={[`${emotion?.name || 'neutral'} mood`, 'emotional wellness', 'mood tracking', 'emotion matching', 'mental health app', ...seoConfig.home.keywords]}
+      />
       <main className="container mx-auto px-4 pt-6 pb-20 flex-grow">
         {/* Enhanced Mood Snapshot (Hero Section) with improved visual effects */}
         <div className="flex flex-col items-center mb-8 md:mb-12 relative">

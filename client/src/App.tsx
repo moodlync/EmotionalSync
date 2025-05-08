@@ -87,6 +87,7 @@ const AdminRefundsPage = lazy(() => import("@/pages/admin/admin-refunds-page"));
 const AdminUsersPage = lazy(() => import("@/pages/admin/admin-users-page"));
 const AdminActionsPage = lazy(() => import("@/pages/admin/admin-actions-page"));
 const AdminQuotesPage = lazy(() => import("@/pages/admin/admin-quotes-page"));
+const AdminSeoPage = lazy(() => import("@/pages/admin/admin-seo-page"));
 const AdminDirectAccess = lazy(() => import("@/pages/admin-direct-access"));
 
 // Loading indicator for lazy-loaded components
@@ -182,6 +183,7 @@ const RouterComponent = () => {
     { path: "/admin/users", component: AdminUsersPage },
     { path: "/admin/actions", component: AdminActionsPage },
     { path: "/admin/quotes", component: AdminQuotesPage },
+    { path: "/admin/seo", component: AdminSeoPage },
   ];
   
   return (

@@ -819,6 +819,105 @@ export function registerAdminRoutes(app: express.Express) {
   });
   
   /**
+   * ========== SEO MANAGEMENT ROUTES ==========
+   */
+  
+  /**
+   * GET /admin/seo - Get all SEO configurations
+   */
+  router.get('/seo', requireRole(['SUPER_ADMIN', 'ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const result = await adminService.getSeoConfigurations();
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Get SEO configurations error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  /**
+   * GET /admin/seo/:pageKey - Get SEO configuration for a specific page
+   */
+  router.get('/seo/:pageKey', requireRole(['SUPER_ADMIN', 'ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const pageKey = req.params.pageKey;
+      const result = await adminService.getSeoConfigurationByKey(pageKey);
+      
+      if (!result) {
+        return res.status(404).json({ error: 'SEO configuration not found' });
+      }
+      
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Get SEO configuration error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  /**
+   * PUT /admin/seo/:pageKey - Update SEO configuration for a specific page
+   */
+  router.put('/seo/:pageKey', requireRole(['SUPER_ADMIN', 'ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const pageKey = req.params.pageKey;
+      const adminId = req.adminUser!.id;
+      const seoConfig = req.body;
+      
+      if (!seoConfig || !seoConfig.title || !seoConfig.description) {
+        return res.status(400).json({ error: 'Title and description are required' });
+      }
+      
+      const result = await adminService.updateSeoConfiguration(
+        pageKey,
+        seoConfig,
+        adminId
+      );
+      
+      return res.status(200).json(result);
+    } catch (error) {
+      if (error.message === 'SEO configuration not found') {
+        return res.status(404).json({ error: 'SEO configuration not found' });
+      }
+      
+      console.error('Update SEO configuration error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  /**
+   * POST /admin/seo - Create a new SEO configuration
+   */
+  router.post('/seo', requireRole(['SUPER_ADMIN', 'ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const adminId = req.adminUser!.id;
+      const { pageKey, seoConfig } = req.body;
+      
+      if (!pageKey) {
+        return res.status(400).json({ error: 'Page key is required' });
+      }
+      
+      if (!seoConfig || !seoConfig.title || !seoConfig.description) {
+        return res.status(400).json({ error: 'Title and description are required' });
+      }
+      
+      const result = await adminService.createSeoConfiguration(
+        pageKey,
+        seoConfig,
+        adminId
+      );
+      
+      return res.status(201).json(result);
+    } catch (error) {
+      if (error.message === 'SEO configuration already exists') {
+        return res.status(409).json({ error: 'SEO configuration already exists for this page' });
+      }
+      
+      console.error('Create SEO configuration error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  /**
    * Register admin router with prefix
    */
   app.use('/api/admin', router);

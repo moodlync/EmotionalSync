@@ -1357,6 +1357,122 @@ export class AdminService {
       data: logs
     };
   }
+  
+  /**
+   * ========== SEO Management Methods ==========
+   */
+  
+  /**
+   * Get all SEO configurations
+   */
+  async getSeoConfigurations() {
+    try {
+      const seoConfigs = await storage.getAllSeoConfigurations();
+      return seoConfigs;
+    } catch (error) {
+      console.error('Error getting SEO configurations:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Get SEO configuration by page key
+   */
+  async getSeoConfigurationByKey(pageKey: string) {
+    try {
+      const seoConfig = await storage.getSeoConfigurationByKey(pageKey);
+      return seoConfig;
+    } catch (error) {
+      console.error(`Error getting SEO configuration for ${pageKey}:`, error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Update SEO configuration for a specific page
+   */
+  async updateSeoConfiguration(
+    pageKey: string,
+    seoConfig: {
+      title: string;
+      description: string;
+      keywords?: string[];
+      ogImage?: string;
+      noindex?: boolean;
+    },
+    adminId: number
+  ) {
+    try {
+      const existingConfig = await storage.getSeoConfigurationByKey(pageKey);
+      
+      if (!existingConfig) {
+        throw new Error('SEO configuration not found');
+      }
+      
+      const updatedConfig = await storage.updateSeoConfiguration(pageKey, seoConfig);
+      
+      // Log admin action
+      await this.logAdminAction({
+        adminId,
+        action: 'UPDATE_SEO_CONFIG',
+        entityType: 'SEO_CONFIG',
+        entityId: updatedConfig.id,
+        details: JSON.stringify({
+          pageKey,
+          before: existingConfig,
+          after: seoConfig,
+          changes: Object.keys(seoConfig)
+        })
+      });
+      
+      return updatedConfig;
+    } catch (error) {
+      console.error(`Error updating SEO configuration for ${pageKey}:`, error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Create a new SEO configuration
+   */
+  async createSeoConfiguration(
+    pageKey: string,
+    seoConfig: {
+      title: string;
+      description: string;
+      keywords?: string[];
+      ogImage?: string;
+      noindex?: boolean;
+    },
+    adminId: number
+  ) {
+    try {
+      const existingConfig = await storage.getSeoConfigurationByKey(pageKey);
+      
+      if (existingConfig) {
+        throw new Error('SEO configuration already exists');
+      }
+      
+      const newConfig = await storage.createSeoConfiguration(pageKey, seoConfig);
+      
+      // Log admin action
+      await this.logAdminAction({
+        adminId,
+        action: 'CREATE_SEO_CONFIG',
+        entityType: 'SEO_CONFIG',
+        entityId: newConfig.id,
+        details: JSON.stringify({
+          pageKey,
+          config: seoConfig
+        })
+      });
+      
+      return newConfig;
+    } catch (error) {
+      console.error(`Error creating SEO configuration for ${pageKey}:`, error);
+      throw error;
+    }
+  }
 }
 
 export const adminService = new AdminService();

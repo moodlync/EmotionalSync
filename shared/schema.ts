@@ -1702,3 +1702,30 @@ export interface WeeklyMoodReport {
   recommendedActions: string[];
   generatedAt: Date;
 }
+
+// SEO configuration schema
+export const seoConfigurations = pgTable("seo_configurations", {
+  id: serial("id").primaryKey(),
+  pageKey: text("page_key").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  keywords: json("keywords").$type<string[]>().default([]),
+  ogImage: text("og_image"),
+  noindex: boolean("noindex").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => adminUsers.id),
+});
+
+export const insertSeoConfigurationSchema = createInsertSchema(seoConfigurations, {
+  pageKey: z.string().min(2).max(100),
+  title: z.string().min(5).max(200),
+  description: z.string().min(10).max(500),
+  keywords: z.array(z.string()).optional().default([]),
+  ogImage: z.string().optional(),
+  noindex: z.boolean().default(false),
+  lastModifiedBy: z.number().int().positive().optional(),
+});
+
+export type InsertSeoConfiguration = z.infer<typeof insertSeoConfigurationSchema>;
+export type SeoConfiguration = typeof seoConfigurations.$inferSelect;

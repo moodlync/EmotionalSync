@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { Helmet } from 'react-helmet-async';
 import { format } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { z } from 'zod';
+import SEOHead from '@/components/seo/seo-head';
+import { seoConfig } from '@/components/seo/seo-config';
 
 // UI Components
 import {
@@ -310,9 +311,7 @@ export default function CommunityFeedPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Community Feed | MoodSync</title>
-      </Helmet>
+      <SEOHead {...seoConfig.community} />
 
       <div className="container max-w-4xl py-6 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

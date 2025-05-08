@@ -10,7 +10,8 @@ import {
   ChevronRight,
   LogOut,
   Menu,
-  X
+  X,
+  Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -38,6 +39,11 @@ const sidebarItems = [
     title: "Users",
     href: "/admin/users",
     icon: Users
+  },
+  {
+    title: "SEO Settings",
+    href: "/admin/seo",
+    icon: Search
   },
   {
     title: "Actions Log",
