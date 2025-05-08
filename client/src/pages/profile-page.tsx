@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/use-auth';
-import { useQuery } from '@tanstack/react-query';
-import { getQueryFn } from '@/lib/queryClient';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +18,9 @@ import { ProfileMetrics } from '@/components/profile/profile-metrics';
 import { ProfileSubscriptionCard } from '@/components/profile/profile-subscription-card';
 import { VerificationBadge } from '@/components/verification/verification-badge';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { EmotionType } from '@/types/imprints';
 
 // Component to show verification status and link to verification page for all users
 function VerificationStatusSection() {
@@ -83,6 +86,8 @@ function VerificationStatusSection() {
 
 export default function ProfilePage() {
   const { user, isLoading: isAuthLoading } = useAuth();
+  const { toast } = useToast();
+  const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
 
   // Get user's tokens
   const { data: tokenData, isLoading: isTokenLoading } = useQuery<{ tokens: number }>({
@@ -97,8 +102,61 @@ export default function ProfilePage() {
     queryFn: getQueryFn({ on401: "returnNull" }),
     enabled: !!user,
   });
+  
+  // Get user's current emotion
+  const { data: emotionData, isLoading: isEmotionLoading } = useQuery<{ emotion: EmotionType }>({
+    queryKey: ['/api/emotion'],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    enabled: !!user,
+    onSuccess: (data) => {
+      if (data?.emotion) {
+        setSelectedEmotion(data.emotion);
+      }
+    }
+  });
+  
+  // Mutation for updating user emotion
+  const updateEmotionMutation = useMutation({
+    mutationFn: async (emotion: EmotionType) => {
+      const response = await apiRequest('POST', '/api/emotion', { emotion });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setSelectedEmotion(data.emotion);
+      
+      if (data.tokensEarned > 0) {
+        toast({
+          title: "Emotion Updated!",
+          description: `You earned ${data.tokensEarned} tokens for updating your mood.`,
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: "Emotion Updated!",
+          description: "Your mood has been updated successfully.",
+        });
+      }
+      
+      // Invalidate queries that depend on emotion
+      queryClient.invalidateQueries({ queryKey: ['/api/emotion'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tokens'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rewards/history'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to update emotion",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Handle emotion button click
+  const handleEmotionChange = (emotion: EmotionType) => {
+    updateEmotionMutation.mutate(emotion);
+  };
 
-  const isLoading = isAuthLoading || isTokenLoading || isRewardLoading;
+  const isLoading = isAuthLoading || isTokenLoading || isRewardLoading || isEmotionLoading;
 
   // If not authenticated, redirect to auth page
   if (!isLoading && !user) {
@@ -314,30 +372,66 @@ export default function ProfilePage() {
                       Track your emotions to get matched with others who share similar feelings
                     </p>
                     <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200">
+                      <Button 
+                        variant="outline" 
+                        className={`flex flex-col items-center py-3 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200 ${selectedEmotion === 'happy' ? 'bg-amber-50 text-amber-600 border-amber-200' : ''}`}
+                        onClick={() => handleEmotionChange('happy')}
+                        disabled={updateEmotionMutation.isPending}
+                      >
                         <span className="text-2xl mb-1">😊</span>
                         <span className="text-xs">Happy</span>
                       </Button>
-                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200">
+                      <Button 
+                        variant="outline" 
+                        className={`flex flex-col items-center py-3 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 ${selectedEmotion === 'sad' ? 'bg-blue-50 text-blue-600 border-blue-200' : ''}`}
+                        onClick={() => handleEmotionChange('sad')}
+                        disabled={updateEmotionMutation.isPending}
+                      >
                         <span className="text-2xl mb-1">😢</span>
                         <span className="text-xs">Sad</span>
                       </Button>
-                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-red-50 hover:text-red-600 hover:border-red-200">
+                      <Button 
+                        variant="outline" 
+                        className={`flex flex-col items-center py-3 hover:bg-red-50 hover:text-red-600 hover:border-red-200 ${selectedEmotion === 'angry' ? 'bg-red-50 text-red-600 border-red-200' : ''}`}
+                        onClick={() => handleEmotionChange('angry')}
+                        disabled={updateEmotionMutation.isPending}
+                      >
                         <span className="text-2xl mb-1">😠</span>
                         <span className="text-xs">Angry</span>
                       </Button>
-                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200">
+                      <Button 
+                        variant="outline" 
+                        className={`flex flex-col items-center py-3 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200 ${selectedEmotion === 'anxious' ? 'bg-purple-50 text-purple-600 border-purple-200' : ''}`}
+                        onClick={() => handleEmotionChange('anxious')}
+                        disabled={updateEmotionMutation.isPending}
+                      >
                         <span className="text-2xl mb-1">😰</span>
                         <span className="text-xs">Anxious</span>
                       </Button>
-                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-green-50 hover:text-green-600 hover:border-green-200">
+                      <Button 
+                        variant="outline" 
+                        className={`flex flex-col items-center py-3 hover:bg-green-50 hover:text-green-600 hover:border-green-200 ${selectedEmotion === 'excited' ? 'bg-green-50 text-green-600 border-green-200' : ''}`}
+                        onClick={() => handleEmotionChange('excited')}
+                        disabled={updateEmotionMutation.isPending}
+                      >
                         <span className="text-2xl mb-1">🤩</span>
                         <span className="text-xs">Excited</span>
                       </Button>
-                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-gray-50 hover:text-gray-600 hover:border-gray-200">
+                      <Button 
+                        variant="outline" 
+                        className={`flex flex-col items-center py-3 hover:bg-gray-50 hover:text-gray-600 hover:border-gray-200 ${selectedEmotion === 'neutral' ? 'bg-gray-50 text-gray-600 border-gray-200' : ''}`}
+                        onClick={() => handleEmotionChange('neutral')}
+                        disabled={updateEmotionMutation.isPending}
+                      >
                         <span className="text-2xl mb-1">😐</span>
                         <span className="text-xs">Neutral</span>
                       </Button>
+                      {updateEmotionMutation.isPending && (
+                        <div className="col-span-3 md:col-span-6 flex justify-center mt-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          <span className="ml-2 text-sm text-gray-500">Updating emotion...</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   

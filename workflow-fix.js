@@ -1,6 +1,6 @@
 /**
- * Enhanced proxy server that listens on port 5000 and forwards requests to port 9090.
- * It's needed because Replit workflows expect port 5000 to be open, but our actual server runs on 9090.
+ * Enhanced proxy server that listens on port 5000 and forwards requests to port 5000.
+ * This file has been modified to match the current server port, which is also 5000.
  * This enhanced version includes health check responses and better error handling.
  */
 
@@ -33,7 +33,7 @@ const setupProxy = async () => {
   await freePort(5000);
   
   const proxy = httpProxy.createProxyServer({
-    target: 'http://localhost:9090',
+    target: 'http://localhost:5000',
     ws: true // Allow WebSocket proxying
   });
 
