@@ -46,6 +46,7 @@ import { Separator } from '@/components/ui/separator';
 
 // Define form schema with Zod
 const profileFormSchema = z.object({
+  // Personal Information
   displayName: z.string()
     .min(2, { message: "Display name must be at least 2 characters." })
     .max(30, { message: "Display name must be no more than 30 characters." })
@@ -56,10 +57,16 @@ const profileFormSchema = z.object({
   bio: z.string()
     .max(250, { message: "Bio must be no more than 250 characters." })
     .optional(),
+  
+  // Preferences
   theme: z.enum(['light', 'dark', 'system']).optional(),
   language: z.enum(['en', 'es', 'fr', 'de', 'zh', 'ja', 'ko', 'ru']).optional(),
   dailyReminder: z.boolean().optional(),
   weeklyInsights: z.boolean().optional(),
+  profileNotifications: z.boolean().optional(),
+  communityUpdates: z.boolean().optional(),
+  
+  // Social Integration
   publicProfileLink: z.string()
     .regex(/^[a-zA-Z0-9_]+$/, { 
       message: "Custom URL can only contain letters, numbers, and underscores" 
@@ -67,6 +74,8 @@ const profileFormSchema = z.object({
     .min(3, { message: "Custom URL must be at least 3 characters." })
     .max(30, { message: "Custom URL must be no more than 30 characters." })
     .optional(),
+  
+  // Wellness Goals
   moodGoal: z.enum(['improve_mindfulness', 'track_stress', 'better_sleep', 'reduce_anxiety', 'increase_happiness']).optional(),
   dailyCheckInTime: z.string().optional(),
 });
@@ -88,6 +97,8 @@ export default function ProfileInformationForm() {
       language: (user?.language as any) || 'en',
       dailyReminder: user?.notificationSettings?.dailyReminder || false,
       weeklyInsights: user?.notificationSettings?.weeklyInsights || false,
+      profileNotifications: user?.notificationSettings?.profileNotifications || false,
+      communityUpdates: user?.notificationSettings?.communityUpdates || false,
       publicProfileLink: user?.publicProfileLink || '',
       moodGoal: (user?.moodGoal as any) || undefined,
       dailyCheckInTime: user?.dailyCheckInTime || '08:00',
@@ -104,6 +115,8 @@ export default function ProfileInformationForm() {
         language: (user?.language as any) || 'en',
         dailyReminder: user?.notificationSettings?.dailyReminder || false,
         weeklyInsights: user?.notificationSettings?.weeklyInsights || false,
+        profileNotifications: user?.notificationSettings?.profileNotifications || false,
+        communityUpdates: user?.notificationSettings?.communityUpdates || false,
         publicProfileLink: user?.publicProfileLink || '',
         moodGoal: (user?.moodGoal as any) || undefined,
         dailyCheckInTime: user?.dailyCheckInTime || '08:00',
@@ -154,6 +167,8 @@ export default function ProfileInformationForm() {
         language: (user?.language as any) || 'en',
         dailyReminder: user?.notificationSettings?.dailyReminder || false,
         weeklyInsights: user?.notificationSettings?.weeklyInsights || false,
+        profileNotifications: user?.notificationSettings?.profileNotifications || false,
+        communityUpdates: user?.notificationSettings?.communityUpdates || false,
         publicProfileLink: user?.publicProfileLink || '',
         moodGoal: (user?.moodGoal as any) || undefined,
         dailyCheckInTime: user?.dailyCheckInTime || '08:00',

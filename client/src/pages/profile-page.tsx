@@ -5,8 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, User, Award, Flame, Settings, Clock, BarChart, Shield, Lock, ShieldCheck, Bell, Database, Home, Heart } from 'lucide-react';
+import { Loader2, User, Award, Flame, Settings, Clock, BarChart, Shield, Lock, ShieldCheck, Bell, Database, Home, Heart, Crown } from 'lucide-react';
 import { Redirect, Link } from 'wouter';
+import { useAuth } from '@/hooks/use-auth';
 import ProfilePictureForm from '@/components/profile/profile-picture-form';
 import ProfileInformationForm from '@/components/profile/profile-information-form';
 import ProfileSecurityTab from '@/components/profile/profile-security-tab';
@@ -21,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { EmotionType } from '@/types/imprints';
+import { useQuery, useMutation } from '@tanstack/react-query';
 
 // Component to show verification status and link to verification page for all users
 function VerificationStatusSection() {
@@ -255,6 +257,22 @@ export default function ProfilePage() {
                         {tokenData?.tokens || 0}
                       </div>
                       <span className="font-medium">Emotion Tokens</span>
+                    </div>
+                  </div>
+
+                  <Separator />
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-gray-500">Subscription Status</h3>
+                    <div className="flex items-center gap-2">
+                      <Button asChild variant="outline" className="w-full justify-start">
+                        <Link to="/premium" className="flex items-center gap-2">
+                          <div className="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center">
+                            <Crown className="h-4 w-4" />
+                          </div>
+                          <span>View Subscription Details</span>
+                        </Link>
+                      </Button>
                     </div>
                   </div>
 

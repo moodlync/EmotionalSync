@@ -428,10 +428,6 @@ export default function AuthPage() {
               <a href="/welcome" className="text-primary hover:text-primary/80 underline font-medium">
                 View our feature showcase
               </a>
-              <span className="mx-2">•</span>
-              <a href="/premium/compare" className="text-primary hover:text-primary/80 underline font-medium">
-                Compare plans
-              </a>
             </div>
           </CardHeader>
           <CardContent>
@@ -1316,9 +1312,9 @@ export default function AuthPage() {
           </div>
           
           <div className="mt-4 text-center">
-            <a href="/premium/compare" className="text-white hover:text-white/80 underline text-sm">
-              View all premium features →
-            </a>
+            <span className="text-white text-sm">
+              Exclusive premium features available
+            </span>
           </div>
         </div>
         

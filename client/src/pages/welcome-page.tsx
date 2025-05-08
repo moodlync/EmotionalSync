@@ -61,9 +61,10 @@ export default function WelcomePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Redirect to home if already logged in
+  // Only redirect if explicitly logged in (not when auth is in loading state)
+  // This prevents immediate redirect when user refreshes welcome page
   useEffect(() => {
-    if (user) {
+    if (user && Object.keys(user).length > 0) {
       navigate('/');
     }
   }, [user, navigate]);

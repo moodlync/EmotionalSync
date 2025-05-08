@@ -79,8 +79,8 @@ app.use((req, res, next) => {
   let boundPort: number | null = null;
   let websocketInitialized = false;
   
-  // Simplify port binding - always use port 5000 for Replit compatibility
-  const port = 5000;
+  // Try several ports in case one is already in use
+  const port = process.env.PORT ? parseInt(process.env.PORT) : 5001;
   
   // Simple direct server listen approach
   log(`Starting MoodLync server on port ${port}...`);
