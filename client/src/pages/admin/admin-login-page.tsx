@@ -24,12 +24,21 @@ export default function AdminLoginPage() {
       
       const adminUser = await response.json();
       
+      // Make sure adminUser.username is defined
+      const username = adminUser && adminUser.username ? adminUser.username : "admin";
+      
       toast({
         title: "Login successful",
-        description: `Welcome back, ${adminUser.username}!`,
+        description: `Welcome back, ${username}!`,
       });
       
+      // Use both methods to ensure redirect happens
       setLocation("/admin");
+      
+      // Force redirect after a short delay in case the above doesn't work
+      setTimeout(() => {
+        window.location.href = "/admin";
+      }, 300);
     } catch (error) {
       toast({
         title: "Login failed",
@@ -42,8 +51,8 @@ export default function AdminLoginPage() {
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 dark:bg-gray-950 p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold mb-1">Admin Portal</h1>
           <p className="text-gray-500 text-sm">Enter your credentials to login</p>
@@ -59,7 +68,7 @@ export default function AdminLoginPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700"
               placeholder="Enter username"
               required
               disabled={isLoading}
@@ -75,7 +84,7 @@ export default function AdminLoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700"
               placeholder="••••••••"
               required
               disabled={isLoading}
