@@ -72,6 +72,14 @@ import {
   Calendar,
   Clock,
   Bookmark,
+  Brain,
+  GraduationCap,
+  HeartHandshake,
+  Lightbulb,
+  Presentation,
+  ScrollText,
+  Tag,
+  Zap,
 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -108,6 +116,27 @@ interface PostComment {
   profilePicture?: string;
 }
 
+interface SupportGroup {
+  id: number;
+  name: string;
+  description: string;
+  members: number;
+  emotion: EmotionType;
+  imageUrl: string | null;
+  meetingFrequency: string;
+}
+
+interface ExpertTip {
+  id: number;
+  title: string;
+  content: string;
+  expertName: string;
+  expertCredentials: string;
+  expertImageUrl: string | null;
+  publishedDate: string;
+  tags: string[];
+}
+
 // Create post form schema
 const postFormSchema = z.object({
   content: z.string().min(1, 'Content is required').max(500, 'Content must be less than 500 characters'),
@@ -127,6 +156,7 @@ export default function CommunityFeedPage() {
   const [activeTab, setActiveTab] = useState('latest');
   const [selectedPostForComments, setSelectedPostForComments] = useState<number | null>(null);
   const [postDialogOpen, setPostDialogOpen] = useState(false);
+  const [selectedTipCategory, setSelectedTipCategory] = useState<string | null>(null);
   
   // Post creation form
   const postForm = useForm<z.infer<typeof postFormSchema>>({
@@ -175,6 +205,184 @@ export default function CommunityFeedPage() {
       return res.json();
     },
     enabled: !!selectedPostForComments,
+  });
+  
+  // Fetch support groups
+  const {
+    data: supportGroups,
+    isLoading: isLoadingSupportGroups,
+    error: supportGroupsError,
+  } = useQuery({
+    queryKey: ['/api/community/support-groups'],
+    queryFn: async () => {
+      // For now, we'll simulate with mock data since the API endpoint might not exist yet
+      return [
+        {
+          id: 1,
+          name: "Anxiety Support Circle",
+          description: "A safe space for people dealing with anxiety to share experiences and coping techniques.",
+          members: 128,
+          emotion: "anxious",
+          imageUrl: null,
+          meetingFrequency: "Weekly"
+        },
+        {
+          id: 2,
+          name: "Depression Warriors",
+          description: "Supporting each other through the darkness of depression with compassion and understanding.",
+          members: 245,
+          emotion: "sad",
+          imageUrl: null,
+          meetingFrequency: "Twice Weekly"
+        },
+        {
+          id: 3,
+          name: "Anger Management Group",
+          description: "Learn healthy ways to process and express anger in a supportive environment.",
+          members: 76,
+          emotion: "angry",
+          imageUrl: null,
+          meetingFrequency: "Weekly"
+        },
+        {
+          id: 4,
+          name: "Happiness Habits",
+          description: "Focus on building habits that promote long-term happiness and contentment.",
+          members: 312,
+          emotion: "happy",
+          imageUrl: null,
+          meetingFrequency: "Bi-weekly"
+        },
+        {
+          id: 5,
+          name: "Mindfulness Meditation",
+          description: "Practice mindfulness techniques to manage emotional responses in daily life.",
+          members: 189,
+          emotion: "neutral",
+          imageUrl: null,
+          meetingFrequency: "Daily"
+        }
+      ];
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: activeTab === 'support'
+  });
+  
+  // Fetch expert tips
+  const {
+    data: expertTips,
+    isLoading: isLoadingExpertTips,
+    error: expertTipsError,
+  } = useQuery({
+    queryKey: ['/api/community/expert-tips', selectedTipCategory],
+    queryFn: async () => {
+      // For now, we'll simulate with mock data since the API endpoint might not exist yet
+      const allTips = {
+        anxiety: [
+          {
+            id: 1,
+            title: "Practice Deep Breathing",
+            content: "When anxiety strikes, try the 4-7-8 breathing technique: inhale for 4 seconds, hold for 7 seconds, exhale for 8 seconds. This activates your parasympathetic nervous system, helping to calm your body's stress response.",
+            expertName: "Dr. Sarah Johnson",
+            expertCredentials: "Clinical Psychologist, PhD",
+            expertImageUrl: null,
+            publishedDate: "2023-08-15",
+            tags: ["anxiety", "breathing", "quick-relief"]
+          },
+          {
+            id: 2,
+            title: "Challenge Negative Thoughts",
+            content: "Anxiety often involves catastrophic thinking. When you notice anxious thoughts, ask yourself: 'What's the evidence for and against this thought?', 'What would I tell a friend in this situation?', and 'What's a more balanced perspective?'",
+            expertName: "Dr. Michael Chen",
+            expertCredentials: "Cognitive Behavioral Therapist",
+            expertImageUrl: null,
+            publishedDate: "2023-09-02",
+            tags: ["anxiety", "cognitive-techniques", "thought-patterns"]
+          },
+          {
+            id: 3,
+            title: "Progressive Muscle Relaxation",
+            content: "Tense each muscle group for 5 seconds, then relax for 30 seconds. Start with your feet and work up to your face. This helps identify and release physical tension that comes with anxiety.",
+            expertName: "Lisa Nguyen",
+            expertCredentials: "Licensed Mental Health Counselor",
+            expertImageUrl: null,
+            publishedDate: "2023-07-28",
+            tags: ["anxiety", "physical-techniques", "relaxation"]
+          }
+        ],
+        depression: [
+          {
+            id: 4,
+            title: "Establish a Morning Routine",
+            content: "Even when motivation is low, having a simple morning routine can provide structure. Start with just getting out of bed, opening curtains for natural light, and drinking a glass of water. Small victories build momentum.",
+            expertName: "Dr. James Wilson",
+            expertCredentials: "Psychiatrist, Depression Specialist",
+            expertImageUrl: null,
+            publishedDate: "2023-08-20",
+            tags: ["depression", "daily-habits", "structure"]
+          },
+          {
+            id: 5,
+            title: "Movement as Medicine",
+            content: "Physical activity releases endorphins that can lift mood. Start with just 5 minutes of walking or gentle stretching. Don't wait for motivation - action often comes first, then motivation follows.",
+            expertName: "Maria Rodriguez",
+            expertCredentials: "Exercise Physiologist, Mental Health Advocate",
+            expertImageUrl: null,
+            publishedDate: "2023-09-12",
+            tags: ["depression", "exercise", "mood-improvement"]
+          }
+        ],
+        anger: [
+          {
+            id: 6, 
+            title: "The 10-Second Pause",
+            content: "When anger surges, give yourself a 10-second pause before responding. Count slowly to 10 while taking deep breaths. This brief moment can prevent impulsive reactions you might regret later.",
+            expertName: "Dr. Robert Taylor",
+            expertCredentials: "Anger Management Specialist",
+            expertImageUrl: null,
+            publishedDate: "2023-08-05",
+            tags: ["anger", "impulse-control", "quick-technique"]
+          },
+          {
+            id: 7,
+            title: "Identify Your Anger Triggers",
+            content: "Keep an anger journal to track what situations, people, or thoughts consistently trigger your anger. Once identified, you can develop specific strategies for your common triggers and possibly avoid some altogether.",
+            expertName: "Aisha Johnson",
+            expertCredentials: "Clinical Psychologist",
+            expertImageUrl: null,
+            publishedDate: "2023-07-18",
+            tags: ["anger", "self-awareness", "triggers"]
+          }
+        ],
+        general: [
+          {
+            id: 8,
+            title: "The Power of Sleep Hygiene",
+            content: "Emotional regulation is heavily influenced by sleep quality. Maintain consistent sleep and wake times, avoid screens 1 hour before bed, keep your bedroom cool and dark, and limit caffeine after noon.",
+            expertName: "Dr. Michelle Park",
+            expertCredentials: "Sleep Specialist, Neuropsychologist",
+            expertImageUrl: null,
+            publishedDate: "2023-09-10",
+            tags: ["sleep", "emotional-regulation", "health-basics"]
+          },
+          {
+            id: 9,
+            title: "Emotional Naming Technique",
+            content: "Research shows that simply naming your emotions can reduce their intensity. Practice saying 'I notice I'm feeling anxious/angry/sad right now' rather than 'I am anxious/angry/sad.' This creates a helpful distance between you and the emotion.",
+            expertName: "Dr. Thomas Rivera",
+            expertCredentials: "Emotional Intelligence Researcher",
+            expertImageUrl: null,
+            publishedDate: "2023-08-22",
+            tags: ["emotional-awareness", "mindfulness", "all-emotions"]
+          }
+        ]
+      };
+      
+      // Return either the selected category or all tips if no category selected
+      return selectedTipCategory ? allTips[selectedTipCategory] : Object.values(allTips).flat();
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: activeTab === 'expertTips'
   });
 
   // Create a new post
@@ -465,6 +673,7 @@ export default function CommunityFeedPage() {
             <TabsTrigger value="trending">Trending</TabsTrigger>
             <TabsTrigger value="similar">Similar Moods</TabsTrigger>
             <TabsTrigger value="support">Support Groups</TabsTrigger>
+            <TabsTrigger value="expertTips">Expert Tips</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-6 space-y-6">
