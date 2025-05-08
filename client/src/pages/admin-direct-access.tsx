@@ -51,7 +51,7 @@ export default function AdminDirectAccess() {
             <p>{error}</p>
             <div className="mt-4">
               <a 
-                href="/admin/login" 
+                href="https://moodlync.replit.app/admin" 
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90"
               >
                 Go to Admin Login

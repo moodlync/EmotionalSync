@@ -81,7 +81,7 @@ export default function Footer() {
           onClick: () => setFeedbackDialogOpen(true),
           href: "#",
         },
-        { name: "Admin Panel", href: "/admin/login" },
+        { name: "Admin Panel", href: "https://moodlync.replit.app/admin" },
       ],
     },
   ];
