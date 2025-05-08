@@ -1,1 +1,0 @@
-import{j as s,cp as a,cq as r}from"./index-vCbmY8Kg.js";function o({children:e}){return s.jsxs("div",{className:"flex min-h-screen flex-col",children:[s.jsx(a,{}),s.jsx("main",{className:"flex-1",children:e}),s.jsx(r,{})]})}export{o as L};

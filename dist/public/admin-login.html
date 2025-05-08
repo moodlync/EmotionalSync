@@ -146,7 +146,11 @@
       </div>
     </form>
     
-    <!-- Credentials section removed for security -->
+    <div class="credentials">
+      <p><strong>Default Admin Credentials:</strong></p>
+      <p>Username: <code>admin</code></p>
+      <p>Password: <code>Queanbeyan@9</code></p>
+    </div>
     
     <div class="note">
       This is a dedicated login page for testing the administrator backend.
@@ -170,7 +174,14 @@
         loginButton.textContent = 'Logging in...';
         errorMessage.style.display = 'none';
         
-        fetch('/api/admin/login', {
+        // Show console logs for debugging
+        console.log('Attempting to log in with:', { username });
+        
+        // Make the full URL explicit to avoid any routing issues
+        const apiUrl = window.location.origin + '/api/admin/login';
+        console.log('Making API request to:', apiUrl);
+        
+        fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -179,18 +190,30 @@
           credentials: 'include'
         })
         .then(response => {
+          console.log('Response status:', response.status);
+          
           if (!response.ok) {
-            throw new Error('Login failed');
+            return response.text().then(text => {
+              console.error('Error response:', text);
+              throw new Error('Login failed');
+            });
           }
           return response.json();
         })
         .then(data => {
-          // Login successful, redirect to admin dashboard
+          // Login successful
+          console.log('Login successful', data);
+          
+          // Redirect to admin dashboard
           window.location.href = '/admin';
         })
         .catch(error => {
-          // Display error message
+          // Display error message in console
+          console.error('Login error:', error.message);
+          
+          // Display error message to user
           errorMessage.style.display = 'block';
+          errorMessage.textContent = 'Login failed: ' + error.message;
           
           // Reset button state
           loginButton.disabled = false;

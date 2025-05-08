@@ -18,6 +18,9 @@ var init_storage = __esm({
     MemoryStore = createMemoryStore(session);
     MemStorage = class {
       nextDeletionRequestId = 1;
+      nextCommunityPostId = 1;
+      nextPostCommentId = 1;
+      nextPostReactionId = 1;
       // Make these properties accessible to test-controller.ts
       users = /* @__PURE__ */ new Map();
       userEmotions = /* @__PURE__ */ new Map();
@@ -28,6 +31,15 @@ var init_storage = __esm({
       deletionRequests = /* @__PURE__ */ new Map();
       userDeletionRequests = /* @__PURE__ */ new Map();
       // userId -> deletionRequestIds
+      // Community feature maps
+      communityPosts = /* @__PURE__ */ new Map();
+      // postId -> Post
+      postComments = /* @__PURE__ */ new Map();
+      // postId -> Comments[]
+      postReactions = /* @__PURE__ */ new Map();
+      // postId -> Map<userId, Reaction>
+      supportGroups = [];
+      expertTips = [];
       // NFT Pool System storage
       nextTokenPoolId = 1;
       nextEmotionalNftId = 1;
@@ -43,6 +55,20 @@ var init_storage = __esm({
       poolDistributions = /* @__PURE__ */ new Map();
       userPoolDistributions = /* @__PURE__ */ new Map();
       // userId -> distributionIds
+      // Subscription storage
+      nextSubscriptionId = 1;
+      subscriptions = /* @__PURE__ */ new Map();
+      // userId -> subscription
+      // Custom mood tags and insights
+      nextCustomMoodTagId = 1;
+      customMoodTags = /* @__PURE__ */ new Map();
+      // userId -> custom mood tags
+      weeklyMoodReports = /* @__PURE__ */ new Map();
+      // userId -> weekly reports
+      // SEO Configurations
+      nextSeoConfigId = 1;
+      seoConfigurations = /* @__PURE__ */ new Map();
+      // pageKey -> config
       // User Session Management methods
       async createUserSession(sessionData) {
         const session3 = {
@@ -509,6 +535,58 @@ var init_storage = __esm({
         this.rewardActivities = /* @__PURE__ */ new Map();
         this.userTokens = /* @__PURE__ */ new Map();
         this.userProfiles = /* @__PURE__ */ new Map();
+        this.supportGroups = [
+          {
+            id: 1,
+            name: "Anxiety Support Circle",
+            description: "A safe space to share experiences and coping strategies for anxiety",
+            members: 24,
+            nextMeeting: "2025-05-15T18:00:00Z",
+            emotion: "anxious"
+          },
+          {
+            id: 2,
+            name: "Happiness Practice Group",
+            description: "Daily practices and discussions to cultivate lasting happiness",
+            members: 42,
+            nextMeeting: "2025-05-10T16:30:00Z",
+            emotion: "happy"
+          },
+          {
+            id: 3,
+            name: "Grief & Loss Support",
+            description: "Support for those navigating the complex journey of grief",
+            members: 18,
+            nextMeeting: "2025-05-12T19:00:00Z",
+            emotion: "sad"
+          }
+        ];
+        this.expertTips = [
+          {
+            id: 1,
+            title: "Managing Anxiety Through Mindfulness",
+            content: "Practicing mindfulness for just 5 minutes a day can help reduce anxiety by bringing your focus to the present moment",
+            author: "Dr. Sarah Chen",
+            category: "anxiety",
+            postedAt: "2025-05-01T12:00:00Z"
+          },
+          {
+            id: 2,
+            title: "Building Emotional Resilience",
+            content: "Emotional resilience can be strengthened through positive self-talk, maintaining social connections, and practicing self-care",
+            author: "Dr. James Wilson",
+            category: "resilience",
+            postedAt: "2025-05-03T14:30:00Z"
+          },
+          {
+            id: 3,
+            title: "The Science of Happiness",
+            content: "Research shows that expressing gratitude, engaging in acts of kindness, and maintaining social bonds significantly increase happiness levels",
+            author: "Dr. Maya Rodriguez",
+            category: "happiness",
+            postedAt: "2025-05-05T09:15:00Z"
+          }
+        ];
         this.userStreaks = /* @__PURE__ */ new Map();
         this.challenges = [];
         this.achievements = [];
@@ -579,6 +657,27 @@ var init_storage = __esm({
         defaultAdmin.id = 1;
         this.adminUsers.set(1, defaultAdmin);
         console.log("Default admin account created successfully");
+        const sagarAdminId = this.adminId++;
+        const sagarAdmin = {
+          id: sagarAdminId,
+          username: "admin",
+          password: "Queanbeyan@9",
+          // Updated to username 'admin' with the same password
+          email: "sagar@moodsync.app",
+          firstName: "Sagar",
+          lastName: "Admin",
+          role: "SUPER_ADMIN",
+          // Updated role to ensure full access
+          isActive: true,
+          lastLogin: null,
+          createdAt: /* @__PURE__ */ new Date(),
+          permissions: ["users.view", "users.edit", "content.view", "content.edit", "system.view", "system.edit"],
+          avatarUrl: null,
+          contactPhone: null,
+          department: null
+        };
+        this.adminUsers.set(sagarAdminId, sagarAdmin);
+        console.log("Sagar admin account created successfully");
         this.supportTickets = /* @__PURE__ */ new Map();
         this.ticketResponses = /* @__PURE__ */ new Map();
         this.refundRequests = /* @__PURE__ */ new Map();
@@ -710,6 +809,71 @@ var init_storage = __esm({
           });
         }
         console.log("Developer test account created successfully");
+        const sagarPassword = "815c9ab892d02634dff20d07cc1674bf86f4daf933a979341b468d5038b332d687b3d36695d4bbdfdfd964f3d33b5aba69778930fc45cca0411a24157d603b75.dc2c95b5b34ac7f3507e32bfb86a5129";
+        const sagarUserId = this.currentId++;
+        const sagarUser = {
+          id: sagarUserId,
+          username: "Sagar",
+          password: sagarPassword,
+          email: "sagar@moodsync.app",
+          firstName: "Sagar",
+          lastName: "Admin",
+          middleName: null,
+          gender: "male",
+          state: "NSW",
+          country: "Australia",
+          emotionTokens: 5e4,
+          // High token count for admin testing
+          isPremium: true,
+          premiumPlanType: "lifetime",
+          premiumExpiryDate: new Date(2099, 11, 31),
+          // Far in the future
+          familyPlanOwnerId: null,
+          allowMoodTracking: false,
+          createdAt: /* @__PURE__ */ new Date(),
+          profilePicture: null,
+          lastLogin: /* @__PURE__ */ new Date(),
+          ipAddress: "127.0.0.1",
+          paypalEmail: null,
+          stripeAccountId: null,
+          preferredPaymentMethod: null,
+          preferredCurrency: "AUD",
+          referralCode: "sagaradmin123",
+          referredBy: null,
+          referralCount: 0,
+          followerCount: 0,
+          videoCount: 0,
+          totalVideoViews: 0,
+          totalVideoLikes: 0,
+          totalVideoComments: 0,
+          totalVideoShares: 0,
+          totalVideoDownloads: 0,
+          verificationStatus: "verified",
+          verifiedAt: /* @__PURE__ */ new Date(),
+          verificationExpiresAt: new Date(2099, 11, 31),
+          verificationPaymentPlan: "lifetime",
+          verificationMethod: "admin",
+          twoFactorEnabled: false,
+          twoFactorSecret: null,
+          twoFactorRecoveryKeys: null,
+          isVerified: true,
+          locationData: null,
+          blockedUsers: null
+        };
+        this.users.set(sagarUserId, sagarUser);
+        this.userEmotions.set(sagarUserId, "happy");
+        if (!this.userBadges.has(sagarUserId)) {
+          this.userBadges.set(sagarUserId, []);
+        }
+        for (const badge of this.badges) {
+          this.userBadges.get(sagarUserId).push({
+            id: Date.now() + badge.id,
+            userId: sagarUserId,
+            badgeId: badge.id,
+            awardedAt: /* @__PURE__ */ new Date()
+          });
+        }
+        console.log("Sagar admin account created successfully");
         this.chatRooms = [
           {
             id: 1,
@@ -769,8 +933,9 @@ var init_storage = __esm({
           { name: "Rio de Janeiro", dominant: "excited", percentage: 62 }
         ];
         this.challenges = [
+          // Easy Challenges
           {
-            id: "c1",
+            id: "e1",
             title: "Emotional Explorer",
             description: "Track 5 different emotions in a week",
             category: "tracking",
@@ -782,21 +947,70 @@ var init_storage = __esm({
             progress: 0
           },
           {
-            id: "c2",
+            id: "e2",
+            title: "Mindful Moment",
+            description: "Log your current emotion for 3 consecutive days",
+            category: "daily",
+            difficulty: "easy",
+            tokenReward: 30,
+            targetValue: 3,
+            iconUrl: "\u{1F9D8}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "e3",
+            title: "Global Citizen",
+            description: "Check the global emotion map for 5 days",
+            category: "exploration",
+            difficulty: "easy",
+            tokenReward: 40,
+            targetValue: 5,
+            iconUrl: "\u{1F30D}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "e4",
+            title: "Emotion Notes",
+            description: "Create your first journal entry reflecting on your emotions",
+            category: "journal",
+            difficulty: "easy",
+            tokenReward: 25,
+            targetValue: 1,
+            iconUrl: "\u{1F4DD}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "e5",
+            title: "Connection Seeker",
+            description: "Find a mood match with someone feeling the same emotion",
+            category: "social",
+            difficulty: "easy",
+            tokenReward: 35,
+            targetValue: 1,
+            iconUrl: "\u{1F50D}",
+            isCompleted: false,
+            progress: 0
+          },
+          // Moderate Challenges
+          {
+            id: "m1",
             title: "Journaling Journey",
-            description: "Create a journal entry 3 days in a row",
+            description: "Create a journal entry 5 days in a row",
             category: "journal",
             difficulty: "moderate",
             tokenReward: 75,
-            targetValue: 3,
+            targetValue: 5,
             iconUrl: "\u{1F4D4}",
             isCompleted: false,
             progress: 0
           },
           {
-            id: "c3",
+            id: "m2",
             title: "Social Butterfly",
-            description: "Join 5 different chat rooms",
+            description: "Join 5 different mood-based chat rooms",
             category: "social",
             difficulty: "moderate",
             tokenReward: 80,
@@ -806,26 +1020,160 @@ var init_storage = __esm({
             progress: 0
           },
           {
-            id: "c4",
+            id: "m3",
+            title: "Mood Pattern Tracker",
+            description: "Record your emotions at different times of the day for a week",
+            category: "tracking",
+            difficulty: "moderate",
+            tokenReward: 90,
+            targetValue: 7,
+            iconUrl: "\u{1F4CA}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "m4",
+            title: "Emotional Support",
+            description: "Provide helpful responses to 3 users in chat rooms",
+            category: "social",
+            difficulty: "moderate",
+            tokenReward: 85,
+            targetValue: 3,
+            iconUrl: "\u{1F91D}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "m5",
+            title: "Positivity Streaker",
+            description: "Maintain a positive emotion for 3 consecutive days",
+            category: "tracking",
+            difficulty: "moderate",
+            tokenReward: 70,
+            targetValue: 3,
+            iconUrl: "\u2728",
+            isCompleted: false,
+            progress: 0
+          },
+          // Hard Challenges
+          {
+            id: "h1",
             title: "Emotional Wisdom",
-            description: "Have 10 conversations with the AI companion",
+            description: "Have 10 conversations with the AI companion about different emotions",
             category: "ai",
             difficulty: "hard",
-            tokenReward: 100,
+            tokenReward: 120,
             targetValue: 10,
             iconUrl: "\u{1F9E0}",
             isCompleted: false,
             progress: 0
           },
           {
-            id: "c5",
-            title: "Global Citizen",
-            description: "Check the global emotion map for 7 days",
+            id: "h2",
+            title: "Emotion Mastery",
+            description: "Track all 8 core emotions in the application",
+            category: "tracking",
+            difficulty: "hard",
+            tokenReward: 150,
+            targetValue: 8,
+            iconUrl: "\u{1F3AD}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "h3",
+            title: "Emotion Transformation",
+            description: "Document shifting from a negative to positive emotion in your journal 5 times",
+            category: "journal",
+            difficulty: "hard",
+            tokenReward: 140,
+            targetValue: 5,
+            iconUrl: "\u{1F504}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "h4",
+            title: "Community Builder",
+            description: "Create a chat room and attract 10 participants",
+            category: "social",
+            difficulty: "hard",
+            tokenReward: 130,
+            targetValue: 10,
+            iconUrl: "\u{1F3D7}\uFE0F",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "h5",
+            title: "Streak Master",
+            description: "Log your emotions for 14 consecutive days",
+            category: "daily",
+            difficulty: "hard",
+            tokenReward: 160,
+            targetValue: 14,
+            iconUrl: "\u{1F525}",
+            isCompleted: false,
+            progress: 0
+          },
+          // Extreme Challenges
+          {
+            id: "x1",
+            title: "Emotional Intelligence Guru",
+            description: "Complete 30 days of daily emotion tracking without missing a day",
+            category: "daily",
+            difficulty: "extreme",
+            tokenReward: 300,
+            targetValue: 30,
+            iconUrl: "\u{1F451}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "x2",
+            title: "Social Wellness Ambassador",
+            description: "Help 25 users through meaningful conversations in chat rooms",
+            category: "social",
+            difficulty: "extreme",
+            tokenReward: 350,
+            targetValue: 25,
+            iconUrl: "\u{1F3C5}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "x3",
+            title: "Emotional Journal Master",
+            description: "Create 50 detailed journal entries about your emotional journey",
+            category: "journal",
+            difficulty: "extreme",
+            tokenReward: 400,
+            targetValue: 50,
+            iconUrl: "\u{1F4DA}",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "x4",
+            title: "Emotional Balance Achiever",
+            description: "Maintain an equal distribution of positive and negative emotions for a month",
+            category: "tracking",
+            difficulty: "extreme",
+            tokenReward: 450,
+            targetValue: 30,
+            iconUrl: "\u2696\uFE0F",
+            isCompleted: false,
+            progress: 0
+          },
+          {
+            id: "x5",
+            title: "MoodSync Pioneer",
+            description: "Use every feature in the app at least once and maintain a 45-day streak",
             category: "exploration",
-            difficulty: "easy",
-            tokenReward: 60,
-            targetValue: 7,
-            iconUrl: "\u{1F30D}",
+            difficulty: "extreme",
+            tokenReward: 500,
+            targetValue: 45,
+            iconUrl: "\u{1F680}",
             isCompleted: false,
             progress: 0
           }
@@ -2246,6 +2594,9 @@ var init_storage = __esm({
         return redemption;
       }
       async getUserTokenRedemptions(userId) {
+        if (!this.tokenRedemptions.has(userId)) {
+          this.tokenRedemptions.set(userId, []);
+        }
         return this.tokenRedemptions.get(userId) || [];
       }
       async updateTokenRedemptionStatus(redemptionId, status) {
@@ -4186,6 +4537,464 @@ var init_storage = __esm({
         this.emotionalNfts.set(nftId, updatedNft);
         return updatedNft;
       }
+      // Subscription management methods
+      async getUserSubscription(userId) {
+        return this.subscriptions.get(userId);
+      }
+      async updateUserSubscription(userId, data) {
+        let subscription = this.subscriptions.get(userId);
+        if (!subscription) {
+          subscription = {
+            id: this.nextSubscriptionId++,
+            userId,
+            tier: "free",
+            isActive: false,
+            startDate: /* @__PURE__ */ new Date(),
+            expiryDate: null,
+            renewsAt: null,
+            cancelledAt: null,
+            hadTrialBefore: false,
+            paymentMethod: null,
+            lastPaymentDate: null,
+            stripeCustomerId: null,
+            stripeSubscriptionId: null,
+            createdAt: /* @__PURE__ */ new Date(),
+            updatedAt: /* @__PURE__ */ new Date()
+          };
+        }
+        const updatedSubscription = {
+          ...subscription,
+          ...data,
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        this.subscriptions.set(userId, updatedSubscription);
+        return updatedSubscription;
+      }
+      // Custom mood tags methods
+      async createCustomMoodTag(tagData) {
+        const tag = {
+          id: this.nextCustomMoodTagId++,
+          ...tagData,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        if (!this.customMoodTags.has(tagData.userId)) {
+          this.customMoodTags.set(tagData.userId, []);
+        }
+        this.customMoodTags.get(tagData.userId).push(tag);
+        return tag;
+      }
+      async getUserCustomMoodTags(userId) {
+        return this.customMoodTags.get(userId) || [];
+      }
+      async getCustomMoodTag(userId, tagId) {
+        const userTags = this.customMoodTags.get(userId) || [];
+        return userTags.find((tag) => tag.id === tagId);
+      }
+      async updateCustomMoodTag(userId, tagId, tagData) {
+        const userTags = this.customMoodTags.get(userId) || [];
+        const tagIndex = userTags.findIndex((tag) => tag.id === tagId);
+        if (tagIndex === -1) {
+          throw new Error("Custom mood tag not found");
+        }
+        const updatedTag = {
+          ...userTags[tagIndex],
+          ...tagData,
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        userTags[tagIndex] = updatedTag;
+        this.customMoodTags.set(userId, userTags);
+        return updatedTag;
+      }
+      async deleteCustomMoodTag(userId, tagId) {
+        const userTags = this.customMoodTags.get(userId) || [];
+        const filteredTags = userTags.filter((tag) => tag.id !== tagId);
+        if (filteredTags.length === userTags.length) {
+          throw new Error("Custom mood tag not found");
+        }
+        this.customMoodTags.set(userId, filteredTags);
+      }
+      // Weekly mood report methods
+      async generateWeeklyMoodReport(userId) {
+        const now = /* @__PURE__ */ new Date();
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1e3);
+        const emotionRecords = (this.emotionRecords.get(userId) || []).filter((record) => record.createdAt > weekAgo && record.createdAt <= now);
+        const emotionCounts = {};
+        emotionRecords.forEach((record) => {
+          if (!emotionCounts[record.emotion]) {
+            emotionCounts[record.emotion] = 0;
+          }
+          emotionCounts[record.emotion]++;
+        });
+        const totalRecords = emotionRecords.length || 1;
+        const predominantMoods = {};
+        for (const [emotion, count] of Object.entries(emotionCounts)) {
+          predominantMoods[emotion] = Math.round(count / totalRecords * 100);
+        }
+        const dailyEmotions = {};
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        emotionRecords.forEach((record) => {
+          const day = days[record.createdAt.getDay()];
+          if (!dailyEmotions[day]) {
+            dailyEmotions[day] = [];
+          }
+          dailyEmotions[day].push(record.emotion);
+        });
+        const dailyMoods = {};
+        for (const [day, emotions2] of Object.entries(dailyEmotions)) {
+          const emotionCounts2 = {};
+          emotions2.forEach((emotion) => {
+            if (!emotionCounts2[emotion]) {
+              emotionCounts2[emotion] = 0;
+            }
+            emotionCounts2[emotion]++;
+          });
+          let maxCount = 0;
+          let predominantEmotion = null;
+          for (const [emotion, count] of Object.entries(emotionCounts2)) {
+            if (count > maxCount) {
+              maxCount = count;
+              predominantEmotion = emotion;
+            }
+          }
+          dailyMoods[day] = predominantEmotion;
+        }
+        const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1e3);
+        const previousWeekRecords = (this.emotionRecords.get(userId) || []).filter((record) => record.createdAt > twoWeeksAgo && record.createdAt <= weekAgo);
+        const getEmotionScore = (emotion) => {
+          if (emotion === "happy" || emotion === "excited") return 5;
+          if (emotion === "neutral") return 3;
+          return 1;
+        };
+        const currentWeekScores = emotionRecords.map((record) => getEmotionScore(record.emotion));
+        const previousWeekScores = previousWeekRecords.map((record) => getEmotionScore(record.emotion));
+        const currentWeekAverage = currentWeekScores.length ? currentWeekScores.reduce((sum, score) => sum + score, 0) / currentWeekScores.length : 0;
+        const previousWeekAverage = previousWeekScores.length ? previousWeekScores.reduce((sum, score) => sum + score, 0) / previousWeekScores.length : 0;
+        const percentageChange = previousWeekAverage ? (currentWeekAverage - previousWeekAverage) / previousWeekAverage * 100 : 0;
+        const insightsSummary = [];
+        const sortedEmotions = Object.entries(predominantMoods).sort((a, b) => b[1] - a[1]).map(([emotion, percentage]) => `${emotion} (${percentage}%)`);
+        if (sortedEmotions.length) {
+          insightsSummary.push(`Your predominant moods this week were ${sortedEmotions.join(", ")}.`);
+        } else {
+          insightsSummary.push("No mood data was recorded this week. Try tracking your emotions daily for more insights.");
+        }
+        if (Math.abs(percentageChange) > 5) {
+          const direction = percentageChange > 0 ? "improved" : "declined";
+          insightsSummary.push(`Your overall mood has ${direction} by ${Math.abs(Math.round(percentageChange))}% compared to last week.`);
+        } else {
+          insightsSummary.push("Your overall mood has remained relatively stable compared to last week.");
+        }
+        const recommendedActions = [];
+        const negativeEmotions = ["sad", "angry", "anxious"];
+        const negativePercentage = negativeEmotions.reduce((sum, emotion) => sum + (predominantMoods[emotion] || 0), 0);
+        if (negativePercentage > 50) {
+          recommendedActions.push("Consider practicing daily mindfulness or meditation to improve emotional regulation.");
+          recommendedActions.push("Reach out to a friend or family member for support.");
+          recommendedActions.push("Prioritize self-care activities that bring you joy.");
+        }
+        const topEmotions = Object.values(predominantMoods).sort((a, b) => b - a);
+        if (topEmotions.length >= 3 && topEmotions[0] - topEmotions[2] < 15) {
+          recommendedActions.push("Your emotions appear to fluctuate throughout the week. Journaling might help identify patterns.");
+          recommendedActions.push("Establishing a regular routine can help stabilize mood swings.");
+        }
+        if (recommendedActions.length === 0) {
+          recommendedActions.push("Continue tracking your emotions daily for more personalized insights.");
+          recommendedActions.push("Explore the Mood Correlation feature to identify factors affecting your emotions.");
+        }
+        const weeklyReport = {
+          userId,
+          weekStartDate: weekAgo,
+          weekEndDate: now,
+          predominantMoods,
+          dailyMoods,
+          moodTrends: {
+            improvement: percentageChange >= 0,
+            percentageChange: Math.round(Math.abs(percentageChange)),
+            previousWeekAverage: Math.round(previousWeekAverage * 10) / 10,
+            currentWeekAverage: Math.round(currentWeekAverage * 10) / 10
+          },
+          insightsSummary,
+          correlationInsights: {
+            weather: null,
+            // Would require weather data integration
+            sleepHours: null,
+            // Would require sleep tracking data
+            physicalActivity: null
+            // Would require activity tracking data
+          },
+          recommendedActions,
+          generatedAt: now
+        };
+        if (!this.weeklyMoodReports.has(userId)) {
+          this.weeklyMoodReports.set(userId, []);
+        }
+        this.weeklyMoodReports.get(userId).push(weeklyReport);
+        return weeklyReport;
+      }
+      async getUserWeeklyMoodReports(userId) {
+        return this.weeklyMoodReports.get(userId) || [];
+      }
+      async getLatestWeeklyMoodReport(userId) {
+        const userReports = this.weeklyMoodReports.get(userId) || [];
+        if (userReports.length === 0) {
+          return void 0;
+        }
+        return userReports.sort((a, b) => b.generatedAt.getTime() - a.generatedAt.getTime())[0];
+      }
+      // Community features methods
+      async getCommunityPosts(filter, userId) {
+        const posts = Array.from(this.communityPosts.values());
+        let filteredPosts = posts;
+        if (filter === "mine") {
+          filteredPosts = posts.filter((post) => post.userId === userId);
+        } else if (filter === "friends") {
+          filteredPosts = posts.filter((post) => post.userId === userId || post.visibility === "public");
+        } else {
+          filteredPosts = posts.filter((post) => post.visibility === "public");
+        }
+        const enrichedPosts = filteredPosts.map((post) => {
+          const user = this.users.get(post.userId);
+          const userHasLiked = this.postReactions.has(post.id) && this.postReactions.get(post.id)?.has(userId);
+          const likeCount = this.postReactions.has(post.id) ? this.postReactions.get(post.id)?.size || 0 : 0;
+          const commentCount = this.postComments.has(post.id) ? this.postComments.get(post.id)?.length || 0 : 0;
+          return {
+            ...post,
+            username: user?.username || "Anonymous",
+            profilePicture: user?.profilePicture,
+            isPremium: user?.isPremium || false,
+            userHasLiked: userHasLiked || false,
+            likeCount,
+            commentCount
+          };
+        });
+        return enrichedPosts.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+      async getCommunityPostById(postId) {
+        return this.communityPosts.get(postId);
+      }
+      async createCommunityPost(data) {
+        const post = {
+          id: this.nextCommunityPostId++,
+          userId: data.userId,
+          content: data.content,
+          emotion: data.emotion,
+          visibility: data.visibility,
+          mediaUrl: data.mediaUrl,
+          mediaType: data.mediaType,
+          createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+          updatedAt: null,
+          likeCount: 0,
+          commentCount: 0
+        };
+        this.communityPosts.set(post.id, post);
+        return post;
+      }
+      async updateCommunityPost(postId, updates) {
+        const post = this.communityPosts.get(postId);
+        if (!post) {
+          throw new Error("Post not found");
+        }
+        const updatedPost = {
+          ...post,
+          ...updates,
+          updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        this.communityPosts.set(postId, updatedPost);
+        return updatedPost;
+      }
+      async deleteCommunityPost(postId) {
+        const exists = this.communityPosts.has(postId);
+        if (exists) {
+          this.communityPosts.delete(postId);
+          this.postComments.delete(postId);
+          this.postReactions.delete(postId);
+        }
+        return exists;
+      }
+      async getPostComments(postId) {
+        const comments = this.postComments.get(postId) || [];
+        return comments.map((comment) => {
+          const user = this.users.get(comment.userId);
+          return {
+            ...comment,
+            username: user?.username || "Anonymous",
+            profilePicture: user?.profilePicture
+          };
+        }).sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+      }
+      async createPostComment(postId, userId, content) {
+        const post = this.communityPosts.get(postId);
+        if (!post) {
+          throw new Error("Post not found");
+        }
+        if (!this.postComments.has(postId)) {
+          this.postComments.set(postId, []);
+        }
+        const comment = {
+          id: this.nextPostCommentId++,
+          postId,
+          userId,
+          content,
+          createdAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        this.postComments.get(postId).push(comment);
+        post.commentCount = (post.commentCount || 0) + 1;
+        this.communityPosts.set(postId, post);
+        const user = this.users.get(userId);
+        return {
+          ...comment,
+          username: user?.username || "Anonymous",
+          profilePicture: user?.profilePicture
+        };
+      }
+      async deletePostComment(postId, commentId) {
+        if (!this.postComments.has(postId)) {
+          return false;
+        }
+        const comments = this.postComments.get(postId);
+        const initialLength = comments.length;
+        const filteredComments = comments.filter((c) => c.id !== commentId);
+        if (initialLength !== filteredComments.length) {
+          this.postComments.set(postId, filteredComments);
+          const post = this.communityPosts.get(postId);
+          if (post) {
+            post.commentCount = Math.max(0, (post.commentCount || 0) - 1);
+            this.communityPosts.set(postId, post);
+          }
+          return true;
+        }
+        return false;
+      }
+      async likePost(postId, userId) {
+        const post = this.communityPosts.get(postId);
+        if (!post) {
+          throw new Error("Post not found");
+        }
+        if (!this.postReactions.has(postId)) {
+          this.postReactions.set(postId, /* @__PURE__ */ new Map());
+        }
+        const postReactionsMap = this.postReactions.get(postId);
+        if (postReactionsMap.has(userId)) {
+          return {
+            postId,
+            userId,
+            likeCount: postReactionsMap.size
+          };
+        }
+        const reaction = {
+          id: this.nextPostReactionId++,
+          postId,
+          userId,
+          type: "like",
+          createdAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        postReactionsMap.set(userId, reaction);
+        post.likeCount = postReactionsMap.size;
+        this.communityPosts.set(postId, post);
+        return {
+          postId,
+          userId,
+          likeCount: postReactionsMap.size
+        };
+      }
+      async unlikePost(postId, userId) {
+        const post = this.communityPosts.get(postId);
+        if (!post) {
+          throw new Error("Post not found");
+        }
+        if (!this.postReactions.has(postId)) {
+          return {
+            postId,
+            userId,
+            likeCount: 0
+          };
+        }
+        const postReactionsMap = this.postReactions.get(postId);
+        postReactionsMap.delete(userId);
+        post.likeCount = postReactionsMap.size;
+        this.communityPosts.set(postId, post);
+        return {
+          postId,
+          userId,
+          likeCount: postReactionsMap.size
+        };
+      }
+      async checkFriendship(userId, otherUserId) {
+        return true;
+      }
+      async getSupportGroups() {
+        return this.supportGroups;
+      }
+      async getSupportGroupById(groupId) {
+        const group = this.supportGroups.find((g) => g.id === groupId);
+        return group || null;
+      }
+      async joinSupportGroup(userId, groupId) {
+        const group = await this.getSupportGroupById(groupId);
+        if (!group) return false;
+        group.members += 1;
+        await this.createRewardActivity(
+          userId,
+          "help_others",
+          5,
+          `Joined the "${group.name}" support group`
+        );
+        return true;
+      }
+      async leaveSupportGroup(userId, groupId) {
+        const group = await this.getSupportGroupById(groupId);
+        if (!group) return false;
+        if (group.members > 0) {
+          group.members -= 1;
+        }
+        return true;
+      }
+      async getExpertTips(category) {
+        if (category) {
+          return this.expertTips.filter((tip) => tip.category === category);
+        }
+        return this.expertTips;
+      }
+      /******************************
+       * SEO CONFIGURATION METHODS
+       ******************************/
+      async getAllSeoConfigurations() {
+        return Array.from(this.seoConfigurations.values());
+      }
+      async getSeoConfigurationByKey(pageKey) {
+        return this.seoConfigurations.get(pageKey);
+      }
+      async createSeoConfiguration(pageKey, config) {
+        if (this.seoConfigurations.has(pageKey)) {
+          throw new Error(`SEO configuration for ${pageKey} already exists`);
+        }
+        const newConfig = {
+          id: this.nextSeoConfigId++,
+          pageKey,
+          ...config,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        this.seoConfigurations.set(pageKey, newConfig);
+        return newConfig;
+      }
+      async updateSeoConfiguration(pageKey, config) {
+        if (!this.seoConfigurations.has(pageKey)) {
+          throw new Error(`SEO configuration for ${pageKey} not found`);
+        }
+        const existingConfig = this.seoConfigurations.get(pageKey);
+        const updatedConfig = {
+          ...existingConfig,
+          ...config,
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        this.seoConfigurations.set(pageKey, updatedConfig);
+        return updatedConfig;
+      }
     };
     storage = new MemStorage();
   }
@@ -4207,6 +5016,7 @@ __export(schema_exports, {
   charityOrganizations: () => charityOrganizations,
   chatRoomParticipants: () => chatRoomParticipants,
   chatRooms: () => chatRooms,
+  customMoodTags: () => customMoodTags,
   deletionRequests: () => deletionRequests,
   emotionalImprintInteractions: () => emotionalImprintInteractions,
   emotionalImprints: () => emotionalImprints,
@@ -4225,6 +5035,7 @@ __export(schema_exports, {
   insertChallengeSchema: () => insertChallengeSchema,
   insertChatRoomParticipantSchema: () => insertChatRoomParticipantSchema,
   insertChatRoomSchema: () => insertChatRoomSchema,
+  insertCustomMoodTagSchema: () => insertCustomMoodTagSchema,
   insertDeletionRequestSchema: () => insertDeletionRequestSchema,
   insertEmotionSchema: () => insertEmotionSchema,
   insertEmotionalImprintInteractionSchema: () => insertEmotionalImprintInteractionSchema,
@@ -4248,6 +5059,8 @@ __export(schema_exports, {
   insertReferralSchema: () => insertReferralSchema,
   insertRefundRequestSchema: () => insertRefundRequestSchema,
   insertRewardActivitySchema: () => insertRewardActivitySchema,
+  insertSeoConfigurationSchema: () => insertSeoConfigurationSchema,
+  insertSubscriptionSchema: () => insertSubscriptionSchema,
   insertSupportTicketSchema: () => insertSupportTicketSchema,
   insertTicketResponseSchema: () => insertTicketResponseSchema,
   insertTokenPoolSchema: () => insertTokenPoolSchema,
@@ -4284,6 +5097,8 @@ __export(schema_exports, {
   referrals: () => referrals,
   refundRequests: () => refundRequests,
   rewardActivities: () => rewardActivities,
+  seoConfigurations: () => seoConfigurations,
+  subscriptions: () => subscriptions,
   supportTickets: () => supportTickets,
   ticketResponses: () => ticketResponses,
   tokenPool: () => tokenPool,
@@ -4313,7 +5128,7 @@ __export(schema_exports, {
 import { pgTable, text, serial, integer, boolean, timestamp, numeric, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-var TOKEN_CONVERSION_RATE, MIN_REDEMPTION_TOKENS, PREMIUM_ACCESS_TOKENS, users, emotions, journalEntries, chatRooms, rewardActivities, badges, userBadges, blockedUsers, chatRoomParticipants, challenges, verificationDocuments, tokenRedemptions, familyRelationships, tokenTransfers, premiumPlans, userChallengeCompletions, referrals, nftCollections, nftItems, userNfts, nftTransfers, emotionalNfts, tokenPool, poolContributions, poolDistributions, moodGames, userGamePlays, userMoodTrends, userSessions, moodMatches, adminUsers, supportTickets, ticketResponses, refundRequests, notifications, adminActions, quotes, videoPosts, videoLikes, videoComments, videoFollows, videoSaves, videoDownloads, userFollows, insertUserSchema, insertUserSessionSchema, insertEmotionSchema, insertJournalEntrySchema, insertRewardActivitySchema, insertNftCollectionSchema, insertNftItemSchema, insertUserNftSchema, insertNftTransferSchema, insertEmotionalNftSchema, insertTokenPoolSchema, insertPoolContributionSchema, insertPoolDistributionSchema, insertBadgeSchema, insertUserBadgeSchema, insertChallengeSchema, updateUserSchema, insertNotificationSchema, insertTokenRedemptionSchema, insertChatRoomSchema, insertBlockedUserSchema, insertChatRoomParticipantSchema, insertFamilyRelationshipSchema, insertTokenTransferSchema, insertPremiumPlanSchema, insertUserChallengeCompletionSchema, insertReferralSchema, insertAdminUserSchema, insertSupportTicketSchema, insertTicketResponseSchema, insertRefundRequestSchema, insertAdminActionSchema, insertQuoteSchema, insertVideoPostSchema, insertVideoLikeSchema, insertVideoCommentSchema, deletionRequests, insertDeletionRequestSchema, insertVideoFollowSchema, insertVideoSaveSchema, insertVideoDownloadSchema, insertUserFollowSchema, insertMoodMatchSchema, milestoneShares, advertisements, advertisementBookings, insertAdvertisementSchema, insertAdvertisementBookingSchema, friendships, userMessages, userPosts, postReactions, postComments, userVideoCalls, userNotificationSettings, charityOrganizations, gofundmeCampaigns, feedbackSubmissions, emotionalImprints, emotionalImprintInteractions, insertFriendshipSchema, insertUserMessageSchema, insertUserPostSchema, insertGofundmeCampaignSchema, insertFeedbackSubmissionSchema, insertEmotionalImprintSchema, insertEmotionalImprintInteractionSchema, insertMilestoneShareSchema;
+var TOKEN_CONVERSION_RATE, MIN_REDEMPTION_TOKENS, PREMIUM_ACCESS_TOKENS, users, emotions, journalEntries, chatRooms, rewardActivities, badges, userBadges, blockedUsers, chatRoomParticipants, challenges, verificationDocuments, tokenRedemptions, familyRelationships, tokenTransfers, premiumPlans, userChallengeCompletions, referrals, nftCollections, nftItems, userNfts, nftTransfers, emotionalNfts, tokenPool, poolContributions, poolDistributions, moodGames, userGamePlays, customMoodTags, userMoodTrends, userSessions, moodMatches, adminUsers, supportTickets, ticketResponses, refundRequests, notifications, adminActions, quotes, videoPosts, videoLikes, videoComments, videoFollows, videoSaves, videoDownloads, userFollows, insertUserSchema, insertUserSessionSchema, insertEmotionSchema, insertJournalEntrySchema, insertRewardActivitySchema, insertNftCollectionSchema, insertNftItemSchema, insertUserNftSchema, insertNftTransferSchema, insertEmotionalNftSchema, insertTokenPoolSchema, insertPoolContributionSchema, insertPoolDistributionSchema, insertBadgeSchema, insertUserBadgeSchema, insertChallengeSchema, updateUserSchema, insertNotificationSchema, insertTokenRedemptionSchema, insertChatRoomSchema, insertBlockedUserSchema, insertChatRoomParticipantSchema, insertFamilyRelationshipSchema, insertTokenTransferSchema, insertPremiumPlanSchema, insertUserChallengeCompletionSchema, insertReferralSchema, insertAdminUserSchema, insertSupportTicketSchema, insertTicketResponseSchema, insertRefundRequestSchema, insertAdminActionSchema, insertQuoteSchema, insertVideoPostSchema, insertVideoLikeSchema, insertVideoCommentSchema, deletionRequests, insertDeletionRequestSchema, insertVideoFollowSchema, insertVideoSaveSchema, insertVideoDownloadSchema, insertUserFollowSchema, insertMoodMatchSchema, milestoneShares, advertisements, advertisementBookings, insertAdvertisementSchema, insertAdvertisementBookingSchema, friendships, userMessages, userPosts, postReactions, postComments, userVideoCalls, userNotificationSettings, charityOrganizations, gofundmeCampaigns, feedbackSubmissions, emotionalImprints, emotionalImprintInteractions, insertFriendshipSchema, insertUserMessageSchema, insertUserPostSchema, insertGofundmeCampaignSchema, insertFeedbackSubmissionSchema, insertEmotionalImprintSchema, insertEmotionalImprintInteractionSchema, insertMilestoneShareSchema, subscriptions, insertSubscriptionSchema, insertCustomMoodTagSchema, seoConfigurations, insertSeoConfigurationSchema;
 var init_schema = __esm({
   "shared/schema.ts"() {
     "use strict";
@@ -4740,6 +5555,18 @@ var init_schema = __esm({
       feedbackNote: text("feedback_note"),
       tokensEarned: integer("tokens_earned")
     });
+    customMoodTags = pgTable("custom_mood_tags", {
+      id: serial("id").primaryKey(),
+      userId: integer("user_id").notNull().references(() => users.id),
+      tagName: text("tag_name").notNull(),
+      tagDescription: text("tag_description"),
+      baseEmotion: text("base_emotion").$type(),
+      color: text("color").default("#6366f1"),
+      icon: text("icon").default("\u{1F60A}"),
+      createdAt: timestamp("created_at").defaultNow(),
+      usageCount: integer("usage_count").default(0),
+      isActive: boolean("is_active").default(true)
+    });
     userMoodTrends = pgTable("user_mood_trends", {
       id: serial("id").primaryKey(),
       userId: integer("user_id").notNull().references(() => users.id),
@@ -4749,7 +5576,11 @@ var init_schema = __esm({
       moodScore: integer("mood_score").notNull(),
       // 1-10 scale
       notes: text("notes"),
-      recommendedGameCategory: text("recommended_game_category").$type()
+      recommendedGameCategory: text("recommended_game_category").$type(),
+      customMoodTagId: integer("custom_mood_tag_id").references(() => customMoodTags.id),
+      weatherConditions: text("weather_conditions"),
+      sleepHours: numeric("sleep_hours"),
+      physicalActivity: text("physical_activity")
     });
     userSessions = pgTable("user_sessions", {
       id: serial("id").primaryKey(),
@@ -5678,6 +6509,62 @@ var init_schema = __esm({
       ipAddress: z.string().optional(),
       trackingId: z.string().uuid()
     });
+    subscriptions = pgTable("subscriptions", {
+      id: serial("id").primaryKey(),
+      userId: integer("user_id").notNull().references(() => users.id),
+      tier: text("tier").notNull().$type().default("free"),
+      isActive: boolean("is_active").default(false),
+      startDate: timestamp("start_date").defaultNow(),
+      expiryDate: timestamp("expiry_date"),
+      renewsAt: timestamp("renews_at"),
+      cancelledAt: timestamp("cancelled_at"),
+      hadTrialBefore: boolean("had_trial_before").default(false),
+      paymentMethod: text("payment_method"),
+      lastPaymentDate: timestamp("last_payment_date"),
+      stripeCustomerId: text("stripe_customer_id"),
+      stripeSubscriptionId: text("stripe_subscription_id"),
+      createdAt: timestamp("created_at").defaultNow(),
+      updatedAt: timestamp("updated_at").defaultNow()
+    });
+    insertSubscriptionSchema = createInsertSchema(subscriptions, {
+      userId: z.number().int().positive(),
+      tier: z.enum(["free", "trial", "premium", "family", "lifetime"]),
+      isActive: z.boolean().default(false),
+      expiryDate: z.date().optional().nullable(),
+      renewsAt: z.date().optional().nullable(),
+      hadTrialBefore: z.boolean().default(false),
+      paymentMethod: z.string().optional().nullable()
+    });
+    insertCustomMoodTagSchema = createInsertSchema(customMoodTags, {
+      userId: z.number().int().positive(),
+      tagName: z.string().min(2).max(30),
+      tagDescription: z.string().max(200).optional(),
+      baseEmotion: z.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]).optional(),
+      color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).default("#6366f1"),
+      icon: z.string().default("\u{1F60A}"),
+      isActive: z.boolean().default(true)
+    });
+    seoConfigurations = pgTable("seo_configurations", {
+      id: serial("id").primaryKey(),
+      pageKey: text("page_key").notNull().unique(),
+      title: text("title").notNull(),
+      description: text("description").notNull(),
+      keywords: json("keywords").$type().default([]),
+      ogImage: text("og_image"),
+      noindex: boolean("noindex").default(false),
+      createdAt: timestamp("created_at").defaultNow(),
+      updatedAt: timestamp("updated_at").defaultNow(),
+      lastModifiedBy: integer("last_modified_by").references(() => adminUsers.id)
+    });
+    insertSeoConfigurationSchema = createInsertSchema(seoConfigurations, {
+      pageKey: z.string().min(2).max(100),
+      title: z.string().min(5).max(200),
+      description: z.string().min(10).max(500),
+      keywords: z.array(z.string()).optional().default([]),
+      ogImage: z.string().optional(),
+      noindex: z.boolean().default(false),
+      lastModifiedBy: z.number().int().positive().optional()
+    });
   }
 });
 
@@ -5786,198 +6673,162 @@ var init_account_management = __esm({
   }
 });
 
-// server/routes/subscription-management.ts
-var subscription_management_exports = {};
-__export(subscription_management_exports, {
-  default: () => subscription_management_default
+// server/routes/subscription-routes.ts
+var subscription_routes_exports = {};
+__export(subscription_routes_exports, {
+  default: () => subscription_routes_default
 });
-import { Router as Router2 } from "express";
-function requireAuth2(req, res, next) {
-  if (!req.isAuthenticated()) {
-    return res.status(401).send({ error: "Authentication required" });
-  }
-  next();
-}
-var router2, subscription_management_default;
-var init_subscription_management = __esm({
-  "server/routes/subscription-management.ts"() {
+import express from "express";
+import { z as z2 } from "zod";
+var router2, requireAuth2, subscription_routes_default;
+var init_subscription_routes = __esm({
+  "server/routes/subscription-routes.ts"() {
     "use strict";
     init_storage();
-    router2 = Router2();
-    router2.post("/start-trial", requireAuth2, async (req, res) => {
+    router2 = express.Router();
+    requireAuth2 = (req, res, next) => {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      next();
+    };
+    router2.get("/api/subscription", requireAuth2, async (req, res) => {
       try {
         const userId = req.user.id;
-        const trialDays = 14;
-        const user = await storage.getUser(userId);
-        if (!user) {
-          return res.status(404).json({
-            success: false,
-            message: "User not found."
+        const subscription = await storage.getUserSubscription(userId);
+        if (!subscription) {
+          return res.json({
+            tier: "free",
+            isActive: false,
+            expiryDate: null
           });
         }
-        if (user.isPremium) {
-          return res.status(400).json({
-            success: false,
-            message: "You already have a premium subscription. No need for a trial."
-          });
+        res.json({
+          tier: subscription.tier,
+          isActive: subscription.status === "active",
+          expiryDate: subscription.expiresAt,
+          startDate: subscription.startedAt,
+          autoRenew: subscription.autoRenew,
+          paymentMethod: subscription.paymentMethod
+        });
+      } catch (error) {
+        console.error("Error fetching subscription:", error);
+        res.status(500).json({ error: "Failed to fetch subscription status" });
+      }
+    });
+    router2.post("/api/subscription/trial", requireAuth2, async (req, res) => {
+      try {
+        const userId = req.user.id;
+        const schema = z2.object({
+          trialDays: z2.number().int().min(1).max(30).optional().default(14)
+        });
+        const validatedData = schema.parse(req.body);
+        const existingSubscription = await storage.getUserSubscription(userId);
+        if (existingSubscription && existingSubscription.status === "active") {
+          return res.status(400).json({ error: "User already has an active subscription" });
         }
-        if (user.isInTrialPeriod) {
-          const isActive = await storage.isUserInActiveTrial(userId);
-          if (isActive) {
-            return res.status(400).json({
-              success: false,
-              message: "You already have an active trial period."
-            });
-          } else {
-            return res.status(400).json({
-              success: false,
-              message: "You've already used your free trial period."
-            });
-          }
+        if (req.user.hadPremiumTrial) {
+          return res.status(400).json({ error: "User already used their trial period" });
         }
-        const updatedUser = await storage.startFreeTrial(userId, trialDays);
-        await storage.createNotification({
+        const now = /* @__PURE__ */ new Date();
+        const expiryDate = /* @__PURE__ */ new Date();
+        expiryDate.setDate(now.getDate() + validatedData.trialDays);
+        const subscription = await storage.createOrUpdateSubscription({
           userId,
-          title: "Free Trial Started!",
-          content: `You now have access to all premium features for ${trialDays} days. Enjoy your MoodSync experience!`,
-          type: "subscription",
-          actionLink: "/premium/features",
-          icon: "gift"
+          tier: "trial",
+          status: "active",
+          startedAt: now,
+          expiresAt: expiryDate,
+          autoRenew: false,
+          paymentMethod: null,
+          lastBilledAt: null,
+          cancelledAt: null
         });
-        return res.status(200).json({
-          success: true,
-          message: `Your ${trialDays}-day free trial has started.`,
-          trialStarted: true,
-          trialEndDate: updatedUser.trialEndDate
-        });
-      } catch (error) {
-        console.error("Start trial error:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Failed to start trial. Please try again later."
-        });
-      }
-    });
-    router2.post("/cancel", requireAuth2, async (req, res) => {
-      try {
-        const userId = req.user.id;
-        const user = await storage.getUser(userId);
-        if (!user.isPremium) {
-          return res.status(400).json({
-            success: false,
-            message: "You don't have an active premium subscription to cancel."
-          });
-        }
-        await storage.updateUser(userId, {
-          subscriptionCancelled: true,
-          subscriptionCancelledAt: /* @__PURE__ */ new Date()
-          // Keep the existing expiry date - subscription will expire naturally
-        });
-        const updatedUser = await storage.getUser(userId);
-        return res.status(200).json({
-          success: true,
-          message: "Your subscription has been cancelled.",
-          expiresAt: updatedUser.premiumExpiryDate,
-          subscriptionCancelled: true
+        await storage.updateUser(userId, { hadPremiumTrial: true });
+        res.status(201).json({
+          tier: subscription.tier,
+          isActive: subscription.status === "active",
+          expiryDate: subscription.expiresAt,
+          startDate: subscription.startedAt
         });
       } catch (error) {
-        console.error("Subscription cancellation error:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Failed to cancel subscription. Please try again later."
-        });
+        console.error("Error starting trial:", error);
+        res.status(500).json({ error: "Failed to start trial" });
       }
     });
-    router2.post("/renew", requireAuth2, async (req, res) => {
+    router2.post("/api/subscription/premium", requireAuth2, async (req, res) => {
       try {
         const userId = req.user.id;
-        const user = await storage.getUser(userId);
-        if (!user.isPremium) {
-          return res.status(400).json({
-            success: false,
-            message: "You don't have a premium subscription to renew."
-          });
-        }
-        if (user.subscriptionCancelled) {
-          let newExpiryDate = /* @__PURE__ */ new Date();
-          switch (user.premiumPlanType) {
-            case "monthly":
-              newExpiryDate.setMonth(newExpiryDate.getMonth() + 1);
-              break;
-            case "quarterly":
-              newExpiryDate.setMonth(newExpiryDate.getMonth() + 3);
-              break;
-            case "yearly":
-              newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
-              break;
-            case "family_yearly":
-              newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
-              break;
-            case "fiveyear":
-              newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 5);
-              break;
-            case "family_fiveyear":
-              newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 5);
-              break;
-            case "lifetime":
-            case "family_lifetime":
-              newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 100);
-              break;
-            default:
-              newExpiryDate.setMonth(newExpiryDate.getMonth() + 1);
-          }
-          await storage.updateUser(userId, {
-            subscriptionCancelled: false,
-            subscriptionCancelledAt: null,
-            premiumExpiryDate: newExpiryDate
-          });
+        const schema = z2.object({
+          tier: z2.enum(["premium", "family", "lifetime"]),
+          paymentMethod: z2.string().optional()
+        });
+        const validatedData = schema.parse(req.body);
+        const now = /* @__PURE__ */ new Date();
+        let expiryDate = /* @__PURE__ */ new Date();
+        if (validatedData.tier === "lifetime") {
+          expiryDate = null;
+        } else if (validatedData.tier === "family") {
+          expiryDate.setFullYear(expiryDate.getFullYear() + 1);
         } else {
-          return res.status(400).json({
-            success: false,
-            message: "Your subscription is already active and set to renew automatically."
-          });
+          expiryDate.setMonth(expiryDate.getMonth() + 1);
         }
-        const updatedUser = await storage.getUser(userId);
-        return res.status(200).json({
-          success: true,
-          message: "Your subscription has been renewed successfully.",
-          expiresAt: updatedUser.premiumExpiryDate,
-          subscriptionCancelled: false
+        const subscription = await storage.createOrUpdateSubscription({
+          userId,
+          tier: validatedData.tier,
+          status: "active",
+          startedAt: now,
+          expiresAt: expiryDate,
+          autoRenew: validatedData.tier !== "lifetime",
+          // Lifetime doesn't auto-renew
+          paymentMethod: validatedData.paymentMethod || null,
+          lastBilledAt: now,
+          cancelledAt: null
+        });
+        res.status(200).json({
+          tier: subscription.tier,
+          isActive: subscription.status === "active",
+          expiryDate: subscription.expiresAt,
+          startDate: subscription.startedAt,
+          autoRenew: subscription.autoRenew
         });
       } catch (error) {
-        console.error("Subscription renewal error:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Failed to renew subscription. Please try again later."
-        });
+        console.error("Error upgrading subscription:", error);
+        res.status(500).json({ error: "Failed to upgrade subscription" });
       }
     });
-    router2.get("/status", requireAuth2, async (req, res) => {
+    router2.post("/api/subscription/cancel", requireAuth2, async (req, res) => {
       try {
         const userId = req.user.id;
-        const user = await storage.getUser(userId);
-        const isInActiveTrial = await storage.isUserInActiveTrial(userId);
-        return res.status(200).json({
-          success: true,
-          isPremium: user.isPremium,
-          planType: user.premiumPlanType,
-          expiresAt: user.premiumExpiryDate,
-          isCancelled: user.subscriptionCancelled,
-          cancelledAt: user.subscriptionCancelledAt,
-          // Trial information
-          isInTrialPeriod: isInActiveTrial,
-          trialStartDate: user.trialStartDate,
-          trialEndDate: user.trialEndDate
+        const existingSubscription = await storage.getUserSubscription(userId);
+        if (!existingSubscription) {
+          return res.status(404).json({ error: "No active subscription found" });
+        }
+        if (existingSubscription.status !== "active") {
+          return res.status(400).json({ error: "Subscription is not active" });
+        }
+        if (existingSubscription.tier === "lifetime") {
+          return res.status(400).json({ error: "Lifetime subscriptions cannot be cancelled" });
+        }
+        const now = /* @__PURE__ */ new Date();
+        const updatedSubscription = await storage.createOrUpdateSubscription({
+          ...existingSubscription,
+          status: "cancelled",
+          autoRenew: false,
+          cancelledAt: now
+        });
+        res.status(200).json({
+          tier: updatedSubscription.tier,
+          isActive: false,
+          expiryDate: updatedSubscription.expiresAt,
+          cancelledAt: updatedSubscription.cancelledAt
         });
       } catch (error) {
-        console.error("Get subscription status error:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Failed to retrieve subscription status."
-        });
+        console.error("Error cancelling subscription:", error);
+        res.status(500).json({ error: "Failed to cancel subscription" });
       }
     });
-    subscription_management_default = router2;
+    subscription_routes_default = router2;
   }
 });
 
@@ -6417,7 +7268,7 @@ var nft_pool_routes_exports = {};
 __export(nft_pool_routes_exports, {
   default: () => nft_pool_routes_default
 });
-import { Router as Router3 } from "express";
+import { Router as Router2 } from "express";
 var tokenPoolService, router3, nft_pool_routes_default;
 var init_nft_pool_routes = __esm({
   "server/routes/nft-pool-routes.ts"() {
@@ -6425,7 +7276,7 @@ var init_nft_pool_routes = __esm({
     init_token_pool_service();
     init_storage();
     tokenPoolService = new TokenPoolService(storage);
-    router3 = Router3();
+    router3 = Router2();
     router3.get("/token-pool/stats", async (req, res) => {
       try {
         const userId = req.isAuthenticated() ? req.user.id : void 0;
@@ -6555,7 +7406,7 @@ var nft_collection_routes_exports = {};
 __export(nft_collection_routes_exports, {
   default: () => nft_collection_routes_default
 });
-import { Router as Router4 } from "express";
+import { Router as Router3 } from "express";
 function generateMockNfts(userId, status) {
   const mocknfts = [
     {
@@ -6658,7 +7509,7 @@ var router4, nft_collection_routes_default;
 var init_nft_collection_routes = __esm({
   "server/routes/nft-collection-routes.ts"() {
     "use strict";
-    router4 = Router4();
+    router4 = Router3();
     router4.get("/user/nfts/:status", async (req, res) => {
       if (!req.isAuthenticated()) {
         return res.status(401).json({ error: "Authentication required" });
@@ -7173,7 +8024,21 @@ async function updateSubscription(userId, newPlanInterval) {
     return { success: false, message: `Error updating subscription: ${error.message}` };
   }
 }
-var stripeClient, STRIPE_PRICE_IDS, stripeService, stripe_service_default;
+async function verifyPayment(paymentIntentId) {
+  try {
+    const stripe = getStripeClient();
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    if (paymentIntent.status !== "succeeded") {
+      console.warn(`Payment verification failed: Payment intent ${paymentIntentId} has status ${paymentIntent.status}`);
+      return null;
+    }
+    return paymentIntent;
+  } catch (error) {
+    console.error("Error verifying payment:", error);
+    return null;
+  }
+}
+var stripeClient, STRIPE_PRICE_IDS, stripeService;
 var init_stripe_service = __esm({
   "server/services/stripe-service.ts"() {
     "use strict";
@@ -7196,9 +8061,22 @@ var init_stripe_service = __esm({
       getSubscriptionDetails,
       cancelSubscription,
       cancelSubscriptionImmediately,
-      updateSubscription
+      updateSubscription,
+      verifyPayment
     };
-    stripe_service_default = stripeService;
+  }
+});
+
+// server/middleware/auth-middleware.ts
+function requireAuth3(req, res, next) {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
+var init_auth_middleware = __esm({
+  "server/middleware/auth-middleware.ts"() {
+    "use strict";
   }
 });
 
@@ -7207,31 +8085,51 @@ var payment_routes_exports = {};
 __export(payment_routes_exports, {
   default: () => payment_routes_default
 });
-import express from "express";
-import { z as z2 } from "zod";
-function requireAuth3(req, res, next) {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-  next();
-}
+import express2 from "express";
+import { z as z3 } from "zod";
 var router5, payment_routes_default;
 var init_payment_routes = __esm({
   "server/routes/payment-routes.ts"() {
     "use strict";
     init_stripe_service();
-    router5 = express.Router();
-    stripe_service_default.initializeStripe();
+    init_storage();
+    init_auth_middleware();
+    router5 = express2.Router();
+    stripeService.initializeStripe();
+    router5.post("/create-payment-intent", requireAuth3, async (req, res) => {
+      try {
+        const schema = z3.object({
+          amount: z3.number().positive(),
+          planType: z3.string().optional(),
+          metadata: z3.record(z3.string()).optional()
+        });
+        const { amount, planType, metadata } = schema.parse(req.body);
+        const paymentIntent = await stripeService.createPaymentIntent(
+          req.user.id,
+          amount,
+          "usd",
+          {
+            ...metadata,
+            userId: req.user.id.toString(),
+            planType: planType || "one-time"
+          }
+        );
+        res.json({ clientSecret: paymentIntent.client_secret });
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+        res.status(400).json({ error: error.message });
+      }
+    });
     router5.post("/create-checkout-session", requireAuth3, async (req, res) => {
       try {
-        const schema = z2.object({
-          planInterval: z2.enum(["monthly", "yearly", "family", "family-lifetime"]),
-          planType: z2.enum(["individual", "family"]),
-          successUrl: z2.string().url(),
-          cancelUrl: z2.string().url()
+        const schema = z3.object({
+          planInterval: z3.enum(["monthly", "yearly", "family", "family-lifetime"]),
+          planType: z3.enum(["individual", "family"]),
+          successUrl: z3.string().url(),
+          cancelUrl: z3.string().url()
         });
         const { planInterval, planType, successUrl, cancelUrl } = schema.parse(req.body);
-        const sessionUrl = await stripe_service_default.createCheckoutSession(
+        const sessionUrl = await stripeService.createCheckoutSession(
           req.user.id,
           planType,
           planInterval,
@@ -7244,96 +8142,352 @@ var init_payment_routes = __esm({
         res.status(400).json({ error: error.message });
       }
     });
-    router5.post("/create-payment-intent", requireAuth3, async (req, res) => {
+    router5.post("/verify-payment", requireAuth3, async (req, res) => {
       try {
-        const schema = z2.object({
-          amount: z2.number().positive(),
-          currency: z2.string().optional().default("usd"),
-          metadata: z2.record(z2.string()).optional()
+        const schema = z3.object({
+          paymentIntentId: z3.string()
         });
-        const { amount, currency, metadata } = schema.parse(req.body);
-        const paymentIntent = await stripe_service_default.createPaymentIntent(
+        const { paymentIntentId } = schema.parse(req.body);
+        const paymentInfo = await stripeService.verifyPayment(paymentIntentId);
+        if (!paymentInfo) {
+          return res.status(400).json({
+            success: false,
+            message: "Payment verification failed"
+          });
+        }
+        const planType = paymentInfo.metadata?.planType || "monthly";
+        const startDate = /* @__PURE__ */ new Date();
+        const endDate = /* @__PURE__ */ new Date();
+        switch (planType) {
+          case "monthly":
+            endDate.setMonth(endDate.getMonth() + 1);
+            break;
+          case "yearly":
+            endDate.setFullYear(endDate.getFullYear() + 1);
+            break;
+          case "family":
+            endDate.setMonth(endDate.getMonth() + 1);
+            break;
+          case "family-lifetime":
+            endDate.setFullYear(endDate.getFullYear() + 99);
+            break;
+          default:
+            endDate.setMonth(endDate.getMonth() + 1);
+        }
+        await storage.activateUserPremium(
           req.user.id,
-          amount,
-          currency,
-          metadata
+          planType,
+          startDate,
+          endDate,
+          paymentInfo.id
         );
-        res.json(paymentIntent);
-      } catch (error) {
-        console.error("Error creating payment intent:", error);
-        res.status(400).json({ error: error.message });
-      }
-    });
-    router5.get("/payment-methods", requireAuth3, async (req, res) => {
-      try {
-        const paymentMethods = await stripe_service_default.getCustomerPaymentMethods(req.user.id);
-        res.json(paymentMethods);
-      } catch (error) {
-        console.error("Error getting payment methods:", error);
-        res.status(400).json({ error: error.message });
-      }
-    });
-    router5.get("/subscription", requireAuth3, async (req, res) => {
-      try {
-        const subscription = await stripe_service_default.getSubscriptionDetails(req.user.id);
-        res.json(subscription);
-      } catch (error) {
-        console.error("Error getting subscription details:", error);
-        res.status(400).json({ error: error.message });
-      }
-    });
-    router5.post("/cancel-subscription", requireAuth3, async (req, res) => {
-      try {
-        const result = await stripe_service_default.cancelSubscription(req.user.id);
-        res.json(result);
-      } catch (error) {
-        console.error("Error canceling subscription:", error);
-        res.status(400).json({ error: error.message });
-      }
-    });
-    router5.post("/update-subscription", requireAuth3, async (req, res) => {
-      try {
-        const schema = z2.object({
-          planInterval: z2.enum(["monthly", "yearly", "family"])
+        if (planType !== "family") {
+          try {
+            await storage.createEmotionalNft({
+              userId: req.user.id,
+              title: "Premium Membership NFT",
+              description: "A special NFT commemorating your premium membership",
+              imageUrl: "/assets/nfts/premium-member.svg",
+              rarity: "rare",
+              emotion: "happy",
+              createdAt: /* @__PURE__ */ new Date(),
+              mintedAt: /* @__PURE__ */ new Date(),
+              metadataUrl: null,
+              isSoulbound: true,
+              tokenId: `premium-${req.user.id}-${Date.now()}`,
+              attributes: {
+                membership: "premium",
+                edition: "welcome"
+              }
+            });
+          } catch (nftError) {
+            console.error("Error creating welcome NFT:", nftError);
+          }
+        }
+        res.json({
+          success: true,
+          subscription: {
+            planType,
+            startDate,
+            endDate
+          }
         });
-        const { planInterval } = schema.parse(req.body);
-        const result = await stripe_service_default.updateSubscription(req.user.id, planInterval);
-        res.json(result);
       } catch (error) {
-        console.error("Error updating subscription:", error);
-        res.status(400).json({ error: error.message });
+        console.error("Error verifying payment:", error);
+        res.status(400).json({
+          success: false,
+          error: error.message
+        });
       }
     });
-    router5.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
-      const signature = req.headers["stripe-signature"];
-      if (!signature) {
-        return res.status(400).send("Missing stripe-signature header");
-      }
+    router5.post("/webhook", express2.raw({ type: "application/json" }), async (req, res) => {
       try {
-        const result = await stripe_service_default.handleWebhookEvent(signature, req.body);
-        res.json(result);
+        const signature = req.headers["stripe-signature"];
+        if (!signature || !process.env.STRIPE_WEBHOOK_SECRET) {
+          console.warn("Missing Stripe signature or webhook secret");
+          return res.status(400).send("Webhook Error: Missing signature");
+        }
+        const event = await stripeService.handleWebhookEvent(req.body, signature);
+        console.log(`Webhook received: ${event.type}`);
+        switch (event.type) {
+          case "payment_intent.succeeded":
+            const paymentIntent = event.data.object;
+            console.log(`PaymentIntent succeeded: ${paymentIntent.id}`);
+            break;
+          case "payment_intent.payment_failed":
+            const failedPayment = event.data.object;
+            console.log(`PaymentIntent failed: ${failedPayment.id}`);
+            break;
+          case "customer.subscription.created":
+          case "customer.subscription.updated":
+            const subscription = event.data.object;
+            console.log(`Subscription ${event.type === "customer.subscription.created" ? "created" : "updated"}: ${subscription.id}`);
+            break;
+          case "customer.subscription.deleted":
+            const cancelledSubscription = event.data.object;
+            console.log(`Subscription cancelled: ${cancelledSubscription.id}`);
+            break;
+          default:
+            console.log(`Unhandled event type: ${event.type}`);
+        }
+        res.json({ received: true });
       } catch (error) {
         console.error("Error handling webhook:", error);
-        res.status(400).json({ error: error.message });
-      }
-    });
-    router5.post("/admin/cancel-subscription", async (req, res) => {
-      try {
-        if (!req.adminUser) {
-          return res.status(403).json({ error: "Admin authentication required" });
-        }
-        const schema = z2.object({
-          userId: z2.number().int().positive()
-        });
-        const { userId } = schema.parse(req.body);
-        const result = await stripe_service_default.cancelSubscriptionImmediately(userId);
-        res.json(result);
-      } catch (error) {
-        console.error("Error immediately canceling subscription:", error);
-        res.status(400).json({ error: error.message });
+        res.status(400).send(`Webhook Error: ${error.message}`);
       }
     });
     payment_routes_default = router5;
+  }
+});
+
+// server/middleware.ts
+var requireAuth4;
+var init_middleware = __esm({
+  "server/middleware.ts"() {
+    "use strict";
+    requireAuth4 = (req, res, next) => {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Unauthorized. Please log in." });
+      }
+      next();
+    };
+  }
+});
+
+// server/routes/community-routes.ts
+var community_routes_exports = {};
+__export(community_routes_exports, {
+  default: () => community_routes_default
+});
+import { Router as Router4 } from "express";
+import { z as z4 } from "zod";
+var router6, createPostSchema, createCommentSchema, canUserViewPost, community_routes_default;
+var init_community_routes = __esm({
+  "server/routes/community-routes.ts"() {
+    "use strict";
+    init_storage();
+    init_middleware();
+    router6 = Router4();
+    createPostSchema = z4.object({
+      content: z4.string().min(1).max(500),
+      emotion: z4.enum(["happy", "sad", "angry", "anxious", "excited", "neutral", "joy", "sadness", "anger", "surprise"]).optional(),
+      visibility: z4.enum(["public", "friends", "private"]).default("public"),
+      mediaUrl: z4.string().optional(),
+      mediaType: z4.string().optional()
+    });
+    createCommentSchema = z4.object({
+      content: z4.string().min(1).max(200)
+    });
+    canUserViewPost = async (userId, postUserId, visibility) => {
+      if (userId === postUserId) return true;
+      if (visibility === "public") return true;
+      if (visibility === "friends") {
+        const areFriends = await storage.checkFriendship(userId, postUserId);
+        return areFriends;
+      }
+      return false;
+    };
+    router6.get("/posts", requireAuth4, async (req, res) => {
+      try {
+        const filter = req.query.filter || "latest";
+        const userId = req.isAuthenticated() ? req.user.id : 0;
+        const posts = await storage.getCommunityPosts(filter, userId);
+        const accessiblePosts = await Promise.all(
+          posts.filter(async (post) => {
+            if (!userId && post.visibility !== "public") return false;
+            return await canUserViewPost(userId, post.userId, post.visibility);
+          })
+        );
+        res.status(200).json(accessiblePosts);
+      } catch (error) {
+        console.error("Error fetching community posts:", error);
+        res.status(500).json({ error: error.message || "Failed to fetch community posts" });
+      }
+    });
+    router6.post("/posts", requireAuth4, async (req, res) => {
+      try {
+        const data = createPostSchema.parse(req.body);
+        const post = await storage.createCommunityPost({
+          userId: req.user.id,
+          content: data.content,
+          emotion: data.emotion,
+          visibility: data.visibility,
+          mediaUrl: data.mediaUrl,
+          mediaType: data.mediaType
+        });
+        if (data.visibility === "public") {
+          await storage.createRewardActivity(
+            req.user.id,
+            "journal_entry",
+            5,
+            // Token reward for sharing publicly
+            "Shared emotions with the community"
+          );
+        }
+        res.status(201).json(post);
+      } catch (error) {
+        console.error("Error creating community post:", error);
+        res.status(400).json({ error: error.message || "Failed to create community post" });
+      }
+    });
+    router6.get("/posts/:postId/comments", requireAuth4, async (req, res) => {
+      try {
+        const postId = parseInt(req.params.postId);
+        const userId = req.isAuthenticated() ? req.user.id : 0;
+        const post = await storage.getCommunityPostById(postId);
+        if (!post) {
+          return res.status(404).json({ error: "Post not found" });
+        }
+        const canView = await canUserViewPost(userId, post.userId, post.visibility);
+        if (!canView) {
+          return res.status(403).json({ error: "You do not have permission to view this post" });
+        }
+        const comments = await storage.getPostComments(postId);
+        res.status(200).json(comments);
+      } catch (error) {
+        console.error("Error fetching post comments:", error);
+        res.status(500).json({ error: error.message || "Failed to fetch post comments" });
+      }
+    });
+    router6.post("/posts/:postId/comments", requireAuth4, async (req, res) => {
+      try {
+        const postId = parseInt(req.params.postId);
+        const { content } = createCommentSchema.parse(req.body);
+        const post = await storage.getCommunityPostById(postId);
+        if (!post) {
+          return res.status(404).json({ error: "Post not found" });
+        }
+        const canView = await canUserViewPost(req.user.id, post.userId, post.visibility);
+        if (!canView) {
+          return res.status(403).json({ error: "You do not have permission to comment on this post" });
+        }
+        const comment = await storage.createPostComment({
+          postId,
+          userId: req.user.id,
+          content
+        });
+        if (post.userId !== req.user.id) {
+          await storage.createRewardActivity(
+            req.user.id,
+            "help_others",
+            2,
+            // Token reward for community engagement
+            "Provided support in community discussions"
+          );
+        }
+        res.status(201).json(comment);
+      } catch (error) {
+        console.error("Error creating post comment:", error);
+        res.status(400).json({ error: error.message || "Failed to create post comment" });
+      }
+    });
+    router6.post("/posts/:postId/like", requireAuth4, async (req, res) => {
+      try {
+        const postId = parseInt(req.params.postId);
+        const post = await storage.getCommunityPostById(postId);
+        if (!post) {
+          return res.status(404).json({ error: "Post not found" });
+        }
+        const canView = await canUserViewPost(req.user.id, post.userId, post.visibility);
+        if (!canView) {
+          return res.status(403).json({ error: "You do not have permission to like this post" });
+        }
+        const liked = await storage.likePost(postId, req.user.id);
+        res.status(200).json({ success: true, liked });
+      } catch (error) {
+        console.error("Error liking post:", error);
+        res.status(500).json({ error: error.message || "Failed to like post" });
+      }
+    });
+    router6.post("/posts/:postId/unlike", requireAuth4, async (req, res) => {
+      try {
+        const postId = parseInt(req.params.postId);
+        const unliked = await storage.unlikePost(postId, req.user.id);
+        res.status(200).json({ success: true, unliked });
+      } catch (error) {
+        console.error("Error unliking post:", error);
+        res.status(500).json({ error: error.message || "Failed to unlike post" });
+      }
+    });
+    router6.get("/support-groups", requireAuth4, async (req, res) => {
+      try {
+        const groups = await storage.getSupportGroups();
+        res.status(200).json(groups);
+      } catch (error) {
+        console.error("Error fetching support groups:", error);
+        res.status(500).json({ error: error.message || "Failed to fetch support groups" });
+      }
+    });
+    router6.get("/support-groups/:groupId", requireAuth4, async (req, res) => {
+      try {
+        const groupId = parseInt(req.params.groupId);
+        const group = await storage.getSupportGroupById(groupId);
+        if (!group) {
+          return res.status(404).json({ error: "Support group not found" });
+        }
+        res.status(200).json(group);
+      } catch (error) {
+        console.error("Error fetching support group:", error);
+        res.status(500).json({ error: error.message || "Failed to fetch support group" });
+      }
+    });
+    router6.post("/support-groups/:groupId/join", requireAuth4, async (req, res) => {
+      try {
+        const groupId = parseInt(req.params.groupId);
+        const success = await storage.joinSupportGroup(req.user.id, groupId);
+        if (!success) {
+          return res.status(404).json({ error: "Support group not found" });
+        }
+        res.status(200).json({ success: true });
+      } catch (error) {
+        console.error("Error joining support group:", error);
+        res.status(500).json({ error: error.message || "Failed to join support group" });
+      }
+    });
+    router6.post("/support-groups/:groupId/leave", requireAuth4, async (req, res) => {
+      try {
+        const groupId = parseInt(req.params.groupId);
+        const success = await storage.leaveSupportGroup(req.user.id, groupId);
+        if (!success) {
+          return res.status(404).json({ error: "Support group not found" });
+        }
+        res.status(200).json({ success: true });
+      } catch (error) {
+        console.error("Error leaving support group:", error);
+        res.status(500).json({ error: error.message || "Failed to leave support group" });
+      }
+    });
+    router6.get("/expert-tips", requireAuth4, async (req, res) => {
+      try {
+        const category = req.query.category;
+        const tips = await storage.getExpertTips(category);
+        res.status(200).json(tips);
+      } catch (error) {
+        console.error("Error fetching expert tips:", error);
+        res.status(500).json({ error: error.message || "Failed to fetch expert tips" });
+      }
+    });
+    community_routes_default = router6;
   }
 });
 
@@ -7515,6 +8669,7 @@ var init_admin_service = __esm({
   "server/services/admin-service.ts"() {
     "use strict";
     init_db();
+    init_storage();
     init_schema();
     init_admin_schema();
     init_encryption();
@@ -8398,6 +9553,87 @@ var init_admin_service = __esm({
           data: logs
         };
       }
+      /**
+       * ========== SEO Management Methods ==========
+       */
+      /**
+       * Get all SEO configurations
+       */
+      async getSeoConfigurations() {
+        try {
+          const seoConfigs = await storage.getAllSeoConfigurations();
+          return seoConfigs;
+        } catch (error) {
+          console.error("Error getting SEO configurations:", error);
+          throw error;
+        }
+      }
+      /**
+       * Get SEO configuration by page key
+       */
+      async getSeoConfigurationByKey(pageKey) {
+        try {
+          const seoConfig = await storage.getSeoConfigurationByKey(pageKey);
+          return seoConfig;
+        } catch (error) {
+          console.error(`Error getting SEO configuration for ${pageKey}:`, error);
+          throw error;
+        }
+      }
+      /**
+       * Update SEO configuration for a specific page
+       */
+      async updateSeoConfiguration(pageKey, seoConfig, adminId) {
+        try {
+          const existingConfig = await storage.getSeoConfigurationByKey(pageKey);
+          if (!existingConfig) {
+            throw new Error("SEO configuration not found");
+          }
+          const updatedConfig = await storage.updateSeoConfiguration(pageKey, seoConfig);
+          await this.logAdminAction({
+            adminId,
+            action: "UPDATE_SEO_CONFIG",
+            entityType: "SEO_CONFIG",
+            entityId: updatedConfig.id,
+            details: JSON.stringify({
+              pageKey,
+              before: existingConfig,
+              after: seoConfig,
+              changes: Object.keys(seoConfig)
+            })
+          });
+          return updatedConfig;
+        } catch (error) {
+          console.error(`Error updating SEO configuration for ${pageKey}:`, error);
+          throw error;
+        }
+      }
+      /**
+       * Create a new SEO configuration
+       */
+      async createSeoConfiguration(pageKey, seoConfig, adminId) {
+        try {
+          const existingConfig = await storage.getSeoConfigurationByKey(pageKey);
+          if (existingConfig) {
+            throw new Error("SEO configuration already exists");
+          }
+          const newConfig = await storage.createSeoConfiguration(pageKey, seoConfig);
+          await this.logAdminAction({
+            adminId,
+            action: "CREATE_SEO_CONFIG",
+            entityType: "SEO_CONFIG",
+            entityId: newConfig.id,
+            details: JSON.stringify({
+              pageKey,
+              config: seoConfig
+            })
+          });
+          return newConfig;
+        } catch (error) {
+          console.error(`Error creating SEO configuration for ${pageKey}:`, error);
+          throw error;
+        }
+      }
     };
     adminService = new AdminService();
   }
@@ -8442,9 +9678,9 @@ function requireRole(roles) {
   };
 }
 function registerAdminRoutes(app2) {
-  const router7 = Router5();
-  router7.use(adminLimiter);
-  router7.post("/login", async (req, res) => {
+  const router8 = Router5();
+  router8.use(adminLimiter);
+  router8.post("/login", async (req, res) => {
     try {
       const { username, password } = req.body;
       if (!username || !password) {
@@ -8496,8 +9732,8 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.use(authenticateAdmin);
-  router7.get("/me", async (req, res) => {
+  router8.use(authenticateAdmin);
+  router8.get("/me", async (req, res) => {
     try {
       const adminId = req.adminUser.id;
       const [admin] = await db.select().from(adminUsers).where(eq4(adminUsers.id, adminId));
@@ -8519,7 +9755,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/users", async (req, res) => {
+  router8.get("/users", async (req, res) => {
     try {
       const {
         page,
@@ -8549,7 +9785,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/users/:userId", async (req, res) => {
+  router8.get("/users/:userId", async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       if (isNaN(userId)) {
@@ -8565,7 +9801,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.patch("/users/:userId", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.patch("/users/:userId", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const adminId = req.adminUser.id;
@@ -8582,7 +9818,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/users/:userId/impersonate", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.post("/users/:userId/impersonate", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const adminId = req.adminUser.id;
@@ -8599,7 +9835,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/users/:userId/reset-password", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.post("/users/:userId/reset-password", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const adminId = req.adminUser.id;
@@ -8616,7 +9852,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/users/:userId/reset-mfa", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.post("/users/:userId/reset-mfa", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const adminId = req.adminUser.id;
@@ -8633,7 +9869,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/users/:userId/ban", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.post("/users/:userId/ban", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const adminId = req.adminUser.id;
@@ -8657,7 +9893,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/users/:userId/shadow-ban", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.post("/users/:userId/shadow-ban", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const adminId = req.adminUser.id;
@@ -8681,7 +9917,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/moderation/flagged", async (req, res) => {
+  router8.get("/moderation/flagged", async (req, res) => {
     try {
       const {
         page,
@@ -8705,7 +9941,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/moderation/flagged/:flagId/moderate", requireRole(["SUPER_ADMIN", "ADMIN", "MODERATOR"]), async (req, res) => {
+  router8.post("/moderation/flagged/:flagId/moderate", requireRole(["SUPER_ADMIN", "ADMIN", "MODERATOR"]), async (req, res) => {
     try {
       const flagId = Number(req.params.flagId);
       const adminId = req.adminUser.id;
@@ -8731,7 +9967,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/moderation/nfts", async (req, res) => {
+  router8.get("/moderation/nfts", async (req, res) => {
     try {
       const {
         page,
@@ -8753,7 +9989,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/moderation/nfts/:nftId/moderate", requireRole(["SUPER_ADMIN", "ADMIN", "MODERATOR"]), async (req, res) => {
+  router8.post("/moderation/nfts/:nftId/moderate", requireRole(["SUPER_ADMIN", "ADMIN", "MODERATOR"]), async (req, res) => {
     try {
       const nftId = Number(req.params.nftId);
       const adminId = req.adminUser.id;
@@ -8779,7 +10015,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/moderation/nfts/:nftId/freeze", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.post("/moderation/nfts/:nftId/freeze", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const nftId = Number(req.params.nftId);
       const adminId = req.adminUser.id;
@@ -8800,7 +10036,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/analytics/platform", async (req, res) => {
+  router8.get("/analytics/platform", async (req, res) => {
     try {
       const { timeframe } = req.query;
       if (timeframe && !["day", "week", "month", "year"].includes(timeframe)) {
@@ -8813,7 +10049,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/data/export/:userId", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.get("/data/export/:userId", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const adminId = req.adminUser.id;
@@ -8830,7 +10066,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/economy/token-pool-stats", async (req, res) => {
+  router8.get("/economy/token-pool-stats", async (req, res) => {
     try {
       const result = await adminService.getTokenPoolStats();
       return res.status(200).json(result);
@@ -8839,7 +10075,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.patch("/economy/token-rates", requireRole(["SUPER_ADMIN"]), async (req, res) => {
+  router8.patch("/economy/token-rates", requireRole(["SUPER_ADMIN"]), async (req, res) => {
     try {
       const { rates } = req.body;
       const adminId = req.adminUser.id;
@@ -8853,7 +10089,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/economy/token-pool-split", requireRole(["SUPER_ADMIN"]), async (req, res) => {
+  router8.post("/economy/token-pool-split", requireRole(["SUPER_ADMIN"]), async (req, res) => {
     try {
       const {
         poolSize,
@@ -8882,7 +10118,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/system/health", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.get("/system/health", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const result = await adminService.getSystemHealth();
       return res.status(200).json(result);
@@ -8891,7 +10127,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.post("/system/backup", requireRole(["SUPER_ADMIN"]), async (req, res) => {
+  router8.post("/system/backup", requireRole(["SUPER_ADMIN"]), async (req, res) => {
     try {
       const adminId = req.adminUser.id;
       const result = await adminService.initiateBackup(adminId);
@@ -8901,7 +10137,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/audit-logs", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+  router8.get("/audit-logs", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
     try {
       const {
         page,
@@ -8933,7 +10169,7 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  router7.get("/audit-logs/export", requireRole(["SUPER_ADMIN"]), async (req, res) => {
+  router8.get("/audit-logs/export", requireRole(["SUPER_ADMIN"]), async (req, res) => {
     try {
       const { startDate, endDate, format } = req.query;
       const adminId = req.adminUser.id;
@@ -8958,7 +10194,75 @@ function registerAdminRoutes(app2) {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
-  app2.use("/api/admin", router7);
+  router8.get("/seo", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+    try {
+      const result = await adminService.getSeoConfigurations();
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("Get SEO configurations error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  router8.get("/seo/:pageKey", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+    try {
+      const pageKey = req.params.pageKey;
+      const result = await adminService.getSeoConfigurationByKey(pageKey);
+      if (!result) {
+        return res.status(404).json({ error: "SEO configuration not found" });
+      }
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("Get SEO configuration error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  router8.put("/seo/:pageKey", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+    try {
+      const pageKey = req.params.pageKey;
+      const adminId = req.adminUser.id;
+      const seoConfig = req.body;
+      if (!seoConfig || !seoConfig.title || !seoConfig.description) {
+        return res.status(400).json({ error: "Title and description are required" });
+      }
+      const result = await adminService.updateSeoConfiguration(
+        pageKey,
+        seoConfig,
+        adminId
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      if (error.message === "SEO configuration not found") {
+        return res.status(404).json({ error: "SEO configuration not found" });
+      }
+      console.error("Update SEO configuration error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  router8.post("/seo", requireRole(["SUPER_ADMIN", "ADMIN"]), async (req, res) => {
+    try {
+      const adminId = req.adminUser.id;
+      const { pageKey, seoConfig } = req.body;
+      if (!pageKey) {
+        return res.status(400).json({ error: "Page key is required" });
+      }
+      if (!seoConfig || !seoConfig.title || !seoConfig.description) {
+        return res.status(400).json({ error: "Title and description are required" });
+      }
+      const result = await adminService.createSeoConfiguration(
+        pageKey,
+        seoConfig,
+        adminId
+      );
+      return res.status(201).json(result);
+    } catch (error) {
+      if (error.message === "SEO configuration already exists") {
+        return res.status(409).json({ error: "SEO configuration already exists for this page" });
+      }
+      console.error("Create SEO configuration error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app2.use("/api/admin", router8);
   console.log("Admin API routes registered successfully");
 }
 var JWT_SECRET2, JWT_EXPIRY, adminLimiter;
@@ -9106,19 +10410,19 @@ __export(security_routes_exports, {
 });
 import { Router as Router6 } from "express";
 import QRCode from "qrcode";
-function requireAuth4(req, res, next) {
+function requireAuth5(req, res, next) {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: "Authentication required" });
   }
   next();
 }
-var router6, security_routes_default;
+var router7, security_routes_default;
 var init_security_routes = __esm({
   "server/routes/security-routes.ts"() {
     "use strict";
     init_security_service();
-    router6 = Router6();
-    router6.post("/two-factor/setup", requireAuth4, async (req, res) => {
+    router7 = Router6();
+    router7.post("/two-factor/setup", requireAuth5, async (req, res) => {
       try {
         const userId = req.user.id;
         const existingData = await securityService.getTwoFactorData(userId);
@@ -9146,7 +10450,7 @@ var init_security_routes = __esm({
         res.status(500).json({ error: "Failed to set up two-factor authentication" });
       }
     });
-    router6.post("/two-factor/verify", requireAuth4, async (req, res) => {
+    router7.post("/two-factor/verify", requireAuth5, async (req, res) => {
       try {
         const { token } = req.body;
         const userId = req.user.id;
@@ -9177,7 +10481,7 @@ var init_security_routes = __esm({
         res.status(500).json({ error: "Failed to verify token" });
       }
     });
-    router6.post("/two-factor/disable", requireAuth4, async (req, res) => {
+    router7.post("/two-factor/disable", requireAuth5, async (req, res) => {
       try {
         const { password } = req.body;
         const userId = req.user.id;
@@ -9198,7 +10502,7 @@ var init_security_routes = __esm({
         res.status(500).json({ error: "Failed to disable two-factor authentication" });
       }
     });
-    router6.post("/data-export", requireAuth4, async (req, res) => {
+    router7.post("/data-export", requireAuth5, async (req, res) => {
       try {
         const userId = req.user.id;
         const rateLimited = !await securityService.checkRateLimit(`data_export:${userId}`, 2, 86400);
@@ -9220,7 +10524,7 @@ var init_security_routes = __esm({
         res.status(500).json({ error: "Failed to request data export" });
       }
     });
-    router6.post("/account-deletion", requireAuth4, async (req, res) => {
+    router7.post("/account-deletion", requireAuth5, async (req, res) => {
       try {
         const userId = req.user.id;
         const token = await securityService.createSecurityToken(userId, "ACCOUNT_DELETION", 24);
@@ -9238,7 +10542,7 @@ var init_security_routes = __esm({
         res.status(500).json({ error: "Failed to request account deletion" });
       }
     });
-    router6.post("/change-password", requireAuth4, async (req, res) => {
+    router7.post("/change-password", requireAuth5, async (req, res) => {
       try {
         const { currentPassword, newPassword } = req.body;
         const userId = req.user.id;
@@ -9258,7 +10562,7 @@ var init_security_routes = __esm({
         res.status(500).json({ error: "Failed to change password" });
       }
     });
-    router6.get("/dashboard", requireAuth4, async (req, res) => {
+    router7.get("/dashboard", requireAuth5, async (req, res) => {
       try {
         const userId = req.user.id;
         const twoFactorData = await securityService.getTwoFactorData(userId);
@@ -9293,7 +10597,7 @@ var init_security_routes = __esm({
         res.status(500).json({ error: "Failed to fetch security dashboard" });
       }
     });
-    router6.get("/events", requireAuth4, async (req, res) => {
+    router7.get("/events", requireAuth5, async (req, res) => {
       try {
         const userId = req.user.id;
         const events = [
@@ -9325,15 +10629,15 @@ var init_security_routes = __esm({
         res.status(500).json({ error: "Failed to fetch security events" });
       }
     });
-    security_routes_default = router6;
+    security_routes_default = router7;
   }
 });
 
 // server/index.ts
-import express5 from "express";
+import express6 from "express";
 
 // server/routes.ts
-import express3 from "express";
+import express4 from "express";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 
@@ -9820,7 +11124,7 @@ var testController = {
 
 // server/routes.ts
 init_schema();
-import { z as z3 } from "zod";
+import { z as z5 } from "zod";
 import multer from "multer";
 import path2 from "path";
 import { fileURLToPath } from "url";
@@ -9961,7 +11265,7 @@ var videoUpload = multer({
     cb(null, true);
   }
 });
-function requireAuth5(req, res, next) {
+function requireAuth6(req, res, next) {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: "Not authenticated" });
   }
@@ -10072,26 +11376,29 @@ function setupTrialCheckSchedule() {
 async function registerRoutes(app2) {
   try {
     const accountManagementRoutes = (await Promise.resolve().then(() => (init_account_management(), account_management_exports))).default;
-    const subscriptionManagementRoutes = (await Promise.resolve().then(() => (init_subscription_management(), subscription_management_exports))).default;
+    const subscriptionRoutes = (await Promise.resolve().then(() => (init_subscription_routes(), subscription_routes_exports))).default;
     const nftPoolRoutes = (await Promise.resolve().then(() => (init_nft_pool_routes(), nft_pool_routes_exports))).default;
     const nftCollectionRoutes = (await Promise.resolve().then(() => (init_nft_collection_routes(), nft_collection_routes_exports))).default;
     const paymentRoutes = (await Promise.resolve().then(() => (init_payment_routes(), payment_routes_exports))).default;
-    app2.use("/api/account", accountManagementRoutes);
-    app2.use("/api/subscription", subscriptionManagementRoutes);
+    const communityRoutes = (await Promise.resolve().then(() => (init_community_routes(), community_routes_exports))).default;
+    app2.use(accountManagementRoutes);
+    app2.use(subscriptionRoutes);
     app2.use("/api", nftPoolRoutes);
     app2.use("/api", nftCollectionRoutes);
     app2.use("/api/payments", paymentRoutes);
+    app2.use("/api/community", communityRoutes);
     const { registerAdminRoutes: registerAdminRoutes2 } = await Promise.resolve().then(() => (init_admin_routes(), admin_routes_exports));
     registerAdminRoutes2(app2);
     console.log("Account and subscription management routes registered successfully");
     console.log("NFT token pool system routes registered successfully");
     console.log("NFT collection routes registered successfully");
     console.log("Payment processing routes registered successfully");
+    console.log("Community and support features registered successfully");
     console.log("Admin panel routes registered successfully");
   } catch (error) {
     console.error("Error registering routes:", error);
   }
-  app2.get("/api/notifications", requireAuth5, async (req, res) => {
+  app2.get("/api/notifications", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       const unreadOnly = req.query.unread === "true";
@@ -10106,7 +11413,7 @@ async function registerRoutes(app2) {
       res.status(500).send("Server error");
     }
   });
-  app2.post("/api/notifications/:id/read", requireAuth5, async (req, res) => {
+  app2.post("/api/notifications/:id/read", requireAuth6, async (req, res) => {
     try {
       const notificationId = parseInt(req.params.id);
       const notification = await storage.getNotificationById(notificationId);
@@ -10123,7 +11430,7 @@ async function registerRoutes(app2) {
       res.status(500).send("Server error");
     }
   });
-  app2.post("/api/notifications/mark-all-read", requireAuth5, async (req, res) => {
+  app2.post("/api/notifications/mark-all-read", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       await storage.markAllNotificationsAsRead(userId);
@@ -10133,7 +11440,7 @@ async function registerRoutes(app2) {
       res.status(500).send("Server error");
     }
   });
-  app2.post("/api/notifications", requireAuth5, async (req, res) => {
+  app2.post("/api/notifications", requireAuth6, async (req, res) => {
     try {
       const { userId, type, title, content, sourceId, sourceType, icon, actionLink } = req.body;
       if (userId !== req.user.id && (!req.adminUser || !req.adminUser.permissions?.includes("manage_notifications"))) {
@@ -10164,7 +11471,7 @@ async function registerRoutes(app2) {
     res.sendFile(path2.join(__dirname, "..", "client", "public", "admin-login.html"));
   });
   setupAuth(app2);
-  app2.use("/uploads", express3.static(path2.join(__dirname, "../uploads")));
+  app2.use("/uploads", express4.static(path2.join(__dirname, "../uploads")));
   const httpServer = createServer(app2);
   let wss;
   const initializeWebSocketServer = () => {
@@ -10280,13 +11587,13 @@ async function registerRoutes(app2) {
       });
     });
   };
-  app2.get("/api/user/premium-status", requireAuth5, (req, res) => {
+  app2.get("/api/user/premium-status", requireAuth6, (req, res) => {
     res.json({
       isPremium: req.user?.isPremium || false,
       trialDays: req.user?.premiumTrialEnd ? Math.ceil((new Date(req.user.premiumTrialEnd).getTime() - Date.now()) / (1e3 * 60 * 60 * 24)) : null
     });
   });
-  app2.get("/api/video-editor/access", requireAuth5, (req, res) => {
+  app2.get("/api/video-editor/access", requireAuth6, (req, res) => {
     if (req.user?.isPremium) {
       return res.json({ hasAccess: true });
     }
@@ -10309,8 +11616,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const emotionSchema = z3.object({
-        emotion: z3.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"])
+      const emotionSchema = z5.object({
+        emotion: z5.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"])
       });
       const { emotion } = emotionSchema.parse(req.body);
       const currentEmotion = await storage.getUserEmotion(req.user.id);
@@ -10359,9 +11666,9 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const entrySchema = z3.object({
-        emotion: z3.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]),
-        note: z3.string().min(1)
+      const entrySchema = z5.object({
+        emotion: z5.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]),
+        note: z5.string().min(1)
       });
       const { emotion, note } = entrySchema.parse(req.body);
       const entry = await storage.createJournalEntry(req.user.id, emotion, note);
@@ -10414,7 +11721,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/users/:emotion", async (req, res) => {
     try {
-      const emotionSchema = z3.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]);
+      const emotionSchema = z5.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]);
       const emotion = emotionSchema.parse(req.params.emotion);
       const users2 = await storage.getUsersByEmotion(emotion);
       return res.status(200).json(users2);
@@ -10523,10 +11830,10 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const rewardSchema = z3.object({
-        activityType: z3.enum(["journal_entry", "chat_participation", "emotion_update", "daily_login", "help_others"]),
-        tokensEarned: z3.number().int().positive(),
-        description: z3.string()
+      const rewardSchema = z5.object({
+        activityType: z5.enum(["journal_entry", "chat_participation", "emotion_update", "daily_login", "help_others"]),
+        tokensEarned: z5.number().int().positive(),
+        description: z5.string()
       });
       const { activityType, tokensEarned, description } = rewardSchema.parse(req.body);
       const today = /* @__PURE__ */ new Date();
@@ -10596,8 +11903,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const activitySchema = z3.object({
-        activityId: z3.string()
+      const activitySchema = z5.object({
+        activityId: z5.string()
       });
       const { activityId } = activitySchema.parse(req.body);
       const result = await storage.completeGamificationActivity(req.user.id, activityId);
@@ -10612,8 +11919,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const achievementSchema = z3.object({
-        achievementId: z3.string()
+      const achievementSchema = z5.object({
+        achievementId: z5.string()
       });
       const { achievementId } = achievementSchema.parse(req.body);
       const result = await storage.claimAchievementReward(req.user.id, achievementId);
@@ -10628,8 +11935,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const checkInSchema = z3.object({
-        emotion: z3.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"])
+      const checkInSchema = z5.object({
+        emotion: z5.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"])
       });
       const { emotion } = checkInSchema.parse(req.body);
       const today = /* @__PURE__ */ new Date();
@@ -10658,7 +11965,7 @@ async function registerRoutes(app2) {
       return res.status(400).json({ error: error.message || "Failed to register check-in" });
     }
   });
-  app2.post("/api/challenges/create", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/challenges/create", requireAuth6, requirePremium, async (req, res) => {
     try {
       const parsedData = insertChallengeSchema.parse(req.body);
       const challenge = await storage.createUserChallenge(req.user.id, parsedData);
@@ -10674,7 +11981,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/challenges/my-created", requireAuth5, async (req, res) => {
+  app2.get("/api/challenges/my-created", requireAuth6, async (req, res) => {
     try {
       const challenges2 = await storage.getUserCreatedChallenges(req.user.id);
       return res.status(200).json({
@@ -10704,7 +12011,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/challenges/:challengeId/progress", requireAuth5, async (req, res) => {
+  app2.post("/api/challenges/:challengeId/progress", requireAuth6, async (req, res) => {
     try {
       const challengeId = parseInt(req.params.challengeId);
       if (isNaN(challengeId)) {
@@ -10733,7 +12040,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/challenges/:challengeId/progress", requireAuth5, async (req, res) => {
+  app2.get("/api/challenges/:challengeId/progress", requireAuth6, async (req, res) => {
     try {
       const challengeId = parseInt(req.params.challengeId);
       if (isNaN(challengeId)) {
@@ -10760,8 +12067,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const profilePicSchema = z3.object({
-        profilePicture: z3.string().url()
+      const profilePicSchema = z5.object({
+        profilePicture: z5.string().url()
       });
       const { profilePicture } = profilePicSchema.parse(req.body);
       const user = await storage.updateUserProfilePicture(req.user.id, profilePicture);
@@ -10833,7 +12140,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/challenges/:difficulty", async (req, res) => {
     try {
-      const difficultySchema = z3.enum(["easy", "moderate", "hard", "extreme"]);
+      const difficultySchema = z5.enum(["easy", "moderate", "hard", "extreme"]);
       const difficulty = difficultySchema.parse(req.params.difficulty);
       const challenges2 = await storage.getChallengesByDifficulty(difficulty);
       return res.status(200).json(challenges2);
@@ -10917,7 +12224,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/challenges/:difficulty", async (req, res) => {
     try {
-      const difficultySchema = z3.enum(["easy", "moderate", "hard", "extreme"]);
+      const difficultySchema = z5.enum(["easy", "moderate", "hard", "extreme"]);
       const difficulty = difficultySchema.parse(req.params.difficulty);
       const challenges2 = await storage.getChallengesByDifficulty(difficulty);
       return res.status(200).json(challenges2);
@@ -10992,7 +12299,7 @@ async function registerRoutes(app2) {
     }
     try {
       const redemptions = await storage.getUserTokenRedemptions(req.user.id);
-      return res.status(200).json(redemptions);
+      return res.status(200).json(redemptions || []);
     } catch (error) {
       console.error("Error fetching redemption history:", error);
       return res.status(500).json({
@@ -11074,9 +12381,9 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const paymentSchema = z3.object({
-        paymentProvider: z3.enum(["paypal", "stripe"]),
-        accountInfo: z3.string()
+      const paymentSchema = z5.object({
+        paymentProvider: z5.enum(["paypal", "stripe"]),
+        accountInfo: z5.string()
       });
       const { paymentProvider, accountInfo } = paymentSchema.parse(req.body);
       const updatedUser = await storage.updateUserPaymentDetails(
@@ -11100,15 +12407,15 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/premium/chat-rooms", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/premium/chat-rooms", requireAuth6, requirePremium, async (req, res) => {
     try {
-      const chatRoomSchema = z3.object({
-        name: z3.string().min(3).max(50),
-        description: z3.string().min(10).max(200),
-        emotion: z3.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]),
-        isPrivate: z3.boolean().default(true),
-        maxParticipants: z3.number().int().min(2).max(100).default(20),
-        themeColor: z3.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).default("#6366f1")
+      const chatRoomSchema = z5.object({
+        name: z5.string().min(3).max(50),
+        description: z5.string().min(10).max(200),
+        emotion: z5.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]),
+        isPrivate: z5.boolean().default(true),
+        maxParticipants: z5.number().int().min(2).max(100).default(20),
+        themeColor: z5.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).default("#6366f1")
       });
       const chatRoomData = chatRoomSchema.parse(req.body);
       const newChatRoom = await storage.createChatRoom(req.user.id, chatRoomData);
@@ -11124,7 +12431,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/premium/chat-rooms", requireAuth5, async (req, res) => {
+  app2.get("/api/premium/chat-rooms", requireAuth6, async (req, res) => {
     try {
       const privateChatRooms = await storage.getPrivateChatRoomsByUserId(req.user.id);
       res.json(privateChatRooms);
@@ -11136,7 +12443,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.put("/api/premium/chat-rooms/:id", requireAuth5, async (req, res) => {
+  app2.put("/api/premium/chat-rooms/:id", requireAuth6, async (req, res) => {
     try {
       const chatRoomId = parseInt(req.params.id);
       const chatRoom = await storage.getChatRoomById(chatRoomId);
@@ -11152,12 +12459,12 @@ async function registerRoutes(app2) {
           message: "Only the creator can update the chat room"
         });
       }
-      const chatRoomSchema = z3.object({
-        name: z3.string().min(3).max(50).optional(),
-        description: z3.string().min(10).max(200).optional(),
-        emotion: z3.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]).optional(),
-        maxParticipants: z3.number().int().min(2).max(100).optional(),
-        themeColor: z3.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional()
+      const chatRoomSchema = z5.object({
+        name: z5.string().min(3).max(50).optional(),
+        description: z5.string().min(10).max(200).optional(),
+        emotion: z5.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]).optional(),
+        maxParticipants: z5.number().int().min(2).max(100).optional(),
+        themeColor: z5.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional()
       });
       const chatRoomUpdates = chatRoomSchema.parse(req.body);
       const updatedChatRoom = await storage.updateChatRoom(chatRoomId, chatRoomUpdates);
@@ -11173,7 +12480,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.delete("/api/premium/chat-rooms/:id", requireAuth5, async (req, res) => {
+  app2.delete("/api/premium/chat-rooms/:id", requireAuth6, async (req, res) => {
     try {
       const chatRoomId = parseInt(req.params.id);
       const chatRoom = await storage.getChatRoomById(chatRoomId);
@@ -11209,11 +12516,11 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/premium/block-user", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/premium/block-user", requireAuth6, requirePremium, async (req, res) => {
     try {
-      const blockSchema = z3.object({
-        blockedUserId: z3.number().int().positive(),
-        reason: z3.string().max(200).optional()
+      const blockSchema = z5.object({
+        blockedUserId: z5.number().int().positive(),
+        reason: z5.string().max(200).optional()
       });
       const { blockedUserId, reason } = blockSchema.parse(req.body);
       if (blockedUserId === req.user.id) {
@@ -11246,7 +12553,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/premium/blocked-users", requireAuth5, async (req, res) => {
+  app2.get("/api/premium/blocked-users", requireAuth6, async (req, res) => {
     try {
       const blockedUsers2 = await storage.getBlockedUsers(req.user.id);
       const formattedBlockedUsers = blockedUsers2.map((block) => ({
@@ -11268,7 +12575,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.delete("/api/premium/blocked-users/:id", requireAuth5, async (req, res) => {
+  app2.delete("/api/premium/blocked-users/:id", requireAuth6, async (req, res) => {
     try {
       const blockedUserId = parseInt(req.params.id);
       const success = await storage.unblockUser(req.user.id, blockedUserId);
@@ -11291,7 +12598,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/family-members", requireAuth5, async (req, res) => {
+  app2.get("/api/family-members", requireAuth6, async (req, res) => {
     try {
       const familyMembers = await storage.getFamilyMembers(req.user.id);
       return res.status(200).json(familyMembers);
@@ -11303,20 +12610,20 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/family-members", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/family-members", requireAuth6, requirePremium, async (req, res) => {
     try {
       const premiumPlan = await storage.getUserPremiumPlan(req.user.id);
       if (!premiumPlan || premiumPlan.planType !== "family") {
         return res.status(403).json({ error: "You need a family plan to add family members" });
       }
-      const familySchema = z3.object({
-        relatedUserId: z3.number(),
-        relationshipType: z3.enum(["parent", "child", "spouse", "sibling", "grandparent", "other"]),
-        canViewMood: z3.boolean().default(false),
-        canViewJournal: z3.boolean().default(false),
-        canReceiveAlerts: z3.boolean().default(false),
-        canTransferTokens: z3.boolean().default(false),
-        notes: z3.string().nullish()
+      const familySchema = z5.object({
+        relatedUserId: z5.number(),
+        relationshipType: z5.enum(["parent", "child", "spouse", "sibling", "grandparent", "other"]),
+        canViewMood: z5.boolean().default(false),
+        canViewJournal: z5.boolean().default(false),
+        canReceiveAlerts: z5.boolean().default(false),
+        canTransferTokens: z5.boolean().default(false),
+        notes: z5.string().nullish()
       });
       const validatedData = familySchema.parse(req.body);
       const relationship = await storage.addFamilyMember(req.user.id, {
@@ -11332,16 +12639,16 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.patch("/api/family-members/:id", requireAuth5, async (req, res) => {
+  app2.patch("/api/family-members/:id", requireAuth6, async (req, res) => {
     try {
       const relationshipId = parseInt(req.params.id);
-      const updateSchema = z3.object({
-        canViewMood: z3.boolean().optional(),
-        canViewJournal: z3.boolean().optional(),
-        canReceiveAlerts: z3.boolean().optional(),
-        canTransferTokens: z3.boolean().optional(),
-        relationshipType: z3.enum(["parent", "child", "spouse", "sibling", "grandparent", "other"]).optional(),
-        notes: z3.string().nullish()
+      const updateSchema = z5.object({
+        canViewMood: z5.boolean().optional(),
+        canViewJournal: z5.boolean().optional(),
+        canReceiveAlerts: z5.boolean().optional(),
+        canTransferTokens: z5.boolean().optional(),
+        relationshipType: z5.enum(["parent", "child", "spouse", "sibling", "grandparent", "other"]).optional(),
+        notes: z5.string().nullish()
       });
       const validatedData = updateSchema.parse(req.body);
       const relationship = await storage.updateFamilyMember(relationshipId, validatedData);
@@ -11354,11 +12661,11 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.patch("/api/family-members/:id/status", requireAuth5, async (req, res) => {
+  app2.patch("/api/family-members/:id/status", requireAuth6, async (req, res) => {
     try {
       const relationshipId = parseInt(req.params.id);
-      const statusSchema = z3.object({
-        status: z3.enum(["accepted", "rejected"])
+      const statusSchema = z5.object({
+        status: z5.enum(["accepted", "rejected"])
       });
       const { status } = statusSchema.parse(req.body);
       const relationship = await storage.updateFamilyRelationshipStatus(relationshipId, status);
@@ -11371,7 +12678,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.delete("/api/family-members/:id", requireAuth5, async (req, res) => {
+  app2.delete("/api/family-members/:id", requireAuth6, async (req, res) => {
     try {
       const relationshipId = parseInt(req.params.id);
       const success = await storage.removeFamilyMember(relationshipId);
@@ -11388,7 +12695,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/family-mood", requireAuth5, requirePremium, async (req, res) => {
+  app2.get("/api/family-mood", requireAuth6, requirePremium, async (req, res) => {
     try {
       const moodData = await storage.getFamilyMoodData(req.user.id);
       return res.status(200).json(moodData);
@@ -11400,10 +12707,10 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.patch("/api/mood-tracking-consent", requireAuth5, async (req, res) => {
+  app2.patch("/api/mood-tracking-consent", requireAuth6, async (req, res) => {
     try {
-      const consentSchema = z3.object({
-        allowMoodTracking: z3.boolean()
+      const consentSchema = z5.object({
+        allowMoodTracking: z5.boolean()
       });
       const { allowMoodTracking } = consentSchema.parse(req.body);
       const user = await storage.updateMoodTrackingConsent(req.user.id, allowMoodTracking);
@@ -11419,7 +12726,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/token-transfers", requireAuth5, async (req, res) => {
+  app2.get("/api/token-transfers", requireAuth6, async (req, res) => {
     try {
       const transfers = await storage.getTokenTransfers(req.user.id);
       return res.status(200).json(transfers);
@@ -11431,7 +12738,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/token-transfers/:type", requireAuth5, async (req, res) => {
+  app2.get("/api/token-transfers/:type", requireAuth6, async (req, res) => {
     try {
       const type = req.params.type;
       if (type !== "family" && type !== "general") {
@@ -11447,7 +12754,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/can-transfer-tokens/:userId", requireAuth5, async (req, res) => {
+  app2.get("/api/can-transfer-tokens/:userId", requireAuth6, async (req, res) => {
     try {
       const toUserId = parseInt(req.params.userId);
       const result = await storage.canTransferTokensToUser(req.user.id, toUserId);
@@ -11460,12 +12767,12 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/token-transfers", requireAuth5, async (req, res) => {
+  app2.post("/api/token-transfers", requireAuth6, async (req, res) => {
     try {
-      const transferSchema = z3.object({
-        toUserId: z3.number(),
-        amount: z3.number().positive(),
-        notes: z3.string().optional()
+      const transferSchema = z5.object({
+        toUserId: z5.number(),
+        amount: z5.number().positive(),
+        notes: z5.string().optional()
       });
       const validatedData = transferSchema.parse(req.body);
       const result = await storage.transferTokens(
@@ -11483,14 +12790,14 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/milestone-shares", requireAuth5, async (req, res) => {
+  app2.post("/api/milestone-shares", requireAuth6, async (req, res) => {
     try {
-      const shareSchema = z3.object({
-        milestone: z3.number().int().positive(),
-        platform: z3.enum(["twitter", "facebook", "linkedin", "whatsapp", "telegram", "email", "pinterest", "reddit", "copy_link"]),
-        shareUrl: z3.string().url(),
-        shareMessage: z3.string().optional(),
-        trackingId: z3.string().uuid()
+      const shareSchema = z5.object({
+        milestone: z5.number().int().positive(),
+        platform: z5.enum(["twitter", "facebook", "linkedin", "whatsapp", "telegram", "email", "pinterest", "reddit", "copy_link"]),
+        shareUrl: z5.string().url(),
+        shareMessage: z5.string().optional(),
+        trackingId: z5.string().uuid()
       });
       const validatedData = shareSchema.parse(req.body);
       const shareData = {
@@ -11542,7 +12849,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/milestone-shares", requireAuth5, async (req, res) => {
+  app2.get("/api/milestone-shares", requireAuth6, async (req, res) => {
     try {
       const shares = await storage.getUserMilestoneShares(req.user.id);
       return res.status(200).json(shares);
@@ -11554,7 +12861,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/referrals", requireAuth5, async (req, res) => {
+  app2.get("/api/referrals", requireAuth6, async (req, res) => {
     try {
       const referrals2 = await storage.getReferralsByUser(req.user.id);
       return res.status(200).json(referrals2);
@@ -11566,7 +12873,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/referrals/statistics", requireAuth5, async (req, res) => {
+  app2.get("/api/referrals/statistics", requireAuth6, async (req, res) => {
     try {
       const statistics = await storage.getReferralStatistics(req.user.id);
       return res.status(200).json(statistics);
@@ -11578,7 +12885,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/referrals/claim-bounty", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/referrals/claim-bounty", requireAuth6, requirePremium, async (req, res) => {
     try {
       const bountyResult = await storage.checkAndAwardReferralBounty(req.user.id);
       if (bountyResult.awarded) {
@@ -11609,10 +12916,10 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/referrals", requireAuth5, async (req, res) => {
+  app2.post("/api/referrals", requireAuth6, async (req, res) => {
     try {
-      const referralSchema = z3.object({
-        email: z3.string().email()
+      const referralSchema = z5.object({
+        email: z5.string().email()
       });
       const { email } = referralSchema.parse(req.body);
       const referralCode = req.user.referralCode;
@@ -11641,7 +12948,7 @@ async function registerRoutes(app2) {
       });
     } catch (error) {
       console.error("Error creating referral:", error);
-      if (error instanceof z3.ZodError) {
+      if (error instanceof z5.ZodError) {
         return res.status(400).json({
           error: "Invalid data",
           details: error.errors
@@ -11693,16 +13000,16 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/register/referral", async (req, res, next) => {
     try {
-      const registerSchema = z3.object({
-        username: z3.string().min(3),
-        password: z3.string().min(6),
-        email: z3.string().email(),
-        referralCode: z3.string(),
-        firstName: z3.string().optional(),
-        lastName: z3.string().optional(),
-        gender: z3.string().optional(),
-        state: z3.string().optional(),
-        country: z3.string().optional()
+      const registerSchema = z5.object({
+        username: z5.string().min(3),
+        password: z5.string().min(6),
+        email: z5.string().email(),
+        referralCode: z5.string(),
+        firstName: z5.string().optional(),
+        lastName: z5.string().optional(),
+        gender: z5.string().optional(),
+        state: z5.string().optional(),
+        country: z5.string().optional()
       });
       const userData = registerSchema.parse(req.body);
       const referral = await storage.getReferralByCode(userData.referralCode);
@@ -11754,7 +13061,7 @@ async function registerRoutes(app2) {
       });
     } catch (error) {
       console.error("Error registering with referral:", error);
-      if (error instanceof z3.ZodError) {
+      if (error instanceof z5.ZodError) {
         return res.status(400).json({
           error: "Invalid registration data",
           details: error.errors
@@ -11763,7 +13070,7 @@ async function registerRoutes(app2) {
       next(error);
     }
   });
-  app2.post("/api/referrals/:id/convert", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/referrals/:id/convert", requireAuth6, requirePremium, async (req, res) => {
     try {
       const referralId = parseInt(req.params.id, 10);
       if (isNaN(referralId)) {
@@ -11888,9 +13195,9 @@ async function registerRoutes(app2) {
   app2.post("/api/admin/login", async (req, res) => {
     try {
       console.log("Admin login attempt:", req.body);
-      const loginSchema = z3.object({
-        username: z3.string().min(1),
-        password: z3.string().min(1)
+      const loginSchema = z5.object({
+        username: z5.string().min(1),
+        password: z5.string().min(1)
       });
       const { username, password } = loginSchema.parse(req.body);
       console.log("Admin login credentials parsed:", { username, password: "********" });
@@ -12058,7 +13365,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch support tickets" });
     }
   });
-  app2.post("/api/admin/tickets", requireAuth5, async (req, res) => {
+  app2.post("/api/admin/tickets", requireAuth6, async (req, res) => {
     try {
       const ticketData = insertSupportTicketSchema.parse({
         ...req.body,
@@ -12074,7 +13381,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/admin/tickets/:id", requireAuth5, async (req, res) => {
+  app2.get("/api/admin/tickets/:id", requireAuth6, async (req, res) => {
     try {
       const ticketId = parseInt(req.params.id);
       const ticket = await storage.getSupportTicket(ticketId);
@@ -12118,7 +13425,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/admin/tickets/:id/responses", requireAuth5, async (req, res) => {
+  app2.post("/api/admin/tickets/:id/responses", requireAuth6, async (req, res) => {
     try {
       const ticketId = parseInt(req.params.id);
       const existingTicket = await storage.getSupportTicket(ticketId);
@@ -12155,11 +13462,11 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.patch("/api/admin/responses/:id/helpful", requireAuth5, async (req, res) => {
+  app2.patch("/api/admin/responses/:id/helpful", requireAuth6, async (req, res) => {
     try {
       const responseId = parseInt(req.params.id);
-      const helpfulSchema = z3.object({
-        isHelpful: z3.boolean()
+      const helpfulSchema = z5.object({
+        isHelpful: z5.boolean()
       });
       const { isHelpful } = helpfulSchema.parse(req.body);
       const updatedResponse = await storage.markResponseHelpful(responseId, isHelpful);
@@ -12172,7 +13479,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/admin/refunds", requireAuth5, async (req, res) => {
+  app2.post("/api/admin/refunds", requireAuth6, async (req, res) => {
     try {
       const refundData = insertRefundRequestSchema.parse({
         ...req.body,
@@ -12198,7 +13505,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch refund requests" });
     }
   });
-  app2.get("/api/admin/refunds/:id", requireAuth5, async (req, res) => {
+  app2.get("/api/admin/refunds/:id", requireAuth6, async (req, res) => {
     try {
       const refundId = parseInt(req.params.id);
       const refundRequest = await storage.getRefundRequest(refundId);
@@ -12221,9 +13528,9 @@ async function registerRoutes(app2) {
       if (!existingRefund) {
         return res.status(404).json({ error: "Refund request not found" });
       }
-      const updateSchema = z3.object({
-        status: z3.enum(["pending", "approved", "rejected", "processed"]).optional(),
-        notes: z3.string().optional()
+      const updateSchema = z5.object({
+        status: z5.enum(["pending", "approved", "rejected", "processed"]).optional(),
+        notes: z5.string().optional()
       });
       const updateData = updateSchema.parse(req.body);
       const updatedRefund = await storage.updateRefundRequest(refundId, {
@@ -12304,7 +13611,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/admin/quotes/:id", requireAuth5, async (req, res) => {
+  app2.get("/api/admin/quotes/:id", requireAuth6, async (req, res) => {
     try {
       const quoteId = parseInt(req.params.id);
       const quote = await storage.getQuote(quoteId);
@@ -12320,15 +13627,15 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch quote" });
     }
   });
-  app2.patch("/api/admin/quotes/:id/status", requireAuth5, async (req, res) => {
+  app2.patch("/api/admin/quotes/:id/status", requireAuth6, async (req, res) => {
     try {
       const quoteId = parseInt(req.params.id);
       const existingQuote = await storage.getQuote(quoteId);
       if (!existingQuote) {
         return res.status(404).json({ error: "Quote not found" });
       }
-      const statusSchema = z3.object({
-        status: z3.enum(["pending", "accepted", "rejected", "expired", "canceled"])
+      const statusSchema = z5.object({
+        status: z5.enum(["pending", "accepted", "rejected", "expired", "canceled"])
       });
       const { status } = statusSchema.parse(req.body);
       if (!req.adminUser && existingQuote.userId !== req.user.id) {
@@ -12365,7 +13672,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/videos", requireAuth5, requirePremium, videoUpload.single("videoFile"), async (req, res) => {
+  app2.post("/api/videos", requireAuth6, requirePremium, videoUpload.single("videoFile"), async (req, res) => {
     try {
       const videoFile = req.file;
       if (!videoFile) {
@@ -12425,7 +13732,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to fetch video post" });
     }
   });
-  app2.get("/api/my-videos", requireAuth5, async (req, res) => {
+  app2.get("/api/my-videos", requireAuth6, async (req, res) => {
     try {
       const videos = await storage.getUserVideoPosts(req.user.id);
       return res.status(200).json(videos);
@@ -12434,7 +13741,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to fetch user video posts" });
     }
   });
-  app2.patch("/api/videos/:id", requireAuth5, async (req, res) => {
+  app2.patch("/api/videos/:id", requireAuth6, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -12455,7 +13762,7 @@ async function registerRoutes(app2) {
       return res.status(400).json({ error: "Invalid update data" });
     }
   });
-  app2.delete("/api/videos/:id", requireAuth5, async (req, res) => {
+  app2.delete("/api/videos/:id", requireAuth6, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -12475,7 +13782,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to delete video post" });
     }
   });
-  app2.post("/api/videos/:id/like", requireAuth5, async (req, res) => {
+  app2.post("/api/videos/:id/like", requireAuth6, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -12492,7 +13799,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to like video post" });
     }
   });
-  app2.post("/api/videos/:id/share", requireAuth5, async (req, res) => {
+  app2.post("/api/videos/:id/share", requireAuth6, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -12509,7 +13816,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to share video post" });
     }
   });
-  app2.post("/api/videos/:id/social-like", requireAuth5, async (req, res) => {
+  app2.post("/api/videos/:id/social-like", requireAuth6, async (req, res) => {
     try {
       const videoId = parseInt(req.params.id);
       const userId = req.user.id;
@@ -12529,7 +13836,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to process like/unlike" });
     }
   });
-  app2.get("/api/videos/:id/like-status", requireAuth5, async (req, res) => {
+  app2.get("/api/videos/:id/like-status", requireAuth6, async (req, res) => {
     try {
       const videoId = parseInt(req.params.id);
       const userId = req.user.id;
@@ -12556,7 +13863,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get video likes" });
     }
   });
-  app2.post("/api/videos/:id/comments", requireAuth5, async (req, res) => {
+  app2.post("/api/videos/:id/comments", requireAuth6, async (req, res) => {
     try {
       const videoId = parseInt(req.params.id);
       const userId = req.user.id;
@@ -12597,7 +13904,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get comment replies" });
     }
   });
-  app2.put("/api/comments/:id", requireAuth5, async (req, res) => {
+  app2.put("/api/comments/:id", requireAuth6, async (req, res) => {
     try {
       const commentId = parseInt(req.params.id);
       const { content } = req.body;
@@ -12614,7 +13921,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to edit comment" });
     }
   });
-  app2.delete("/api/comments/:id", requireAuth5, async (req, res) => {
+  app2.delete("/api/comments/:id", requireAuth6, async (req, res) => {
     try {
       const commentId = parseInt(req.params.id);
       if (isNaN(commentId)) {
@@ -12631,7 +13938,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to delete comment" });
     }
   });
-  app2.post("/api/videos/:id/save", requireAuth5, async (req, res) => {
+  app2.post("/api/videos/:id/save", requireAuth6, async (req, res) => {
     try {
       const videoId = parseInt(req.params.id);
       const userId = req.user.id;
@@ -12651,7 +13958,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to process save/unsave" });
     }
   });
-  app2.get("/api/videos/:id/save-status", requireAuth5, async (req, res) => {
+  app2.get("/api/videos/:id/save-status", requireAuth6, async (req, res) => {
     try {
       const videoId = parseInt(req.params.id);
       const userId = req.user.id;
@@ -12665,7 +13972,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to check save status" });
     }
   });
-  app2.get("/api/user/saved-videos", requireAuth5, async (req, res) => {
+  app2.get("/api/user/saved-videos", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       const savedVideos = await storage.getUserSavedVideos(userId);
@@ -12698,7 +14005,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to process download" });
     }
   });
-  app2.post("/api/users/:id/follow", requireAuth5, async (req, res) => {
+  app2.post("/api/users/:id/follow", requireAuth6, async (req, res) => {
     try {
       const followedId = parseInt(req.params.id);
       const followerId = req.user.id;
@@ -12721,7 +14028,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to process follow/unfollow" });
     }
   });
-  app2.get("/api/users/:id/follow-status", requireAuth5, async (req, res) => {
+  app2.get("/api/users/:id/follow-status", requireAuth6, async (req, res) => {
     try {
       const followedId = parseInt(req.params.id);
       const followerId = req.user.id;
@@ -12761,7 +14068,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get user following" });
     }
   });
-  app2.post("/api/videos/:id/follow", requireAuth5, async (req, res) => {
+  app2.post("/api/videos/:id/follow", requireAuth6, async (req, res) => {
     try {
       const videoId = parseInt(req.params.id);
       const userId = req.user.id;
@@ -12781,7 +14088,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to process follow/unfollow" });
     }
   });
-  app2.get("/api/videos/:id/follow-status", requireAuth5, async (req, res) => {
+  app2.get("/api/videos/:id/follow-status", requireAuth6, async (req, res) => {
     try {
       const videoId = parseInt(req.params.id);
       const userId = req.user.id;
@@ -12808,7 +14115,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get video followers" });
     }
   });
-  app2.get("/api/user/profile-analytics", requireAuth5, requirePremium, async (req, res) => {
+  app2.get("/api/user/profile-analytics", requireAuth6, requirePremium, async (req, res) => {
     try {
       const userId = req.user.id;
       const videoStats = await storage.updateUserVideoStats(userId);
@@ -12825,7 +14132,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get profile analytics" });
     }
   });
-  app2.post("/api/emotional-imprints", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/emotional-imprints", requireAuth6, requirePremium, async (req, res) => {
     try {
       const { name, description, emotion, colorCode, soundId, vibrationPattern, isPublic, isTemplate } = req.body;
       if (!name || !emotion || !colorCode) {
@@ -12852,7 +14159,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/emotional-imprints", requireAuth5, requirePremium, async (req, res) => {
+  app2.get("/api/emotional-imprints", requireAuth6, requirePremium, async (req, res) => {
     try {
       const imprints = await storage.getUserEmotionalImprints(req.user.id);
       res.json(imprints);
@@ -12861,7 +14168,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get emotional imprints" });
     }
   });
-  app2.get("/api/emotional-imprints/:id", requireAuth5, async (req, res) => {
+  app2.get("/api/emotional-imprints/:id", requireAuth6, async (req, res) => {
     try {
       const imprintId = parseInt(req.params.id);
       if (isNaN(imprintId)) {
@@ -12883,7 +14190,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get emotional imprint" });
     }
   });
-  app2.put("/api/emotional-imprints/:id", requireAuth5, requirePremium, async (req, res) => {
+  app2.put("/api/emotional-imprints/:id", requireAuth6, requirePremium, async (req, res) => {
     try {
       const imprintId = parseInt(req.params.id);
       if (isNaN(imprintId)) {
@@ -12909,7 +14216,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.delete("/api/emotional-imprints/:id", requireAuth5, requirePremium, async (req, res) => {
+  app2.delete("/api/emotional-imprints/:id", requireAuth6, requirePremium, async (req, res) => {
     try {
       const imprintId = parseInt(req.params.id);
       if (isNaN(imprintId)) {
@@ -12936,7 +14243,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to delete emotional imprint" });
     }
   });
-  app2.get("/api/emotional-imprints-public", requireAuth5, async (req, res) => {
+  app2.get("/api/emotional-imprints-public", requireAuth6, async (req, res) => {
     try {
       const imprints = await storage.getPublicEmotionalImprints();
       res.json(imprints);
@@ -12945,7 +14252,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get public emotional imprints" });
     }
   });
-  app2.get("/api/emotional-imprints-templates", requireAuth5, requirePremium, async (req, res) => {
+  app2.get("/api/emotional-imprints-templates", requireAuth6, requirePremium, async (req, res) => {
     try {
       const templates = await storage.getEmotionalImprintTemplates();
       res.json(templates);
@@ -12954,7 +14261,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get emotional imprint templates" });
     }
   });
-  app2.post("/api/emotional-imprints/:id/share", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/emotional-imprints/:id/share", requireAuth6, requirePremium, async (req, res) => {
     try {
       const imprintId = parseInt(req.params.id);
       if (isNaN(imprintId)) {
@@ -12985,7 +14292,7 @@ async function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/emotional-imprints-received", requireAuth5, async (req, res) => {
+  app2.get("/api/emotional-imprints-received", requireAuth6, async (req, res) => {
     try {
       const receivedImprints = await storage.getReceivedEmotionalImprints(req.user.id);
       res.json(receivedImprints);
@@ -13005,7 +14312,128 @@ async function registerRoutes(app2) {
   } catch (error) {
     console.error("Error loading security routes:", error);
   }
-  app2.post("/api/auth/2fa/setup", requireAuth5, async (req, res) => {
+  app2.post("/api/custom-mood-tags", requireAuth6, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const tagData = {
+        userId,
+        tagName: req.body.tagName,
+        tagDescription: req.body.tagDescription,
+        baseEmotion: req.body.baseEmotion,
+        color: req.body.color,
+        icon: req.body.icon,
+        isActive: true
+      };
+      const customMoodTag = await storage.createCustomMoodTag(tagData);
+      res.status(201).json(customMoodTag);
+    } catch (error) {
+      console.error("Error creating custom mood tag:", error);
+      res.status(500).json({ message: "Error creating custom mood tag", error });
+    }
+  });
+  app2.get("/api/custom-mood-tags", requireAuth6, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const customMoodTags2 = await storage.getUserCustomMoodTags(userId);
+      res.json(customMoodTags2);
+    } catch (error) {
+      console.error("Error getting custom mood tags:", error);
+      res.status(500).json({ message: "Error getting custom mood tags", error });
+    }
+  });
+  app2.get("/api/custom-mood-tags/:tagId", requireAuth6, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const tagId = parseInt(req.params.tagId);
+      if (isNaN(tagId)) {
+        return res.status(400).json({ message: "Invalid tag ID" });
+      }
+      const customMoodTag = await storage.getCustomMoodTag(userId, tagId);
+      if (!customMoodTag) {
+        return res.status(404).json({ message: "Custom mood tag not found" });
+      }
+      res.json(customMoodTag);
+    } catch (error) {
+      console.error("Error getting custom mood tag:", error);
+      res.status(500).json({ message: "Error getting custom mood tag", error });
+    }
+  });
+  app2.patch("/api/custom-mood-tags/:tagId", requireAuth6, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const tagId = parseInt(req.params.tagId);
+      if (isNaN(tagId)) {
+        return res.status(400).json({ message: "Invalid tag ID" });
+      }
+      const tagData = {
+        tagName: req.body.tagName,
+        tagDescription: req.body.tagDescription,
+        baseEmotion: req.body.baseEmotion,
+        color: req.body.color,
+        icon: req.body.icon,
+        isActive: req.body.isActive
+      };
+      Object.keys(tagData).forEach((key) => {
+        if (tagData[key] === void 0) {
+          delete tagData[key];
+        }
+      });
+      const updatedTag = await storage.updateCustomMoodTag(userId, tagId, tagData);
+      res.json(updatedTag);
+    } catch (error) {
+      console.error("Error updating custom mood tag:", error);
+      res.status(500).json({ message: "Error updating custom mood tag", error });
+    }
+  });
+  app2.delete("/api/custom-mood-tags/:tagId", requireAuth6, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const tagId = parseInt(req.params.tagId);
+      if (isNaN(tagId)) {
+        return res.status(400).json({ message: "Invalid tag ID" });
+      }
+      await storage.deleteCustomMoodTag(userId, tagId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting custom mood tag:", error);
+      res.status(500).json({ message: "Error deleting custom mood tag", error });
+    }
+  });
+  app2.post("/api/weekly-mood-reports/generate", requireAuth6, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const weeklyReport = await storage.generateWeeklyMoodReport(userId);
+      res.status(201).json(weeklyReport);
+    } catch (error) {
+      console.error("Error generating weekly mood report:", error);
+      res.status(500).json({ message: "Error generating weekly mood report", error });
+    }
+  });
+  app2.get("/api/weekly-mood-reports", requireAuth6, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const weeklyReports = await storage.getUserWeeklyMoodReports(userId);
+      res.json(weeklyReports);
+    } catch (error) {
+      console.error("Error getting weekly mood reports:", error);
+      res.status(500).json({ message: "Error getting weekly mood reports", error });
+    }
+  });
+  app2.get("/api/weekly-mood-reports/latest", requireAuth6, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const latestReport = await storage.getLatestWeeklyMoodReport(userId);
+      if (!latestReport) {
+        return res.status(404).json({ message: "No weekly mood reports found" });
+      }
+      res.json(latestReport);
+    } catch (error) {
+      console.error("Error getting latest weekly mood report:", error);
+      res.status(500).json({ message: "Error getting latest weekly mood report", error });
+    }
+  });
+  console.log("Personalization and insights routes registered successfully");
+  app2.post("/api/auth/2fa/setup", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
@@ -13035,7 +14463,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to set up 2FA" });
     }
   });
-  app2.post("/api/auth/2fa/verify", requireAuth5, async (req, res) => {
+  app2.post("/api/auth/2fa/verify", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
@@ -13045,8 +14473,8 @@ async function registerRoutes(app2) {
       if (user.twoFactorEnabled) {
         return res.status(400).json({ error: "2FA is already enabled for this account" });
       }
-      const tokenSchema = z3.object({
-        token: z3.string().min(6).max(6)
+      const tokenSchema = z5.object({
+        token: z5.string().min(6).max(6)
       });
       const { token } = tokenSchema.parse(req.body);
       if (!user.twoFactorSecret) {
@@ -13070,7 +14498,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to verify 2FA" });
     }
   });
-  app2.post("/api/auth/2fa/disable", requireAuth5, async (req, res) => {
+  app2.post("/api/auth/2fa/disable", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
@@ -13080,9 +14508,9 @@ async function registerRoutes(app2) {
       if (!user.twoFactorEnabled) {
         return res.status(400).json({ error: "2FA is not enabled for this account" });
       }
-      const schema = z3.object({
-        token: z3.string().min(6).max(6).optional(),
-        password: z3.string().optional()
+      const schema = z5.object({
+        token: z5.string().min(6).max(6).optional(),
+        password: z5.string().optional()
       });
       const { token, password } = schema.parse(req.body);
       let isValid = false;
@@ -13111,11 +14539,11 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/auth/2fa/validate", async (req, res) => {
     try {
-      const schema = z3.object({
-        username: z3.string(),
-        token: z3.string().min(6).max(6).optional(),
-        backupCode: z3.string().optional(),
-        recoveryKey: z3.string().optional()
+      const schema = z5.object({
+        username: z5.string(),
+        token: z5.string().min(6).max(6).optional(),
+        backupCode: z5.string().optional(),
+        recoveryKey: z5.string().optional()
       });
       const { username, token, backupCode, recoveryKey } = schema.parse(req.body);
       const user = await storage.getUserByUsername(username);
@@ -13164,7 +14592,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to validate 2FA" });
     }
   });
-  app2.post("/api/auth/2fa/new-backup-codes", requireAuth5, async (req, res) => {
+  app2.post("/api/auth/2fa/new-backup-codes", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
@@ -13174,8 +14602,8 @@ async function registerRoutes(app2) {
       if (!user.twoFactorEnabled) {
         return res.status(400).json({ error: "2FA is not enabled for this account" });
       }
-      const schema = z3.object({
-        token: z3.string().min(6).max(6)
+      const schema = z5.object({
+        token: z5.string().min(6).max(6)
       });
       const { token } = schema.parse(req.body);
       if (!user.twoFactorSecret || !verifyToken(token, user.twoFactorSecret)) {
@@ -13194,7 +14622,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to generate new backup codes" });
     }
   });
-  app2.post("/api/auth/2fa/new-recovery-key", requireAuth5, async (req, res) => {
+  app2.post("/api/auth/2fa/new-recovery-key", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
@@ -13204,8 +14632,8 @@ async function registerRoutes(app2) {
       if (!user.twoFactorEnabled) {
         return res.status(400).json({ error: "2FA is not enabled for this account" });
       }
-      const schema = z3.object({
-        token: z3.string().min(6).max(6)
+      const schema = z5.object({
+        token: z5.string().min(6).max(6)
       });
       const { token } = schema.parse(req.body);
       if (!user.twoFactorSecret || !verifyToken(token, user.twoFactorSecret)) {
@@ -13224,7 +14652,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to generate new recovery key" });
     }
   });
-  app2.get("/api/auth/2fa/status", requireAuth5, async (req, res) => {
+  app2.get("/api/auth/2fa/status", requireAuth6, async (req, res) => {
     try {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
@@ -13240,7 +14668,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Failed to get 2FA status" });
     }
   });
-  app2.get("/api/advertisements/user/:userId", requireAuth5, async (req, res) => {
+  app2.get("/api/advertisements/user/:userId", requireAuth6, async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
       if (req.user?.id !== userId && !req.adminUser) {
@@ -13265,7 +14693,7 @@ async function registerRoutes(app2) {
   app2.get("/api/advertisements/type/:type", async (req, res) => {
     try {
       const { type } = req.params;
-      const typeSchema = z3.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]);
+      const typeSchema = z5.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]);
       const validatedType = typeSchema.parse(type);
       const advertisements2 = await storage.getAdvertisementsByType(validatedType);
       res.json(advertisements2);
@@ -13296,21 +14724,21 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch advertisement" });
     }
   });
-  app2.post("/api/advertisements", requireAuth5, requirePremium, async (req, res) => {
+  app2.post("/api/advertisements", requireAuth6, requirePremium, async (req, res) => {
     try {
-      const adSchema = z3.object({
-        title: z3.string().min(5).max(100),
-        description: z3.string().min(20).max(1e3),
-        type: z3.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]),
-        imageUrl: z3.string().url().optional(),
-        websiteUrl: z3.string().url().optional(),
-        contactEmail: z3.string().email().optional(),
-        contactPhone: z3.string().optional(),
-        locationDetails: z3.string().optional(),
-        budget: z3.string().optional(),
-        additionalNotes: z3.string().optional(),
-        startDate: z3.string().optional(),
-        endDate: z3.string().optional()
+      const adSchema = z5.object({
+        title: z5.string().min(5).max(100),
+        description: z5.string().min(20).max(1e3),
+        type: z5.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]),
+        imageUrl: z5.string().url().optional(),
+        websiteUrl: z5.string().url().optional(),
+        contactEmail: z5.string().email().optional(),
+        contactPhone: z5.string().optional(),
+        locationDetails: z5.string().optional(),
+        budget: z5.string().optional(),
+        additionalNotes: z5.string().optional(),
+        startDate: z5.string().optional(),
+        endDate: z5.string().optional()
       });
       const adData = adSchema.parse(req.body);
       const advertisement = await storage.createAdvertisement(req.user.id, adData);
@@ -13323,7 +14751,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to create advertisement" });
     }
   });
-  app2.patch("/api/advertisements/:id", requireAuth5, async (req, res) => {
+  app2.patch("/api/advertisements/:id", requireAuth6, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const advertisement = await storage.getAdvertisementById(id);
@@ -13333,19 +14761,19 @@ async function registerRoutes(app2) {
       if (req.user.id !== advertisement.userId && !req.adminUser) {
         return res.status(403).json({ error: "Unauthorized to update this advertisement" });
       }
-      const updateSchema = z3.object({
-        title: z3.string().min(5).max(100).optional(),
-        description: z3.string().min(20).max(1e3).optional(),
-        type: z3.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]).optional(),
-        imageUrl: z3.string().url().optional().nullable(),
-        websiteUrl: z3.string().url().optional().nullable(),
-        contactEmail: z3.string().email().optional().nullable(),
-        contactPhone: z3.string().optional().nullable(),
-        locationDetails: z3.string().optional().nullable(),
-        budget: z3.string().optional().nullable(),
-        additionalNotes: z3.string().optional().nullable(),
-        startDate: z3.string().optional().nullable(),
-        endDate: z3.string().optional().nullable()
+      const updateSchema = z5.object({
+        title: z5.string().min(5).max(100).optional(),
+        description: z5.string().min(20).max(1e3).optional(),
+        type: z5.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]).optional(),
+        imageUrl: z5.string().url().optional().nullable(),
+        websiteUrl: z5.string().url().optional().nullable(),
+        contactEmail: z5.string().email().optional().nullable(),
+        contactPhone: z5.string().optional().nullable(),
+        locationDetails: z5.string().optional().nullable(),
+        budget: z5.string().optional().nullable(),
+        additionalNotes: z5.string().optional().nullable(),
+        startDate: z5.string().optional().nullable(),
+        endDate: z5.string().optional().nullable()
       });
       const updateData = updateSchema.parse(req.body);
       const updatedAdvertisement = await storage.updateAdvertisement(id, updateData);
@@ -13358,7 +14786,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to update advertisement" });
     }
   });
-  app2.delete("/api/advertisements/:id", requireAuth5, async (req, res) => {
+  app2.delete("/api/advertisements/:id", requireAuth6, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const advertisement = await storage.getAdvertisementById(id);
@@ -13378,7 +14806,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to delete advertisement" });
     }
   });
-  app2.post("/api/advertisements/:id/payment", requireAuth5, async (req, res) => {
+  app2.post("/api/advertisements/:id/payment", requireAuth6, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const advertisement = await storage.getAdvertisementById(id);
@@ -13388,9 +14816,9 @@ async function registerRoutes(app2) {
       if (req.user.id !== advertisement.userId) {
         return res.status(403).json({ error: "Unauthorized to process payment for this advertisement" });
       }
-      const paymentSchema = z3.object({
-        provider: z3.enum(["stripe", "paypal"]),
-        transactionId: z3.string()
+      const paymentSchema = z5.object({
+        provider: z5.enum(["stripe", "paypal"]),
+        transactionId: z5.string()
       });
       const paymentData = paymentSchema.parse(req.body);
       const updatedAdvertisement = await storage.createAdvertisementPayment(
@@ -13407,7 +14835,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to process advertisement payment" });
     }
   });
-  app2.post("/api/advertisements/:id/bookings", requireAuth5, async (req, res) => {
+  app2.post("/api/advertisements/:id/bookings", requireAuth6, async (req, res) => {
     try {
       const advertisementId = parseInt(req.params.id);
       const advertisement = await storage.getAdvertisementById(advertisementId);
@@ -13417,12 +14845,12 @@ async function registerRoutes(app2) {
       if (advertisement.status !== "published") {
         return res.status(400).json({ error: "Advertisement is not available for booking" });
       }
-      const bookingSchema = z3.object({
-        notes: z3.string().optional(),
-        contactDetails: z3.string(),
-        locationDetails: z3.string().optional(),
-        requestedStartDate: z3.string().optional(),
-        requestedEndDate: z3.string().optional()
+      const bookingSchema = z5.object({
+        notes: z5.string().optional(),
+        contactDetails: z5.string(),
+        locationDetails: z5.string().optional(),
+        requestedStartDate: z5.string().optional(),
+        requestedEndDate: z5.string().optional()
       });
       const bookingData = bookingSchema.parse(req.body);
       const booking = await storage.createAdvertisementBooking({
@@ -13440,7 +14868,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to create booking" });
     }
   });
-  app2.get("/api/advertisements/:id/bookings", requireAuth5, async (req, res) => {
+  app2.get("/api/advertisements/:id/bookings", requireAuth6, async (req, res) => {
     try {
       const advertisementId = parseInt(req.params.id);
       const advertisement = await storage.getAdvertisementById(advertisementId);
@@ -13457,7 +14885,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch bookings" });
     }
   });
-  app2.get("/api/user/bookings", requireAuth5, async (req, res) => {
+  app2.get("/api/user/bookings", requireAuth6, async (req, res) => {
     try {
       const bookings = await storage.getUserBookings(req.user.id);
       res.json(bookings);
@@ -13466,7 +14894,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch bookings" });
     }
   });
-  app2.patch("/api/bookings/:id/status", requireAuth5, async (req, res) => {
+  app2.patch("/api/bookings/:id/status", requireAuth6, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const booking = await storage.getAdvertisementBookingById(id);
@@ -13480,8 +14908,8 @@ async function registerRoutes(app2) {
       if (req.user.id !== advertisement.userId && !req.adminUser) {
         return res.status(403).json({ error: "Unauthorized to update this booking" });
       }
-      const statusSchema = z3.object({
-        status: z3.enum(["pending", "approved", "rejected", "completed", "canceled"])
+      const statusSchema = z5.object({
+        status: z5.enum(["pending", "approved", "rejected", "completed", "canceled"])
       });
       const { status } = statusSchema.parse(req.body);
       const updatedBooking = await storage.updateAdvertisementBookingStatus(id, status);
@@ -13494,7 +14922,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to update booking status" });
     }
   });
-  app2.post("/api/user/verification", requireAuth5, async (req, res) => {
+  app2.post("/api/user/verification", requireAuth6, async (req, res) => {
     try {
       const {
         firstName,
@@ -13541,7 +14969,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to submit verification" });
     }
   });
-  app2.post("/api/user/verification/payment", requireAuth5, async (req, res) => {
+  app2.post("/api/user/verification/payment", requireAuth6, async (req, res) => {
     try {
       const { plan, amount } = req.body;
       const now = /* @__PURE__ */ new Date();
@@ -13566,7 +14994,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to process payment" });
     }
   });
-  app2.get("/api/user/verification/status", requireAuth5, async (req, res) => {
+  app2.get("/api/user/verification/status", requireAuth6, async (req, res) => {
     try {
       const documents = await storage.getVerificationDocumentsByUser(req.user.id);
       res.json({
@@ -13581,7 +15009,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to get verification status" });
     }
   });
-  app2.post("/api/user/verification/documents", requireAuth5, async (req, res) => {
+  app2.post("/api/user/verification/documents", requireAuth6, async (req, res) => {
     try {
       const {
         documentType,
@@ -13611,7 +15039,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to submit verification document" });
     }
   });
-  app2.put("/api/admin/verification/documents/:id", requireAuth5, requireAdmin, async (req, res) => {
+  app2.put("/api/admin/verification/documents/:id", requireAuth6, requireAdmin, async (req, res) => {
     try {
       const documentId = parseInt(req.params.id);
       const { status, notes } = req.body;
@@ -13633,17 +15061,17 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to update verification status" });
     }
   });
-  app2.post("/api/system/test", requireAuth5, testController.runTests);
-  app2.post("/api/system/backup", requireAuth5, testController.createBackup);
-  app2.get("/api/system/backups", requireAuth5, testController.getBackups);
-  app2.post("/api/system/restore/:backupId", requireAuth5, testController.restoreBackup);
-  app2.post("/api/sessions", requireAuth5, async (req, res) => {
+  app2.post("/api/system/test", requireAuth6, testController.runTests);
+  app2.post("/api/system/backup", requireAuth6, testController.createBackup);
+  app2.get("/api/system/backups", requireAuth6, testController.getBackups);
+  app2.post("/api/system/restore/:backupId", requireAuth6, testController.restoreBackup);
+  app2.post("/api/sessions", requireAuth6, async (req, res) => {
     try {
-      const sessionSchema = z3.object({
-        device: z3.string().optional(),
-        browser: z3.string().optional(),
-        ipAddress: z3.string().optional(),
-        location: z3.string().optional()
+      const sessionSchema = z5.object({
+        device: z5.string().optional(),
+        browser: z5.string().optional(),
+        ipAddress: z5.string().optional(),
+        location: z5.string().optional()
       });
       const validated = sessionSchema.parse(req.body);
       const sessionToken = crypto3.randomUUID();
@@ -13663,7 +15091,7 @@ async function registerRoutes(app2) {
       res.status(400).json({ error: "Invalid session data" });
     }
   });
-  app2.get("/api/sessions", requireAuth5, async (req, res) => {
+  app2.get("/api/sessions", requireAuth6, async (req, res) => {
     try {
       const sessions = await storage.getUserActiveSessions(req.user.id);
       res.status(200).json(sessions);
@@ -13672,11 +15100,11 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch sessions" });
     }
   });
-  app2.put("/api/sessions/:token/status", requireAuth5, async (req, res) => {
+  app2.put("/api/sessions/:token/status", requireAuth6, async (req, res) => {
     try {
       const { token } = req.params;
-      const statusSchema = z3.object({
-        status: z3.enum(["online", "offline", "away", "busy"])
+      const statusSchema = z5.object({
+        status: z5.enum(["online", "offline", "away", "busy"])
       });
       const { status } = statusSchema.parse(req.body);
       const session3 = await storage.getUserSession(token);
@@ -13693,7 +15121,7 @@ async function registerRoutes(app2) {
       res.status(400).json({ error: "Invalid status update data" });
     }
   });
-  app2.delete("/api/sessions/:token", requireAuth5, async (req, res) => {
+  app2.delete("/api/sessions/:token", requireAuth6, async (req, res) => {
     try {
       const { token } = req.params;
       const session3 = await storage.getUserSession(token);
@@ -13710,7 +15138,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to close session" });
     }
   });
-  app2.put("/api/sessions/:token/activity", requireAuth5, async (req, res) => {
+  app2.put("/api/sessions/:token/activity", requireAuth6, async (req, res) => {
     try {
       const { token } = req.params;
       const session3 = await storage.getUserSession(token);
@@ -13727,7 +15155,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to update session activity" });
     }
   });
-  app2.get("/api/users/active", requireAuth5, async (req, res) => {
+  app2.get("/api/users/active", requireAuth6, async (req, res) => {
     try {
       const activeUsers = await storage.getActiveUsers();
       const sanitizedUsers = activeUsers.map((user) => ({
@@ -13743,7 +15171,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch active users" });
     }
   });
-  app2.get("/api/mood-matches", requireAuth5, async (req, res) => {
+  app2.get("/api/mood-matches", requireAuth6, async (req, res) => {
     try {
       const userEmotion = await storage.getUserEmotion(req.user.id) || "neutral";
       const matches = await storage.findMoodMatches(req.user.id, userEmotion);
@@ -13765,7 +15193,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to find mood matches" });
     }
   });
-  app2.post("/api/mood-matches/:matchId/accept", requireAuth5, async (req, res) => {
+  app2.post("/api/mood-matches/:matchId/accept", requireAuth6, async (req, res) => {
     try {
       const { matchId } = req.params;
       const match = await storage.getMoodMatch(Number(matchId));
@@ -13782,7 +15210,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to accept mood match" });
     }
   });
-  app2.post("/api/mood-matches/:matchId/reject", requireAuth5, async (req, res) => {
+  app2.post("/api/mood-matches/:matchId/reject", requireAuth6, async (req, res) => {
     try {
       const { matchId } = req.params;
       const match = await storage.getMoodMatch(Number(matchId));
@@ -13799,7 +15227,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to reject mood match" });
     }
   });
-  app2.get("/api/notifications", requireAuth5, async (req, res) => {
+  app2.get("/api/notifications", requireAuth6, async (req, res) => {
     try {
       const notifications2 = await storage.getNotifications(req.user.id);
       return res.json(notifications2);
@@ -13808,7 +15236,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Server error" });
     }
   });
-  app2.get("/api/notifications/unread-count", requireAuth5, async (req, res) => {
+  app2.get("/api/notifications/unread-count", requireAuth6, async (req, res) => {
     try {
       const count = await storage.getUnreadNotificationsCount(req.user.id);
       return res.json({ count });
@@ -13817,7 +15245,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Server error" });
     }
   });
-  app2.post("/api/notifications/:id/read", requireAuth5, async (req, res) => {
+  app2.post("/api/notifications/:id/read", requireAuth6, async (req, res) => {
     try {
       const notificationId = parseInt(req.params.id);
       if (isNaN(notificationId)) {
@@ -13830,7 +15258,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Server error" });
     }
   });
-  app2.post("/api/notifications/read-all", requireAuth5, async (req, res) => {
+  app2.post("/api/notifications/read-all", requireAuth6, async (req, res) => {
     try {
       await storage.markAllNotificationsAsRead(req.user.id);
       return res.json({ success: true });
@@ -13839,7 +15267,7 @@ async function registerRoutes(app2) {
       return res.status(500).json({ error: "Server error" });
     }
   });
-  app2.delete("/api/notifications/:id", requireAuth5, async (req, res) => {
+  app2.delete("/api/notifications/:id", requireAuth6, async (req, res) => {
     try {
       const notificationId = parseInt(req.params.id);
       if (isNaN(notificationId)) {
@@ -13861,7 +15289,7 @@ async function registerRoutes(app2) {
 }
 
 // server/vite.ts
-import express4 from "express";
+import express5 from "express";
 import fs3 from "fs";
 import path4 from "path";
 import { createServer as createViteServer, createLogger } from "vite";
@@ -13956,7 +15384,7 @@ function serveStatic(app2) {
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
   }
-  app2.use(express4.static(distPath));
+  app2.use(express5.static(distPath));
   app2.use("*", (_req, res) => {
     res.sendFile(path4.resolve(distPath, "index.html"));
   });
@@ -13964,9 +15392,9 @@ function serveStatic(app2) {
 
 // server/index.ts
 import cors from "cors";
-var app = express5();
-app.use(express5.json());
-app.use(express5.urlencoded({ extended: false }));
+var app = express6();
+app.use(express6.json());
+app.use(express6.urlencoded({ extended: false }));
 app.use(cors({
   origin: true,
   // Allow any origin
@@ -14021,29 +15449,21 @@ app.use((req, res, next) => {
   }
   let boundPort = null;
   let websocketInitialized = false;
-  const replitPort = 5e3;
+  const primaryPort = 5e3;
+  const alternativePort = 8080;
   const tryListen = (port, maxRetries = 3, retryCount = 0) => {
     if (boundPort !== null) {
       log(`Server already running on port ${boundPort}`);
       return;
     }
-    if (replitPort && port !== replitPort) {
-      log(`Using Replit-assigned port: ${replitPort}`);
-      port = replitPort;
-    }
+    const usePort = port;
     const serverOpts = {
-      port,
-      host: "0.0.0.0",
-      reusePort: true
+      port: usePort,
+      host: "0.0.0.0"
     };
+    log(`Attempting to start server on an available port...`);
     try {
       if (server._handle) server.close();
-    } catch (error) {
-    }
-    try {
-      if (process.env.NODE_ENV === "development") {
-        log(`Attempting to force bind to port ${port} for Replit compatibility`);
-      }
     } catch (error) {
     }
     server.listen(serverOpts, () => {
@@ -14071,18 +15491,13 @@ app.use((req, res, next) => {
       }
     }).on("error", (err) => {
       if (err.code === "EADDRINUSE" && retryCount < maxRetries) {
-        const nextPort = replitPort || port + 1;
-        if (replitPort && replitPort === port) {
-          log(`Replit port ${port} is in use, but we must use this port. Attempting forced bind...`);
-          setTimeout(() => tryListen(port, maxRetries, retryCount + 1), 1e3);
-        } else {
-          log(`Port ${port} is already in use, trying port ${nextPort}...`);
-          tryListen(nextPort, maxRetries, retryCount + 1);
-        }
+        log(`Port ${usePort} is in use, trying a different port...`);
+        const emergencyPort = 9090 + retryCount;
+        setTimeout(() => tryListen(emergencyPort, maxRetries, retryCount + 1), 500);
       } else {
         console.error(`Failed to start server: ${err.message}`);
-        if (process.env.NODE_ENV === "development" && !replitPort) {
-          const emergencyPort = 8080;
+        if (process.env.NODE_ENV === "development") {
+          const emergencyPort = 7777;
           log(`Trying emergency port ${emergencyPort}...`);
           tryListen(emergencyPort, 0, 0);
         } else {
@@ -14091,5 +15506,6 @@ app.use((req, res, next) => {
       }
     });
   };
-  tryListen(replitPort);
+  log(`Replit workflow requires port 5000, attempting to start server...`);
+  setTimeout(() => tryListen(primaryPort), 100);
 })();
