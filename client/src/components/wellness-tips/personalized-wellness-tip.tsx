@@ -9,7 +9,7 @@ import { useMoodContext } from '@/hooks/use-mood-context';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { EmotionType } from '@/hooks/use-mood-background';
+import { EmotionType } from '@/types/imprints';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Interface for our wellness tip
@@ -25,19 +25,19 @@ interface WellnessTip {
 
 // Emotional state to category mapping
 const emotionToCategory: Record<string, string[]> = {
-  happy: ['Gratitude', 'Joy Practices', 'Social Connection'],
-  sad: ['Self-Compassion', 'Mood Elevation', 'Emotional Processing'],
-  angry: ['Anger Management', 'Emotional Regulation', 'Stress Relief'],
-  anxious: ['Anxiety Management', 'Grounding Techniques', 'Breathwork'],
-  calm: ['Mindfulness', 'Present-Moment Awareness', 'Meditation'],
-  excited: ['Energy Management', 'Focus Techniques', 'Channeling Enthusiasm'],
-  bored: ['Engagement Practices', 'Curiosity Building', 'Motivation'],
-  content: ['Appreciation', 'Mindfulness', 'Present-Moment Joy'],
-  nostalgic: ['Emotional Processing', 'Memory Integration', 'Reflection'],
-  hopeful: ['Goal Setting', 'Optimism Practices', 'Future Visualization'],
-  stressed: ['Stress Relief', 'Self-Care', 'Boundary Setting'],
-  overwhelmed: ['Simplification', 'Task Management', 'Emotional Regulation'],
-  neutral: ['Emotional Awareness', 'Mindfulness', 'Personal Growth']
+  Joy: ['Gratitude', 'Joy Practices', 'Social Connection'],
+  Sadness: ['Self-Compassion', 'Mood Elevation', 'Emotional Processing'],
+  Anger: ['Anger Management', 'Emotional Regulation', 'Stress Relief'],
+  Anxiety: ['Anxiety Management', 'Grounding Techniques', 'Breathwork'],
+  Serenity: ['Mindfulness', 'Present-Moment Awareness', 'Meditation'],
+  Excitement: ['Energy Management', 'Focus Techniques', 'Channeling Enthusiasm'],
+  Boredom: ['Engagement Practices', 'Curiosity Building', 'Motivation'],
+  Contentment: ['Appreciation', 'Mindfulness', 'Present-Moment Joy'],
+  Nostalgia: ['Emotional Processing', 'Memory Integration', 'Reflection'],
+  Hope: ['Goal Setting', 'Optimism Practices', 'Future Visualization'],
+  Stress: ['Stress Relief', 'Self-Care', 'Boundary Setting'],
+  Fear: ['Simplification', 'Task Management', 'Emotional Regulation'],
+  Neutral: ['Emotional Awareness', 'Mindfulness', 'Personal Growth']
 };
 
 // Generic tips that work for any emotion
@@ -48,7 +48,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "Take 5 minutes to focus on your breath. Inhale for 4 counts, hold for 2, and exhale for 6. This simple technique activates your parasympathetic nervous system, reducing anxiety immediately.",
     category: "Meditation",
     source: "Journal of Behavioral Medicine",
-    emotionTypes: ['Anxiety', 'Fear', 'Stress', 'Anger'],
+    emotionTypes: ['Anxiety', 'Fear', 'Anger'],
     isPremium: false
   },
   {
@@ -66,7 +66,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "When anxiety strikes, name 3 things you see, 3 sounds you hear, and move 3 parts of your body. This interrupts the fight-or-flight response and returns you to the present moment.",
     category: "Anxiety Management",
     source: "Clinical Psychology Review",
-    emotionTypes: ['Anxiety', 'Fear', 'Stress'],
+    emotionTypes: ['Anxiety', 'Fear'],
     isPremium: false
   },
   {
@@ -84,7 +84,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "Turn off screens 60 minutes before bed. Blue light suppresses melatonin by up to 50%. Better sleep quality is directly linked to reduced depression symptoms the following day.",
     category: "Sleep Hygiene",
     source: "Sleep Medicine Reviews",
-    emotionTypes: ['Stress', 'Anxiety', 'Fear'],
+    emotionTypes: ['Anxiety', 'Fear', 'Sadness'],
     isPremium: false
   },
   {
@@ -93,7 +93,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "Set a timer to move for just 2 minutes every hour. Even brief movement releases BDNF (brain-derived neurotrophic factor), a protein that improves mood and cognitive function.",
     category: "Physical Activity",
     source: "Neuropsychology Journal",
-    emotionTypes: ['Sadness', 'Boredom', 'Stress', 'Fear'],
+    emotionTypes: ['Sadness', 'Boredom', 'Fear'],
     isPremium: false
   },
   {
@@ -111,7 +111,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "Notice 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste. This powerful technique stops anxiety by engaging all your senses.",
     category: "Anxiety Management",
     source: "Cognitive Behavioral Therapy",
-    emotionTypes: ['Anxiety', 'Fear', 'Stress'],
+    emotionTypes: ['Anxiety', 'Fear', 'Grief'],
     isPremium: false
   },
   {
@@ -129,7 +129,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "When experiencing an unhelpful emotion, try doing the opposite of what that emotion urges you to do. If anxiety makes you want to avoid, gently approach; if anger makes you want to attack, practice gentleness.",
     category: "Emotional Regulation",
     source: "Dialectical Behavior Therapy",
-    emotionTypes: ['Anger', 'Anxiety', 'Sadness', 'Stress'],
+    emotionTypes: ['Anger', 'Anxiety', 'Sadness', 'Disappointment'],
     isPremium: false
   },
   {
@@ -138,7 +138,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "When you notice self-criticism, place your hand on your heart and say: 'This is a moment of suffering. Suffering is part of life. May I be kind to myself in this moment, and give myself the compassion I need.'",
     category: "Self-Compassion",
     source: "Mindful Self-Compassion Research",
-    emotionTypes: ['sad', 'overwhelmed', 'stressed', 'anxious'],
+    emotionTypes: ['Sadness', 'Fear', 'Shame', 'Anxiety'],
     isPremium: false
   },
   {
@@ -147,7 +147,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "At the end of each day, write down three things you accomplished, no matter how small. This builds confidence and helps counter depressive thoughts that you 'never get anything done.'",
     category: "Positive Psychology",
     source: "Journal of Happiness Studies",
-    emotionTypes: ['sad', 'overwhelmed', 'stressed', 'hopeful'],
+    emotionTypes: ['Sadness', 'Fear', 'Disappointment', 'Hope'],
     isPremium: false
   },
   {
@@ -156,7 +156,7 @@ const generalWellnessTips: WellnessTip[] = [
     description: "When difficult emotions arise, say to yourself: 'I can feel [emotion] and still take effective action.' Accepting emotions rather than fighting them reduces their intensity and duration.",
     category: "Emotional Acceptance",
     source: "Acceptance and Commitment Therapy",
-    emotionTypes: ['sad', 'angry', 'anxious', 'overwhelmed'],
+    emotionTypes: ['Sadness', 'Anger', 'Anxiety', 'Fear'],
     isPremium: false
   },
   {
