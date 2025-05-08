@@ -39,6 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   console.log(`Using API path for user data: ${userApiPath} (Netlify: ${isNetlify})`);
   
+  // Initialize with data from localStorage if available
+  const initialUserData = typeof window !== 'undefined' 
+    ? JSON.parse(localStorage.getItem('moodlync_user') || 'null') 
+    : null;
+  
   const {
     data: user,
     error,
@@ -46,6 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<SelectUser | null, Error>({
     queryKey: [userApiPath],
     queryFn: getQueryFn({ on401: "returnNull" }),
+    // Start with data from localStorage to prevent flashing redirects on refresh
+    initialData: initialUserData,
+    // Clear state only after 5 minutes if we can't reach the server
+    staleTime: 5 * 60 * 1000,
   });
 
   const loginMutation = useMutation({
