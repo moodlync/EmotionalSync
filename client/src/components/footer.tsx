@@ -39,15 +39,42 @@ export default function Footer() {
   return (
     <footer className="bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 pt-10 pb-6 mt-auto">
       <div className="container mx-auto px-4">
-        <div className="mx-auto flex flex-col items-center justify-center mb-8">
+        <div className="mx-auto flex flex-col items-center justify-center mb-6">
           <div className="flex flex-col items-center justify-center gap-1">
-            <div className="flex items-center justify-center my-6 mb-8">
+            <div className="flex items-center justify-center my-6">
               <img 
                 src="/assets/IMG_4705.jpeg" 
                 alt="MoodLync Footer" 
                 className="w-96 h-auto object-contain"
               />
             </div>
+            
+            {/* Feedback form below the footer image */}
+            <form onSubmit={handleSubmitFeedback} className="mt-4 w-full max-w-md">
+              <Textarea
+                placeholder="Share your feedback or suggest features..."
+                className="min-h-[80px] text-sm resize-none bg-white dark:bg-gray-800"
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+              />
+              <Button 
+                type="submit" 
+                className="mt-2 w-full bg-gradient-to-r from-primary to-primary-foreground/90 hover:opacity-90"
+                disabled={isSending || !feedback.trim()}
+              >
+                {isSending ? (
+                  <span className="flex items-center gap-1">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
+                    Sending...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <Send className="h-3.5 w-3.5" />
+                    Send Feedback
+                  </span>
+                )}
+              </Button>
+            </form>
           </div>
         </div>
         

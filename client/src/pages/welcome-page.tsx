@@ -445,22 +445,22 @@ export default function WelcomePage() {
                 {/* Responsive Subscription Plans Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 mb-4">
                   {/* Monthly Plan */}
-                  <div className="relative overflow-hidden rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 dark:border-blue-800 p-3 transition-all duration-300 hover:shadow-md">
+                  <div className="relative overflow-hidden rounded-lg border border-blue-300 bg-gradient-to-br from-blue-50 to-white dark:from-blue-800/50 dark:to-gray-900 dark:border-blue-600 p-3 transition-all duration-300 hover:shadow-md">
                     <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-blue-300/20 rounded-full blur-xl"></div>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h5 className="text-sm font-bold text-blue-800 dark:text-blue-400 mb-1">Monthly</h5>
-                        <p className="text-xs text-blue-700 dark:text-blue-300">$9.99/month</p>
+                        <h5 className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-1">Monthly</h5>
+                        <p className="text-xs text-blue-700 dark:text-blue-200 font-medium">$9.99/month</p>
                       </div>
-                      <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200 text-[9px] dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800">Try Premium</Badge>
+                      <Badge variant="outline" className="bg-blue-200 text-blue-800 border-blue-300 text-[9px] dark:bg-blue-700 dark:text-blue-100 dark:border-blue-600 font-medium">Try Premium</Badge>
                     </div>
-                    <ul className="text-[10px] text-blue-600 dark:text-blue-200 space-y-1 mb-3">
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-blue-500" /> Unlimited mood tracking</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-blue-500" /> Advanced analytics</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-blue-500" /> Ad-free experience</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-blue-500" /> AI-powered video editor</li>
+                    <ul className="text-[10px] text-blue-700 dark:text-gray-200 space-y-1 mb-3 font-medium">
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Unlimited mood tracking</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Advanced analytics</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Ad-free experience</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> AI-powered video editor</li>
                     </ul>
-                    <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 border-blue-300 dark:text-blue-300 dark:border-blue-700"
+                    <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-blue-600 hover:bg-blue-700 text-white border-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:border-blue-800 font-medium"
                       onClick={() => {
                         const { showModal } = usePremiumFeatureModal();
                         showModal(
@@ -510,22 +510,22 @@ export default function WelcomePage() {
                   </div>
                   
                   {/* Family Plan */}
-                  <div className="relative overflow-hidden rounded-lg border border-violet-200 bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/20 dark:border-violet-800 p-3 transition-all duration-300 hover:shadow-md">
+                  <div className="relative overflow-hidden rounded-lg border border-violet-300 bg-gradient-to-br from-violet-50 to-white dark:from-violet-800/50 dark:to-gray-900 dark:border-violet-600 p-3 transition-all duration-300 hover:shadow-md">
                     <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-violet-300/20 rounded-full blur-xl"></div>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h5 className="text-sm font-bold text-violet-800 dark:text-violet-400 mb-1">Family Plan</h5>
-                        <p className="text-xs text-violet-700 dark:text-violet-300">$149.99/year</p>
+                        <h5 className="text-sm font-bold text-violet-800 dark:text-violet-300 mb-1">Family Plan</h5>
+                        <p className="text-xs text-violet-700 dark:text-violet-200 font-medium">$149.99/year</p>
                       </div>
-                      <Badge variant="outline" className="bg-violet-100 text-violet-700 border-violet-200 text-[9px] dark:bg-violet-900/50 dark:text-violet-300 dark:border-violet-800">Up to 5 members</Badge>
+                      <Badge variant="outline" className="bg-violet-200 text-violet-800 border-violet-300 text-[9px] dark:bg-violet-700 dark:text-violet-100 dark:border-violet-600 font-medium">Up to 5 members</Badge>
                     </div>
-                    <ul className="text-[10px] text-violet-600 dark:text-violet-200 space-y-1 mb-3">
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-violet-500" /> All Yearly features</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-violet-500" /> Mood tracking with consent</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-violet-500" /> Token sharing between family</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-violet-500" /> Family wellness insights</li>
+                    <ul className="text-[10px] text-violet-700 dark:text-gray-200 space-y-1 mb-3 font-medium">
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> All Yearly features</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Mood tracking with consent</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Token sharing between family</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Family wellness insights</li>
                     </ul>
-                    <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-violet-500/10 hover:bg-violet-500/20 text-violet-700 border-violet-300 dark:text-violet-300 dark:border-violet-700"
+                    <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-violet-600 hover:bg-violet-700 text-white border-violet-700 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:border-violet-800 font-medium"
                       onClick={() => {
                         const { showModal } = usePremiumFeatureModal();
                         showModal(
@@ -540,26 +540,26 @@ export default function WelcomePage() {
                   </div>
                   
                   {/* Lifetime Plan */}
-                  <div className="relative overflow-hidden rounded-lg border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 dark:border-amber-800 p-3 transition-all duration-300 hover:shadow-md">
+                  <div className="relative overflow-hidden rounded-lg border border-amber-300 bg-gradient-to-br from-amber-50 to-white dark:from-amber-800/50 dark:to-gray-900 dark:border-amber-600 p-3 transition-all duration-300 hover:shadow-md">
                     <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-amber-300/20 rounded-full blur-xl"></div>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h5 className="text-sm font-bold text-amber-800 dark:text-amber-400 mb-1">Lifetime</h5>
+                        <h5 className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">Lifetime</h5>
                         <div className="flex items-center gap-1">
-                          <p className="text-xs text-amber-700 dark:text-amber-300">$399.99</p>
-                          <span className="text-[9px] text-green-600 dark:text-green-400">One-time</span>
+                          <p className="text-xs text-amber-700 dark:text-amber-200 font-medium">$399.99</p>
+                          <span className="text-[9px] text-green-600 dark:text-green-400 font-medium">One-time</span>
                         </div>
                       </div>
-                      <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 text-[9px] dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-800">Ultimate</Badge>
+                      <Badge variant="outline" className="bg-amber-200 text-amber-800 border-amber-300 text-[9px] dark:bg-amber-700 dark:text-amber-100 dark:border-amber-600 font-medium">Ultimate</Badge>
                     </div>
-                    <ul className="text-[10px] text-amber-600 dark:text-amber-200 space-y-1 mb-3">
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-amber-500" /> All Family Plan features</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-amber-500" /> Never expires</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-amber-500" /> Lifetime updates</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-amber-500" /> VIP support access</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-amber-500" /> Exclusive lifetime benefits</li>
+                    <ul className="text-[10px] text-amber-700 dark:text-gray-200 space-y-1 mb-3 font-medium">
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> All Family Plan features</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Never expires</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Lifetime updates</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> VIP support access</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-500" /> Exclusive lifetime benefits</li>
                     </ul>
-                    <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 border-amber-300 dark:text-amber-300 dark:border-amber-700"
+                    <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-amber-600 hover:bg-amber-700 text-white border-amber-700 dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 dark:border-amber-800 font-medium"
                       onClick={() => {
                         const { showModal } = usePremiumFeatureModal();
                         showModal(
