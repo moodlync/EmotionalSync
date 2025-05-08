@@ -16,6 +16,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { AuthProvider } from "./hooks/use-auth";
+import { SubscriptionProvider } from "./hooks/use-subscription";
 import { WebSocketProvider } from "./hooks/use-websocket";
 import { GamificationProvider } from "./hooks/use-gamification";
 import { MusicPlayerProvider } from "./hooks/use-music-player";
@@ -214,21 +215,23 @@ function App() {
       <ThemeProvider>
         <HelmetProvider>
           <AuthProvider>
-            <GamificationProvider>
-              <WebSocketProvider>
-                <MusicPlayerProvider>
-                  <PremiumFeatureModalProvider>
-                    <TooltipProvider>
-                      <Toaster />
-                      <RouterComponent />
-                      <FloatingChatButton />
-                      <AutoChallengeUpdater />
-                      <CapacitorInitializer />
-                    </TooltipProvider>
-                  </PremiumFeatureModalProvider>
-                </MusicPlayerProvider>
-              </WebSocketProvider>
-            </GamificationProvider>
+            <SubscriptionProvider>
+              <GamificationProvider>
+                <WebSocketProvider>
+                  <MusicPlayerProvider>
+                    <PremiumFeatureModalProvider>
+                      <TooltipProvider>
+                        <Toaster />
+                        <RouterComponent />
+                        <FloatingChatButton />
+                        <AutoChallengeUpdater />
+                        <CapacitorInitializer />
+                      </TooltipProvider>
+                    </PremiumFeatureModalProvider>
+                  </MusicPlayerProvider>
+                </WebSocketProvider>
+              </GamificationProvider>
+            </SubscriptionProvider>
           </AuthProvider>
         </HelmetProvider>
       </ThemeProvider>

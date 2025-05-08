@@ -9,7 +9,9 @@ import {
   Heart, UserPlus, RefreshCw, HeartHandshake, ArrowRightLeft, Download, Gift, Info
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import { useSubscription } from '@/hooks/use-subscription';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from '@/hooks/use-toast';
 
 interface PricingOption {
   id: string;
@@ -32,24 +34,33 @@ interface SubscriptionInfo {
 
 export default function PremiumPlans() {
   const { user } = useAuth();
+  const { 
+    tier, 
+    isActive, 
+    isTrial, 
+    isLifetime, 
+    expiryDate, 
+    startTrialMutation, 
+    upgradeSubscriptionMutation, 
+    cancelSubscriptionMutation 
+  } = useSubscription();
+  
   const [selectedPlan, setSelectedPlan] = useState<string>('trial');
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'creditcard' | 'paypal' | null>(null);
   const [showManageDialog, setShowManageDialog] = useState(false);
   const [planType, setPlanType] = useState<'individual' | 'family'>('individual');
+  const { toast } = useToast();
   
-  // Mock subscription data - in a real app, this would come from your backend
-  const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo | null>(null);
-  
-  // For demo purposes only - in a real app, you'd get this from your backend
-  const demoSubscription: SubscriptionInfo = {
-    id: 'sub_123456789',
-    status: 'active',
-    currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    plan: 'monthly',
-    startDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // Started 15 days ago
-  };
+  // Convert subscription data to the format expected by the component
+  const subscriptionInfo: SubscriptionInfo | null = isActive || isTrial ? {
+    id: `sub_${user?.id}`,
+    status: isActive ? 'active' : 'trialing',
+    currentPeriodEnd: expiryDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    plan: tier,
+    startDate: new Date(),
+  } : null;
 
   // Define updated pricing options as per new requirements
   const individualPricingOptions: PricingOption[] = [
@@ -397,8 +408,29 @@ export default function PremiumPlans() {
   ];
 
   const handleSubscribe = (planId: string) => {
-    setProcessingPlan(planId);
-    setShowPaymentDialog(true);
+    // For free trial plans, start trial directly without payment
+    if (planId === 'trial' || planId === 'family-trial') {
+      startTrialMutation.mutate(planId === 'family-trial' ? 'family' : 'premium', {
+        onSuccess: () => {
+          toast({
+            title: 'Trial Started',
+            description: 'Your 14-day trial has been activated successfully.',
+            variant: 'default',
+          });
+        },
+        onError: (error) => {
+          toast({
+            title: 'Error Starting Trial',
+            description: error.message || 'An error occurred while starting your trial.',
+            variant: 'destructive',
+          });
+        }
+      });
+    } else {
+      // For paid plans, show payment dialog
+      setProcessingPlan(planId);
+      setShowPaymentDialog(true);
+    }
   };
 
   const handleSelectPlan = (plan: string) => {
@@ -406,43 +438,52 @@ export default function PremiumPlans() {
   };
   
   const handlePayment = () => {
-    // In a real application, this would process the payment using Stripe, PayPal, etc.
-    console.log(`Processing payment for ${processingPlan} plan using ${paymentMethod}`);
-    
-    // Simulate successful payment and subscription creation
-    setTimeout(() => {
-      const trialEndDate = new Date();
-      trialEndDate.setDate(trialEndDate.getDate() + 7); // 7-day trial
-      
-      setSubscriptionInfo({
-        id: `sub_${Math.random().toString(36).substring(2, 15)}`,
-        status: 'trialing',
-        currentPeriodEnd: trialEndDate,
-        plan: processingPlan || 'trial',
-        startDate: new Date()
-      });
-      
-      setShowPaymentDialog(false);
-      setProcessingPlan(null);
-      setPaymentMethod(null);
-    }, 1500);
+    // Process payment and upgrade subscription
+    if (processingPlan) {
+      upgradeSubscriptionMutation.mutate(
+        { plan: processingPlan, paymentMethod: paymentMethod || 'creditcard' },
+        {
+          onSuccess: () => {
+            toast({
+              title: 'Subscription Upgraded',
+              description: 'Your subscription has been upgraded successfully.',
+              variant: 'default',
+            });
+            setShowPaymentDialog(false);
+            setProcessingPlan(null);
+            setPaymentMethod(null);
+          },
+          onError: (error) => {
+            toast({
+              title: 'Payment Failed',
+              description: error.message || 'An error occurred during payment processing.',
+              variant: 'destructive',
+            });
+          }
+        }
+      );
+    }
   };
   
   const handleCancelSubscription = () => {
-    // In a real application, this would call your backend to cancel the subscription
-    if (subscriptionInfo) {
-      // Calculate the end date (current period end)
-      const cancelAtDate = subscriptionInfo.currentPeriodEnd;
-      
-      // Update subscription status to show it's been canceled
-      setSubscriptionInfo({
-        ...subscriptionInfo,
-        status: 'canceled',
-        cancelAt: cancelAtDate
-      });
-      
-      setShowManageDialog(false);
-    }
+    // Call the API to cancel the subscription
+    cancelSubscriptionMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast({
+          title: 'Subscription Canceled',
+          description: 'Your subscription has been canceled and will remain active until the end of the current billing period.',
+          variant: 'default',
+        });
+        setShowManageDialog(false);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error Canceling Subscription',
+          description: error.message || 'An error occurred while canceling your subscription.',
+          variant: 'destructive',
+        });
+      }
+    });
   };
 
   return (

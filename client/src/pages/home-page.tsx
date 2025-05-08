@@ -14,9 +14,12 @@ import Footer from '@/components/footer';
 import { EmotionType, emotions } from '@/lib/emotions';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
+import { useSubscription } from '@/hooks/use-subscription';
 import { useRewards } from '@/hooks/use-rewards';
 import { useGamification } from '@/hooks/use-gamification';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import DynamicFeatures from '@/components/subscription/dynamic-features';
+import SubscriptionBanner from '@/components/subscription/subscription-banner';
 
 import { TabType } from '@/types/app-types';
 
@@ -276,6 +279,13 @@ export default function HomePage() {
             </svg>
           </button>
         </div>
+        
+        {/* Enhanced Live Mood Map Preview */}
+        {/* Subscription Banner - Shows different content based on subscription tier */}
+        <SubscriptionBanner />
+        
+        {/* Dynamic Features Grid - Shows different features based on subscription tier */}
+        <DynamicFeatures />
         
         {/* Enhanced Live Mood Map Preview */}
         <div className="mb-6 bg-gray-50 dark:bg-gray-800/30 rounded-xl p-5 relative overflow-hidden border border-gray-100/30 dark:border-gray-700/30 shadow-sm">

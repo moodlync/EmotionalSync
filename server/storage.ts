@@ -188,6 +188,10 @@ export interface IStorage {
   createChatRoom(userId: number, chatRoom: InsertChatRoom): Promise<ChatRoom>;
   updateChatRoom(chatRoomId: number, updates: Partial<InsertChatRoom>): Promise<ChatRoom>;
   deleteChatRoom(chatRoomId: number): Promise<boolean>;
+  
+  // Subscription management
+  getUserSubscription(userId: number): Promise<UserSubscription | undefined>;
+  updateUserSubscription(userId: number, data: Partial<UserSubscription>): Promise<UserSubscription>;
   getChatRoomById(chatRoomId: number): Promise<ChatRoom | undefined>;
   getPrivateChatRoomsByUserId(userId: number): Promise<ChatRoom[]>;
   
@@ -562,6 +566,10 @@ export interface IStorage {
     actionLink?: string,
     icon?: string
   ): Promise<Notification[]>;
+  
+  // Subscription management methods
+  getUserSubscription(userId: number): Promise<Subscription | undefined>;
+  updateUserSubscription(userId: number, data: Partial<Subscription>): Promise<Subscription>;
 
   sessionStore: session.Store;
 }
@@ -589,6 +597,10 @@ export class MemStorage implements IStorage {
   public userPoolContributions: Map<number, number[]> = new Map(); // userId -> contributionIds
   public poolDistributions: Map<number, PoolDistribution> = new Map();
   public userPoolDistributions: Map<number, number[]> = new Map(); // userId -> distributionIds
+  
+  // Subscription storage
+  private nextSubscriptionId = 1;
+  public subscriptions: Map<number, Subscription> = new Map(); // userId -> subscription
   // User Session Management methods
   async createUserSession(sessionData: InsertUserSession): Promise<UserSession> {
     const session: UserSession = {
@@ -6283,6 +6295,49 @@ export class MemStorage implements IStorage {
     
     this.emotionalNfts.set(nftId, updatedNft);
     return updatedNft;
+  }
+  
+  // Subscription management methods
+  async getUserSubscription(userId: number): Promise<Subscription | undefined> {
+    return this.subscriptions.get(userId);
+  }
+  
+  async updateUserSubscription(userId: number, data: Partial<Subscription>): Promise<Subscription> {
+    // Get existing subscription or create a new one
+    let subscription = this.subscriptions.get(userId);
+    
+    if (!subscription) {
+      // Create a new subscription with default values
+      subscription = {
+        id: this.nextSubscriptionId++,
+        userId,
+        tier: 'free',
+        isActive: false,
+        startDate: new Date(),
+        expiryDate: null,
+        renewsAt: null,
+        cancelledAt: null,
+        hadTrialBefore: false,
+        paymentMethod: null,
+        lastPaymentDate: null,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
+    
+    // Update the subscription with the new data
+    const updatedSubscription = {
+      ...subscription,
+      ...data,
+      updatedAt: new Date()
+    };
+    
+    // Save the updated subscription
+    this.subscriptions.set(userId, updatedSubscription);
+    
+    return updatedSubscription;
   }
 }
 

@@ -19,6 +19,7 @@ export type GameCategory = "puzzle" | "relaxation" | "meditation" | "focus" | "m
 export type GameDifficulty = "beginner" | "intermediate" | "advanced";
 export type ActivityType = "work" | "study" | "exercise" | "social" | "family" | "rest" | "entertainment" | "meditation" | "outdoors" | "home" | "other";
 export type VerificationStatus = "not_verified" | "pending" | "verified";
+export type SubscriptionTier = "free" | "trial" | "premium" | "family" | "lifetime";
 
 // Tokenomics constants
 export const TOKEN_CONVERSION_RATE = 0.0010; // $0.0010 per token
@@ -1611,3 +1612,37 @@ export const insertMilestoneShareSchema = createInsertSchema(milestoneShares, {
   ipAddress: z.string().optional(),
   trackingId: z.string().uuid(),
 });
+
+// User Subscription table
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tier: text("tier").notNull().$type<SubscriptionTier>().default("free"),
+  isActive: boolean("is_active").default(false),
+  startDate: timestamp("start_date").defaultNow(),
+  expiryDate: timestamp("expiry_date"),
+  renewsAt: timestamp("renews_at"),
+  cancelledAt: timestamp("cancelled_at"),
+  hadTrialBefore: boolean("had_trial_before").default(false),
+  paymentMethod: text("payment_method"),
+  lastPaymentDate: timestamp("last_payment_date"),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Create the insert schema for subscriptions
+export const insertSubscriptionSchema = createInsertSchema(subscriptions, {
+  userId: z.number().int().positive(),
+  tier: z.enum(["free", "trial", "premium", "family", "lifetime"]),
+  isActive: z.boolean().default(false),
+  expiryDate: z.date().optional().nullable(),
+  renewsAt: z.date().optional().nullable(),
+  hadTrialBefore: z.boolean().default(false),
+  paymentMethod: z.string().optional().nullable(),
+});
+
+// Type definitions for subscriptions
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type Subscription = typeof subscriptions.$inferSelect;

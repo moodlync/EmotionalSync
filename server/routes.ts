@@ -299,13 +299,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up account and subscription management routes
   try {
     const accountManagementRoutes = (await import('./routes/account-management')).default;
-    const subscriptionManagementRoutes = (await import('./routes/subscription-management')).default;
+    const subscriptionRoutes = (await import('./routes/subscription-routes')).default;
     const nftPoolRoutes = (await import('./routes/nft-pool-routes')).default;
     const nftCollectionRoutes = (await import('./routes/nft-collection-routes')).default;
     const paymentRoutes = (await import('./routes/payment-routes')).default;
     
-    app.use('/api/account', accountManagementRoutes);
-    app.use('/api/subscription', subscriptionManagementRoutes);
+    app.use(accountManagementRoutes);
+    app.use(subscriptionRoutes);
     app.use('/api', nftPoolRoutes);
     app.use('/api', nftCollectionRoutes);
     app.use('/api/payments', paymentRoutes);
