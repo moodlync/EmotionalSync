@@ -13,8 +13,15 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/ui/data-table";
-import { ColumnDef } from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { SimpleDataTable } from "@/components/ui/simple-data-table";
 import { Download, RotateCcw, Database, Check, Clock, AlertCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
 
@@ -146,63 +153,7 @@ export default function AdminBackupPage() {
     return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   };
   
-  const columns: ColumnDef<SystemBackup>[] = [
-    {
-      accessorKey: "backupId",
-      header: "Backup ID",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("backupId")}</div>,
-    },
-    {
-      accessorKey: "backupType",
-      header: "Type",
-    },
-    {
-      accessorKey: "initiatedAt",
-      header: "Initiated At",
-      cell: ({ row }) => {
-        const initiatedAt = row.getValue("initiatedAt") as string;
-        return initiatedAt ? format(new Date(initiatedAt), "MMM dd, yyyy HH:mm:ss") : "N/A";
-      },
-    },
-    {
-      accessorKey: "completedAt",
-      header: "Completed At",
-      cell: ({ row }) => {
-        const completedAt = row.getValue("completedAt") as string | null;
-        return completedAt ? format(new Date(completedAt), "MMM dd, yyyy HH:mm:ss") : "—";
-      },
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => getStatusBadge(row.getValue("status")),
-    },
-    {
-      accessorKey: "fileSize",
-      header: "Size",
-      cell: ({ row }) => formatFileSize(row.getValue("fileSize") as number | null),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const backup = row.original;
-        const isCompleted = backup.status === "COMPLETED";
-        
-        return (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => getBackupDownloadUrlMutation.mutate(backup.backupId)}
-            disabled={!isCompleted || getBackupDownloadUrlMutation.isPending}
-          >
-            <Download className="h-4 w-4 mr-1" />
-            Download
-          </Button>
-        );
-      },
-    },
-  ];
+  // Table rendering is now done directly in the JSX
   
   return (
     <AdminLayout>
@@ -244,10 +195,43 @@ export default function AdminBackupPage() {
                   <RotateCcw className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : (
-                <DataTable 
-                  columns={columns} 
-                  data={backupsData?.data || []} 
-                  defaultPageSize={5}
+                <SimpleDataTable
+                  headers={[
+                    "Backup ID",
+                    "Type",
+                    "Initiated At",
+                    "Completed At",
+                    "Status",
+                    "Size",
+                    "Actions"
+                  ]}
+                  data={backupsData?.data || []}
+                  emptyMessage="No backups found"
+                  renderRow={(backup: SystemBackup, index: number) => (
+                    <TableRow key={backup.id || index}>
+                      <TableCell className="font-medium">{backup.backupId}</TableCell>
+                      <TableCell>{backup.backupType}</TableCell>
+                      <TableCell>
+                        {backup.initiatedAt ? format(new Date(backup.initiatedAt), "MMM dd, yyyy HH:mm:ss") : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {backup.completedAt ? format(new Date(backup.completedAt), "MMM dd, yyyy HH:mm:ss") : "—"}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(backup.status)}</TableCell>
+                      <TableCell>{formatFileSize(backup.fileSize)}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => getBackupDownloadUrlMutation.mutate(backup.backupId)}
+                          disabled={backup.status !== "COMPLETED" || getBackupDownloadUrlMutation.isPending}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Download
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 />
               )}
             </CardContent>
