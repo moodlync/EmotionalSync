@@ -11,7 +11,9 @@ import {
   LogOut,
   Menu,
   X,
-  Search
+  Search,
+  Database,
+  BookOpenText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -54,6 +56,16 @@ const sidebarItems = [
     title: "Quotes",
     href: "/admin/quotes",
     icon: Quote
+  },
+  {
+    title: "Backup",
+    href: "/admin/backup",
+    icon: Database
+  },
+  {
+    title: "User Study",
+    href: "/admin/study",
+    icon: BookOpenText
   }
 ];
 

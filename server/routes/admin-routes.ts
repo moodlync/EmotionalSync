@@ -743,6 +743,72 @@ export function registerAdminRoutes(app: express.Express) {
   });
   
   /**
+   * GET /admin/system/backups - Get list of system backups with pagination and filtering
+   */
+  router.get('/system/backups', requireRole(['SUPER_ADMIN', 'ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const { 
+        page, 
+        limit, 
+        status,
+        sortBy,
+        sortOrder
+      } = req.query;
+      
+      const result = await adminService.getSystemBackups({
+        page: page ? Number(page) : undefined,
+        limit: limit ? Number(limit) : undefined,
+        status: status ? String(status) : undefined,
+        sortBy: sortBy ? String(sortBy) : undefined,
+        sortOrder: sortOrder === 'asc' ? 'asc' : 'desc'
+      });
+      
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Get system backups error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  /**
+   * GET /admin/system/backups/:id - Get backup details by ID
+   */
+  router.get('/system/backups/:id', requireRole(['SUPER_ADMIN', 'ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const backupId = req.params.id;
+      const result = await adminService.getBackupDetails(backupId);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Get backup details error:', error);
+      if (error.message === 'Backup not found') {
+        return res.status(404).json({ error: 'Backup not found' });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  /**
+   * GET /admin/system/backups/:id/download - Get download URL for a backup
+   */
+  router.get('/system/backups/:id/download', requireRole(['SUPER_ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const backupId = req.params.id;
+      const adminId = req.adminUser!.id;
+      const result = await adminService.getBackupDownloadUrl(backupId, adminId);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Get backup download URL error:', error);
+      if (error.message === 'Backup not found') {
+        return res.status(404).json({ error: 'Backup not found' });
+      }
+      if (error.message === 'Backup is not available for download') {
+        return res.status(400).json({ error: 'Backup is not available for download' });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  /**
    * ========== AUDIT & COMPLIANCE ROUTES ==========
    */
   
@@ -814,6 +880,38 @@ export function registerAdminRoutes(app: express.Express) {
       return res.status(200).json(result);
     } catch (error) {
       console.error('Export audit logs error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  /**
+   * ========== USER STUDY ROUTES ==========
+   */
+  
+  /**
+   * POST /admin/study/user-behavior - Study user behavior and provide insights
+   */
+  router.post('/study/user-behavior', requireRole(['SUPER_ADMIN', 'ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const adminId = req.adminUser!.id;
+      const result = await adminService.studyUserBehavior(adminId);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Study user behavior error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  /**
+   * POST /admin/study/recommendations - Generate recommendations based on user behavior study
+   */
+  router.post('/study/recommendations', requireRole(['SUPER_ADMIN', 'ADMIN']), async (req: Request, res: Response) => {
+    try {
+      const adminId = req.adminUser!.id;
+      const result = await adminService.generateStudyRecommendations(adminId);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Generate study recommendations error:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });

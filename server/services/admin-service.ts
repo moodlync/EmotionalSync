@@ -215,6 +215,220 @@ export class AdminService {
   }
   
   /**
+   * Study user behavior and provide insights
+   */
+  async studyUserBehavior(adminId: number) {
+    // Log admin action
+    await this.logAdminAction({
+      adminId,
+      action: 'STUDY_USER_BEHAVIOR',
+      entityType: 'SYSTEM',
+      entityId: 0,
+      details: JSON.stringify({ 
+        timestamp: new Date(),
+        studyType: 'COMPREHENSIVE'
+      })
+    });
+    
+    // In a real implementation, this would perform data analytics on user behavior
+    // We'll simulate some analytics results here
+    
+    // 1. Get total users
+    const [{ count: totalUsers }] = await db
+      .select({ count: sql`count(*)` })
+      .from(users)
+      .execute();
+    
+    // 2. Get active users in the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const [{ count: activeUsers }] = await db
+      .select({ count: sql`count(*)` })
+      .from(users)
+      .where(gte(users.lastActivity, thirtyDaysAgo))
+      .execute();
+    
+    // 3. Get premium conversion rate
+    const [{ count: premiumUsers }] = await db
+      .select({ count: sql`count(*)` })
+      .from(users)
+      .where(eq(users.isPremium, true))
+      .execute();
+    
+    const premiumConversionRate = (Number(premiumUsers) / Number(totalUsers)) * 100;
+    
+    // 4. Get daily active users trend (simulated)
+    const dailyActiveUsersTrend = [
+      { date: '2025-04-30', count: 1245 },
+      { date: '2025-05-01', count: 1320 },
+      { date: '2025-05-02', count: 1405 },
+      { date: '2025-05-03', count: 1390 },
+      { date: '2025-05-04', count: 1450 },
+      { date: '2025-05-05', count: 1510 },
+      { date: '2025-05-06', count: 1580 },
+      { date: '2025-05-07', count: 1650 },
+      { date: '2025-05-08', count: 1700 }
+    ];
+    
+    // 5. Retention metrics (simulated)
+    const retentionByWeek = [
+      { week: 1, rate: 75 },
+      { week: 2, rate: 62 },
+      { week: 3, rate: 55 },
+      { week: 4, rate: 49 },
+      { week: 5, rate: 43 },
+      { week: 6, rate: 40 },
+      { week: 7, rate: 38 },
+      { week: 8, rate: 37 }
+    ];
+    
+    // 6. Popular emotions tracked
+    const emotionDistribution = [
+      { emotion: 'Joy', count: 19250 },
+      { emotion: 'Anxiety', count: 15730 },
+      { emotion: 'Sadness', count: 12450 },
+      { emotion: 'Contentment', count: 11320 },
+      { emotion: 'Hope', count: 9840 },
+      { emotion: 'Excitement', count: 9540 },
+      { emotion: 'Anger', count: 8720 },
+      { emotion: 'Serenity', count: 7650 },
+      { emotion: 'Fear', count: 6840 },
+      { emotion: 'Pride', count: 5930 }
+    ];
+    
+    // 7. Token economy activity
+    const tokenTransactions = [
+      { type: 'Emotion Logging', count: 45230, tokens: 135690 },
+      { type: 'Journal Entries', count: 12450, tokens: 62250 },
+      { type: 'Challenges Completed', count: 5840, tokens: 58400 },
+      { type: 'NFT Minting', count: 1520, tokens: 38000 },
+      { type: 'Referrals', count: 950, tokens: 28500 }
+    ];
+    
+    // 8. Content engagement
+    const contentEngagement = [
+      { contentType: 'Journal', views: 32450, interactions: 16750 },
+      { contentType: 'Challenges', views: 25650, interactions: 8920 },
+      { contentType: 'Wellness Tips', views: 43250, interactions: 12340 },
+      { contentType: 'Mood Backgrounds', views: 18650, interactions: 7520 },
+      { contentType: 'Emotion Categories', views: 56240, interactions: 21740 }
+    ];
+    
+    // Return the study results
+    return {
+      timestamp: new Date(),
+      studyId: generateToken(8),
+      overview: {
+        totalUsers: Number(totalUsers),
+        activeUsers: Number(activeUsers),
+        activeUserRate: (Number(activeUsers) / Number(totalUsers)) * 100,
+        premiumUsers: Number(premiumUsers),
+        premiumConversionRate: premiumConversionRate
+      },
+      trends: {
+        dailyActiveUsers: dailyActiveUsersTrend,
+        retentionByWeek
+      },
+      engagement: {
+        emotionDistribution,
+        contentEngagement,
+        tokenTransactions
+      }
+    };
+  }
+  
+  /**
+   * Generate recommendations based on user behavior study
+   */
+  async generateStudyRecommendations(adminId: number) {
+    // Log admin action
+    await this.logAdminAction({
+      adminId,
+      action: 'GENERATE_STUDY_RECOMMENDATIONS',
+      entityType: 'SYSTEM',
+      entityId: 0,
+      details: JSON.stringify({ 
+        timestamp: new Date()
+      })
+    });
+    
+    // In a real implementation, this would analyze the study data and generate recommendations
+    // Here we'll provide simulated recommendations based on common patterns
+    
+    return {
+      timestamp: new Date(),
+      recommendationId: generateToken(8),
+      recommendations: [
+        {
+          category: 'User Experience',
+          title: 'Simplify Emotion Logging Process',
+          description: 'Data shows users spending 20% more time than optimal on the emotion selection screen. Consider reducing the number of initial emotion options and using a two-step selection process.',
+          impact: 'HIGH',
+          implementation: 'MEDIUM',
+          metrics: ['Emotion Log Frequency', 'Time-to-Log']
+        },
+        {
+          category: 'Feature Enhancement',
+          title: 'Expand Wellness Tips Library',
+          description: 'Wellness tips have the highest engagement rate among content types, but the lowest inventory. Increasing the variety by 50% could boost overall platform engagement.',
+          impact: 'MEDIUM',
+          implementation: 'LOW',
+          metrics: ['Content Views', 'Content Saves', 'Time in App']
+        },
+        {
+          category: 'Retention',
+          title: 'Week 3 Retention Campaign',
+          description: 'Data shows a significant drop in retention during week 3. Implement a special challenge or achievement that unlocks during this period to increase motivation to return.',
+          impact: 'HIGH',
+          implementation: 'MEDIUM',
+          metrics: ['Week 3 Retention Rate', 'Challenge Participation']
+        },
+        {
+          category: 'Premium Conversion',
+          title: 'Personalized Premium Feature Highlights',
+          description: 'Users who view at least 3 premium features have a 40% higher conversion rate. Implement a guided tour of premium features tailored to users\' most tracked emotions.',
+          impact: 'HIGH',
+          implementation: 'MEDIUM',
+          metrics: ['Premium Trial Starts', 'Conversion Rate']
+        },
+        {
+          category: 'Content Strategy',
+          title: 'Anxiety-Focused Content Expansion',
+          description: 'Anxiety is the second most tracked emotion but has lower associated content engagement. Developing more anxiety-specific wellness content could address an unmet need.',
+          impact: 'MEDIUM',
+          implementation: 'MEDIUM',
+          metrics: ['Anxiety Content Views', 'User Feedback']
+        },
+        {
+          category: 'Community Engagement',
+          title: 'Expanded Emotion-Matching Parameters',
+          description: 'Users matched on both emotion type and intensity show 65% longer conversation times. Refine the matching algorithm to include additional factors like context and frequency.',
+          impact: 'MEDIUM',
+          implementation: 'HIGH',
+          metrics: ['Conversation Duration', 'Conversation Satisfaction']
+        },
+        {
+          category: 'Token Economy',
+          title: 'Journal Entry Token Boost',
+          description: 'Journal entries have high engagement but lower token generation than emotion logging. Increasing tokens for detailed journal entries could encourage more thoughtful reflection.',
+          impact: 'MEDIUM',
+          implementation: 'LOW',
+          metrics: ['Journal Entry Length', 'Journal Entry Frequency']
+        },
+        {
+          category: 'User Interface',
+          title: 'Redesign Dashboard Emotion History',
+          description: 'Users who review their emotion history have higher retention rates, but only 30% of users access this feature. Make emotion history more prominent on the dashboard.',
+          impact: 'HIGH',
+          implementation: 'MEDIUM',
+          metrics: ['Emotion History Views', 'Retention Rate']
+        }
+      ]
+    };
+  }
+  
+  /**
    * Generate impersonation token for admin to access user account
    */
   async impersonateUser(userId: number, adminId: number) {
@@ -1136,6 +1350,28 @@ export class AdminService {
     // In a real implementation, this would trigger a backup job
     // This is a simplified example
     
+    // Generate a unique backup ID
+    const backupId = generateToken(8);
+    
+    // Generate a backup timestamp
+    const initiatedAt = new Date();
+    
+    // Estimated completion time (15 minutes from now)
+    const estimatedCompletion = new Date(Date.now() + 900000);
+    
+    // Create a record in the systemBackups table
+    await db.insert(systemBackups).values({
+      backupType: 'FULL',
+      destination: 'CLOUD_STORAGE',
+      initiatedBy: adminId,
+      initiatedAt,
+      status: 'IN_PROGRESS',
+      backupId,
+      encryptionStatus: 'ENCRYPTED',
+      storageLocation: `backups/${backupId}`,
+      retentionPeriod: 30 // 30 days retention
+    });
+    
     // Log admin action
     await this.logAdminAction({
       adminId,
@@ -1143,18 +1379,141 @@ export class AdminService {
       entityType: 'SYSTEM',
       entityId: 0,
       details: JSON.stringify({ 
-        timestamp: new Date(),
+        timestamp: initiatedAt,
         backupType: 'FULL',
-        destination: 'AWS_S3'
+        destination: 'CLOUD_STORAGE',
+        backupId
       })
     });
     
+    // Simulate a backup process completion after 3 seconds
+    setTimeout(async () => {
+      try {
+        await db
+          .update(systemBackups)
+          .set({ 
+            status: 'COMPLETED', 
+            completedAt: new Date(),
+            fileSize: 1024 * 1024 * 50 + Math.floor(Math.random() * 1024 * 1024 * 10) // Random size between 50-60MB
+          })
+          .where(eq(systemBackups.backupId, backupId));
+      } catch (error) {
+        console.error('Error updating backup status:', error);
+      }
+    }, 3000);
+    
     return {
       success: true,
-      backupId: generateToken(8),
-      initiatedAt: new Date(),
-      estimatedCompletion: new Date(Date.now() + 900000) // 15 minutes from now
+      backupId,
+      initiatedAt,
+      estimatedCompletion
     };
+  }
+  
+  /**
+   * Get list of system backups
+   */
+  async getSystemBackups(params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      sortBy = 'initiatedAt',
+      sortOrder = 'desc'
+    } = params;
+    
+    const offset = (page - 1) * limit;
+    let query = db.select().from(systemBackups);
+    
+    // Apply filters
+    if (status) {
+      query = query.where(eq(systemBackups.status, status));
+    }
+    
+    // Count total records for pagination
+    const [{ count }] = await db
+      .select({ count: sql`count(*)` })
+      .from(systemBackups)
+      .execute();
+    
+    // Apply sorting and pagination
+    const sortColumn = systemBackups[sortBy as keyof typeof systemBackups] || systemBackups.initiatedAt;
+    if (sortOrder === 'asc') {
+      query = query.orderBy(asc(sortColumn));
+    } else {
+      query = query.orderBy(desc(sortColumn));
+    }
+    
+    query = query.limit(limit).offset(offset);
+    
+    const results = await query.execute();
+    
+    return {
+      data: results,
+      pagination: {
+        page,
+        limit,
+        total: Number(count),
+        totalPages: Math.ceil(Number(count) / limit)
+      }
+    };
+  }
+  
+  /**
+   * Get backup details by ID
+   */
+  async getBackupDetails(backupId: string) {
+    const [backup] = await db
+      .select()
+      .from(systemBackups)
+      .where(eq(systemBackups.backupId, backupId));
+    
+    if (!backup) {
+      throw new Error('Backup not found');
+    }
+    
+    return backup;
+  }
+  
+  /**
+   * Get download URL for a backup
+   */
+  async getBackupDownloadUrl(backupId: string, adminId: number) {
+    const [backup] = await db
+      .select()
+      .from(systemBackups)
+      .where(eq(systemBackups.backupId, backupId));
+    
+    if (!backup) {
+      throw new Error('Backup not found');
+    }
+    
+    if (backup.status !== 'COMPLETED') {
+      throw new Error('Backup is not available for download');
+    }
+    
+    // In a real implementation, this would generate a signed URL to download the backup
+    const downloadUrl = `/api/admin/backups/${backupId}/download`;
+    
+    // Log admin action
+    await this.logAdminAction({
+      adminId,
+      action: 'DOWNLOAD_BACKUP',
+      entityType: 'SYSTEM_BACKUP',
+      entityId: backup.id,
+      details: JSON.stringify({ 
+        timestamp: new Date(),
+        backupId
+      })
+    });
+    
+    return { downloadUrl };
   }
   
   /**

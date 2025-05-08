@@ -89,6 +89,8 @@ const AdminUsersPage = lazy(() => import("@/pages/admin/admin-users-page"));
 const AdminActionsPage = lazy(() => import("@/pages/admin/admin-actions-page"));
 const AdminQuotesPage = lazy(() => import("@/pages/admin/admin-quotes-page"));
 const AdminSeoPage = lazy(() => import("@/pages/admin/admin-seo-page"));
+const AdminBackupPage = lazy(() => import("@/pages/admin/admin-backup-page"));
+const AdminStudyPage = lazy(() => import("@/pages/admin/admin-study-page"));
 const AdminDirectAccess = lazy(() => import("@/pages/admin-direct-access"));
 
 // Loading indicator for lazy-loaded components
@@ -186,6 +188,8 @@ const RouterComponent = () => {
     { path: "/admin/actions", component: AdminActionsPage },
     { path: "/admin/quotes", component: AdminQuotesPage },
     { path: "/admin/seo", component: AdminSeoPage },
+    { path: "/admin/backup", component: AdminBackupPage },
+    { path: "/admin/study", component: AdminStudyPage },
   ];
   
   return (
