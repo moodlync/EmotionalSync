@@ -379,8 +379,14 @@ export default function ProfilePage() {
                   </div>
                   
                   <div className="w-full mt-4">
-                    <Button variant="outline" className="w-full">
-                      View NFT Collection
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      asChild
+                    >
+                      <Link to="/nft-collection">
+                        View NFT Collection
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
