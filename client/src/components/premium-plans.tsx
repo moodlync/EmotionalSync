@@ -7,7 +7,7 @@ import {
   Check, Star, Calendar, Bell, Palette, Users, Shield, Zap, 
   HomeIcon, Sparkles, Clock, CreditCard, AlertCircle, CalendarClock,
   Heart, UserPlus, RefreshCw, HeartHandshake, ArrowRightLeft, Download, Gift, Info,
-  Gem, Crown, ArrowBigUp, X, User
+  Gem, Crown, ArrowBigUp, X, User, ChevronDown
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useSubscription } from '@/hooks/use-subscription';
@@ -1023,29 +1023,48 @@ export default function PremiumPlans() {
       )}
 
       {/* Premium Features Grid */}
-      <div className="text-center space-y-6">
-        <Badge variant="outline" className="bg-primary/10 text-primary px-3 py-1 rounded-full">
-          Premium Features
-        </Badge>
-        <h2 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-          Enhance Your Emotional Journey
-        </h2>
-        <p className="text-muted-foreground max-w-[700px] mx-auto text-lg">
-          Unlock premium features to deepen your emotional awareness and create meaningful connections
-        </p>
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-b from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 p-8 border border-primary/20">
+        <div className="absolute inset-0 bg-grid-primary/5 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))] dark:[mask-image:linear-gradient(0deg,black,rgba(0,0,0,0.5))]"></div>
+        <div className="relative">
+          <div className="text-center space-y-6 mb-10">
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 rounded-full font-medium text-sm shadow-sm">
+              Premium Features
+            </Badge>
+            <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-blue-600 dark:from-primary dark:via-purple-400 dark:to-blue-500">
+              Enhance Your Emotional Journey
+            </h2>
+            <p className="text-muted-foreground max-w-[700px] mx-auto text-lg">
+              Unlock premium features to deepen your emotional awareness and create meaningful connections
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 pt-2">
+              <Badge variant="secondary" className="text-xs px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                Token Rewards
+              </Badge>
+              <Badge variant="secondary" className="text-xs px-2.5 py-0.5 rounded-md bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">
+                NFT Collections
+              </Badge>
+              <Badge variant="secondary" className="text-xs px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800">
+                Advanced Insights
+              </Badge>
+              <Badge variant="secondary" className="text-xs px-2.5 py-0.5 rounded-md bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800">
+                Priority Support
+              </Badge>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
         {premiumFeatures.map((feature, index) => (
-          <Card key={index} className="bg-card/50 border-primary/10 hover:shadow-md transition-shadow">
+          <Card key={index} className="bg-card/50 border-primary/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
             <CardHeader className="pb-2">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/10 to-primary/30 dark:from-primary/20 dark:to-primary/10 flex items-center justify-center mb-3 shadow-sm">
                 {feature.icon}
               </div>
               <CardTitle className="text-lg">{feature.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>{feature.description}</CardDescription>
+              <CardDescription className="leading-relaxed">{feature.description}</CardDescription>
             </CardContent>
           </Card>
         ))}
@@ -1363,6 +1382,230 @@ export default function PremiumPlans() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* FAQ Section */}
+      <div className="mt-24 mb-16">
+        <div className="text-center space-y-6 mb-12">
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 rounded-full font-medium text-sm shadow-sm">
+            Frequently Asked Questions
+          </Badge>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Common Questions About Premium Plans
+          </h2>
+          <p className="text-muted-foreground max-w-[700px] mx-auto">
+            Find answers to the most common questions about our premium subscription options
+          </p>
+        </div>
+        
+        <div className="max-w-3xl mx-auto space-y-4">
+          <div className="rounded-lg border border-border">
+            <div className="border-b border-border px-4 py-3 font-medium hover:bg-accent flex justify-between items-center">
+              <h3>What is included in the free trial?</h3>
+              <div className="text-primary">
+                <ChevronDown className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-muted-foreground mb-4">
+                Our 14-day free trial gives you full access to premium features including:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                <li>Global emotion mapping and visualization tools</li>
+                <li>Advanced mood tracking and insights</li>
+                <li>Exclusive NFT collections and rewards</li>
+                <li>Enhanced token earning opportunities</li>
+                <li>Priority customer support</li>
+              </ul>
+              <p className="text-muted-foreground mt-4">
+                No credit card is required to start your free trial, and you can cancel anytime during the trial period.
+              </p>
+            </div>
+          </div>
+          
+          <div className="rounded-lg border border-border">
+            <div className="border-b border-border px-4 py-3 font-medium hover:bg-accent flex justify-between items-center">
+              <h3>How do family plans work?</h3>
+              <div className="text-primary">
+                <ChevronDown className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-muted-foreground mb-4">
+                Family plans allow you to share premium features with up to 6 family members. The account owner can:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                <li>Add family members via email invitation</li>
+                <li>Monitor family members' moods (with their consent)</li>
+                <li>Share token rewards within the family group</li>
+                <li>Access family-specific emotional insights and reports</li>
+              </ul>
+              <p className="text-muted-foreground mt-4">
+                Each family member gets their own profile while being connected to the family account.
+              </p>
+            </div>
+          </div>
+          
+          <div className="rounded-lg border border-border">
+            <div className="border-b border-border px-4 py-3 font-medium hover:bg-accent flex justify-between items-center">
+              <h3>Can I switch between plans?</h3>
+              <div className="text-primary">
+                <ChevronDown className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-muted-foreground">
+                Yes, you can upgrade or downgrade your subscription at any time. When upgrading, you'll be charged the prorated difference for the remaining period. When downgrading, your current plan benefits will continue until the end of your billing cycle, and then your new plan will take effect. No refunds are provided for downgrades or cancellations.
+              </p>
+            </div>
+          </div>
+          
+          <div className="rounded-lg border border-border">
+            <div className="border-b border-border px-4 py-3 font-medium hover:bg-accent flex justify-between items-center">
+              <h3>What happens to my data if I cancel?</h3>
+              <div className="text-primary">
+                <ChevronDown className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-muted-foreground mb-4">
+                When you cancel your premium subscription:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                <li>Your account reverts to the free tier at the end of your billing period</li>
+                <li>All your emotional data and journal entries remain intact</li>
+                <li>Earned NFTs remain in your collection but cannot earn new ones</li>
+                <li>Your token balance is preserved but earning rates decrease</li>
+                <li>Access to premium-only features is removed</li>
+              </ul>
+              <p className="text-muted-foreground mt-4">
+                You can reactivate your premium subscription at any time to regain access to all premium features.
+              </p>
+            </div>
+          </div>
+          
+          <div className="rounded-lg border border-border">
+            <div className="border-b border-border px-4 py-3 font-medium hover:bg-accent flex justify-between items-center">
+              <h3>What are Emotional NFTs?</h3>
+              <div className="text-primary">
+                <ChevronDown className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-muted-foreground mb-4">
+                Emotional NFTs are unique digital collectibles that represent emotional milestones in your journey. Unlike traditional NFTs:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                <li>They're soulbound tokens that can't be transferred to other users</li>
+                <li>They evolve based on your emotional patterns and activities</li>
+                <li>They provide token rewards when certain emotional achievements are unlocked</li>
+                <li>They can be displayed in your profile and shared on social media</li>
+                <li>They can be "burned" to contribute tokens to the community pool</li>
+              </ul>
+              <p className="text-muted-foreground mt-4">
+                Premium members gain access to exclusive NFT collections not available to free users.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Testimonials Section */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 dark:from-primary/10 dark:via-secondary/10 dark:to-primary/10 p-8 border border-primary/20 mb-16">
+        <div className="absolute inset-0 bg-grid-primary/5 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))] dark:[mask-image:linear-gradient(0deg,black,rgba(0,0,0,0.5))]"></div>
+        <div className="relative">
+          <div className="text-center space-y-6 mb-12">
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 rounded-full font-medium text-sm shadow-sm">
+              Testimonials
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight">
+              What Our Premium Members Say
+            </h2>
+            <p className="text-muted-foreground max-w-[700px] mx-auto">
+              Hear from people who have transformed their emotional understanding with MoodLync Premium
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-card/50 border border-primary/10 rounded-lg overflow-hidden hover:shadow-lg transition-all">
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                    <img src="https://i.pravatar.cc/150?img=32" alt="Sarah J." className="h-full w-full object-cover" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-base">Sarah J.</h4>
+                    <p className="text-xs text-muted-foreground">Diamond Plan • 8 months</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4">
+                <div className="flex mb-2 text-amber-500">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  "The family plan has brought us closer as we share our emotional journeys. The insights we've gained about each other have transformed our relationships and communication."
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-card/50 border border-primary/10 rounded-lg overflow-hidden hover:shadow-lg transition-all">
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                    <img src="https://i.pravatar.cc/150?img=68" alt="Michael T." className="h-full w-full object-cover" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-base">Michael T.</h4>
+                    <p className="text-xs text-muted-foreground">Platinum Plan • 1 year</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4">
+                <div className="flex mb-2 text-amber-500">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  "The premium NFT collections and token rewards have made my emotional growth feel rewarding and tangible. I love collecting milestones that represent my journey."
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-card/50 border border-primary/10 rounded-lg overflow-hidden hover:shadow-lg transition-all">
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                    <img src="https://i.pravatar.cc/150?img=47" alt="Elena K." className="h-full w-full object-cover" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-base">Elena K.</h4>
+                    <p className="text-xs text-muted-foreground">Gold Plan • 6 months</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4">
+                <div className="flex mb-2 text-amber-500">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  "The advanced insights and correlation reports have helped me understand patterns in my emotions I never noticed before. Well worth the subscription!"
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
