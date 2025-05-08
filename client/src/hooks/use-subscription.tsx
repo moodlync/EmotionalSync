@@ -9,11 +9,13 @@ export type SubscriptionTier = 'free' | 'trial' | 'premium' | 'family' | 'lifeti
 
 // Define payload types for mutations
 type StartTrialPayload = {
-  trialDays?: number;
+  tier?: 'premium' | 'family' | 'lifetime';
+  duration?: number;
 };
 
 type UpgradeSubscriptionPayload = {
   tier: 'premium' | 'family' | 'lifetime';
+  durationMonths?: number;
   paymentMethod?: string;
 };
 

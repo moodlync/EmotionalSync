@@ -147,6 +147,18 @@
   color: hsl(var(--primary));
 }
 
+/* Custom button highlights for dark mode */
+.dark button:active,
+.dark .button:active,
+.dark [role="button"]:active,
+.dark button:focus-visible,
+.dark .active,
+.dark .selected {
+  background-color: #A6FF6F !important;
+  border-color: #A6FF6F !important;
+  color: black !important;
+}
+
 /* Fix welcome page header in dark mode */
 .dark .welcome-page header.bg-white {
   background-color: rgb(18, 18, 22);
@@ -448,6 +460,13 @@
 }
 
 @layer components {
+  /* Token button styling with black text */
+  .token-button,
+  button.token-button,
+  [data-token-button="true"] {
+    @apply text-black font-medium !important;
+  }
+  
   /* Enhanced emotion styling with glows and improved colors */
   .bg-happy {
     @apply bg-amber-400;

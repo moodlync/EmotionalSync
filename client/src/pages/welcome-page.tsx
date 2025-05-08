@@ -218,107 +218,85 @@ export default function WelcomePage() {
           
           <div className="flex-1">
             <div className="relative shadow-xl rounded-lg overflow-hidden bg-white dark:bg-gray-800 p-6">
-              {/* Enhanced Premium Features Showcase */}
+              {/* Key Features Showcase */}
               <div className="text-center mb-5 relative">
                 {/* Decorative elements */}
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/10 rounded-full blur-xl"></div>
                 <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-secondary/10 rounded-full blur-xl"></div>
                 
-                <Badge variant="outline" className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-700 text-white border-0 mb-2 shadow-md">
-                  <Crown className="h-3.5 w-3.5 mr-1 text-amber-200" /> Premium
+                <Badge variant="outline" className="px-3 py-1.5 bg-gradient-to-r from-primary to-secondary text-white border-0 mb-2 shadow-md">
+                  <Heart className="h-3.5 w-3.5 mr-1 text-white" /> Explore Our Key Features
                 </Badge>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3">
-                  Unlock Premium Benefits
+                  Powerful Emotional Intelligence Tools
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 max-w-md mx-auto">
-                  Elevate your experience with exclusive features designed for premium members. 
-                  Gain access to powerful tools that enhance your emotional intelligence journey.
+                  Discover how MoodLync helps you connect with others, track your emotional journey, and build meaningful relationships.
                 </p>
               </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                  <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm mb-2">
-                    <img 
-                      src="/assets/icons/premium-features/ai-video-editor.svg" 
-                      alt="AI Video Editor" 
-                      className="w-full h-full object-contain"
-                    />
+                  <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center shadow-sm mb-2">
+                    <Heart className="h-4 w-4" />
                   </div>
-                  <h4 className="font-medium text-xs text-center mb-1.5">AI Video Editor</h4>
-                  <div className="mt-auto">
-                    <StaticProductDialog description={AIVideoEditorDescription} />
-                  </div>
+                  <h4 className="font-medium text-xs text-center">Emotion Matching</h4>
                 </div>
                 
                 <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                  <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm mb-2">
-                    <img 
-                      src="/assets/icons/premium-features/verified-badge.svg" 
-                      alt="Premium Verification Badge" 
-                      className="w-full h-full object-contain"
-                    />
+                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center shadow-sm mb-2">
+                    <Users className="h-4 w-4" />
                   </div>
-                  <h4 className="font-medium text-xs text-center mb-1.5">Verified Badge</h4>
-                  <div className="mt-auto">
-                    <StaticProductDialog description={VerifiedBadgeDescription} />
-                  </div>
+                  <h4 className="font-medium text-xs text-center">Mood-Based Chat Rooms</h4>
                 </div>
                 
                 <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                  <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm mb-2">
-                    <img 
-                      src="/assets/icons/premium-features/private-chats.svg" 
-                      alt="Private Chats" 
-                      className="w-full h-full object-contain"
-                    />
+                  <div className="w-8 h-8 rounded-full bg-green-100 text-green-500 flex items-center justify-center shadow-sm mb-2">
+                    <PanelBottomClose className="h-4 w-4" />
                   </div>
-                  <h4 className="font-medium text-xs text-center mb-1.5">Private Chats</h4>
-                  <div className="mt-auto">
-                    <StaticProductDialog description={PrivateChatsDescription} />
-                  </div>
+                  <h4 className="font-medium text-xs text-center">Emotional Journal</h4>
                 </div>
                 
                 <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                  <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm mb-2">
-                    <img 
-                      src="/assets/icons/premium-features/ad-space.svg" 
-                      alt="Ad Space" 
-                      className="w-full h-full object-contain"
-                    />
+                  <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center shadow-sm mb-2">
+                    <Star className="h-4 w-4" />
                   </div>
-                  <h4 className="font-medium text-xs text-center mb-1.5">Ad Space</h4>
-                  <div className="mt-auto">
-                    <StaticProductDialog description={AdSpaceDescription} />
-                  </div>
+                  <h4 className="font-medium text-xs text-center">Token Rewards</h4>
                 </div>
                 
                 <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                  <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm mb-2">
-                    <img 
-                      src="/assets/icons/premium-features/family-plan.svg" 
-                      alt="Family Plan" 
-                      className="w-full h-full object-contain"
-                    />
+                  <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center shadow-sm mb-2">
+                    <Gamepad2 className="h-4 w-4" />
                   </div>
-                  <h4 className="font-medium text-xs text-center mb-1.5">Family Plan</h4>
-                  <div className="mt-auto">
-                    <StaticProductDialog description={FamilyPlanDescription} />
-                  </div>
+                  <h4 className="font-medium text-xs text-center">Gamification</h4>
                 </div>
                 
                 <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                  <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm mb-2">
-                    <img 
-                      src="/assets/icons/premium-features/advanced-analytics.svg" 
-                      alt="Advanced Analytics" 
-                      className="w-full h-full object-contain"
-                    />
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center shadow-sm mb-2">
+                    <BarChart3 className="h-4 w-4" />
                   </div>
-                  <h4 className="font-medium text-xs text-center mb-1.5">Analytics</h4>
-                  <div className="mt-auto">
-                    <StaticProductDialog description={AdvancedAnalyticsDescription} />
+                  <h4 className="font-medium text-xs text-center">Analytics</h4>
+                </div>
+                
+                <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
+                  <div className="w-8 h-8 rounded-full bg-cyan-100 text-cyan-500 flex items-center justify-center shadow-sm mb-2">
+                    <Globe className="h-4 w-4" />
                   </div>
+                  <h4 className="font-medium text-xs text-center">Global Emotion Map</h4>
+                </div>
+                
+                <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
+                  <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-500 flex items-center justify-center shadow-sm mb-2">
+                    <HeartPulse className="h-4 w-4" />
+                  </div>
+                  <h4 className="font-medium text-xs text-center">Therapeutic AI Companion</h4>
+                </div>
+                
+                <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
+                  <div className="w-8 h-8 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center shadow-sm mb-2">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <h4 className="font-medium text-xs text-center">Emotional NFTs</h4>
                 </div>
                 
                 <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md dark:hover:shadow-gray-800/30 transition-all duration-300 border border-gray-100 dark:border-gray-700">
@@ -1126,8 +1104,144 @@ export default function WelcomePage() {
         </div>
       </section>
 
+      {/* Premium Plans Section */}
+      <section id="premium-plans" className="w-full bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 py-20 px-6 relative overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+        
+        <div className="max-w-7xl mx-auto text-center mb-12 relative">
+          <Badge variant="outline" className="px-4 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-primary/20 rounded-full mb-4 inline-flex items-center">
+            <Star className="h-4 w-4 mr-2 text-amber-500" /> 
+            Premium Plans
+          </Badge>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Choose Your Perfect Plan</h2>
+          <p className="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto mb-12">
+            Unlock premium features and enhance your emotional wellness journey with a subscription plan that fits your needs.
+          </p>
+          
+          {/* Featured Plans */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+            {/* Trial Plan */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-amber-100 dark:border-amber-800/30 flex flex-col">
+              <div className="p-6 bg-gradient-to-b from-amber-50 to-transparent dark:from-amber-900/20 dark:to-transparent text-center">
+                <div className="w-12 h-12 bg-amber-100 dark:bg-amber-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Gift className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                </div>
+                <h3 className="text-xl font-bold text-amber-800 dark:text-amber-400">14-Day Free Trial</h3>
+                <div className="text-3xl font-bold mt-2 mb-1">Free</div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Try all premium features</p>
+              </div>
+              <div className="p-6 flex-grow">
+                <ul className="space-y-3">
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">Access to all premium features</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">No credit card required</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">No commitment</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="px-6 pb-6">
+                <a href="/auth" className="block w-full py-2 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-md text-center transition-colors">
+                  Start Free Trial
+                </a>
+              </div>
+            </div>
+            
+            {/* Diamond Monthly Plan - Featured */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xl border border-blue-200 dark:border-blue-800/50 flex flex-col relative transform md:scale-105 md:-translate-y-2">
+              <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                POPULAR
+              </div>
+              <div className="p-6 bg-gradient-to-b from-blue-50 to-transparent dark:from-blue-900/20 dark:to-transparent text-center">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ArrowBigUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-blue-800 dark:text-blue-400">Diamond Monthly</h3>
+                <div className="text-3xl font-bold mt-2 mb-1">$14.99<span className="text-sm font-normal">/mo</span></div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Premium experience</p>
+              </div>
+              <div className="p-6 flex-grow">
+                <ul className="space-y-3">
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">All premium features</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">Time Machine Journal</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">VIP challenges</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">Exclusive NFT collections</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="px-6 pb-6">
+                <a href="/auth" className="block w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-center transition-colors">
+                  Choose Diamond
+                </a>
+              </div>
+            </div>
+            
+            {/* Family Plan */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-purple-100 dark:border-purple-800/30 flex flex-col">
+              <div className="p-6 bg-gradient-to-b from-purple-50 to-transparent dark:from-purple-900/20 dark:to-transparent text-center">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-xl font-bold text-purple-800 dark:text-purple-400">Family Plan</h3>
+                <div className="text-3xl font-bold mt-2 mb-1">$19.99<span className="text-sm font-normal">/mo</span></div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">For the whole family</p>
+              </div>
+              <div className="p-6 flex-grow">
+                <ul className="space-y-3">
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">Up to 6 family members</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">All premium features</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <span className="text-sm">Family mood tracking</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="px-6 pb-6">
+                <a href="/auth" className="block w-full py-2 px-4 bg-purple-500 hover:bg-purple-600 text-white rounded-md text-center transition-colors">
+                  Choose Family Plan
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <a href="/auth" className="inline-flex items-center text-primary hover:text-primary/80 transition-colors">
+              View all pricing options
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Enhanced Testimonials Section moved to bottom */}
-      <section id="testimonials" className="w-full bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 py-20 px-6 relative overflow-hidden">
+      <section id="testimonials" className="w-full bg-white dark:bg-gray-900 py-20 px-6 relative overflow-hidden">
         {/* Decorative Elements */}
         <div className="absolute top-10 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>

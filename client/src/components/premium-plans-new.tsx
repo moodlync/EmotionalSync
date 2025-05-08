@@ -526,7 +526,7 @@ export default function PremiumPlans() {
         durationMonths = 60;
       }
       
-      // Map the plan type to the allowed tier types
+      // Map the plan type to one of the allowed tier types
       let tierValue: 'premium' | 'family' | 'lifetime';
       if (planType.includes('family')) {
         tierValue = 'family';

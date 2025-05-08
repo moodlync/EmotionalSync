@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, User, Award, Flame, Settings, Clock, BarChart, Shield, Lock, ShieldCheck, Bell, Database } from 'lucide-react';
+import { Loader2, User, Award, Flame, Settings, Clock, BarChart, Shield, Lock, ShieldCheck, Bell, Database, Home, Heart } from 'lucide-react';
 import { Redirect, Link } from 'wouter';
 import ProfilePictureForm from '@/components/profile/profile-picture-form';
 import ProfileSecurityTab from '@/components/profile/profile-security-tab';
@@ -124,8 +124,12 @@ export default function ProfilePage() {
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : (
-        <Tabs defaultValue="profile" className="space-y-8">
-          <TabsList className="grid grid-cols-7 w-full max-w-5xl">
+        <Tabs defaultValue="home" className="space-y-8">
+          <TabsList className="grid grid-cols-8 w-full max-w-5xl">
+            <TabsTrigger value="home" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline">Home</span>
+            </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Profile</span>
@@ -277,6 +281,184 @@ export default function ProfilePage() {
 
           <TabsContent value="streaks">
             <StreakCalendar />
+          </TabsContent>
+          
+          <TabsContent value="home" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Home className="h-5 w-5 text-primary" />
+                    Welcome, {user?.firstName || user?.username}
+                  </CardTitle>
+                  <CardDescription>
+                    Your personal dashboard and emotion intelligence center
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
+                    <h3 className="font-medium text-lg mb-2 flex items-center">
+                      <Heart className="h-5 w-5 text-rose-500 mr-2" />
+                      How are you feeling today?
+                    </h3>
+                    <p className="text-muted-foreground mb-3">
+                      Track your emotions to get matched with others who share similar feelings
+                    </p>
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200">
+                        <span className="text-2xl mb-1">😊</span>
+                        <span className="text-xs">Happy</span>
+                      </Button>
+                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200">
+                        <span className="text-2xl mb-1">😢</span>
+                        <span className="text-xs">Sad</span>
+                      </Button>
+                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-red-50 hover:text-red-600 hover:border-red-200">
+                        <span className="text-2xl mb-1">😠</span>
+                        <span className="text-xs">Angry</span>
+                      </Button>
+                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200">
+                        <span className="text-2xl mb-1">😰</span>
+                        <span className="text-xs">Anxious</span>
+                      </Button>
+                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-green-50 hover:text-green-600 hover:border-green-200">
+                        <span className="text-2xl mb-1">🤩</span>
+                        <span className="text-xs">Excited</span>
+                      </Button>
+                      <Button variant="outline" className="flex flex-col items-center py-3 hover:bg-gray-50 hover:text-gray-600 hover:border-gray-200">
+                        <span className="text-2xl mb-1">😐</span>
+                        <span className="text-xs">Neutral</span>
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white h-auto py-4 flex flex-col">
+                      <span className="text-lg font-medium">Find Connections</span>
+                      <span className="text-xs font-normal mt-1">Match with others feeling the same way</span>
+                    </Button>
+                    <Button variant="outline" className="w-full h-auto py-4 flex flex-col">
+                      <span className="text-lg font-medium">Open Journal</span>
+                      <span className="text-xs font-normal mt-1">Record your emotional journey</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center">
+                    <Award className="h-4 w-4 mr-2 text-primary" />
+                    Your Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Tokens</span>
+                    <Badge variant="outline" className="bg-gradient-to-r from-amber-400/20 to-orange-500/20 text-amber-700">
+                      {tokenData?.tokens || 0}
+                    </Badge>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Current Streak</span>
+                    <Badge variant="outline" className="bg-gradient-to-r from-blue-400/20 to-blue-500/20 text-blue-700">
+                      3 days
+                    </Badge>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Active NFTs</span>
+                    <Badge variant="outline" className="bg-gradient-to-r from-pink-400/20 to-purple-500/20 text-purple-700">
+                      4
+                    </Badge>
+                  </div>
+                  
+                  <div className="w-full mt-4">
+                    <Button variant="outline" className="w-full">
+                      View NFT Collection
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center">
+                    <Flame className="h-4 w-4 mr-2 text-orange-500" />
+                    Active Challenges
+                  </CardTitle>
+                  <CardDescription>
+                    Complete challenges to earn tokens
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="bg-card rounded-md p-3 shadow-sm border">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-medium">7-Day Emotion Tracking</h4>
+                        <Badge variant="outline" className="bg-green-50 text-green-700">
+                          3/7 Days
+                        </Badge>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2.5 dark:bg-slate-700">
+                        <div className="bg-primary h-2.5 rounded-full" style={{ width: '42%' }}></div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-card rounded-md p-3 shadow-sm border">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-medium">Connect with 5 People</h4>
+                        <Badge variant="outline" className="bg-green-50 text-green-700">
+                          2/5 People
+                        </Badge>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2.5 dark:bg-slate-700">
+                        <div className="bg-primary h-2.5 rounded-full" style={{ width: '40%' }}></div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-card rounded-md p-3 shadow-sm border">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-medium">Complete Profile</h4>
+                        <Badge variant="outline" className="bg-green-50 text-green-700">
+                          70% Done
+                        </Badge>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2.5 dark:bg-slate-700">
+                        <div className="bg-primary h-2.5 rounded-full" style={{ width: '70%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center">
+                    <BarChart className="h-4 w-4 mr-2 text-blue-500" />
+                    Emotion Trends
+                  </CardTitle>
+                  <CardDescription>
+                    Your recent emotional patterns
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[180px] flex items-center justify-center text-center p-4 border rounded-md bg-slate-50 dark:bg-slate-900">
+                    <div className="text-muted-foreground">
+                      <BarChart className="h-10 w-10 mb-2 mx-auto text-slate-400" />
+                      <p>Emotional data will appear here as you track your moods over time</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
           
           <TabsContent value="analytics">

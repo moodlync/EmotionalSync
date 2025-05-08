@@ -1,0 +1,23 @@
+Under Premium Plans Comparison - Design the family plan page in more professional way as it is all cluttered and features are hard to compare. Also update all these changes on all pages of the app like /auth /welcome page and in the user profile section. 
+
+Also make changes in the premium subscription plans on all pages like /welcome page and in the user profile section. 
+
+For individual plans change it to only monthly, yearly and 5 years remove quarterly and lifetime plans. Include a trail version as well, user can start a trial for 14 days and he can try all the premium app features. Once the trial period ends the subscription is downgraded to a normal user with all normal functionalities till the time they choose a subscription plan. *In individual plan under Gold subscriptions user get access to all "core features" " All AI powered features" "all premium content features" *In individual plan under Platinum subscriptions user get access to all "core features" " All AI powered features" "all premium content features" "Advanced tools like - Global Mood map" *In individual plan under Diamond subscriptions user get access to all "core features" " All AI powered features" "all premium content features" "Advanced tools like - Time Machine Journal, Vip challenges and Global Mood map" *In individual plan under Legacy subscriptions user get access to all "core features" " All AI powered features" "all premium content features" "All Advanced tools" 
+
+Also update the price for Individual plans as below: 
+
+For Gold Monthly set to : $6.99 For Platinum Monthly set to : $9.99 For Diamond Monthly set to : $14.99 For Legacy Monthly set to : $19.99 
+
+For Gold Yearly set to : $79.99 For Platinum Yearly set to : $109.99 For Diamond Yearly set to : $149.99 For Legacy Yearly set to : $219.99 
+
+For Gold 5 year set to : $249.99 For Platinum 5 years to : $369.99 For Diamond 5 years set to : $499.99 For Legacy 5 years set to : $699.99 
+
+For family plans change it to only monthly, yearly and 5 years remove lifetime plans. Include a trail version as well, user can start a trial for 14 days and they can try all the premium app features. Once the trial period ends the subscription is downgraded to a normal user with all normal functionalities till the time they choose a subscription plan. *Also update the price for Family plans as below: 
+
+For Family Gold Monthly set to : $14.99 For Family Diamond Monthly set to : $19.99 For Family Legacy Monthly set to : $24.99 
+
+For Family Gold yearly set to : $149.99 For Family Diamond yearly set to : $249.99 For Family Legacy yearly set to : $399.99 
+
+For Family Gold 5 yearly set to : $299.99 For Family Diamond 5 yearly set to : $449.99 For Family Legacy 5 yearly set to : $699.99 
+
+Also create a Premium plan section on /welcome page above the success stories section. 
