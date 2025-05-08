@@ -75,8 +75,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error("Unable to complete login. Please try again.");
         }
         
-        // The API returns { user: {...}, tokens: {...} } so we need to extract the user object
-        return responseData.user || responseData;
+        // Handle both response formats:
+        // 1. { user: {...}, tokens: {...} } - extract user object
+        // 2. Direct user object
+        if (responseData && responseData.user && typeof responseData.user === 'object') {
+          console.log("Extracted user from response:", responseData.user);
+          return responseData.user;
+        } else if (responseData && responseData.id) {
+          console.log("Using direct user response:", responseData);
+          return responseData;
+        } else {
+          console.error("Invalid user data format in response:", responseData);
+          throw new Error("Server returned invalid user data. Please try again.");
+        }
       } catch (error) {
         console.error("Login request error:", error);
         throw error;
