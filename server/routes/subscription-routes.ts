@@ -54,13 +54,14 @@ router.get('/api/subscription', requireAuth, async (req, res) => {
   }
 });
 
-// Start a free trial
+// Start a free trial for the selected plan
 router.post('/api/subscription/trial', requireAuth, async (req, res) => {
   try {
     const userId = req.user!.id;
     
     // Validate request body
     const schema = z.object({
+      tier: z.string().default('gold'), // Default to gold tier if not specified
       trialDays: z.number().int().min(1).max(30).optional().default(14)
     });
     
@@ -83,14 +84,14 @@ router.post('/api/subscription/trial', requireAuth, async (req, res) => {
     const expiryDate = new Date();
     expiryDate.setDate(now.getDate() + validatedData.trialDays);
     
-    // Create trial subscription
+    // Create subscription with trial status
     const subscription = await storage.createOrUpdateSubscription({
       userId,
-      tier: 'trial',
-      status: 'active',
+      tier: validatedData.tier, // Use the selected tier instead of 'trial'
+      status: 'trialing', // Mark as trialing instead of active
       startedAt: now,
       expiresAt: expiryDate,
-      autoRenew: false,
+      autoRenew: true, // Default to auto-renew after trial
       paymentMethod: null,
       lastBilledAt: null,
       cancelledAt: null
@@ -102,7 +103,8 @@ router.post('/api/subscription/trial', requireAuth, async (req, res) => {
     // Return subscription data
     res.status(201).json({
       tier: subscription.tier,
-      isActive: subscription.status === 'active',
+      isActive: true, // During trial, considered active
+      isTrial: true,
       expiryDate: subscription.expiresAt,
       startDate: subscription.startedAt
     });
@@ -119,7 +121,7 @@ router.post('/api/subscription/premium', requireAuth, async (req, res) => {
     
     // Validate request body
     const schema = z.object({
-      tier: z.enum(['premium', 'family', 'lifetime']),
+      tier: z.string(), // Accept any tier from our plan options including gold, platinum, diamond, etc.
       paymentMethod: z.string().optional()
     });
     
@@ -129,14 +131,17 @@ router.post('/api/subscription/premium', requireAuth, async (req, res) => {
     const now = new Date();
     let expiryDate: Date | null = new Date();
     
-    // Set expiry date based on tier (lifetime has null expiry)
-    if (validatedData.tier === 'lifetime') {
-      expiryDate = null;
-    } else if (validatedData.tier === 'family') {
-      // Family plan is for 1 year
+    // Set expiry date based on tier and billing cycle
+    if (validatedData.tier.includes('lifetime')) {
+      expiryDate = null; // Lifetime plans don't expire
+    } else if (validatedData.tier.includes('5year')) {
+      // 5-year billing cycle
+      expiryDate.setFullYear(expiryDate.getFullYear() + 5);
+    } else if (validatedData.tier.includes('yearly')) {
+      // Yearly billing cycle
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
     } else {
-      // Regular premium is for 1 month
+      // Default to monthly billing cycle
       expiryDate.setMonth(expiryDate.getMonth() + 1);
     }
     
@@ -147,7 +152,7 @@ router.post('/api/subscription/premium', requireAuth, async (req, res) => {
       status: 'active',
       startedAt: now,
       expiresAt: expiryDate,
-      autoRenew: validatedData.tier !== 'lifetime', // Lifetime doesn't auto-renew
+      autoRenew: !validatedData.tier.includes('lifetime'), // Lifetime doesn't auto-renew
       paymentMethod: validatedData.paymentMethod || null,
       lastBilledAt: now,
       cancelledAt: null
@@ -184,7 +189,7 @@ router.post('/api/subscription/cancel', requireAuth, async (req, res) => {
     }
     
     // For lifetime subscriptions, don't allow cancellation
-    if (existingSubscription.tier === 'lifetime') {
+    if (existingSubscription.tier.includes('lifetime')) {
       return res.status(400).json({ error: 'Lifetime subscriptions cannot be cancelled' });
     }
     

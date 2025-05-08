@@ -277,6 +277,12 @@ export default function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/profile?tab=profile" className="w-full flex items-center">
+                    <CreditCard className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">My Subscription</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link to="/family" className="w-full flex items-center">
                     <Users className="h-4 w-4 mr-2 text-pink-400 flex-shrink-0" />
                     <span className="truncate">Family Plan</span>

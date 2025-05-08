@@ -50,7 +50,7 @@ export default function PremiumPlans() {
     cancelSubscriptionMutation 
   } = useSubscription();
   
-  const [selectedPlan, setSelectedPlan] = useState<string>('trial');
+  const [selectedPlan, setSelectedPlan] = useState<string>('gold-monthly');
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'creditcard' | 'paypal' | null>(null);
@@ -59,9 +59,10 @@ export default function PremiumPlans() {
   const { toast } = useToast();
   
   // Convert subscription data to the format expected by the component
-  const subscriptionInfo: SubscriptionInfo | null = isActive || isTrial ? {
+  const { isTrialing } = useSubscription();
+  const subscriptionInfo: SubscriptionInfo | null = isActive || isTrial || isTrialing ? {
     id: `sub_${user?.id}`,
-    status: isActive ? 'active' : 'trialing',
+    status: isTrialing ? 'trialing' : isActive ? 'active' : 'trialing',
     currentPeriodEnd: expiryDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     plan: tier,
     startDate: new Date(),
@@ -70,25 +71,12 @@ export default function PremiumPlans() {
   // Define updated pricing options as per new requirements
   const individualPricingOptions: PricingOption[] = [
     {
-      id: 'trial',
-      name: '14-Day Free Trial',
-      description: 'Try all premium features without commitment',
-      price: 'Free',
-      features: [
-        'Access to all premium features for 14 days',
-        'No credit card required',
-        'Downgrade to free plan after trial',
-        'No commitment required'
-      ],
-      popular: true,
-      icon: <Gift className="h-5 w-5" />
-    },
-    {
       id: 'gold-monthly',
       name: 'Gold Monthly',
-      description: 'Core premium features for casual users',
+      description: 'Core premium features with 14-day free trial',
       price: '$6.99',
       features: [
+        '14-day free trial included',
         'All core features',
         'AI-powered features',
         'Premium content access',
@@ -101,10 +89,11 @@ export default function PremiumPlans() {
     {
       id: 'gold-yearly',
       name: 'Gold Yearly',
-      description: 'Save with a yearly subscription',
+      description: 'Save with a yearly subscription plus 14-day free trial',
       price: '$79.99',
       savings: 'Save $3.99/mo',
       features: [
+        '14-day free trial included',
         'All core features',
         'AI-powered features',
         'Premium content access',
@@ -278,25 +267,12 @@ export default function PremiumPlans() {
   
   const familyPricingOptions: PricingOption[] = [
     {
-      id: 'family-trial',
-      name: 'Family 14-Day Trial',
-      description: 'Try all family plan features',
-      price: 'Free',
-      features: [
-        'Access for up to 6 family members',
-        'All premium features for 14 days',
-        'No credit card required',
-        'Downgrade to free plan after trial'
-      ],
-      popular: true,
-      icon: <Gift className="h-5 w-5" />
-    },
-    {
       id: 'family-gold-monthly',
       name: 'Family Gold Monthly',
-      description: 'Core features for the whole family',
+      description: 'Core features with 14-day free trial',
       price: '$14.99',
       features: [
+        '14-day free trial included',
         'Access for up to 6 family members',
         'All core features',
         'AI-powered features',
@@ -304,7 +280,8 @@ export default function PremiumPlans() {
       ],
       tier: 'family-gold',
       color: 'amber',
-      icon: <Star className="h-5 w-5" />
+      icon: <Star className="h-5 w-5" />,
+      popular: true
     },
     {
       id: 'family-gold-yearly',
@@ -484,32 +461,13 @@ export default function PremiumPlans() {
   ];
 
   const handleSubscribe = (planId: string) => {
-    // For free trial plans, start trial directly without payment
-    if (planId === 'trial' || planId === 'family-trial') {
-      startTrialMutation.mutate({
-        tier: planId === 'family-trial' ? 'family' : 'premium',
-        duration: 14, // 14-day trial
-      }, {
-        onSuccess: () => {
-          toast({
-            title: 'Trial Started',
-            description: 'Your 14-day trial has been activated successfully.',
-            variant: 'default',
-          });
-        },
-        onError: (error) => {
-          toast({
-            title: 'Error Starting Trial',
-            description: error.message || 'An error occurred while starting your trial.',
-            variant: 'destructive',
-          });
-        }
-      });
-    } else {
-      // For paid plans, show payment dialog
-      setProcessingPlan(planId);
-      setShowPaymentDialog(true);
-    }
+    // No more separate trial plans - all plans include 14-day trials
+    // Proceed directly to payment dialog
+    setProcessingPlan(planId);
+    setShowPaymentDialog(true);
+    
+    /* Note: All plans now include 14-day trials. 
+       Trial activation is now handled during payment processing */
   };
 
   const handlePayment = () => {
@@ -760,8 +718,8 @@ export default function PremiumPlans() {
   // The main comparison table for each cycle
   const renderComparisonTable = (cycle: string) => {
     const filteredPlans = planType === 'individual' 
-      ? individualPricingOptions.filter(p => p.id.includes(cycle) && p.id !== 'trial')
-      : familyPricingOptions.filter(p => p.id.includes(cycle) && p.id !== 'family-trial');
+      ? individualPricingOptions.filter(p => p.id.includes(cycle))
+      : familyPricingOptions.filter(p => p.id.includes(cycle));
 
     // Create title for the table based on plan type and billing cycle
     const tableTitleText = `${planType === 'individual' ? 'Individual' : 'Family'} Plan - ${
@@ -1144,8 +1102,8 @@ export default function PremiumPlans() {
                   </p>
                   <ul className="space-y-2 grid md:grid-cols-2 gap-x-6 gap-y-2">
                     {(planType === 'individual' ? 
-                      individualPricingOptions.find(p => p.id === 'trial')?.features : 
-                      familyPricingOptions.find(p => p.id === 'family-trial')?.features
+                      individualPricingOptions.find(p => p.id === 'gold-monthly')?.features : 
+                      familyPricingOptions.find(p => p.id === 'family-gold-monthly')?.features
                     )?.map((feature, index) => (
                       <li key={index} className={`flex items-start text-sm ${
                         planType === 'individual'
@@ -1181,9 +1139,9 @@ export default function PremiumPlans() {
                         ? 'bg-amber-500 hover:bg-amber-600'
                         : 'bg-blue-500 hover:bg-blue-600'
                     } text-white px-6`}
-                    onClick={() => handleSubscribe(planType === 'individual' ? 'trial' : 'family-trial')}
+                    onClick={() => handleSubscribe(planType === 'individual' ? 'gold-monthly' : 'family-gold-monthly')}
                   >
-                    {processingPlan === (planType === 'individual' ? 'trial' : 'family-trial') ? (
+                    {processingPlan === (planType === 'individual' ? 'gold-monthly' : 'family-gold-monthly') ? (
                       <>
                         <span className="animate-spin mr-1">
                           <RefreshCw className="h-4 w-4" />

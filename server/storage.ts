@@ -2100,6 +2100,72 @@ export class MemStorage implements IStorage {
   }
   
   /**
+   * Start a trial for a specific premium plan
+   * @param userId User ID
+   * @param planType The plan type for this trial (gold, platinum, family, etc.)
+   * @param trialDays Number of days for the trial period
+   * @returns Updated user
+   */
+  async startPlanTrial(userId: number, planType: string = 'gold', trialDays: number = 14): Promise<User> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // If user is already premium, don't start a trial
+    if (user.isPremium) {
+      throw new Error('User already has a premium subscription');
+    }
+    
+    // If user already has an active trial, don't start a new one
+    if (user.isInTrialPeriod) {
+      throw new Error('User already has an active trial');
+    }
+    
+    const trialStartDate = new Date();
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + trialDays);
+    
+    // Mark the user as having used a trial
+    const updatedUser = await this.updateUser(userId, {
+      isInTrialPeriod: true,
+      trialStartDate,
+      trialEndDate,
+      hadPremiumTrial: true, // Mark that they've used a trial
+      isPremium: true, // Set premium status during trial
+      premiumPlanType: planType, // Set the plan type
+      premiumExpiryDate: trialEndDate // Set expiry to match trial end
+    });
+    
+    // Create a subscription record
+    await this.createOrUpdateSubscription({
+      userId,
+      tier: planType,
+      status: 'trialing', // Mark as trialing
+      startedAt: trialStartDate,
+      expiresAt: trialEndDate,
+      autoRenew: true, // Default to auto-renew after trial
+      paymentMethod: null,
+      lastBilledAt: null,
+      cancelledAt: null
+    });
+    
+    // Also create a record in the premium plans table
+    await this.createPremiumPlan(userId, {
+      planType,
+      paymentAmount: 0, // Free trial
+      currency: 'USD',
+      memberLimit: planType.includes('family') ? 5 : 1,
+      isLifetime: false,
+      isTrial: true,
+      trialStartDate,
+      trialEndDate
+    });
+    
+    return updatedUser;
+  }
+  
+  /**
    * Check if a user is currently in an active trial period
    * @param userId The user ID to check
    * @returns Boolean indicating if the user is in an active trial
@@ -2144,14 +2210,25 @@ export class MemStorage implements IStorage {
         // Trial expired - update user record
         await this.updateUser(userId, {
           isInTrialPeriod: false,
+          isPremium: false, // Remove premium status
           // Keep the trial dates for record-keeping
         });
+        
+        // Also update subscription status to 'expired'
+        const subscription = await this.getUserSubscription(userId);
+        if (subscription && subscription.status === 'trialing') {
+          await this.createOrUpdateSubscription({
+            ...subscription,
+            status: 'expired',
+            expiresAt: subscription.expiresAt || new Date()
+          });
+        }
         
         // Notify user about trial expiration
         await this.createNotification({
           userId,
           title: "Free Trial Expired",
-          content: "Your 14-day free trial has ended. Upgrade to a premium plan to continue enjoying all premium features.",
+          content: `Your 14-day free trial of the ${user.premiumPlanType || 'premium'} plan has ended. Upgrade to continue enjoying all premium features.`,
           type: "subscription",
           actionLink: "/premium",
           icon: "crown"

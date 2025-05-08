@@ -11,11 +11,12 @@ function requireAuth(req: any, res: any, next: any) {
   next();
 }
 
-// Start a free trial
+// Start a free trial for a specific plan
 router.post('/start-trial', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const trialDays = 14; // Fixed 14-day trial period
+    const { plan = 'gold' } = req.body; // Default to gold plan if not specified
     
     // Get current user data
     const user = await storage.getUser(userId);
@@ -53,14 +54,14 @@ router.post('/start-trial', requireAuth, async (req, res) => {
       }
     }
     
-    // Start the trial for this user
-    const updatedUser = await storage.startFreeTrial(userId, trialDays);
+    // Start the trial for this user with the specified plan
+    const updatedUser = await storage.startPlanTrial(userId, plan, trialDays);
     
     // Create a notification
     await storage.createNotification({
       userId,
       title: "Free Trial Started!",
-      content: `You now have access to all premium features for ${trialDays} days. Enjoy your MoodSync experience!`,
+      content: `You now have access to all ${plan} plan features for ${trialDays} days. Enjoy your MoodSync experience!`,
       type: "subscription",
       actionLink: "/premium/features",
       icon: "gift"
@@ -68,8 +69,9 @@ router.post('/start-trial', requireAuth, async (req, res) => {
     
     return res.status(200).json({
       success: true,
-      message: `Your ${trialDays}-day free trial has started.`,
+      message: `Your ${trialDays}-day free trial of the ${plan} plan has started.`,
       trialStarted: true,
+      plan: plan,
       trialEndDate: updatedUser.trialEndDate
     });
   } catch (error: any) {
@@ -142,31 +144,23 @@ router.post('/renew', requireAuth, async (req, res) => {
       let newExpiryDate = new Date();
       
       // Determine renewal period based on plan type
-      switch (user.premiumPlanType) {
-        case 'monthly':
-          newExpiryDate.setMonth(newExpiryDate.getMonth() + 1);
-          break;
-        case 'quarterly':
-          newExpiryDate.setMonth(newExpiryDate.getMonth() + 3);
-          break;
-        case 'yearly':
-          newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
-          break;
-        case 'family_yearly':
-          newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
-          break;
-        case 'fiveyear':
-          newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 5);
-          break;
-        case 'family_fiveyear':
-          newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 5);
-          break;
-        case 'lifetime':
-        case 'family_lifetime':
-          newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 100); // Effectively forever
-          break;
-        default:
-          newExpiryDate.setMonth(newExpiryDate.getMonth() + 1); // Default to 1 month
+      const planType = user.premiumPlanType || '';
+      
+      if (planType.includes('lifetime')) {
+        // Lifetime plans don't expire
+        newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 100); // Effectively forever
+      } else if (planType.includes('5year') || planType.includes('fiveyear')) {
+        // 5-year plans
+        newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 5);
+      } else if (planType.includes('yearly') || planType.includes('annual')) {
+        // Yearly plans
+        newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
+      } else if (planType.includes('quarterly')) {
+        // Quarterly plans
+        newExpiryDate.setMonth(newExpiryDate.getMonth() + 3);
+      } else {
+        // Default to monthly for all other plans
+        newExpiryDate.setMonth(newExpiryDate.getMonth() + 1);
       }
       
       await storage.updateUser(userId, {
@@ -220,7 +214,11 @@ router.get('/status', requireAuth, async (req, res) => {
       // Trial information
       isInTrialPeriod: isInActiveTrial,
       trialStartDate: user.trialStartDate,
-      trialEndDate: user.trialEndDate
+      trialEndDate: user.trialEndDate,
+      // Additional trial status
+      hadTrialBefore: user.hadPremiumTrial,
+      daysRemaining: isInActiveTrial && user.trialEndDate ? 
+        Math.max(0, Math.ceil((new Date(user.trialEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 0
     });
   } catch (error: any) {
     console.error("Get subscription status error:", error);

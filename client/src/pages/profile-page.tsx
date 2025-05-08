@@ -15,6 +15,7 @@ import BadgesDisplay from '@/components/gamification/badges-display';
 import ChallengeList from '@/components/gamification/challenge-list';
 import StreakCalendar from '@/components/gamification/streak-calendar';
 import { ProfileMetrics } from '@/components/profile/profile-metrics';
+import { ProfileSubscriptionCard } from '@/components/profile/profile-subscription-card';
 import { VerificationBadge } from '@/components/verification/verification-badge';
 import { Button } from '@/components/ui/button';
 
@@ -162,6 +163,9 @@ export default function ProfilePage() {
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
+            {/* Subscription Card */}
+            <ProfileSubscriptionCard />
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <ProfilePictureForm />
 
@@ -232,38 +236,40 @@ export default function ProfilePage() {
 
             <ProfileInformationForm />
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Reward Activity</CardTitle>
-                <CardDescription>
-                  History of your most recent token earnings
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {rewardActivities && rewardActivities.length > 0 ? (
-                  <div className="space-y-4">
-                    {rewardActivities.slice(0, 5).map((activity: any, index: number) => (
-                      <div key={index} className="flex justify-between items-center border-b pb-3 last:border-0 last:pb-0">
-                        <div>
-                          <p className="font-medium">{activity.description}</p>
-                          <p className="text-sm text-gray-500">{formatDateTime(activity.createdAt)}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Reward Activity</CardTitle>
+                  <CardDescription>
+                    History of your most recent token earnings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {rewardActivities && rewardActivities.length > 0 ? (
+                    <div className="space-y-4">
+                      {rewardActivities.slice(0, 5).map((activity: any, index: number) => (
+                        <div key={index} className="flex justify-between items-center border-b pb-3 last:border-0 last:pb-0">
+                          <div>
+                            <p className="font-medium">{activity.description}</p>
+                            <p className="text-sm text-gray-500">{formatDateTime(activity.createdAt)}</p>
+                          </div>
+                          <Badge variant="outline" className="bg-green-50">
+                            +{activity.tokensEarned} tokens
+                          </Badge>
                         </div>
-                        <Badge variant="outline" className="bg-green-50">
-                          +{activity.tokensEarned} tokens
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No reward activity to display yet.</p>
-                    <p className="text-sm mt-1">
-                      Complete challenges and use the app to earn tokens!
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No reward activity to display yet.</p>
+                      <p className="text-sm mt-1">
+                        Complete challenges and use the app to earn tokens!
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
           
           <TabsContent value="security">
