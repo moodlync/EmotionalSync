@@ -303,12 +303,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const nftPoolRoutes = (await import('./routes/nft-pool-routes')).default;
     const nftCollectionRoutes = (await import('./routes/nft-collection-routes')).default;
     const paymentRoutes = (await import('./routes/payment-routes')).default;
+    const communityRoutes = (await import('./routes/community-routes')).default;
     
     app.use(accountManagementRoutes);
     app.use(subscriptionRoutes);
     app.use('/api', nftPoolRoutes);
     app.use('/api', nftCollectionRoutes);
     app.use('/api/payments', paymentRoutes);
+    app.use('/api', communityRoutes);
     
     // Import and register admin routes
     const { registerAdminRoutes } = await import('./routes/admin-routes');
@@ -318,6 +320,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log("NFT token pool system routes registered successfully");
     console.log("NFT collection routes registered successfully");
     console.log("Payment processing routes registered successfully");
+    console.log("Community and support features registered successfully");
     console.log("Admin panel routes registered successfully");
   } catch (error) {
     console.error("Error registering routes:", error);

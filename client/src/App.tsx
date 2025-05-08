@@ -77,6 +77,7 @@ const SecurityCenterPage = lazy(() => import("@/pages/security-center"));
 const CompliancePage = lazy(() => import("@/pages/compliance-page"));
 const FAQPage = lazy(() => import("@/pages/faq-page"));
 const RoadmapPage = lazy(() => import("@/pages/roadmap-page"));
+const CommunityFeedPage = lazy(() => import("@/pages/community-feed-page"));
 
 // Admin pages (lazily loaded)
 const AdminLoginPage = lazy(() => import("@/pages/admin/admin-login-page"));
@@ -169,6 +170,7 @@ const RouterComponent = () => {
     { path: "/emotional-imprints", component: EmotionalImprintsPage },
     { path: "/personalization", component: PersonalizationPage },
     { path: "/security-center", component: SecurityCenterPage },
+    { path: "/community", component: CommunityFeedPage },
   ];
   
   const adminRoutes = [

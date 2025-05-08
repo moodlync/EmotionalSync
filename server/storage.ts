@@ -48,6 +48,10 @@ import {
   type InsertAdvertisement,
   type AdvertisementBooking,
   type InsertAdvertisementBooking,
+  userPosts,
+  postComments,
+  postReactions,
+  type ContentVisibility,
   type DeletionRequest,
   type InsertDeletionRequest,
   deletionRequests,
@@ -302,6 +306,21 @@ export interface IStorage {
   
   // Video posts methods for premium users
   createVideoPost(userId: number, videoPostData: InsertVideoPost): Promise<VideoPost>;
+  
+  // Community and support features
+  getCommunityPosts(filter: string, userId: number): Promise<Array<any>>;
+  getCommunityPostById(postId: number): Promise<any | undefined>;
+  createCommunityPost(userId: number, postData: any): Promise<any>;
+  updateCommunityPost(postId: number, updates: any): Promise<any>;
+  deleteCommunityPost(postId: number): Promise<boolean>;
+  getPostComments(postId: number): Promise<Array<any>>;
+  createPostComment(postId: number, userId: number, content: string): Promise<any>;
+  deletePostComment(postId: number, commentId: number): Promise<boolean>;
+  likePost(postId: number, userId: number): Promise<{ postId: number; userId: number; likeCount: number }>;
+  unlikePost(postId: number, userId: number): Promise<{ postId: number; userId: number; likeCount: number }>;
+  checkFriendship(userId: number, otherUserId: number): Promise<boolean>;
+  getSupportGroups(): Promise<any[]>;
+  getExpertTips(category?: string): Promise<any[]>;
   
   // NFT Token Pool System
   createTokenPool(data: InsertTokenPool): Promise<TokenPool>;
@@ -576,6 +595,10 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private nextDeletionRequestId = 1;
+  private nextCommunityPostId = 1;
+  private nextPostCommentId = 1;
+  private nextPostReactionId = 1;
+  
   // Make these properties accessible to test-controller.ts
   public users: Map<number, User> = new Map();
   public userEmotions: Map<number, EmotionType> = new Map();
@@ -584,6 +607,13 @@ export class MemStorage implements IStorage {
   public userNotifications: Map<number, number[]> = new Map(); // userId -> notificationIds
   public deletionRequests: Map<number, DeletionRequest> = new Map();
   public userDeletionRequests: Map<number, number[]> = new Map(); // userId -> deletionRequestIds
+  
+  // Community feature maps
+  public communityPosts: Map<number, any> = new Map(); // postId -> Post
+  public postComments: Map<number, any[]> = new Map(); // postId -> Comments[]
+  public postReactions: Map<number, Map<number, any>> = new Map(); // postId -> Map<userId, Reaction>
+  public supportGroups: any[] = [];
+  public expertTips: any[] = [];
   
   // NFT Pool System storage
   private nextTokenPoolId = 1;
@@ -1136,6 +1166,62 @@ export class MemStorage implements IStorage {
     this.rewardActivities = new Map();
     this.userTokens = new Map();
     this.userProfiles = new Map();
+    
+    // Initialize sample support groups
+    this.supportGroups = [
+      {
+        id: 1,
+        name: "Anxiety Support Circle",
+        description: "A safe space to share experiences and coping strategies for anxiety",
+        members: 24,
+        nextMeeting: "2025-05-15T18:00:00Z",
+        emotion: "anxious"
+      },
+      {
+        id: 2,
+        name: "Happiness Practice Group",
+        description: "Daily practices and discussions to cultivate lasting happiness",
+        members: 42,
+        nextMeeting: "2025-05-10T16:30:00Z",
+        emotion: "happy"
+      },
+      {
+        id: 3,
+        name: "Grief & Loss Support",
+        description: "Support for those navigating the complex journey of grief",
+        members: 18,
+        nextMeeting: "2025-05-12T19:00:00Z",
+        emotion: "sad"
+      }
+    ];
+    
+    // Initialize sample expert tips
+    this.expertTips = [
+      {
+        id: 1,
+        title: "Managing Anxiety Through Mindfulness",
+        content: "Practicing mindfulness for just 5 minutes a day can help reduce anxiety by bringing your focus to the present moment",
+        author: "Dr. Sarah Chen",
+        category: "anxiety",
+        postedAt: "2025-05-01T12:00:00Z"
+      },
+      {
+        id: 2,
+        title: "Building Emotional Resilience",
+        content: "Emotional resilience can be strengthened through positive self-talk, maintaining social connections, and practicing self-care",
+        author: "Dr. James Wilson",
+        category: "resilience",
+        postedAt: "2025-05-03T14:30:00Z"
+      },
+      {
+        id: 3,
+        title: "The Science of Happiness",
+        content: "Research shows that expressing gratitude, engaging in acts of kindness, and maintaining social bonds significantly increase happiness levels",
+        author: "Dr. Maya Rodriguez",
+        category: "happiness",
+        postedAt: "2025-05-05T09:15:00Z"
+      }
+    ];
     this.userStreaks = new Map();
     this.challenges = [];
     this.achievements = [];
@@ -6774,6 +6860,263 @@ export class MemStorage implements IStorage {
     
     // Sort by generation date (newest first)
     return userReports.sort((a, b) => b.generatedAt.getTime() - a.generatedAt.getTime())[0];
+  }
+
+  // Community features methods
+  async getCommunityPosts(filter: string, userId: number): Promise<Array<any>> {
+    const posts = Array.from(this.communityPosts.values());
+    let filteredPosts = posts;
+    
+    // Apply filter if provided
+    if (filter === 'mine') {
+      filteredPosts = posts.filter(post => post.userId === userId);
+    } else if (filter === 'friends') {
+      // For now, just show own posts in friends filter since friend system isn't implemented yet
+      filteredPosts = posts.filter(post => post.userId === userId || post.visibility === 'public');
+    } else {
+      // Default to showing public posts
+      filteredPosts = posts.filter(post => post.visibility === 'public');
+    }
+    
+    // Enrich posts with user info and reaction status
+    const enrichedPosts = filteredPosts.map(post => {
+      const user = this.users.get(post.userId);
+      const userHasLiked = this.postReactions.has(post.id) && 
+                          this.postReactions.get(post.id)?.has(userId);
+                          
+      const likeCount = this.postReactions.has(post.id) 
+                      ? this.postReactions.get(post.id)?.size || 0 
+                      : 0;
+                      
+      const commentCount = this.postComments.has(post.id) 
+                         ? this.postComments.get(post.id)?.length || 0 
+                         : 0;
+      
+      return {
+        ...post,
+        username: user?.username || 'Anonymous',
+        profilePicture: user?.profilePicture,
+        isPremium: user?.isPremium || false,
+        userHasLiked: userHasLiked || false,
+        likeCount,
+        commentCount
+      };
+    });
+    
+    // Sort by newest first
+    return enrichedPosts.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+  
+  async getCommunityPostById(postId: number): Promise<any | undefined> {
+    return this.communityPosts.get(postId);
+  }
+  
+  async createCommunityPost(userId: number, postData: any): Promise<any> {
+    const post = {
+      id: this.nextCommunityPostId++,
+      userId,
+      ...postData,
+      createdAt: new Date().toISOString(),
+      updatedAt: null,
+      likeCount: 0,
+      commentCount: 0
+    };
+    
+    this.communityPosts.set(post.id, post);
+    return post;
+  }
+  
+  async updateCommunityPost(postId: number, updates: any): Promise<any> {
+    const post = this.communityPosts.get(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    const updatedPost = {
+      ...post,
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    
+    this.communityPosts.set(postId, updatedPost);
+    return updatedPost;
+  }
+  
+  async deleteCommunityPost(postId: number): Promise<boolean> {
+    const exists = this.communityPosts.has(postId);
+    if (exists) {
+      this.communityPosts.delete(postId);
+      // Also clean up related comments and reactions
+      this.postComments.delete(postId);
+      this.postReactions.delete(postId);
+    }
+    return exists;
+  }
+  
+  async getPostComments(postId: number): Promise<any[]> {
+    const comments = this.postComments.get(postId) || [];
+    
+    // Enrich comments with user info
+    return comments.map(comment => {
+      const user = this.users.get(comment.userId);
+      return {
+        ...comment,
+        username: user?.username || 'Anonymous',
+        profilePicture: user?.profilePicture
+      };
+    }).sort((a, b) => 
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }
+  
+  async createPostComment(postId: number, userId: number, content: string): Promise<any> {
+    const post = this.communityPosts.get(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    if (!this.postComments.has(postId)) {
+      this.postComments.set(postId, []);
+    }
+    
+    const comment = {
+      id: this.nextPostCommentId++,
+      postId,
+      userId,
+      content,
+      createdAt: new Date().toISOString()
+    };
+    
+    this.postComments.get(postId)!.push(comment);
+    
+    // Update comment count on post
+    post.commentCount = (post.commentCount || 0) + 1;
+    this.communityPosts.set(postId, post);
+    
+    const user = this.users.get(userId);
+    return {
+      ...comment,
+      username: user?.username || 'Anonymous',
+      profilePicture: user?.profilePicture
+    };
+  }
+  
+  async deletePostComment(postId: number, commentId: number): Promise<boolean> {
+    if (!this.postComments.has(postId)) {
+      return false;
+    }
+    
+    const comments = this.postComments.get(postId)!;
+    const initialLength = comments.length;
+    const filteredComments = comments.filter(c => c.id !== commentId);
+    
+    if (initialLength !== filteredComments.length) {
+      this.postComments.set(postId, filteredComments);
+      
+      // Update comment count on post
+      const post = this.communityPosts.get(postId);
+      if (post) {
+        post.commentCount = Math.max(0, (post.commentCount || 0) - 1);
+        this.communityPosts.set(postId, post);
+      }
+      
+      return true;
+    }
+    
+    return false;
+  }
+  
+  async likePost(postId: number, userId: number): Promise<{ postId: number; userId: number; likeCount: number }> {
+    const post = this.communityPosts.get(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    // Initialize the reactions map for this post if it doesn't exist
+    if (!this.postReactions.has(postId)) {
+      this.postReactions.set(postId, new Map());
+    }
+    
+    const postReactionsMap = this.postReactions.get(postId)!;
+    
+    // Check if user already liked the post
+    if (postReactionsMap.has(userId)) {
+      return {
+        postId,
+        userId,
+        likeCount: postReactionsMap.size
+      };
+    }
+    
+    // Add the like
+    const reaction = {
+      id: this.nextPostReactionId++,
+      postId,
+      userId,
+      type: 'like',
+      createdAt: new Date().toISOString()
+    };
+    
+    postReactionsMap.set(userId, reaction);
+    
+    // Update like count on post
+    post.likeCount = postReactionsMap.size;
+    this.communityPosts.set(postId, post);
+    
+    return {
+      postId,
+      userId,
+      likeCount: postReactionsMap.size
+    };
+  }
+  
+  async unlikePost(postId: number, userId: number): Promise<{ postId: number; userId: number; likeCount: number }> {
+    const post = this.communityPosts.get(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    if (!this.postReactions.has(postId)) {
+      return {
+        postId,
+        userId,
+        likeCount: 0
+      };
+    }
+    
+    const postReactionsMap = this.postReactions.get(postId)!;
+    
+    // Remove the reaction
+    postReactionsMap.delete(userId);
+    
+    // Update like count on post
+    post.likeCount = postReactionsMap.size;
+    this.communityPosts.set(postId, post);
+    
+    return {
+      postId,
+      userId,
+      likeCount: postReactionsMap.size
+    };
+  }
+  
+  async checkFriendship(userId: number, otherUserId: number): Promise<boolean> {
+    // For now, just return true for simplicity
+    // This would be replaced with actual friendship checking logic when implemented
+    return true;
+  }
+  
+  async getSupportGroups(): Promise<any[]> {
+    return this.supportGroups;
+  }
+  
+  async getExpertTips(category?: string): Promise<any[]> {
+    if (category) {
+      return this.expertTips.filter(tip => tip.category === category);
+    }
+    return this.expertTips;
   }
 }
 
