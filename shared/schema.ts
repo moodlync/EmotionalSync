@@ -51,6 +51,7 @@ export type TicketPriority = "low" | "medium" | "high" | "urgent";
 export type TicketCategory = "account" | "payment" | "refund" | "technical" | "feature_request" | "bug_report" | "content" | "other";
 export type RefundStatus = "pending" | "approved" | "rejected" | "processed";
 export type AdminActionType = "user_ban" | "user_unban" | "content_removal" | "warning_issued" | "payment_processed" | "refund_processed" | "account_recovery" | "challenge_approval" | "support_response";
+export type FeedbackStatus = "new" | "reviewed" | "in_progress" | "implemented" | "declined";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),

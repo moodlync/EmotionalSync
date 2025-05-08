@@ -316,12 +316,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { registerAdminRoutes } = await import('./routes/admin-routes');
     registerAdminRoutes(app);
     
+    // Import and register profile routes
+    const { registerProfileRoutes } = await import('./routes/profile-routes');
+    const profileRouter = express.Router();
+    registerProfileRoutes(profileRouter);
+    app.use('/api', profileRouter);
+    
     console.log("Account and subscription management routes registered successfully");
     console.log("NFT token pool system routes registered successfully");
     console.log("NFT collection routes registered successfully");
     console.log("Payment processing routes registered successfully");
     console.log("Community and support features registered successfully");
     console.log("Admin panel routes registered successfully");
+    console.log("Profile routes registered successfully");
   } catch (error) {
     console.error("Error registering routes:", error);
   }
@@ -5482,6 +5489,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deleting notification:', error);
       return res.status(500).json({ error: 'Server error' });
+    }
+  });
+
+  // User feedback endpoint
+  app.post('/api/feedback', async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!content || typeof content !== 'string' || content.trim().length === 0) {
+        return res.status(400).json({ error: 'Feedback content is required' });
+      }
+      
+      // Create the feedback entry in storage
+      const userId = req.isAuthenticated() ? req.user!.id : null;
+      const feedback = await storage.createUserFeedback({
+        userId,
+        content: content.trim(),
+        status: 'new',
+        source: 'footer'
+      });
+      
+      // Add a small token reward if user is authenticated
+      if (userId) {
+        await storage.createRewardActivity(
+          userId,
+          'help_others',
+          3, // Small token reward for providing feedback
+          'Provided feedback to improve MoodSync'
+        );
+      }
+      
+      res.status(201).json({ success: true, message: 'Feedback submitted successfully' });
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      res.status(500).json({ error: 'Failed to submit feedback' });
     }
   });
 

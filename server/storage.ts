@@ -255,8 +255,12 @@ export interface IStorage {
   getRecentActiveGamificationProfiles(): Promise<any[]>;
   incrementChallengeProgress(userId: number, challengeId: string, amount: number): Promise<any>;
   
-  // Profile picture related methods
+  // Profile related methods
   updateUserProfilePicture(userId: number, profilePicture: string): Promise<User>;
+  updateUserProfile(userId: number, profileData: Partial<User>): Promise<User>;
+  getUserByProfileLink(profileLink: string): Promise<User | undefined>;
+  getUserNotificationSettings(userId: number): Promise<any>;
+  updateUserNotificationSettings(userId: number, settings: any): Promise<any>;
   
   // Milestone sharing methods
   createMilestoneShare(shareData: InsertMilestoneShare): Promise<MilestoneShare>;
@@ -598,6 +602,9 @@ export interface IStorage {
   // Subscription management methods
   getUserSubscription(userId: number): Promise<Subscription | undefined>;
   updateUserSubscription(userId: number, data: Partial<Subscription>): Promise<Subscription>;
+  
+  // User feedback methods
+  createUserFeedback(data: { userId: number | null; content: string; status: FeedbackStatus; source: string; category?: string }): Promise<any>;
 
   sessionStore: session.Store;
 }
@@ -649,6 +656,10 @@ export class MemStorage implements IStorage {
   // SEO Configurations
   private nextSeoConfigId = 1;
   public seoConfigurations: Map<string, SeoConfiguration> = new Map(); // pageKey -> config
+  
+  // User feedback storage
+  private nextFeedbackId = 1;
+  public userFeedback: Map<number, any> = new Map(); // feedbackId -> feedback
   // User Session Management methods
   async createUserSession(sessionData: InsertUserSession): Promise<UserSession> {
     const session: UserSession = {
@@ -3503,7 +3514,7 @@ export class MemStorage implements IStorage {
     };
   }
 
-  // Profile picture related methods
+  // Profile related methods
   async updateUserProfilePicture(userId: number, profilePicture: string): Promise<User> {
     const user = await this.getUser(userId);
     if (!user) {
@@ -3515,6 +3526,63 @@ export class MemStorage implements IStorage {
     this.users.set(userId, user);
     
     return user;
+  }
+  
+  async updateUserProfile(userId: number, profileData: Partial<User>): Promise<User> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // Update user profile with provided data
+    const updatedUser = { ...user, ...profileData };
+    this.users.set(userId, updatedUser);
+    
+    return updatedUser;
+  }
+  
+  async getUserByProfileLink(profileLink: string): Promise<User | undefined> {
+    // Find user with the given profile link
+    for (const user of this.users.values()) {
+      if (user.publicProfileLink === profileLink) {
+        return user;
+      }
+    }
+    return undefined;
+  }
+  
+  async getUserNotificationSettings(userId: number): Promise<any> {
+    // In a real implementation, this would query from a notification_settings table
+    // For now, we'll initialize with default values if not found
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // Return notification settings from user data if exists, or default values
+    return user.notificationSettings || {
+      dailyReminder: false,
+      weeklyInsights: false,
+      emailNotifications: true,
+      pushNotifications: true
+    };
+  }
+  
+  async updateUserNotificationSettings(userId: number, settings: any): Promise<any> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // Merge existing notification settings with new ones
+    const currentSettings = user.notificationSettings || {};
+    const updatedSettings = { ...currentSettings, ...settings };
+    
+    // Update user record with new notification settings
+    user.notificationSettings = updatedSettings;
+    this.users.set(userId, user);
+    
+    return updatedSettings;
   }
   
   // Badge related methods
@@ -7218,6 +7286,25 @@ export class MemStorage implements IStorage {
     
     this.seoConfigurations.set(pageKey, updatedConfig);
     return updatedConfig;
+  }
+  
+  /******************************
+   * USER FEEDBACK METHODS
+   ******************************/
+  
+  async createUserFeedback(data: { userId: number | null; content: string; status: FeedbackStatus; source: string; category?: string }): Promise<any> {
+    const feedback = {
+      id: this.nextFeedbackId++,
+      ...data,
+      createdAt: new Date(),
+      reviewedAt: null,
+      reviewedBy: null,
+      notes: null
+    };
+    
+    this.userFeedback.set(feedback.id, feedback);
+    
+    return feedback;
   }
 }
 

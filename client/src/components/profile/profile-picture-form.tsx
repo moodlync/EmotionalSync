@@ -46,6 +46,11 @@ export default function ProfilePictureForm() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result as string);
+        
+        // Automatically upload the image after it's selected
+        const formData = new FormData();
+        formData.append('profilePicture', file);
+        updateProfilePictureMutation.mutate(formData);
       };
       reader.readAsDataURL(file);
     }
@@ -128,7 +133,7 @@ export default function ProfilePictureForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-32 w-32 border-2 border-primary/20">
               {previewUrl ? (
@@ -183,26 +188,13 @@ export default function ProfilePictureForm() {
             </p>
           </div>
 
-          {selectedFile && (
-            <Button 
-              type="submit" 
-              className="w-full"
-              disabled={isPending}
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Camera className="h-4 w-4 mr-2" />
-                  Update Profile Picture
-                </>
-              )}
-            </Button>
+          {isPending && (
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <span>Uploading profile picture...</span>
+            </div>
           )}
-        </form>
+        </div>
       </CardContent>
     </Card>
   );

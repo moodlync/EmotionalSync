@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, User, Award, Flame, Settings, Clock, BarChart, Shield, Lock, ShieldCheck, Bell, Database, Home, Heart } from 'lucide-react';
 import { Redirect, Link } from 'wouter';
 import ProfilePictureForm from '@/components/profile/profile-picture-form';
+import ProfileInformationForm from '@/components/profile/profile-information-form';
 import ProfileSecurityTab from '@/components/profile/profile-security-tab';
 import AccountDataManagement from '@/components/profile/account-data-management';
 import BadgesDisplay from '@/components/gamification/badges-display';
@@ -229,6 +230,8 @@ export default function ProfilePage() {
               </Card>
             </div>
 
+            <ProfileInformationForm />
+            
             <Card>
               <CardHeader>
                 <CardTitle>Recent Reward Activity</CardTitle>

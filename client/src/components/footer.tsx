@@ -1,7 +1,41 @@
 import { Link } from "wouter";
-import { Lock } from "lucide-react";
+import { Lock, MessageSquare, Send } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function Footer() {
+  const [feedback, setFeedback] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmitFeedback = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedback.trim()) return;
+
+    try {
+      setIsSending(true);
+      // Send feedback to the server
+      await apiRequest("POST", "/api/feedback", { content: feedback });
+      
+      toast({
+        title: "Feedback Sent",
+        description: "Thank you for your feedback! We value your input.",
+      });
+      
+      setFeedback("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Unable to send feedback. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
   return (
     <footer className="bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 pt-10 pb-6 mt-auto">
       <div className="container mx-auto px-4">
@@ -104,6 +138,37 @@ export default function Footer() {
                 <a href="mailto:support@moodlync.io" className="text-gray-600 hover:text-primary">
                   support@moodlync.io
                 </a>
+              </li>
+              <li className="mt-4">
+                <div className="flex items-center justify-end md:justify-end gap-2 text-gray-600">
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="font-semibold">Share Your Feedback</span>
+                </div>
+                <form onSubmit={handleSubmitFeedback} className="mt-2">
+                  <Textarea
+                    placeholder="Suggest features or share your thoughts..."
+                    className="min-h-[80px] text-sm resize-none bg-white"
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="mt-2 w-full bg-gradient-to-r from-primary to-primary-foreground/90 hover:opacity-90"
+                    disabled={isSending || !feedback.trim()}
+                  >
+                    {isSending ? (
+                      <span className="flex items-center gap-1">
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
+                        Sending...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1">
+                        <Send className="h-3.5 w-3.5" />
+                        Send Feedback
+                      </span>
+                    )}
+                  </Button>
+                </form>
               </li>
             </ul>
           </div>
