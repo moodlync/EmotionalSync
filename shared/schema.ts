@@ -489,6 +489,19 @@ export const userGamePlays = pgTable("user_game_plays", {
   tokensEarned: integer("tokens_earned"),
 });
 
+export const customMoodTags = pgTable("custom_mood_tags", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tagName: text("tag_name").notNull(),
+  tagDescription: text("tag_description"),
+  baseEmotion: text("base_emotion").$type<EmotionType>(),
+  color: text("color").default("#6366f1"),
+  icon: text("icon").default("😊"),
+  createdAt: timestamp("created_at").defaultNow(),
+  usageCount: integer("usage_count").default(0),
+  isActive: boolean("is_active").default(true),
+});
+
 export const userMoodTrends = pgTable("user_mood_trends", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
@@ -498,6 +511,10 @@ export const userMoodTrends = pgTable("user_mood_trends", {
   moodScore: integer("mood_score").notNull(), // 1-10 scale
   notes: text("notes"),
   recommendedGameCategory: text("recommended_game_category").$type<GameCategory>(),
+  customMoodTagId: integer("custom_mood_tag_id").references(() => customMoodTags.id),
+  weatherConditions: text("weather_conditions"),
+  sleepHours: numeric("sleep_hours"),
+  physicalActivity: text("physical_activity"),
 });
 
 export const userSessions = pgTable("user_sessions", {
@@ -1614,6 +1631,8 @@ export const insertMilestoneShareSchema = createInsertSchema(milestoneShares, {
 });
 
 // User Subscription table
+// Use existing customMoodTags declaration
+
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
@@ -1646,3 +1665,40 @@ export const insertSubscriptionSchema = createInsertSchema(subscriptions, {
 // Type definitions for subscriptions
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type Subscription = typeof subscriptions.$inferSelect;
+
+// Custom mood tags schema
+export const insertCustomMoodTagSchema = createInsertSchema(customMoodTags, {
+  userId: z.number().int().positive(),
+  tagName: z.string().min(2).max(30),
+  tagDescription: z.string().max(200).optional(),
+  baseEmotion: z.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]).optional(),
+  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).default("#6366f1"),
+  icon: z.string().default("😊"),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertCustomMoodTag = z.infer<typeof insertCustomMoodTagSchema>;
+export type CustomMoodTag = typeof customMoodTags.$inferSelect;
+
+// Weekly mood report type
+export interface WeeklyMoodReport {
+  userId: number;
+  weekStartDate: Date;
+  weekEndDate: Date;
+  predominantMoods: Record<string, number>; // Emotion -> percentage
+  dailyMoods: Record<string, EmotionType | null>; // day -> emotion
+  moodTrends: {
+    improvement: boolean;
+    percentageChange: number;
+    previousWeekAverage: number;
+    currentWeekAverage: number;
+  };
+  insightsSummary: string[];
+  correlationInsights: {
+    weather: Record<string, EmotionType[]> | null;
+    sleepHours: Record<string, number> | null; // hours -> average mood score
+    physicalActivity: Record<string, number> | null; // activity -> average mood score
+  };
+  recommendedActions: string[];
+  generatedAt: Date;
+}

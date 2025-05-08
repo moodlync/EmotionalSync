@@ -601,6 +601,11 @@ export class MemStorage implements IStorage {
   // Subscription storage
   private nextSubscriptionId = 1;
   public subscriptions: Map<number, Subscription> = new Map(); // userId -> subscription
+  
+  // Custom mood tags and insights
+  private nextCustomMoodTagId = 1;
+  public customMoodTags: Map<number, CustomMoodTag[]> = new Map(); // userId -> custom mood tags
+  public weeklyMoodReports: Map<number, WeeklyMoodReport[]> = new Map(); // userId -> weekly reports
   // User Session Management methods
   async createUserSession(sessionData: InsertUserSession): Promise<UserSession> {
     const session: UserSession = {
@@ -6529,6 +6534,246 @@ export class MemStorage implements IStorage {
     this.subscriptions.set(userId, updatedSubscription);
     
     return updatedSubscription;
+  }
+  
+  // Custom mood tags methods
+  async createCustomMoodTag(tagData: InsertCustomMoodTag): Promise<CustomMoodTag> {
+    const tag: CustomMoodTag = {
+      id: this.nextCustomMoodTagId++,
+      ...tagData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    if (!this.customMoodTags.has(tagData.userId)) {
+      this.customMoodTags.set(tagData.userId, []);
+    }
+    
+    this.customMoodTags.get(tagData.userId)!.push(tag);
+    return tag;
+  }
+  
+  async getUserCustomMoodTags(userId: number): Promise<CustomMoodTag[]> {
+    return this.customMoodTags.get(userId) || [];
+  }
+  
+  async getCustomMoodTag(userId: number, tagId: number): Promise<CustomMoodTag | undefined> {
+    const userTags = this.customMoodTags.get(userId) || [];
+    return userTags.find(tag => tag.id === tagId);
+  }
+  
+  async updateCustomMoodTag(userId: number, tagId: number, tagData: Partial<InsertCustomMoodTag>): Promise<CustomMoodTag> {
+    const userTags = this.customMoodTags.get(userId) || [];
+    const tagIndex = userTags.findIndex(tag => tag.id === tagId);
+    
+    if (tagIndex === -1) {
+      throw new Error("Custom mood tag not found");
+    }
+    
+    const updatedTag = {
+      ...userTags[tagIndex],
+      ...tagData,
+      updatedAt: new Date()
+    };
+    
+    userTags[tagIndex] = updatedTag;
+    this.customMoodTags.set(userId, userTags);
+    
+    return updatedTag;
+  }
+  
+  async deleteCustomMoodTag(userId: number, tagId: number): Promise<void> {
+    const userTags = this.customMoodTags.get(userId) || [];
+    const filteredTags = userTags.filter(tag => tag.id !== tagId);
+    
+    if (filteredTags.length === userTags.length) {
+      throw new Error("Custom mood tag not found");
+    }
+    
+    this.customMoodTags.set(userId, filteredTags);
+  }
+  
+  // Weekly mood report methods
+  async generateWeeklyMoodReport(userId: number): Promise<WeeklyMoodReport> {
+    // Get user emotion records from the past week
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    const emotionRecords = (this.emotionRecords.get(userId) || [])
+      .filter(record => record.createdAt > weekAgo && record.createdAt <= now);
+      
+    // Calculate predominant moods
+    const emotionCounts: Record<string, number> = {};
+    emotionRecords.forEach(record => {
+      if (!emotionCounts[record.emotion]) {
+        emotionCounts[record.emotion] = 0;
+      }
+      emotionCounts[record.emotion]++;
+    });
+    
+    // Calculate percentages
+    const totalRecords = emotionRecords.length || 1; // Avoid division by zero
+    const predominantMoods: Record<string, number> = {};
+    
+    for (const [emotion, count] of Object.entries(emotionCounts)) {
+      predominantMoods[emotion] = Math.round((count / totalRecords) * 100);
+    }
+    
+    // Get daily moods (most common emotion per day)
+    const dailyEmotions: Record<string, EmotionType[]> = {};
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    emotionRecords.forEach(record => {
+      const day = days[record.createdAt.getDay()];
+      if (!dailyEmotions[day]) {
+        dailyEmotions[day] = [];
+      }
+      dailyEmotions[day].push(record.emotion);
+    });
+    
+    const dailyMoods: Record<string, EmotionType | null> = {};
+    
+    for (const [day, emotions] of Object.entries(dailyEmotions)) {
+      const emotionCounts: Record<string, number> = {};
+      emotions.forEach(emotion => {
+        if (!emotionCounts[emotion]) {
+          emotionCounts[emotion] = 0;
+        }
+        emotionCounts[emotion]++;
+      });
+      
+      let maxCount = 0;
+      let predominantEmotion: EmotionType | null = null;
+      
+      for (const [emotion, count] of Object.entries(emotionCounts)) {
+        if (count > maxCount) {
+          maxCount = count;
+          predominantEmotion = emotion as EmotionType;
+        }
+      }
+      
+      dailyMoods[day] = predominantEmotion;
+    }
+    
+    // Calculate mood trends
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const previousWeekRecords = (this.emotionRecords.get(userId) || [])
+      .filter(record => record.createdAt > twoWeeksAgo && record.createdAt <= weekAgo);
+    
+    // Simple scoring system: happy/excited = 5, neutral = 3, sad/anxious/angry = 1
+    const getEmotionScore = (emotion: EmotionType): number => {
+      if (emotion === 'happy' || emotion === 'excited') return 5;
+      if (emotion === 'neutral') return 3;
+      return 1; // sad, anxious, angry
+    };
+    
+    const currentWeekScores = emotionRecords.map(record => getEmotionScore(record.emotion));
+    const previousWeekScores = previousWeekRecords.map(record => getEmotionScore(record.emotion));
+    
+    const currentWeekAverage = currentWeekScores.length ? 
+      currentWeekScores.reduce((sum, score) => sum + score, 0) / currentWeekScores.length : 0;
+    
+    const previousWeekAverage = previousWeekScores.length ? 
+      previousWeekScores.reduce((sum, score) => sum + score, 0) / previousWeekScores.length : 0;
+    
+    const percentageChange = previousWeekAverage ? 
+      ((currentWeekAverage - previousWeekAverage) / previousWeekAverage) * 100 : 0;
+    
+    // Generate insights based on data
+    const insightsSummary = [];
+    
+    // Mood distribution insight
+    const sortedEmotions = Object.entries(predominantMoods)
+      .sort((a, b) => b[1] - a[1])
+      .map(([emotion, percentage]) => `${emotion} (${percentage}%)`);
+      
+    if (sortedEmotions.length) {
+      insightsSummary.push(`Your predominant moods this week were ${sortedEmotions.join(', ')}.`);
+    } else {
+      insightsSummary.push('No mood data was recorded this week. Try tracking your emotions daily for more insights.');
+    }
+    
+    // Trend insight
+    if (Math.abs(percentageChange) > 5) {
+      const direction = percentageChange > 0 ? 'improved' : 'declined';
+      insightsSummary.push(`Your overall mood has ${direction} by ${Math.abs(Math.round(percentageChange))}% compared to last week.`);
+    } else {
+      insightsSummary.push('Your overall mood has remained relatively stable compared to last week.');
+    }
+    
+    // Generate recommendations based on data
+    const recommendedActions = [];
+    
+    // If predominantly negative emotions
+    const negativeEmotions = ['sad', 'angry', 'anxious'];
+    const negativePercentage = negativeEmotions.reduce((sum, emotion) => 
+      sum + (predominantMoods[emotion] || 0), 0);
+      
+    if (negativePercentage > 50) {
+      recommendedActions.push('Consider practicing daily mindfulness or meditation to improve emotional regulation.');
+      recommendedActions.push('Reach out to a friend or family member for support.');
+      recommendedActions.push('Prioritize self-care activities that bring you joy.');
+    }
+    
+    // If mood swings (multiple emotions with similar percentages)
+    const topEmotions = Object.values(predominantMoods).sort((a, b) => b - a);
+    if (topEmotions.length >= 3 && (topEmotions[0] - topEmotions[2] < 15)) {
+      recommendedActions.push('Your emotions appear to fluctuate throughout the week. Journaling might help identify patterns.');
+      recommendedActions.push('Establishing a regular routine can help stabilize mood swings.');
+    }
+    
+    // Default recommendations
+    if (recommendedActions.length === 0) {
+      recommendedActions.push('Continue tracking your emotions daily for more personalized insights.');
+      recommendedActions.push('Explore the Mood Correlation feature to identify factors affecting your emotions.');
+    }
+    
+    // Create the weekly report
+    const weeklyReport: WeeklyMoodReport = {
+      userId,
+      weekStartDate: weekAgo,
+      weekEndDate: now,
+      predominantMoods,
+      dailyMoods,
+      moodTrends: {
+        improvement: percentageChange >= 0,
+        percentageChange: Math.round(Math.abs(percentageChange)),
+        previousWeekAverage: Math.round(previousWeekAverage * 10) / 10,
+        currentWeekAverage: Math.round(currentWeekAverage * 10) / 10
+      },
+      insightsSummary,
+      correlationInsights: {
+        weather: null, // Would require weather data integration
+        sleepHours: null, // Would require sleep tracking data
+        physicalActivity: null // Would require activity tracking data
+      },
+      recommendedActions,
+      generatedAt: now
+    };
+    
+    // Save the weekly report
+    if (!this.weeklyMoodReports.has(userId)) {
+      this.weeklyMoodReports.set(userId, []);
+    }
+    
+    this.weeklyMoodReports.get(userId)!.push(weeklyReport);
+    
+    return weeklyReport;
+  }
+  
+  async getUserWeeklyMoodReports(userId: number): Promise<WeeklyMoodReport[]> {
+    return this.weeklyMoodReports.get(userId) || [];
+  }
+  
+  async getLatestWeeklyMoodReport(userId: number): Promise<WeeklyMoodReport | undefined> {
+    const userReports = this.weeklyMoodReports.get(userId) || [];
+    
+    if (userReports.length === 0) {
+      return undefined;
+    }
+    
+    // Sort by generation date (newest first)
+    return userReports.sort((a, b) => b.generatedAt.getTime() - a.generatedAt.getTime())[0];
   }
 }
 
