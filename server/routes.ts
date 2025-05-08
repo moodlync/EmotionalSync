@@ -296,6 +296,21 @@ function setupTrialCheckSchedule() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add a debug route at the very top level, before any authentication or other middleware
+  app.get('/debug', (req, res) => {
+    console.log('Debug route accessed at:', new Date().toISOString());
+    res.json({ 
+      status: 'ok', 
+      serverTime: new Date().toISOString(),
+      message: 'Server is running correctly'
+    });
+  });
+  
+  // Add a route to serve the debug HTML page
+  app.get('/debug-page', (req, res) => {
+    console.log('Debug HTML page requested');
+    res.sendFile(path.join(process.cwd(), 'debug.html'));
+  });
   // Set up account and subscription management routes
   try {
     const accountManagementRoutes = (await import('./routes/account-management')).default;
@@ -697,8 +712,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const emotion = await storage.getUserEmotion(req.user.id);
-      return res.status(200).json({ emotion: emotion || 'neutral' });
+      const emotionValue = await storage.getUserEmotion(req.user.id);
+      // Ensure we always return { emotion: value } format
+      // Log what's being returned to help with debugging
+      console.log('GET /api/emotion response:', { emotion: emotionValue || 'neutral' });
+      return res.status(200).json({ emotion: emotionValue || 'neutral' });
     } catch (error) {
       console.error('Error fetching emotion:', error);
       return res.status(500).json({ error: 'Failed to fetch emotion' });
