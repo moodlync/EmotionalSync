@@ -46,19 +46,27 @@ import { Separator } from '@/components/ui/separator';
 
 // Define form schema with Zod
 const profileFormSchema = z.object({
-  displayName: z.string().max(30, {
-    message: "Display name must be no more than 30 characters."
-  }).optional(),
-  bio: z.string().max(250, {
-    message: "Bio must be no more than 250 characters."
-  }).optional(),
+  displayName: z.string()
+    .min(2, { message: "Display name must be at least 2 characters." })
+    .max(30, { message: "Display name must be no more than 30 characters." })
+    .regex(/^[a-zA-Z0-9\s_\-\.]+$/, { 
+      message: "Display name can only contain letters, numbers, spaces, underscores, hyphens, and periods." 
+    })
+    .optional(),
+  bio: z.string()
+    .max(250, { message: "Bio must be no more than 250 characters." })
+    .optional(),
   theme: z.enum(['light', 'dark', 'system']).optional(),
   language: z.enum(['en', 'es', 'fr', 'de', 'zh', 'ja', 'ko', 'ru']).optional(),
   dailyReminder: z.boolean().optional(),
   weeklyInsights: z.boolean().optional(),
-  publicProfileLink: z.string().regex(/^[a-zA-Z0-9_]+$/, {
-    message: "Custom URL can only contain letters, numbers, and underscores"
-  }).max(30).optional(),
+  publicProfileLink: z.string()
+    .regex(/^[a-zA-Z0-9_]+$/, { 
+      message: "Custom URL can only contain letters, numbers, and underscores" 
+    })
+    .min(3, { message: "Custom URL must be at least 3 characters." })
+    .max(30, { message: "Custom URL must be no more than 30 characters." })
+    .optional(),
   moodGoal: z.enum(['improve_mindfulness', 'track_stress', 'better_sleep', 'reduce_anxiety', 'increase_happiness']).optional(),
   dailyCheckInTime: z.string().optional(),
 });
@@ -134,6 +142,27 @@ export default function ProfileInformationForm() {
   // Handle form submission
   const onSubmit = (data: ProfileFormValues) => {
     updateProfileMutation.mutate(data);
+  };
+  
+  // Handle reverting changes
+  const handleRevertChanges = () => {
+    if (user) {
+      form.reset({
+        displayName: user.displayName || '',
+        bio: user.bio || '',
+        theme: (user?.theme as any) || 'system',
+        language: (user?.language as any) || 'en',
+        dailyReminder: user?.notificationSettings?.dailyReminder || false,
+        weeklyInsights: user?.notificationSettings?.weeklyInsights || false,
+        publicProfileLink: user?.publicProfileLink || '',
+        moodGoal: (user?.moodGoal as any) || undefined,
+        dailyCheckInTime: user?.dailyCheckInTime || '08:00',
+      });
+      toast({
+        title: "Changes Reverted",
+        description: "Your changes have been discarded and the original values restored",
+      });
+    }
   };
 
   const formattedUsername = user?.username || '';
@@ -584,17 +613,44 @@ export default function ProfileInformationForm() {
               )}
             </div>
             
+            {/* Security Message - Only visible when editing */}
+            {isEditing && (
+              <div className="mt-6 p-3 border rounded-md bg-slate-50 dark:bg-slate-900 dark:border-slate-800">
+                <div className="flex items-center gap-2 text-amber-600">
+                  <Info className="h-4 w-4" />
+                  <p className="text-sm font-medium">Security Assurance</p>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                  Your security is our priority. Locked fields protect your account from unauthorized changes. 
+                  Your username and account creation date cannot be modified for security reasons.
+                </p>
+              </div>
+            )}
+            
             {/* Form Actions */}
             {isEditing && (
-              <div className="flex justify-end gap-2">
+              <div className="flex flex-wrap gap-3 mt-6">
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={() => setIsEditing(false)}
                   disabled={isPending}
+                  className="mr-auto"
                 >
+                  <RefreshCcw className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  onClick={handleRevertChanges}
+                  disabled={isPending || !form.formState.isDirty}
+                >
+                  <RefreshCcw className="h-4 w-4 mr-2" />
+                  Revert Changes
+                </Button>
+                
                 <Button 
                   type="submit"
                   disabled={isPending || !form.formState.isDirty}
