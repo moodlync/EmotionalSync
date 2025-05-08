@@ -1539,8 +1539,9 @@ export class MemStorage implements IStorage {
     
     // Initialize sample challenges
     this.challenges = [
+      // Easy Challenges
       {
-        id: 'c1',
+        id: 'e1',
         title: 'Emotional Explorer',
         description: 'Track 5 different emotions in a week',
         category: 'tracking',
@@ -1552,21 +1553,71 @@ export class MemStorage implements IStorage {
         progress: 0
       },
       {
-        id: 'c2',
+        id: 'e2',
+        title: 'Mindful Moment',
+        description: 'Log your current emotion for 3 consecutive days',
+        category: 'daily',
+        difficulty: 'easy',
+        tokenReward: 30,
+        targetValue: 3,
+        iconUrl: '🧘',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'e3',
+        title: 'Global Citizen',
+        description: 'Check the global emotion map for 5 days',
+        category: 'exploration',
+        difficulty: 'easy',
+        tokenReward: 40,
+        targetValue: 5,
+        iconUrl: '🌍',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'e4',
+        title: 'Emotion Notes',
+        description: 'Create your first journal entry reflecting on your emotions',
+        category: 'journal',
+        difficulty: 'easy',
+        tokenReward: 25,
+        targetValue: 1,
+        iconUrl: '📝',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'e5',
+        title: 'Connection Seeker',
+        description: 'Find a mood match with someone feeling the same emotion',
+        category: 'social',
+        difficulty: 'easy',
+        tokenReward: 35,
+        targetValue: 1,
+        iconUrl: '🔍',
+        isCompleted: false,
+        progress: 0
+      },
+      
+      // Moderate Challenges
+      {
+        id: 'm1',
         title: 'Journaling Journey',
-        description: 'Create a journal entry 3 days in a row',
+        description: 'Create a journal entry 5 days in a row',
         category: 'journal',
         difficulty: 'moderate',
         tokenReward: 75,
-        targetValue: 3,
+        targetValue: 5,
         iconUrl: '📔',
         isCompleted: false,
         progress: 0
       },
       {
-        id: 'c3',
+        id: 'm2',
         title: 'Social Butterfly',
-        description: 'Join 5 different chat rooms',
+        description: 'Join 5 different mood-based chat rooms',
         category: 'social',
         difficulty: 'moderate',
         tokenReward: 80,
@@ -1576,26 +1627,162 @@ export class MemStorage implements IStorage {
         progress: 0
       },
       {
-        id: 'c4',
+        id: 'm3',
+        title: 'Mood Pattern Tracker',
+        description: 'Record your emotions at different times of the day for a week',
+        category: 'tracking',
+        difficulty: 'moderate',
+        tokenReward: 90,
+        targetValue: 7,
+        iconUrl: '📊',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'm4',
+        title: 'Emotional Support',
+        description: 'Provide helpful responses to 3 users in chat rooms',
+        category: 'social',
+        difficulty: 'moderate',
+        tokenReward: 85,
+        targetValue: 3,
+        iconUrl: '🤝',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'm5',
+        title: 'Positivity Streaker',
+        description: 'Maintain a positive emotion for 3 consecutive days',
+        category: 'tracking',
+        difficulty: 'moderate',
+        tokenReward: 70,
+        targetValue: 3,
+        iconUrl: '✨',
+        isCompleted: false,
+        progress: 0
+      },
+      
+      // Hard Challenges
+      {
+        id: 'h1',
         title: 'Emotional Wisdom',
-        description: 'Have 10 conversations with the AI companion',
+        description: 'Have 10 conversations with the AI companion about different emotions',
         category: 'ai',
         difficulty: 'hard',
-        tokenReward: 100,
+        tokenReward: 120,
         targetValue: 10,
         iconUrl: '🧠',
         isCompleted: false,
         progress: 0
       },
       {
-        id: 'c5',
-        title: 'Global Citizen',
-        description: 'Check the global emotion map for 7 days',
+        id: 'h2',
+        title: 'Emotion Mastery',
+        description: 'Track all 8 core emotions in the application',
+        category: 'tracking',
+        difficulty: 'hard',
+        tokenReward: 150,
+        targetValue: 8,
+        iconUrl: '🎭',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'h3',
+        title: 'Emotion Transformation',
+        description: 'Document shifting from a negative to positive emotion in your journal 5 times',
+        category: 'journal',
+        difficulty: 'hard',
+        tokenReward: 140,
+        targetValue: 5,
+        iconUrl: '🔄',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'h4',
+        title: 'Community Builder',
+        description: 'Create a chat room and attract 10 participants',
+        category: 'social',
+        difficulty: 'hard',
+        tokenReward: 130,
+        targetValue: 10,
+        iconUrl: '🏗️',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'h5',
+        title: 'Streak Master',
+        description: 'Log your emotions for 14 consecutive days',
+        category: 'daily',
+        difficulty: 'hard',
+        tokenReward: 160,
+        targetValue: 14,
+        iconUrl: '🔥',
+        isCompleted: false,
+        progress: 0
+      },
+      
+      // Extreme Challenges
+      {
+        id: 'x1',
+        title: 'Emotional Intelligence Guru',
+        description: 'Complete 30 days of daily emotion tracking without missing a day',
+        category: 'daily',
+        difficulty: 'extreme',
+        tokenReward: 300,
+        targetValue: 30,
+        iconUrl: '👑',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'x2',
+        title: 'Social Wellness Ambassador',
+        description: 'Help 25 users through meaningful conversations in chat rooms',
+        category: 'social',
+        difficulty: 'extreme',
+        tokenReward: 350,
+        targetValue: 25,
+        iconUrl: '🏅',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'x3',
+        title: 'Emotional Journal Master',
+        description: 'Create 50 detailed journal entries about your emotional journey',
+        category: 'journal',
+        difficulty: 'extreme',
+        tokenReward: 400,
+        targetValue: 50,
+        iconUrl: '📚',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'x4',
+        title: 'Emotional Balance Achiever',
+        description: 'Maintain an equal distribution of positive and negative emotions for a month',
+        category: 'tracking',
+        difficulty: 'extreme',
+        tokenReward: 450,
+        targetValue: 30,
+        iconUrl: '⚖️',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'x5',
+        title: 'MoodSync Pioneer',
+        description: 'Use every feature in the app at least once and maintain a 45-day streak',
         category: 'exploration',
-        difficulty: 'easy',
-        tokenReward: 60,
-        targetValue: 7,
-        iconUrl: '🌍',
+        difficulty: 'extreme',
+        tokenReward: 500,
+        targetValue: 45,
+        iconUrl: '🚀',
         isCompleted: false,
         progress: 0
       }
@@ -3535,6 +3722,10 @@ export class MemStorage implements IStorage {
   }
   
   async getUserTokenRedemptions(userId: number): Promise<TokenRedemption[]> {
+    // Ensure the tokenRedemptions map has an entry for this user
+    if (!this.tokenRedemptions.has(userId)) {
+      this.tokenRedemptions.set(userId, []);
+    }
     return this.tokenRedemptions.get(userId) || [];
   }
   

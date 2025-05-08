@@ -1522,9 +1522,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const redemptions = await storage.getUserTokenRedemptions(req.user.id);
-      return res.status(200).json(redemptions);
+      // Always return an array, even if no redemptions found
+      return res.status(200).json(redemptions || []);
     } catch (error) {
       console.error('Error fetching redemption history:', error);
+      // Provide more helpful error message
       return res.status(500).json({ 
         error: 'Failed to fetch redemption history',
         message: error instanceof Error ? error.message : 'Unknown error'
