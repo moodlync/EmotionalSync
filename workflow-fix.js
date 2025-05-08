@@ -1,7 +1,6 @@
 /**
- * Enhanced proxy server that listens on port 5000 and forwards requests to port 5000.
- * This file has been modified to match the current server port, which is also 5000.
- * This enhanced version includes health check responses and better error handling.
+ * Enhanced proxy server for Replit workflow compatibility.
+ * This file has been updated to use the proper port configuration.
  */
 
 const http = require('http');
@@ -32,66 +31,68 @@ const setupProxy = async () => {
   // First try to free the port
   await freePort(5000);
   
-  const proxy = httpProxy.createProxyServer({
-    target: 'http://localhost:5000',
-    ws: true // Allow WebSocket proxying
-  });
-
-  // Handle proxy errors
-  proxy.on('error', (err, req, res) => {
-    console.error('Proxy error:', err);
-    if (res.writeHead) {
-      res.writeHead(502, { 'Content-Type': 'text/plain' });
-      res.end('Proxy error: ' + err.message);
-    }
-  });
-
-  // Create server that forwards all requests to port 9090
+  // The target port must be different from the listening port (5000)
+  // Create a simple HTTP server that will respond to health checks
   const server = http.createServer((req, res) => {
-    // Respond to health checks immediately
     if (req.url === '/health' || req.url === '/') {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('MoodSync proxy server is running');
+      res.end('MoodSync proxy health check - server is running');
       return;
     }
     
-    // Log the request
+    // For all other requests, proxy to the main application server
     console.log(`Proxying: ${req.method} ${req.url}`);
     
-    // Forward other requests to the actual application
+    // Create a one-time proxy for this request
+    const proxy = httpProxy.createProxyServer({
+      target: 'http://localhost:5000',
+      ws: true
+    });
+    
     proxy.web(req, res, {}, (err) => {
       console.error('Failed to proxy request:', err.message);
       res.writeHead(502, { 'Content-Type': 'text/plain' });
       res.end('Failed to proxy request: ' + err.message);
+    });
+    
+    // Clean up the proxy after use
+    proxy.on('error', (err) => {
+      console.error('Proxy error:', err);
     });
   });
 
   // Handle WebSocket connections
   server.on('upgrade', (req, socket, head) => {
     console.log(`Proxying WebSocket: ${req.url}`);
+    const proxy = httpProxy.createProxyServer({
+      target: 'http://localhost:5000',
+      ws: true
+    });
+    
     proxy.ws(req, socket, head, (err) => {
-      console.error('WebSocket proxy error:', err.message);
-      socket.end('WebSocket proxy error: ' + err.message);
+      console.error('WebSocket proxy error:', err?.message);
+      socket.end('WebSocket proxy error');
+    });
+    
+    proxy.on('error', (err) => {
+      console.error('WebSocket proxy error:', err);
     });
   });
 
   // Handle server errors
-  server.on('error', async (err) => {
+  server.on('error', (err) => {
+    console.error('Proxy server error:', err);
     if (err.code === 'EADDRINUSE') {
-      console.error(`Port 5000 is still in use after attempts to free it.`);
-      console.error(`Retrying in 3 seconds...`);
-      setTimeout(() => setupProxy(), 3000);
-    } else {
-      console.error('Proxy server error:', err);
+      console.error(`Port 5000 is still in use. The application will continue to work, but you may need to access it directly.`);
     }
   });
 
-  // Start listening
-  const PORT = 5000;
-  server.listen(PORT, () => {
-    console.log(`✅ Workflow proxy server running on port ${PORT}`);
-    console.log(`✅ Proxying requests to the application on port 9090`);
-    console.log(`✅ Health check endpoint available at http://localhost:${PORT}/health`);
+  // Start the health check server on a different port
+  const healthPort = 3000;
+  server.listen(healthPort, () => {
+    console.log(`✅ Health check server running on port ${healthPort}`);
+    console.log(`✅ Application is running on port 5000`);
+    console.log(`✅ Health check endpoint available at http://localhost:${healthPort}/health`);
   });
 };
 

@@ -698,7 +698,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const emotion = await storage.getUserEmotion(req.user.id);
-      return res.status(200).json(emotion || 'neutral');
+      return res.status(200).json({ emotion: emotion || 'neutral' });
     } catch (error) {
       console.error('Error fetching emotion:', error);
       return res.status(500).json({ error: 'Failed to fetch emotion' });
