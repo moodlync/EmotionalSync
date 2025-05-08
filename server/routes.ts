@@ -4320,6 +4320,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Import and register wellness tips routes
+  try {
+    const wellnessTipRoutes = (await import('./routes/wellness-tip-routes')).default;
+    app.use('/api', wellnessTipRoutes);
+    console.log('Wellness tips routes registered successfully');
+  } catch (error) {
+    console.error('Error registering wellness tips routes:', error);
+  }
+
   console.log('Personalization and insights routes registered successfully');
   // Once the security routes are fully implemented and tested, these endpoints will be removed
   

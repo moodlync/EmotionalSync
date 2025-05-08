@@ -10,7 +10,8 @@ import logoImage from '@/assets/moodlync-logo.png';
 import { 
   Heart, ArrowRight, ChevronDown, Crown, Sparkles, Shield, Star, Video, UserCheck,
   BarChart3, Fingerprint, Gamepad2, Users, Music, Palette, Brush, PartyPopper, 
-  Share2, HeartPulse, SmilePlus, PanelBottomClose, Loader2, Info, Send, Check
+  Share2, HeartPulse, SmilePlus, PanelBottomClose, Loader2, Info, Send, Check,
+  Globe, Gift, ArrowBigUp
 } from 'lucide-react';
 import { usePremiumFeatureModal } from '@/providers/premium-feature-modal-provider';
 import Footer from '@/components/footer';
