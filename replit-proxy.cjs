@@ -5,7 +5,7 @@
  * It keeps Replit workflow happy while the real server runs on another port.
  */
 
-import express from 'express';
+const express = require('express');
 const app = express();
 
 app.get('*', (req, res) => {

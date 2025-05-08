@@ -1,4 +1,5 @@
 import Header from '@/components/header';
+import Footer from '@/components/footer';
 import { ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,8 @@ export default function MainLayout({ children, showBackButton = false, title }: 
       <main className="flex-grow">
         {children}
       </main>
+      
+      <Footer />
     </div>
   );
 }
