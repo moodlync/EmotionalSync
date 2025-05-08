@@ -31,34 +31,34 @@ export default function RewardsCard() {
     enabled: !!user // Only fetch if user is logged in
   });
 
-  // Earning opportunities
+  // Earning opportunities - reduced by 25%
   const earningOpportunities: EarningOpportunity[] = [
     {
       type: 'journal_entry',
       title: 'Create Journal Entry',
       description: 'Share your feelings and thoughts in the journal',
-      tokens: 5,
+      tokens: 3.75, // reduced from 5
       icon: <BarChart4 className="h-5 w-5 text-teal-600" />
     },
     {
       type: 'emotion_update',
       title: 'Update Your Emotion',
       description: 'Keep your emotional state current',
-      tokens: 2,
+      tokens: 1.5, // reduced from 2
       icon: <Heart className="h-5 w-5 text-pink-600" />
     },
     {
       type: 'chat_participation',
       title: 'Join Chat Rooms',
       description: 'Connect with others feeling the same way',
-      tokens: 3,
+      tokens: 2.25, // reduced from 3
       icon: <MessageCircle className="h-5 w-5 text-blue-600" />
     },
     {
       type: 'daily_login',
       title: 'Daily Check-in',
       description: 'Login to MoodSync daily',
-      tokens: 10,
+      tokens: 7.5, // reduced from 10
       icon: <Calendar className="h-5 w-5 text-purple-600" />
     }
   ];
