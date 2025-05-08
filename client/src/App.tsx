@@ -233,11 +233,13 @@ function App() {
                   <MusicPlayerProvider>
                     <PremiumFeatureModalProvider>
                       <TooltipProvider>
-                        <Toaster />
-                        <RouterComponent />
-                        <FloatingChatButton />
-                        <AutoChallengeUpdater />
-                        <CapacitorInitializer />
+                        <MoodProvider>
+                          <Toaster />
+                          <RouterComponent />
+                          <FloatingChatButton />
+                          <AutoChallengeUpdater />
+                          <CapacitorInitializer />
+                        </MoodProvider>
                       </TooltipProvider>
                     </PremiumFeatureModalProvider>
                   </MusicPlayerProvider>
