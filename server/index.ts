@@ -119,30 +119,11 @@ app.use((req, res, next) => {
     // Initialize WebSocket on primary server
     initializeWebSocketIfNeeded(server);
     
-    // Choose the right approach for Replit workflow compatibility
+    // Note: For Replit workflow compatibility, we're now using our combined-starter.cjs
+    // which handles port 5000 separately, so no additional ports need to be opened here.
     if (isReplitEnv) {
-      if (primaryPort === workflowPort) {
-        log(`Using port ${workflowPort} for both application and workflow compatibility`);
-      } else {
-        // For Replit, we need to ensure port 5000 is opened somehow for the workflow
-        // We'll create a simple minimal HTTP server just for the Replit workflow detection
-        try {
-          // Try to create a minimal server on port 5000 just to satisfy the workflow
-          const signal = http.createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end(`MoodLync server is running on port ${primaryPort}. Please visit that port instead.`);
-          });
-          
-          signal.listen(workflowPort, "0.0.0.0", () => {
-            log(`Workflow compatibility signal running on port ${workflowPort}`);
-          }).on('error', (err: any) => {
-            console.error(`Workflow compatibility signal couldn't start on port ${workflowPort}: ${err.message}`);
-            log(`Application will still function on port ${actualPort} but workflow detection may fail`);
-          });
-        } catch (error) {
-          console.error(`Error creating workflow compatibility signal:`, error);
-        }
-      }
+      log(`Running in Replit environment on port ${actualPort}`);
+      log(`Workflow compatibility is handled by combined-starter.cjs`);
     }
   }).on('error', (err: any) => {
     console.error(`Failed to start server on port ${primaryPort}:`, err.message);

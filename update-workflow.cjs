@@ -25,7 +25,7 @@ try {
   // (Note: this is a simple text replacement and might need to be adjusted)
   replitContent = replitContent.replace(
     /run = "npm run dev"/g,
-    'run = "node start-combined.cjs"'
+    'run = "node start-app.cjs"'
   );
   
   // Write the updated content back to the .replit file
