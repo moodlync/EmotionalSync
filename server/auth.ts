@@ -31,11 +31,13 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "moodsync_secret_key",
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Changed to true to save session on every request
+    saveUninitialized: true, // Changed to true to create session for unauthenticated users
     store: storage.sessionStore,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      secure: process.env.NODE_ENV === 'production', // Only use secure in production
+      httpOnly: true, // Prevent client-side JS from reading the cookie
     }
   };
 
@@ -168,6 +170,8 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
+    console.log("Login attempt for username:", req.body.username);
+    
     passport.authenticate("local", (err, user, info) => {
       if (err) {
         console.error("Login error:", err);
@@ -175,11 +179,14 @@ export function setupAuth(app: Express) {
       }
       
       if (!user) {
+        console.log("Authentication failed for username:", req.body.username);
         return res.status(401).json({ 
           error: 'Authentication failed',
           message: 'Invalid username or password'
         });
       }
+      
+      console.log("User authenticated successfully:", user.username);
       
       // Log the user in
       req.logIn(user, async (loginErr) => {
@@ -188,33 +195,45 @@ export function setupAuth(app: Express) {
           return res.status(500).json({ error: 'Failed to create login session' });
         }
         
-        try {
-          // Reward user with tokens for daily login
-          // In a real app, you would check if they've already received the daily login bonus today
-          // For now, we'll give them tokens every time they log in
-          const tokensEarned = 10; // 10 tokens for logging in
-          const rewardActivity = await storage.createRewardActivity(
-            user.id,
-            'daily_login',
-            tokensEarned,
-            'Daily login reward'
-          );
+        // Save the session explicitly to ensure it's stored before response
+        req.session.save(async (saveErr) => {
+          if (saveErr) {
+            console.error("Session save error:", saveErr);
+            return res.status(500).json({ error: 'Failed to save session' });
+          }
           
-          // Get the updated token balance to send to client
-          const tokenBalance = await storage.getUserTokens(user.id);
+          console.log("Session saved successfully for user:", user.username);
           
-          return res.status(200).json({
-            user: user,
-            tokens: {
-              balance: tokenBalance,
-              earned: tokensEarned
-            }
-          });
-        } catch (error) {
-          console.error('Error processing login rewards:', error);
-          // Even if there's an error with rewards, the user should still be logged in
-          return res.status(200).json(user);
-        }
+          try {
+            // Reward user with tokens for daily login
+            // In a real app, you would check if they've already received the daily login bonus today
+            // For now, we'll give them tokens every time they log in
+            const tokensEarned = 10; // 10 tokens for logging in
+            const rewardActivity = await storage.createRewardActivity(
+              user.id,
+              'daily_login',
+              tokensEarned,
+              'Daily login reward'
+            );
+            
+            // Get the updated token balance to send to client
+            const tokenBalance = await storage.getUserTokens(user.id);
+            
+            console.log(`Login successful: User ${user.username} earned ${tokensEarned} tokens. Balance: ${tokenBalance}`);
+            
+            return res.status(200).json({
+              user: user,
+              tokens: {
+                balance: tokenBalance,
+                earned: tokensEarned
+              }
+            });
+          } catch (error) {
+            console.error('Error processing login rewards:', error);
+            // Even if there's an error with rewards, the user should still be logged in
+            return res.status(200).json(user);
+          }
+        });
       });
     })(req, res, next);
   });
