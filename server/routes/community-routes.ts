@@ -35,7 +35,7 @@ const canUserViewPost = async (userId: number, postUserId: number, visibility: C
 };
 
 // Get community posts
-router.get('/posts', async (req, res) => {
+router.get('/posts', requireAuth, async (req, res) => {
   try {
     const filter = (req.query.filter as string) || 'latest';
     const userId = req.isAuthenticated() ? req.user!.id : 0;
@@ -89,7 +89,7 @@ router.post('/posts', requireAuth, async (req, res) => {
 });
 
 // Get post comments
-router.get('/posts/:postId/comments', async (req, res) => {
+router.get('/posts/:postId/comments', requireAuth, async (req, res) => {
   try {
     const postId = parseInt(req.params.postId);
     const userId = req.isAuthenticated() ? req.user!.id : 0;
@@ -191,7 +191,7 @@ router.post('/posts/:postId/unlike', requireAuth, async (req, res) => {
 });
 
 // Get support groups
-router.get('/support-groups', async (req, res) => {
+router.get('/support-groups', requireAuth, async (req, res) => {
   try {
     // Support groups are available to all users
     const groups = await storage.getSupportGroups();
@@ -203,7 +203,7 @@ router.get('/support-groups', async (req, res) => {
 });
 
 // Get expert tips
-router.get('/expert-tips', async (req, res) => {
+router.get('/expert-tips', requireAuth, async (req, res) => {
   try {
     // Expert tips are available to all users
     const category = req.query.category as string;

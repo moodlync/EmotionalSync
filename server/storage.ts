@@ -310,7 +310,7 @@ export interface IStorage {
   // Community and support features
   getCommunityPosts(filter: string, userId: number): Promise<Array<any>>;
   getCommunityPostById(postId: number): Promise<any | undefined>;
-  createCommunityPost(userId: number, postData: any): Promise<any>;
+  createCommunityPost(data: { userId: number; content: string; emotion?: string; visibility: string; mediaUrl?: string; mediaType?: string }): Promise<any>;
   updateCommunityPost(postId: number, updates: any): Promise<any>;
   deleteCommunityPost(postId: number): Promise<boolean>;
   getPostComments(postId: number): Promise<Array<any>>;
@@ -6913,11 +6913,15 @@ export class MemStorage implements IStorage {
     return this.communityPosts.get(postId);
   }
   
-  async createCommunityPost(userId: number, postData: any): Promise<any> {
+  async createCommunityPost(data: { userId: number; content: string; emotion?: string; visibility: string; mediaUrl?: string; mediaType?: string }): Promise<any> {
     const post = {
       id: this.nextCommunityPostId++,
-      userId,
-      ...postData,
+      userId: data.userId,
+      content: data.content,
+      emotion: data.emotion,
+      visibility: data.visibility,
+      mediaUrl: data.mediaUrl,
+      mediaType: data.mediaType,
       createdAt: new Date().toISOString(),
       updatedAt: null,
       likeCount: 0,

@@ -153,7 +153,7 @@ export default function CommunityFeedPage() {
   } = useQuery({
     queryKey: ['/api/community/posts', activeTab],
     queryFn: async () => {
-      const res = await fetch(`/api/community/posts?filter=${activeTab}`);
+      const res = await apiRequest('GET', `/api/community/posts?filter=${activeTab}`);
       if (!res.ok) throw new Error('Failed to fetch posts');
       return res.json();
     },
@@ -169,7 +169,7 @@ export default function CommunityFeedPage() {
     queryKey: ['/api/community/comments', selectedPostForComments],
     queryFn: async () => {
       if (!selectedPostForComments) return [];
-      const res = await fetch(`/api/community/posts/${selectedPostForComments}/comments`);
+      const res = await apiRequest('GET', `/api/community/posts/${selectedPostForComments}/comments`);
       if (!res.ok) throw new Error('Failed to fetch comments');
       return res.json();
     },

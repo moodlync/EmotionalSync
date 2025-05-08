@@ -1,4 +1,4 @@
-import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search } from "lucide-react";
+import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import HeaderLogoWithText from "@/components/logo/header-logo-with-text";
@@ -265,6 +265,12 @@ export default function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/community" className="w-full flex items-center">
+                    <MessageCircle className="h-4 w-4 mr-2 text-emerald-500 flex-shrink-0" />
+                    <span className="truncate">Community Feed</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link to="/premium" className="w-full flex items-center">
                     <Crown className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span className="truncate">Premium Features</span>
@@ -300,6 +306,12 @@ export default function Header() {
                     <Heart className="h-4 w-4 mr-2 text-pink-400 flex-shrink-0" />
                     <span className="truncate">Emotional Imprints</span>
                     {user?.isPremium && <Badge variant="outline" className="ml-2 text-xs flex-shrink-0">Premium</Badge>}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/community" className="w-full flex items-center">
+                    <MessageCircle className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" />
+                    <span className="truncate">Community Feed</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">

@@ -310,7 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     app.use('/api', nftPoolRoutes);
     app.use('/api', nftCollectionRoutes);
     app.use('/api/payments', paymentRoutes);
-    app.use('/api', communityRoutes);
+    app.use('/api/community', communityRoutes);
     
     // Import and register admin routes
     const { registerAdminRoutes } = await import('./routes/admin-routes');
