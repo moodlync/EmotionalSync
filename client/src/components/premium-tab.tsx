@@ -24,7 +24,10 @@ type FeatureTabType = 'plans' | 'themes' | 'social' | 'checkins' | 'notification
 
 export default function PremiumTab() {
   const { user } = useAuth();
-  const { isActive, isTrial, isFamily, isLifetime, tier, expiryDate, cancelSubscriptionMutation } = useSubscription();
+  const { isActive, isTrial, tier, expiryDate, cancelSubscriptionMutation } = useSubscription();
+  // Determine more specific subscription types
+  const isLifetime = tier === 'lifetime';
+  const isFamily = tier === 'family';
   const [activeFeatureTab, setActiveFeatureTab] = useState<FeatureTabType>('plans');
   const [, setLocation] = useLocation();
   

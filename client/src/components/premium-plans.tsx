@@ -410,7 +410,10 @@ export default function PremiumPlans() {
   const handleSubscribe = (planId: string) => {
     // For free trial plans, start trial directly without payment
     if (planId === 'trial' || planId === 'family-trial') {
-      startTrialMutation.mutate(planId === 'family-trial' ? 'family' : 'premium', {
+      startTrialMutation.mutate({
+        tier: planId === 'family-trial' ? 'family' : 'premium',
+        duration: 14, // 14-day trial
+      }, {
         onSuccess: () => {
           toast({
             title: 'Trial Started',
@@ -440,8 +443,23 @@ export default function PremiumPlans() {
   const handlePayment = () => {
     // Process payment and upgrade subscription
     if (processingPlan) {
+      // Extract tier and billing cycle from the plan ID
+      const [planType, billingCycle] = processingPlan.split('-');
+      
+      // Determine duration in months
+      let durationMonths = 1; // default monthly
+      if (billingCycle === 'yearly') {
+        durationMonths = 12;
+      } else if (billingCycle === '5year') {
+        durationMonths = 60;
+      }
+      
       upgradeSubscriptionMutation.mutate(
-        { plan: processingPlan, paymentMethod: paymentMethod || 'creditcard' },
+        {
+          tier: planType, // e.g., 'gold', 'platinum', 'diamond', etc.
+          durationMonths: durationMonths,
+          paymentMethod: paymentMethod || 'creditcard'
+        },
         {
           onSuccess: () => {
             toast({
