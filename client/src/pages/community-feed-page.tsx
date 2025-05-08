@@ -80,6 +80,8 @@ import {
   ScrollText,
   Tag,
   Zap,
+  UserPlus,
+  LogOut,
 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -120,10 +122,14 @@ interface SupportGroup {
   id: number;
   name: string;
   description: string;
-  members: number;
-  emotion: EmotionType;
-  imageUrl: string | null;
-  meetingFrequency: string;
+  memberCount: number;
+  tags: string[];
+  isMember: boolean;
+  recentMembers: {
+    id: number;
+    username: string;
+    profilePicture?: string;
+  }[];
 }
 
 interface ExpertTip {
@@ -215,54 +221,11 @@ export default function CommunityFeedPage() {
   } = useQuery({
     queryKey: ['/api/community/support-groups'],
     queryFn: async () => {
-      // For now, we'll simulate with mock data since the API endpoint might not exist yet
-      return [
-        {
-          id: 1,
-          name: "Anxiety Support Circle",
-          description: "A safe space for people dealing with anxiety to share experiences and coping techniques.",
-          members: 128,
-          emotion: "anxious",
-          imageUrl: null,
-          meetingFrequency: "Weekly"
-        },
-        {
-          id: 2,
-          name: "Depression Warriors",
-          description: "Supporting each other through the darkness of depression with compassion and understanding.",
-          members: 245,
-          emotion: "sad",
-          imageUrl: null,
-          meetingFrequency: "Twice Weekly"
-        },
-        {
-          id: 3,
-          name: "Anger Management Group",
-          description: "Learn healthy ways to process and express anger in a supportive environment.",
-          members: 76,
-          emotion: "angry",
-          imageUrl: null,
-          meetingFrequency: "Weekly"
-        },
-        {
-          id: 4,
-          name: "Happiness Habits",
-          description: "Focus on building habits that promote long-term happiness and contentment.",
-          members: 312,
-          emotion: "happy",
-          imageUrl: null,
-          meetingFrequency: "Bi-weekly"
-        },
-        {
-          id: 5,
-          name: "Mindfulness Meditation",
-          description: "Practice mindfulness techniques to manage emotional responses in daily life.",
-          members: 189,
-          emotion: "neutral",
-          imageUrl: null,
-          meetingFrequency: "Daily"
-        }
-      ];
+      const res = await apiRequest('GET', '/api/community/support-groups');
+      if (!res.ok) {
+        throw new Error('Failed to fetch support groups');
+      }
+      return await res.json();
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: activeTab === 'support'
@@ -276,110 +239,11 @@ export default function CommunityFeedPage() {
   } = useQuery({
     queryKey: ['/api/community/expert-tips', selectedTipCategory],
     queryFn: async () => {
-      // For now, we'll simulate with mock data since the API endpoint might not exist yet
-      const allTips = {
-        anxiety: [
-          {
-            id: 1,
-            title: "Practice Deep Breathing",
-            content: "When anxiety strikes, try the 4-7-8 breathing technique: inhale for 4 seconds, hold for 7 seconds, exhale for 8 seconds. This activates your parasympathetic nervous system, helping to calm your body's stress response.",
-            expertName: "Dr. Sarah Johnson",
-            expertCredentials: "Clinical Psychologist, PhD",
-            expertImageUrl: null,
-            publishedDate: "2023-08-15",
-            tags: ["anxiety", "breathing", "quick-relief"]
-          },
-          {
-            id: 2,
-            title: "Challenge Negative Thoughts",
-            content: "Anxiety often involves catastrophic thinking. When you notice anxious thoughts, ask yourself: 'What's the evidence for and against this thought?', 'What would I tell a friend in this situation?', and 'What's a more balanced perspective?'",
-            expertName: "Dr. Michael Chen",
-            expertCredentials: "Cognitive Behavioral Therapist",
-            expertImageUrl: null,
-            publishedDate: "2023-09-02",
-            tags: ["anxiety", "cognitive-techniques", "thought-patterns"]
-          },
-          {
-            id: 3,
-            title: "Progressive Muscle Relaxation",
-            content: "Tense each muscle group for 5 seconds, then relax for 30 seconds. Start with your feet and work up to your face. This helps identify and release physical tension that comes with anxiety.",
-            expertName: "Lisa Nguyen",
-            expertCredentials: "Licensed Mental Health Counselor",
-            expertImageUrl: null,
-            publishedDate: "2023-07-28",
-            tags: ["anxiety", "physical-techniques", "relaxation"]
-          }
-        ],
-        depression: [
-          {
-            id: 4,
-            title: "Establish a Morning Routine",
-            content: "Even when motivation is low, having a simple morning routine can provide structure. Start with just getting out of bed, opening curtains for natural light, and drinking a glass of water. Small victories build momentum.",
-            expertName: "Dr. James Wilson",
-            expertCredentials: "Psychiatrist, Depression Specialist",
-            expertImageUrl: null,
-            publishedDate: "2023-08-20",
-            tags: ["depression", "daily-habits", "structure"]
-          },
-          {
-            id: 5,
-            title: "Movement as Medicine",
-            content: "Physical activity releases endorphins that can lift mood. Start with just 5 minutes of walking or gentle stretching. Don't wait for motivation - action often comes first, then motivation follows.",
-            expertName: "Maria Rodriguez",
-            expertCredentials: "Exercise Physiologist, Mental Health Advocate",
-            expertImageUrl: null,
-            publishedDate: "2023-09-12",
-            tags: ["depression", "exercise", "mood-improvement"]
-          }
-        ],
-        anger: [
-          {
-            id: 6, 
-            title: "The 10-Second Pause",
-            content: "When anger surges, give yourself a 10-second pause before responding. Count slowly to 10 while taking deep breaths. This brief moment can prevent impulsive reactions you might regret later.",
-            expertName: "Dr. Robert Taylor",
-            expertCredentials: "Anger Management Specialist",
-            expertImageUrl: null,
-            publishedDate: "2023-08-05",
-            tags: ["anger", "impulse-control", "quick-technique"]
-          },
-          {
-            id: 7,
-            title: "Identify Your Anger Triggers",
-            content: "Keep an anger journal to track what situations, people, or thoughts consistently trigger your anger. Once identified, you can develop specific strategies for your common triggers and possibly avoid some altogether.",
-            expertName: "Aisha Johnson",
-            expertCredentials: "Clinical Psychologist",
-            expertImageUrl: null,
-            publishedDate: "2023-07-18",
-            tags: ["anger", "self-awareness", "triggers"]
-          }
-        ],
-        general: [
-          {
-            id: 8,
-            title: "The Power of Sleep Hygiene",
-            content: "Emotional regulation is heavily influenced by sleep quality. Maintain consistent sleep and wake times, avoid screens 1 hour before bed, keep your bedroom cool and dark, and limit caffeine after noon.",
-            expertName: "Dr. Michelle Park",
-            expertCredentials: "Sleep Specialist, Neuropsychologist",
-            expertImageUrl: null,
-            publishedDate: "2023-09-10",
-            tags: ["sleep", "emotional-regulation", "health-basics"]
-          },
-          {
-            id: 9,
-            title: "Emotional Naming Technique",
-            content: "Research shows that simply naming your emotions can reduce their intensity. Practice saying 'I notice I'm feeling anxious/angry/sad right now' rather than 'I am anxious/angry/sad.' This creates a helpful distance between you and the emotion.",
-            expertName: "Dr. Thomas Rivera",
-            expertCredentials: "Emotional Intelligence Researcher",
-            expertImageUrl: null,
-            publishedDate: "2023-08-22",
-            tags: ["emotional-awareness", "mindfulness", "all-emotions"]
-          }
-        ]
-      };
-      
-      // Return either the selected category or all tips if no category selected
-      return selectedTipCategory ? allTips[selectedTipCategory] : Object.values(allTips).flat();
+      const res = await apiRequest('GET', `/api/community/expert-tips${selectedTipCategory ? `?category=${selectedTipCategory}` : ''}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch expert tips');
+      }
+      return await res.json();
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: activeTab === 'expertTips'
@@ -425,6 +289,50 @@ export default function CommunityFeedPage() {
     onError: (error: Error) => {
       toast({
         title: 'Failed to like post',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+  
+  // Join a support group
+  const joinGroupMutation = useMutation({
+    mutationFn: async (groupId: number) => {
+      const response = await apiRequest('POST', `/api/community/support-groups/${groupId}/join`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/community/support-groups'] });
+      toast({
+        title: 'Group joined',
+        description: 'You have successfully joined the support group',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Failed to join group',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+  
+  // Leave a support group
+  const leaveGroupMutation = useMutation({
+    mutationFn: async (groupId: number) => {
+      const response = await apiRequest('POST', `/api/community/support-groups/${groupId}/leave`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/community/support-groups'] });
+      toast({
+        title: 'Group left',
+        description: 'You have left the support group',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Failed to leave group',
         description: error.message,
         variant: 'destructive',
       });
@@ -982,6 +890,281 @@ export default function CommunityFeedPage() {
                   </CardFooter>
                 </Card>
               ))
+            )}
+
+            {/* Support Groups Tab Content */}
+            {activeTab === 'support' && (
+              <div className="space-y-6">
+                {isLoadingSupportGroups ? (
+                  <div className="grid grid-cols-1 gap-6">
+                    {[1, 2, 3].map((i) => (
+                      <Card key={i} className="overflow-hidden">
+                        <CardHeader className="pb-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <Skeleton className="h-6 w-[200px] mb-2" />
+                              <Skeleton className="h-4 w-[300px]" />
+                            </div>
+                            <Skeleton className="h-8 w-20 rounded-full" />
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pb-3">
+                          <div className="flex flex-wrap gap-2 mt-2 mb-4">
+                            {[1, 2, 3].map((i) => (
+                              <Skeleton key={i} className="h-6 w-20 rounded-full" />
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="flex -space-x-2">
+                              {[1, 2, 3].map((i) => (
+                                <Skeleton key={i} className="h-8 w-8 rounded-full" />
+                              ))}
+                            </div>
+                            <Skeleton className="h-4 w-[150px]" />
+                          </div>
+                        </CardContent>
+                        <CardFooter className="pb-4">
+                          <Skeleton className="h-10 w-full" />
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                ) : supportGroupsError ? (
+                  <div className="flex flex-col items-center justify-center p-8 text-center">
+                    <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Failed to load support groups</h3>
+                    <p className="text-muted-foreground mb-4">We couldn't load the support groups. Please try again later.</p>
+                    <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/community/support-groups'] })}>
+                      Try Again
+                    </Button>
+                  </div>
+                ) : !supportGroups?.length ? (
+                  <div className="flex flex-col items-center justify-center p-8 text-center">
+                    <Users className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No support groups found</h3>
+                    <p className="text-muted-foreground">There are no support groups available at the moment.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-6">
+                    {supportGroups.map((group) => (
+                      <Card key={group.id} className="overflow-hidden">
+                        <CardHeader className="pb-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-xl flex items-center gap-2">
+                                <Users className="h-5 w-5 text-primary" />
+                                {group.name}
+                              </CardTitle>
+                              <CardDescription>
+                                {group.description}
+                              </CardDescription>
+                            </div>
+                            <Badge variant={group.isMember ? "outline" : "default"}>
+                              {group.memberCount} {group.memberCount === 1 ? 'Member' : 'Members'}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pb-3">
+                          <div className="flex flex-wrap gap-2 mt-2 mb-4">
+                            {group.tags.map((tag) => (
+                              <Badge key={tag} variant="secondary" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                            <div className="flex -space-x-2">
+                              {group.recentMembers.slice(0, 3).map((member, i) => (
+                                <Avatar key={i} className="border-2 border-background h-8 w-8">
+                                  <AvatarFallback>
+                                    {getInitials(member.username)}
+                                  </AvatarFallback>
+                                </Avatar>
+                              ))}
+                              {group.memberCount > 3 && (
+                                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-muted border-2 border-background text-xs font-medium">
+                                  +{group.memberCount - 3}
+                                </div>
+                              )}
+                            </div>
+                            <span>
+                              {group.isMember 
+                                ? "You're a member" 
+                                : group.memberCount > 0 
+                                  ? `${group.recentMembers[0]?.username} and others are members`
+                                  : "Be the first to join"
+                              }
+                            </span>
+                          </div>
+                        </CardContent>
+                        <CardFooter className="pb-4">
+                          <Button 
+                            variant={group.isMember ? "outline" : "default"}
+                            className="w-full"
+                            disabled={group.isMember ? leaveGroupMutation.isPending : joinGroupMutation.isPending}
+                            onClick={() => {
+                              if (group.isMember) {
+                                leaveGroupMutation.mutate(group.id);
+                              } else {
+                                joinGroupMutation.mutate(group.id);
+                              }
+                            }}
+                          >
+                            {group.isMember ? (
+                              <>
+                                <LogOut className="h-4 w-4 mr-2" />
+                                {leaveGroupMutation.isPending 
+                                  ? "Leaving..."
+                                  : "Leave Group"
+                                }
+                              </>
+                            ) : (
+                              <>
+                                <UserPlus className="h-4 w-4 mr-2" />
+                                {joinGroupMutation.isPending 
+                                  ? "Joining..."
+                                  : "Join Group"
+                                }
+                              </>
+                            )}
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Expert Tips Tab Content */}
+            {activeTab === 'expertTips' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      variant={selectedTipCategory === null ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedTipCategory(null)}
+                    >
+                      All Topics
+                    </Button>
+                    <Button 
+                      variant={selectedTipCategory === 'anxiety' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedTipCategory('anxiety')}
+                    >
+                      Anxiety
+                    </Button>
+                    <Button 
+                      variant={selectedTipCategory === 'depression' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedTipCategory('depression')}
+                    >
+                      Depression
+                    </Button>
+                    <Button 
+                      variant={selectedTipCategory === 'anger' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedTipCategory('anger')}
+                    >
+                      Anger
+                    </Button>
+                    <Button 
+                      variant={selectedTipCategory === 'general' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedTipCategory('general')}
+                    >
+                      General Wellness
+                    </Button>
+                  </div>
+                </div>
+
+                {isLoadingExpertTips ? (
+                  <div className="space-y-6">
+                    {[1, 2, 3].map((i) => (
+                      <Card key={i} className="overflow-hidden">
+                        <CardHeader className="pb-3">
+                          <div className="space-y-2">
+                            <Skeleton className="h-6 w-3/4" />
+                            <div className="flex items-center gap-2">
+                              <Skeleton className="h-10 w-10 rounded-full" />
+                              <div>
+                                <Skeleton className="h-4 w-[100px]" />
+                                <Skeleton className="h-3 w-[150px]" />
+                              </div>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <Skeleton className="h-4 w-full mb-2" />
+                          <Skeleton className="h-4 w-full mb-2" />
+                          <Skeleton className="h-4 w-full mb-2" />
+                          <Skeleton className="h-4 w-3/4" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : expertTipsError ? (
+                  <div className="flex flex-col items-center justify-center p-8 text-center">
+                    <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Failed to load expert tips</h3>
+                    <p className="text-muted-foreground mb-4">We couldn't load the expert tips. Please try again later.</p>
+                    <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/community/expert-tips'] })}>
+                      Try Again
+                    </Button>
+                  </div>
+                ) : !expertTips?.length ? (
+                  <div className="flex flex-col items-center justify-center p-8 text-center">
+                    <GraduationCap className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No expert tips found</h3>
+                    <p className="text-muted-foreground">
+                      {selectedTipCategory 
+                        ? `No tips found for ${selectedTipCategory}. Try selecting a different category.`
+                        : 'There are no expert tips available at the moment.'
+                      }
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {expertTips.map((tip) => (
+                      <Card key={tip.id} className="overflow-hidden">
+                        <CardHeader className="pb-3">
+                          <div className="space-y-4">
+                            <CardTitle className="text-xl">{tip.title}</CardTitle>
+                            <div className="flex items-center gap-3">
+                              <Avatar>
+                                {tip.expertImageUrl ? (
+                                  <AvatarImage src={tip.expertImageUrl} alt={tip.expertName} />
+                                ) : (
+                                  <AvatarFallback>{getInitials(tip.expertName)}</AvatarFallback>
+                                )}
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{tip.expertName}</p>
+                                <p className="text-sm text-muted-foreground">{tip.expertCredentials}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="whitespace-pre-line">{tip.content}</p>
+                          <div className="flex flex-wrap gap-2 mt-4">
+                            {tip.tags.map((tag) => (
+                              <Badge key={tag} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className="mt-4 text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3 inline mr-1" />
+                            Published on {format(new Date(tip.publishedDate), 'MMMM d, yyyy')}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </TabsContent>
         </Tabs>

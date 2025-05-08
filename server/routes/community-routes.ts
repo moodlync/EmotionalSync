@@ -202,6 +202,57 @@ router.get('/support-groups', requireAuth, async (req, res) => {
   }
 });
 
+// Get support group by ID
+router.get('/support-groups/:groupId', requireAuth, async (req, res) => {
+  try {
+    const groupId = parseInt(req.params.groupId);
+    const group = await storage.getSupportGroupById(groupId);
+    
+    if (!group) {
+      return res.status(404).json({ error: 'Support group not found' });
+    }
+    
+    res.status(200).json(group);
+  } catch (error: any) {
+    console.error('Error fetching support group:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch support group' });
+  }
+});
+
+// Join a support group
+router.post('/support-groups/:groupId/join', requireAuth, async (req, res) => {
+  try {
+    const groupId = parseInt(req.params.groupId);
+    const success = await storage.joinSupportGroup(req.user!.id, groupId);
+    
+    if (!success) {
+      return res.status(404).json({ error: 'Support group not found' });
+    }
+    
+    res.status(200).json({ success: true });
+  } catch (error: any) {
+    console.error('Error joining support group:', error);
+    res.status(500).json({ error: error.message || 'Failed to join support group' });
+  }
+});
+
+// Leave a support group
+router.post('/support-groups/:groupId/leave', requireAuth, async (req, res) => {
+  try {
+    const groupId = parseInt(req.params.groupId);
+    const success = await storage.leaveSupportGroup(req.user!.id, groupId);
+    
+    if (!success) {
+      return res.status(404).json({ error: 'Support group not found' });
+    }
+    
+    res.status(200).json({ success: true });
+  } catch (error: any) {
+    console.error('Error leaving support group:', error);
+    res.status(500).json({ error: error.message || 'Failed to leave support group' });
+  }
+});
+
 // Get expert tips
 router.get('/expert-tips', requireAuth, async (req, res) => {
   try {

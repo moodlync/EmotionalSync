@@ -7129,6 +7129,42 @@ export class MemStorage implements IStorage {
     return this.supportGroups;
   }
   
+  async getSupportGroupById(groupId: number): Promise<any | null> {
+    const group = this.supportGroups.find(g => g.id === groupId);
+    return group || null;
+  }
+  
+  async joinSupportGroup(userId: number, groupId: number): Promise<boolean> {
+    const group = await this.getSupportGroupById(groupId);
+    if (!group) return false;
+    
+    // In a real implementation, we would track users in groups
+    // For now, we'll just increment the member count
+    group.members += 1;
+    
+    // Add tokens for community engagement
+    await this.createRewardActivity(
+      userId,
+      'help_others',
+      5,
+      `Joined the "${group.name}" support group`
+    );
+    
+    return true;
+  }
+  
+  async leaveSupportGroup(userId: number, groupId: number): Promise<boolean> {
+    const group = await this.getSupportGroupById(groupId);
+    if (!group) return false;
+    
+    // Decrement member count if there are members
+    if (group.members > 0) {
+      group.members -= 1;
+    }
+    
+    return true;
+  }
+  
   async getExpertTips(category?: string): Promise<any[]> {
     if (category) {
       return this.expertTips.filter(tip => tip.category === category);
