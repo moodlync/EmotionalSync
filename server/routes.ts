@@ -322,6 +322,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     registerProfileRoutes(profileRouter);
     app.use('/api', profileRouter);
     
+    // Import and register emotional intelligence routes
+    const { registerEmotionalIntelligenceRoutes } = await import('./routes/emotional-intelligence-routes');
+    registerEmotionalIntelligenceRoutes(app);
+    
     console.log("Account and subscription management routes registered successfully");
     console.log("NFT token pool system routes registered successfully");
     console.log("NFT collection routes registered successfully");
@@ -329,6 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log("Community and support features registered successfully");
     console.log("Admin panel routes registered successfully");
     console.log("Profile routes registered successfully");
+    console.log("Emotional intelligence quiz routes registered successfully");
   } catch (error) {
     console.error("Error registering routes:", error);
   }

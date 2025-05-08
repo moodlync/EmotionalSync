@@ -163,6 +163,12 @@ export interface IStorage {
   updateUser(userId: number, userData: Partial<User>): Promise<User>;
   removeUser(userId: number): Promise<boolean>;
   
+  // Emotional Intelligence Quiz
+  saveEmotionalIntelligenceResults(result: InsertEmotionalIntelligenceResult): Promise<EmotionalIntelligenceResult>;
+  getEmotionalIntelligenceResults(userId: number): Promise<EmotionalIntelligenceResult[]>;
+  getLatestEmotionalIntelligenceResult(userId: number): Promise<EmotionalIntelligenceResult | undefined>;
+  updateUserEqScore(userId: number, score: number): Promise<void>;
+  
   // Trial management
   startFreeTrial(userId: number, trialDays: number): Promise<User>;
   isUserInActiveTrial(userId: number): Promise<boolean>;
@@ -610,6 +616,57 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
+  // Emotional Intelligence Quiz methods
+  async saveEmotionalIntelligenceResults(result: InsertEmotionalIntelligenceResult): Promise<EmotionalIntelligenceResult> {
+    const newResult: EmotionalIntelligenceResult = {
+      id: this.nextEmotionalIntelligenceResultId++,
+      userId: result.userId,
+      totalScore: result.totalScore,
+      categoryScores: result.categoryScores,
+      completedAt: result.completedAt,
+      createdAt: new Date()
+    };
+    
+    // Add to user's emotional intelligence results
+    if (!this.emotionalIntelligenceResults.has(result.userId)) {
+      this.emotionalIntelligenceResults.set(result.userId, []);
+    }
+    
+    this.emotionalIntelligenceResults.get(result.userId)!.push(newResult);
+    
+    return newResult;
+  }
+  
+  async getEmotionalIntelligenceResults(userId: number): Promise<EmotionalIntelligenceResult[]> {
+    return this.emotionalIntelligenceResults.get(userId) || [];
+  }
+  
+  async getLatestEmotionalIntelligenceResult(userId: number): Promise<EmotionalIntelligenceResult | undefined> {
+    const results = this.emotionalIntelligenceResults.get(userId) || [];
+    
+    if (results.length === 0) {
+      return undefined;
+    }
+    
+    // Sort by completedAt date (newest first) and return the first one
+    return results.sort((a, b) => {
+      return new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime();
+    })[0];
+  }
+  
+  async updateUserEqScore(userId: number, score: number): Promise<void> {
+    if (!this.users.has(userId)) {
+      throw new Error("User not found");
+    }
+    
+    const user = this.users.get(userId)!;
+    
+    // Only update if this is first assessment or if score is higher
+    if (user.eqScore === undefined || user.eqScore === null || score > user.eqScore) {
+      user.eqScore = score;
+      this.users.set(userId, user);
+    }
+  }
   private nextDeletionRequestId = 1;
   private nextCommunityPostId = 1;
   private nextPostCommentId = 1;
@@ -620,6 +677,8 @@ export class MemStorage implements IStorage {
   public userEmotions: Map<number, EmotionType> = new Map();
   public journalEntries: Map<number, JournalEntry[]> = new Map();
   public notifications: Map<number, Notification> = new Map();
+  public emotionalIntelligenceResults: Map<number, EmotionalIntelligenceResult[]> = new Map();
+  private nextEmotionalIntelligenceResultId = 1;
   public userNotifications: Map<number, number[]> = new Map(); // userId -> notificationIds
   public deletionRequests: Map<number, DeletionRequest> = new Map();
   public userDeletionRequests: Map<number, number[]> = new Map(); // userId -> deletionRequestIds

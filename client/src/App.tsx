@@ -70,6 +70,7 @@ const EmotionalImprintsPage = lazy(() => import("@/pages/emotional-imprints-page
 const MilestonePage = lazy(() => import("@/pages/share/milestone-page"));
 const NftCollectionPage = lazy(() => import("@/pages/nft-collection-page"));
 const PersonalizationPage = lazy(() => import("@/pages/personalization-page"));
+const EmotionalIntelligenceQuizPage = lazy(() => import("@/pages/emotional-intelligence-quiz-page"));
 const TermsConditionsPage = lazy(() => import("@/pages/terms-conditions-page"));
 const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy-page"));
 const SecurityPage = lazy(() => import("@/pages/security-page"));
@@ -169,6 +170,7 @@ const RouterComponent = () => {
     { path: "/friends", component: FriendBookPage },
     { path: "/verification", component: VerificationPage },
     { path: "/emotional-imprints", component: EmotionalImprintsPage },
+    { path: "/emotional-intelligence-quiz", component: EmotionalIntelligenceQuizPage },
     { path: "/personalization", component: PersonalizationPage },
     { path: "/security-center", component: SecurityCenterPage },
     { path: "/community", component: CommunityFeedPage },

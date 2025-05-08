@@ -1730,3 +1730,23 @@ export const insertSeoConfigurationSchema = createInsertSchema(seoConfigurations
 
 export type InsertSeoConfiguration = z.infer<typeof insertSeoConfigurationSchema>;
 export type SeoConfiguration = typeof seoConfigurations.$inferSelect;
+
+// Emotional Intelligence Quiz
+export const emotionalIntelligenceResults = pgTable("emotional_intelligence_results", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  totalScore: integer("total_score").notNull(),
+  categoryScores: json("category_scores").notNull(),
+  completedAt: timestamp("completed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertEmotionalIntelligenceResultSchema = createInsertSchema(emotionalIntelligenceResults, {
+  userId: z.number().int().positive(),
+  totalScore: z.number().int().min(0).max(60),
+  categoryScores: z.string().min(2), // JSON stringified object
+  completedAt: z.date(),
+});
+
+export type InsertEmotionalIntelligenceResult = z.infer<typeof insertEmotionalIntelligenceResultSchema>;
+export type EmotionalIntelligenceResult = typeof emotionalIntelligenceResults.$inferSelect;
