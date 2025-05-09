@@ -90,7 +90,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-primary dark:bg-primary text-white shadow-md">
+    <header className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-800 dark:to-purple-900 text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
@@ -105,9 +105,9 @@ export default function Header() {
               <div className="flex flex-col">
                 <div className="font-extrabold tracking-tight text-lg leading-none text-white">
                   <span>MOOD</span>
-                  <span className="text-red-300">LYNC</span>
+                  <span className="text-rose-200">LYNC</span>
                 </div>
-                <div className="text-white/70 text-xs leading-tight">
+                <div className="text-white/80 text-xs leading-tight font-medium">
                   Connect - Detect - Reflect
                 </div>
               </div>

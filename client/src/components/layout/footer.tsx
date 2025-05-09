@@ -96,7 +96,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-background border-t">
+    <footer className="bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border-t border-slate-200 dark:border-slate-800">
       <div className="container max-w-7xl py-10">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
           {/* Logo and main info */}
@@ -104,11 +104,11 @@ export default function Footer() {
             <div className="flex items-center space-x-2">
               <img src={logoImage} alt="MoodLync Logo" className="h-10 w-auto" />
               <span className="text-2xl font-bold">
-                <span className="text-black font-extrabold" style={{ textShadow: '0px 1px 2px rgba(0,0,0,0.1)' }}>Mood</span>
-                <span className="text-red-600 font-extrabold" style={{ textShadow: '0px 1px 2px rgba(220,38,38,0.1)' }}>Lync</span>
+                <span className="text-slate-900 dark:text-slate-100 font-extrabold" style={{ textShadow: '0px 1px 2px rgba(0,0,0,0.05)' }}>Mood</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-extrabold" style={{ textShadow: '0px 1px 2px rgba(79,70,229,0.05)' }}>Lync</span>
               </span>
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-slate-600 dark:text-slate-300">
               An innovative platform that connects people based on their emotional state,
               fostering authentic conversations and meaningful connections.
             </p>
@@ -141,17 +141,17 @@ export default function Footer() {
                       {link.onClick ? (
                         <button
                           onClick={link.onClick}
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center"
+                          className="text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center"
                         >
-                          <ChevronRight className="h-3 w-3 mr-1 text-primary" />
+                          <ChevronRight className="h-3 w-3 mr-1 text-indigo-600 dark:text-indigo-400" />
                           {link.name}
                         </button>
                       ) : (
                         <Link
                           href={link.href}
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center"
+                          className="text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center"
                         >
-                          <ChevronRight className="h-3 w-3 mr-1 text-primary" />
+                          <ChevronRight className="h-3 w-3 mr-1 text-indigo-600 dark:text-indigo-400" />
                           {link.name}
                         </Link>
                       )}
@@ -165,8 +165,8 @@ export default function Footer() {
 
         <div className="border-t mt-10 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="text-sm text-muted-foreground">
-              © 2025 <span className="text-black font-medium">MoodLync</span> | Powered by: <span className="font-medium">Rollover Australia Inc.</span> | All rights reserved.
+            <div className="text-sm text-slate-600 dark:text-slate-400">
+              © 2025 <span className="text-slate-900 dark:text-white font-medium">MoodLync</span> | Powered by: <span className="font-medium text-indigo-700 dark:text-indigo-400">Rollover Australia Inc.</span> | All rights reserved.
             </div>
             <div className="flex space-x-4">
               {socialLinks.map((link, index) => (
@@ -175,7 +175,7 @@ export default function Footer() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
                   {link.icon}
                 </a>

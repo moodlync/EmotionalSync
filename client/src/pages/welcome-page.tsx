@@ -1395,7 +1395,7 @@ export default function WelcomePage() {
               <Textarea 
                 id="testimonialText"
                 placeholder="Share how MoodLync has influenced your emotional wellness journey..."
-                className="resize-none h-32"
+                className="resize-none h-32 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                 value={testimonialText}
                 onChange={(e) => setTestimonialText(e.target.value)}
                 required
@@ -1408,6 +1408,7 @@ export default function WelcomePage() {
                 <Input 
                   id="testimonialName"
                   placeholder="John D."
+                  className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-200"
                   value={testimonialName}
                   onChange={(e) => setTestimonialName(e.target.value)}
                   required
@@ -1418,6 +1419,7 @@ export default function WelcomePage() {
                 <Input 
                   id="testimonialProfession"
                   placeholder="Designer, Teacher, etc."
+                  className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-200"
                   value={testimonialProfession}
                   onChange={(e) => setTestimonialProfession(e.target.value)}
                 />
