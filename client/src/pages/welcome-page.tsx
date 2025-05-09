@@ -532,6 +532,40 @@ export default function WelcomePage() {
                     </Button>
                   </div>
                   
+                  {/* 5-Year Plan */}
+                  <div className="relative overflow-hidden rounded-lg border border-emerald-300 bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-700 dark:to-emerald-900 dark:border-emerald-600 p-3 transition-all duration-300 hover:shadow-md">
+                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-emerald-300/20 rounded-full blur-xl"></div>
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h5 className="text-sm font-bold text-white mb-1">5-Year Plan</h5>
+                        <div className="flex items-center gap-1">
+                          <p className="text-xs text-white font-medium">$349.99</p>
+                          <span className="text-[9px] text-green-300 font-medium">Save 22%</span>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-[9px] dark:bg-emerald-700/50 dark:text-white dark:border-emerald-600/70 font-medium">Long Term</Badge>
+                    </div>
+                    <ul className="text-[10px] text-white space-y-1 mb-3 font-medium">
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> All Yearly features</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Premium token rewards</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Extended data history</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Premium emotional NFTs</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> VIP community access</li>
+                    </ul>
+                    <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-white hover:bg-white/90 text-emerald-700 border-white dark:bg-emerald-100 dark:text-emerald-800 dark:hover:bg-emerald-200 dark:border-emerald-200 font-medium"
+                      onClick={() => {
+                        const { showModal } = usePremiumFeatureModal();
+                        showModal(
+                          "5-Year Plan",
+                          "Our 5-Year Plan offers incredible long-term value at $349.99 (saving 22% compared to yearly subscription). Enjoy all Yearly plan features plus premium token rewards, extended emotional data history, premium emotional NFTs, and exclusive VIP community access. Perfect for those committed to long-term emotional wellness without the lifetime commitment.",
+                          "/assets/premium-features/premium-main.jpg"
+                        );
+                      }}
+                    >
+                      Learn More
+                    </Button>
+                  </div>
+                  
                   {/* Family Plan */}
                   <div className="relative overflow-hidden rounded-lg border border-violet-300 bg-gradient-to-br from-violet-600 to-violet-800 dark:from-violet-700 dark:to-violet-900 dark:border-violet-600 p-3 transition-all duration-300 hover:shadow-md">
                     <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-violet-300/20 rounded-full blur-xl"></div>
@@ -555,40 +589,6 @@ export default function WelcomePage() {
                           "Family Plan",
                           "Support your loved ones with our comprehensive Family Plan at $149.99/year. This plan includes all Yearly plan features for up to 5 family members, plus specialized family tools like mood tracking with consent, token sharing between family members, family wellness insights, and crisis support integration. Perfect for families committed to emotional wellness together.",
                           "/assets/premium-features/custom/family-plan-image.jpg"
-                        );
-                      }}
-                    >
-                      Learn More
-                    </Button>
-                  </div>
-                  
-                  {/* Lifetime Plan */}
-                  <div className="relative overflow-hidden rounded-lg border border-amber-300 bg-gradient-to-br from-amber-600 to-amber-800 dark:from-amber-700 dark:to-amber-900 dark:border-amber-600 p-3 transition-all duration-300 hover:shadow-md">
-                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-amber-300/20 rounded-full blur-xl"></div>
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h5 className="text-sm font-bold text-white mb-1">Lifetime</h5>
-                        <div className="flex items-center gap-1">
-                          <p className="text-xs text-white font-medium">$399.99</p>
-                          <span className="text-[9px] text-green-300 font-medium">One-time</span>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-[9px] dark:bg-amber-700/50 dark:text-white dark:border-amber-600/70 font-medium">Ultimate</Badge>
-                    </div>
-                    <ul className="text-[10px] text-white space-y-1 mb-3 font-medium">
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> All Family Plan features</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Never expires</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Lifetime updates</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> VIP support access</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Exclusive lifetime benefits</li>
-                    </ul>
-                    <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-white hover:bg-white/90 text-amber-700 border-white dark:bg-amber-100 dark:text-amber-800 dark:hover:bg-amber-200 dark:border-amber-200 font-medium"
-                      onClick={() => {
-                        const { showModal } = usePremiumFeatureModal();
-                        showModal(
-                          "Lifetime Plan",
-                          "The ultimate commitment to emotional wellness with a one-time payment of $399.99. This plan gives you permanent access to all premium features, including all Family Plan benefits, lifetime access to future updates, exclusive lifetime member benefits, VIP community access, and the highest level of support. With the Lifetime plan, you'll never pay subscription fees again while enjoying the complete MoodLync experience.",
-                          "/assets/premium-features/premium-main.jpg"
                         );
                       }}
                     >
