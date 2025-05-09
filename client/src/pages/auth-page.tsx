@@ -94,6 +94,7 @@ export default function AuthPage() {
     defaultValues: {
       username: "",
       password: "",
+      rememberMe: false,
     },
   });
 
@@ -129,7 +130,8 @@ export default function AuthPage() {
       // Add detailed logs for debugging
       console.log("Login form data being submitted:", {
         username: values.username,
-        password: values.password ? '********' : undefined // Don't log actual password
+        password: values.password ? '********' : undefined, // Don't log actual password
+        rememberMe: values.rememberMe
       });
       
       // Network connection check
@@ -510,6 +512,29 @@ export default function AuthPage() {
                           </FormItem>
                         );
                       }}
+                    />
+                    <FormField
+                      control={loginForm.control}
+                      name="rememberMe"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-2">
+                          <FormControl>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                id="rememberMe"
+                                checked={field.value}
+                                onChange={field.onChange}
+                                className="h-4 w-4 text-primary border-gray-300 rounded cursor-pointer"
+                              />
+                              <label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
+                                Remember me 
+                                <span className="text-xs ml-1 text-gray-500">(keeps you logged in on this device)</span>
+                              </label>
+                            </div>
+                          </FormControl>
+                        </FormItem>
+                      )}
                     />
                     <Button 
                       type="submit" 
