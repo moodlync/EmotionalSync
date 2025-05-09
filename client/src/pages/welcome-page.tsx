@@ -85,7 +85,7 @@ export default function WelcomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col welcome-page">
+    <div className="min-h-screen flex flex-col welcome-page bg-[#F3F3F3] dark:bg-gray-950">
       {/* Enhanced Header with Animation */}
       <header className="w-full bg-white dark:bg-gray-900 border-b dark:border-gray-800 py-5 px-6 shadow-sm sticky top-0 z-50 backdrop-blur-sm bg-white/90 dark:bg-gray-900/90">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
