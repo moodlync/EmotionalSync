@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import logoImage from '@/assets/moodlync-logo-new.jpg';
+import logoImage from '@/assets/logo-transparent-png.png';
 
 interface AnimatedPoweredLogoProps {
   width?: number;

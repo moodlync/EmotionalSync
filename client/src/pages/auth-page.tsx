@@ -19,7 +19,7 @@ import AuthPageLogo from "@/components/logo/auth-page-logo";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import authImage from "@/assets/auth-hero.jpeg";
-import newLogo from "@/assets/moodlync-logo-new.jpg";
+import newLogo from "@/assets/logo-transparent-png.png";
 
 // Helper to determine if we're in development mode
 const isDevelopment = import.meta.env.MODE === 'development';

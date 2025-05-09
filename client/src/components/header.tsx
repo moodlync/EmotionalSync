@@ -1,7 +1,7 @@
 import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import newLogo from "@/assets/moodlync-logo-new.jpg";
+import newLogo from "@/assets/logo-transparent-png.png";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   DropdownMenu,

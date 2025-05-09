@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import newLogo from '@/assets/moodlync-logo-new.jpg';
+import newLogo from '@/assets/logo-transparent-png.png';
 import { 
   Heart, ArrowRight, ChevronDown, Crown, Sparkles, Shield, Star, Video, UserCheck,
   BarChart3, Fingerprint, Gamepad2, Users, Music, Palette, Brush, PartyPopper, 
@@ -1136,12 +1136,12 @@ export default function WelcomePage() {
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
         
         <div className="max-w-7xl mx-auto text-center mb-12 relative">
-          <Badge variant="outline" className="px-4 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-primary/20 rounded-full mb-4 inline-flex items-center">
-            <Star className="h-4 w-4 mr-2 text-amber-500" /> 
-            Premium Plans
+          <Badge variant="outline" className="px-4 py-1.5 bg-white/80 dark:bg-amber-900/70 backdrop-blur-sm border border-amber-300/50 dark:border-amber-500/50 shadow-sm rounded-full mb-4 inline-flex items-center">
+            <Star className="h-4 w-4 mr-2 text-amber-500 dark:text-amber-300" /> 
+            <span className="text-gray-800 dark:text-amber-200 font-medium">Premium Plans</span>
           </Badge>
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Choose Your Perfect Plan</h2>
-          <p className="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto mb-12">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-300 dark:to-purple-300">Choose Your Perfect Plan</h2>
+          <p className="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto mb-12 dark:text-gray-300">
             Unlock premium features and enhance your emotional wellness journey with a subscription plan that fits your needs.
           </p>
           
@@ -1272,12 +1272,12 @@ export default function WelcomePage() {
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
         
         <div className="max-w-7xl mx-auto text-center mb-12 relative">
-          <Badge variant="outline" className="px-4 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-primary/20 rounded-full mb-4 inline-flex items-center">
-            <Heart className="h-4 w-4 mr-2 text-rose-500" /> 
-            Real User Experiences
+          <Badge variant="outline" className="px-4 py-1.5 bg-white/80 dark:bg-rose-900/70 backdrop-blur-sm border border-rose-300/50 dark:border-rose-500/50 shadow-sm rounded-full mb-4 inline-flex items-center">
+            <Heart className="h-4 w-4 mr-2 text-rose-500 dark:text-rose-300" /> 
+            <span className="text-gray-800 dark:text-rose-200 font-medium">Real User Experiences</span>
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Success Stories</h2>
-          <p className="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary dark:from-rose-300 dark:to-pink-300">Success Stories</h2>
+          <p className="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto dark:text-gray-300">
             Discover how MoodLync has transformed the emotional wellness of our users, creating deeper connections 
             and fostering authentic relationships built on genuine emotional understanding.
           </p>

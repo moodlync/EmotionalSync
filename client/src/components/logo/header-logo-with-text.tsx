@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import DynamicLogo from './dynamic-logo';
 import { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
-import logoImage from '@/assets/moodlync-logo-new.jpg';
+import logoImage from '@/assets/logo-transparent-png.png';
 
 interface HeaderLogoWithTextProps {
   className?: string;

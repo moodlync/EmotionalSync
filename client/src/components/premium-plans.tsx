@@ -735,18 +735,18 @@ export default function PremiumPlans() {
     // Different styling for individual vs family tables
     const tableColors = planType === 'individual' 
       ? {
-          border: 'border-gray-200 dark:border-gray-800',
+          border: 'border-gray-200 dark:border-gray-700',
           background: 'bg-white dark:bg-gray-950',
-          headerBg: 'bg-gray-50 dark:bg-gray-900',
-          rowBg: 'bg-gray-50/50 dark:bg-gray-900/50',
-          icon: <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          headerBg: 'bg-gray-50 dark:bg-gray-800',
+          rowBg: 'bg-gray-50/50 dark:bg-gray-800/70',
+          icon: <User className="h-4 w-4 text-gray-500 dark:text-gray-300" />
         }
       : {
-          border: 'border-blue-200 dark:border-blue-800/50',
-          background: 'bg-blue-50/30 dark:bg-blue-950/30',
-          headerBg: 'bg-blue-100/50 dark:bg-blue-900/30',
-          rowBg: 'bg-blue-50/40 dark:bg-blue-900/40',
-          icon: <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+          border: 'border-blue-200 dark:border-blue-700/60',
+          background: 'bg-blue-50/30 dark:bg-blue-900/40',
+          headerBg: 'bg-blue-100/50 dark:bg-blue-800/50',
+          rowBg: 'bg-blue-50/40 dark:bg-blue-800/60',
+          icon: <Users className="h-4 w-4 text-blue-500 dark:text-blue-300" />
         };
 
     return (
@@ -807,8 +807,8 @@ export default function PremiumPlans() {
                         <div className="flex items-center gap-2 mb-2">
                           <div className={`rounded-full p-1.5 ${
                             plan.color 
-                              ? `bg-${plan.color}-100 dark:bg-${plan.color}-900/40`
-                              : 'bg-primary/10 dark:bg-primary/20'
+                              ? `bg-${plan.color}-100 dark:bg-${plan.color}-700/60 shadow-md dark:shadow-${plan.color}-500/20`
+                              : 'bg-primary/10 dark:bg-primary/40 shadow-md dark:shadow-primary/20'
                           }`}>
                             {plan.icon}
                           </div>
@@ -1014,15 +1014,15 @@ export default function PremiumPlans() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
         {premiumFeatures.map((feature, index) => (
-          <Card key={index} className="bg-card/50 border-primary/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+          <Card key={index} className="bg-card/50 border-primary/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 dark:shadow-lg dark:shadow-primary/5">
             <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/10 to-primary/30 dark:from-primary/20 dark:to-primary/10 flex items-center justify-center mb-3 shadow-sm">
-                {feature.icon}
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/10 to-primary/30 dark:from-primary/30 dark:to-primary/20 flex items-center justify-center mb-3 shadow-sm dark:shadow-md dark:shadow-primary/10">
+                <div className="text-primary dark:text-primary-foreground">{feature.icon}</div>
               </div>
-              <CardTitle className="text-lg">{feature.title}</CardTitle>
+              <CardTitle className="text-lg text-primary-foreground dark:text-white">{feature.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription className="leading-relaxed">{feature.description}</CardDescription>
+              <CardDescription className="leading-relaxed dark:text-gray-300">{feature.description}</CardDescription>
             </CardContent>
           </Card>
         ))}

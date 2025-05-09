@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import logoImage from '@/assets/moodlync-logo-new.jpg';
+import logoImage from '@/assets/logo-transparent-png.png';
 
 interface AnimatedLogoProps {
   className?: string;
