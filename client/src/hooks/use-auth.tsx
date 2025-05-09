@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -12,13 +12,17 @@ type AuthContextType = {
   user: SelectUser | null;
   isLoading: boolean;
   error: Error | null;
-  loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
+  loginMutation: UseMutationResult<SelectUser, Error, LoginDataWithRemember>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
   resendVerificationMutation: UseMutationResult<{ success: boolean, message: string }, Error, void>;
 };
 
+// Basic login data
 type LoginData = Pick<InsertUser, "username" | "password">;
+
+// Extended login data with remember me option
+type LoginDataWithRemember = LoginData & { rememberMe: boolean };
 
 // Default context value
 const defaultContextValue: AuthContextType = {
