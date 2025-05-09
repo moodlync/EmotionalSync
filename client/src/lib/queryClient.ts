@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { getApiPath, isNetlifyEnvironment } from "./netlify-auth-config";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -28,20 +29,23 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   try {
+    // Convert API paths for Netlify environment
+    const apiUrl = getApiPath(url);
+    
     // Log request information for debugging
-    console.log(`API Request: ${method} ${url}`);
+    console.log(`API Request: ${method} ${apiUrl} ${isNetlifyEnvironment() ? '(Netlify)' : ''}`);
     if (data) {
-      console.log('Request data:', data);
+      console.log('Request data:', JSON.stringify(data).substring(0, 200) + (JSON.stringify(data).length > 200 ? '...' : ''));
     }
     
-    const res = await fetch(url, {
+    const res = await fetch(apiUrl, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
     });
     
-    console.log(`API Response: ${res.status} ${res.statusText} from ${url}`);
+    console.log(`API Response: ${res.status} ${res.statusText} from ${apiUrl}`);
     
     // We'll handle errors in the mutation functions to get more specific error messaging
     // so we don't await throwIfResNotOk here anymore
@@ -58,9 +62,17 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
+    // Convert API paths for Netlify environment
+    const url = queryKey[0] as string;
+    const apiUrl = getApiPath(url);
+    
+    console.log(`Query request: ${apiUrl} ${isNetlifyEnvironment() ? '(Netlify)' : ''}`);
+    
+    const res = await fetch(apiUrl, {
       credentials: "include",
     });
+
+    console.log(`Query response: ${res.status} ${res.statusText} from ${apiUrl}`);
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
@@ -89,9 +101,14 @@ export const queryClient = new QueryClient({
 export const persistUserState = () => {
   if (typeof window === 'undefined') return;
   
-  const userKey = window.location.hostname.includes('netlify.app')
-    ? "/.netlify/functions/api/user"
-    : "/api/user";
+  // Only persist if "Remember Me" was chosen
+  const shouldRememberUser = localStorage.getItem('moodlync_remember_me') === 'true';
+  if (!shouldRememberUser) {
+    return;
+  }
+  
+  // Get the appropriate user key based on environment
+  const userKey = getApiPath("/api/user");
   
   try {
     const user = queryClient.getQueryData([userKey]);
@@ -107,9 +124,14 @@ export const persistUserState = () => {
 export const restoreUserState = () => {
   if (typeof window === 'undefined') return;
   
-  const userKey = window.location.hostname.includes('netlify.app')
-    ? "/.netlify/functions/api/user"
-    : "/api/user";
+  // Only restore if "Remember Me" was chosen
+  const shouldRememberUser = localStorage.getItem('moodlync_remember_me') === 'true';
+  if (!shouldRememberUser) {
+    return;
+  }
+  
+  // Get the appropriate user key based on environment
+  const userKey = getApiPath("/api/user");
   
   try {
     const savedUser = localStorage.getItem('moodlync_user');
