@@ -31,7 +31,7 @@ export default function Footer() {
   const { user } = useAuth();
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const { toast } = useToast();
-  
+
   const handleFeedbackSubmit = (data: {
     category: string;
     title: string;
@@ -129,7 +129,7 @@ export default function Footer() {
               </Dialog>
             </div>
           </div>
-          
+
           {/* Footer links */}
           <div className="md:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-8">
             {footerLinks.map((group) => (
@@ -162,7 +162,7 @@ export default function Footer() {
             ))}
           </div>
         </div>
-        
+
         <div className="border-t mt-10 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-sm text-muted-foreground">
