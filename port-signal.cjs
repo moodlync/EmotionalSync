@@ -2,7 +2,7 @@
  * MoodLync Port Signal (CommonJS version)
  * 
  * This script opens a minimal socket on port 5000 to help the Replit workflow
- * detect our application, while simultaneously starting the main application on port 8080.
+ * detect our application, while simultaneously starting the main application on port 5001.
  * It's designed to work around port conflict issues in the Replit environment.
  */
 
@@ -13,7 +13,7 @@ const { spawn } = require('child_process');
 console.log('🚀 Starting MoodLync Application...');
 const app = spawn('npm', ['run', 'dev'], {
   stdio: 'inherit',
-  env: { ...process.env, PORT: '8080' }
+  env: { ...process.env, PORT: '5001' }
 });
 
 app.on('error', (err) => {
@@ -26,7 +26,7 @@ const server = net.createServer();
 
 server.on('connection', (socket) => {
   console.log('Connection detected on workflow port 5000');
-  socket.write('MoodLync Application Server - Please use port 8080 for the application\r\n');
+  socket.write('MoodLync Application Server - Please use port 5001 for the application\r\n');
   socket.end();
 });
 
@@ -53,7 +53,7 @@ setInterval(() => {
   // Output periodic health check to keep the workflow active
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] MoodLync server health check: ${isHealthy ? 'HEALTHY' : 'CHECKING'}`);
-  console.log(`The application is running on port 8080`);
+  console.log(`The application is running on port 5001`);
 }, 5000);
 
 // Handle graceful shutdown
