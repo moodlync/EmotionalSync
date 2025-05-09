@@ -111,7 +111,7 @@ export default function WelcomePage() {
           <div className="flex items-center">
             <div className="relative">
               <div className="flex flex-row items-center gap-3">
-                <div className="w-[80px] h-[80px]">
+                <div className="w-[60px] h-[60px]">
                   <img 
                     src={newLogo} 
                     alt="MoodLync Logo" 
@@ -119,7 +119,7 @@ export default function WelcomePage() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <div className="font-extrabold tracking-tight text-lg leading-none">
+                  <div className="font-extrabold tracking-tight text-2xl leading-none">
                     <span className="text-black">MOOD</span>
                     <span className="text-red-500">LYNC</span>
                   </div>
@@ -454,13 +454,13 @@ export default function WelcomePage() {
               {/* VIP Membership Tiers Section */}
               <div id="vip-membership" className="mt-7 mb-6 border-t border-gray-200 dark:border-gray-700 pt-6">
                 <div className="text-center mb-4">
-                  <Badge variant="outline" className="px-3 py-1 bg-gradient-to-r from-amber-400 to-purple-600 text-white border-0 mb-2">
-                    <Crown className="h-3.5 w-3.5 mr-1" /> VIP Membership
+                  <Badge variant="outline" className="px-3 py-1 bg-gradient-to-r from-amber-400 to-purple-600 dark:from-amber-300 dark:to-purple-400 text-white dark:text-gray-800 border-0 mb-2 shadow-md">
+                    <Crown className="h-3.5 w-3.5 mr-1 dark:text-gray-800" /> VIP Membership
                   </Badge>
-                  <h4 className="text-base font-bold bg-gradient-to-r from-amber-500 to-purple-600 bg-clip-text text-transparent mb-2">
+                  <h4 className="text-base font-bold bg-gradient-to-r from-amber-500 to-purple-600 dark:from-amber-300 dark:to-purple-400 bg-clip-text text-transparent mb-2 shadow-sm">
                     Premium Subscription Plans
                   </h4>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                  <p className="text-xs text-gray-600 dark:text-gray-200 mb-3 font-medium">
                     Choose the perfect plan to enhance your emotional wellness journey
                   </p>
                 </div>
@@ -468,20 +468,20 @@ export default function WelcomePage() {
                 {/* Responsive Subscription Plans Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 mb-4">
                   {/* Monthly Plan */}
-                  <div className="relative overflow-hidden rounded-lg border border-blue-300 bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-700 dark:to-blue-900 dark:border-blue-600 p-3 transition-all duration-300 hover:shadow-md">
-                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-blue-300/20 rounded-full blur-xl"></div>
+                  <div className="relative overflow-hidden rounded-lg border border-blue-300 bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 dark:border-blue-300 p-3 transition-all duration-300 hover:shadow-md shadow-lg">
+                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-blue-300/20 dark:bg-blue-200/30 rounded-full blur-xl"></div>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h5 className="text-sm font-bold text-white mb-1">Monthly</h5>
-                        <p className="text-xs text-white font-medium">$9.99/month</p>
+                        <h5 className="text-sm font-bold text-white dark:text-white mb-1">Monthly</h5>
+                        <p className="text-xs text-white dark:text-white font-medium">$9.99/month</p>
                       </div>
-                      <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-[9px] dark:bg-blue-700/50 dark:text-white dark:border-blue-600/70 font-medium">Try Premium</Badge>
+                      <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-[9px] dark:bg-white/30 dark:text-white dark:border-white/50 font-medium">Try Premium</Badge>
                     </div>
-                    <ul className="text-[10px] text-white space-y-1 mb-3 font-medium">
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Unlimited mood tracking</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Advanced analytics</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Ad-free experience</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> AI-powered video editor</li>
+                    <ul className="text-[10px] text-white dark:text-white space-y-1 mb-3 font-medium">
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Unlimited mood tracking</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Advanced analytics</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Ad-free experience</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> AI-powered video editor</li>
                     </ul>
                     <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-white hover:bg-white/90 text-blue-700 border-white dark:bg-blue-100 dark:text-blue-800 dark:hover:bg-blue-200 dark:border-blue-200 font-medium"
                       onClick={() => {
@@ -498,27 +498,27 @@ export default function WelcomePage() {
                   </div>
                   
                   {/* Yearly Plan - Popular */}
-                  <div className="relative overflow-hidden rounded-lg border-2 border-primary bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/20 dark:to-secondary/20 p-3 transition-all duration-300 hover:shadow-md">
-                    <div className="absolute -top-3 -right-10 rotate-45 bg-primary text-white text-[9px] font-medium py-1 px-8">Popular</div>
-                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-primary/20 rounded-full blur-xl"></div>
+                  <div className="relative overflow-hidden rounded-lg border-2 border-primary bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary-light dark:to-secondary-light dark:border-primary-light p-3 transition-all duration-300 hover:shadow-md shadow-lg">
+                    <div className="absolute -top-3 -right-10 rotate-45 bg-primary text-white text-[9px] font-medium py-1 px-8 dark:bg-primary-light dark:text-gray-800">Popular</div>
+                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-primary/20 dark:bg-primary-light/30 rounded-full blur-xl"></div>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h5 className="text-sm font-bold text-primary dark:text-primary mb-1">Yearly</h5>
+                        <h5 className="text-sm font-bold text-primary dark:text-gray-800 mb-1">Yearly</h5>
                         <div className="flex items-center gap-1">
-                          <p className="text-xs text-primary dark:text-primary">$89.99/year</p>
-                          <span className="text-[9px] text-green-600 dark:text-green-400 line-through">$119.88</span>
+                          <p className="text-xs text-primary dark:text-gray-800">$89.99/year</p>
+                          <span className="text-[9px] text-green-600 dark:text-green-800 line-through">$119.88</span>
                         </div>
                       </div>
-                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[9px] dark:bg-primary/20">Save 25%</Badge>
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[9px] dark:bg-gray-800/20 dark:text-gray-800 dark:border-gray-800/30">Save 25%</Badge>
                     </div>
-                    <ul className="text-[10px] text-primary/80 dark:text-primary/80 space-y-1 mb-3">
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary" /> All Monthly features</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary" /> Exclusive premium badges</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary" /> Early access to new features</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary" /> Priority support</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary" /> Enhanced data insights</li>
+                    <ul className="text-[10px] text-primary/80 dark:text-gray-800 space-y-1 mb-3">
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary dark:text-gray-800" /> All Monthly features</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary dark:text-gray-800" /> Exclusive premium badges</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary dark:text-gray-800" /> Early access to new features</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary dark:text-gray-800" /> Priority support</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-primary dark:text-gray-800" /> Enhanced data insights</li>
                     </ul>
-                    <Button variant="default" size="sm" className="w-full text-[10px] h-7 bg-gradient-to-r from-primary to-secondary text-white"
+                    <Button variant="default" size="sm" className="w-full text-[10px] h-7 bg-gradient-to-r from-primary to-secondary text-white dark:from-gray-800 dark:to-gray-700 dark:text-white"
                       onClick={() => {
                         const { showModal } = usePremiumFeatureModal();
                         showModal(
@@ -533,24 +533,24 @@ export default function WelcomePage() {
                   </div>
                   
                   {/* 5-Year Plan */}
-                  <div className="relative overflow-hidden rounded-lg border border-emerald-300 bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-700 dark:to-emerald-900 dark:border-emerald-600 p-3 transition-all duration-300 hover:shadow-md">
-                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-emerald-300/20 rounded-full blur-xl"></div>
+                  <div className="relative overflow-hidden rounded-lg border border-emerald-300 bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-400 dark:to-emerald-600 dark:border-emerald-300 p-3 transition-all duration-300 hover:shadow-md shadow-lg">
+                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-emerald-300/20 dark:bg-emerald-200/30 rounded-full blur-xl"></div>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h5 className="text-sm font-bold text-white mb-1">5-Year Plan</h5>
+                        <h5 className="text-sm font-bold text-white dark:text-white mb-1">5-Year Plan</h5>
                         <div className="flex items-center gap-1">
-                          <p className="text-xs text-white font-medium">$349.99</p>
-                          <span className="text-[9px] text-green-300 font-medium">Save 22%</span>
+                          <p className="text-xs text-white dark:text-white font-medium">$349.99</p>
+                          <span className="text-[9px] text-green-300 dark:text-green-200 font-medium">Save 22%</span>
                         </div>
                       </div>
-                      <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-[9px] dark:bg-emerald-700/50 dark:text-white dark:border-emerald-600/70 font-medium">Long Term</Badge>
+                      <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-[9px] dark:bg-white/30 dark:text-white dark:border-white/50 font-medium">Long Term</Badge>
                     </div>
-                    <ul className="text-[10px] text-white space-y-1 mb-3 font-medium">
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> All Yearly features</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Premium token rewards</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Extended data history</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Premium emotional NFTs</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> VIP community access</li>
+                    <ul className="text-[10px] text-white dark:text-white space-y-1 mb-3 font-medium">
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> All Yearly features</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Premium token rewards</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Extended data history</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Premium emotional NFTs</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> VIP community access</li>
                     </ul>
                     <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-white hover:bg-white/90 text-emerald-700 border-white dark:bg-emerald-100 dark:text-emerald-800 dark:hover:bg-emerald-200 dark:border-emerald-200 font-medium"
                       onClick={() => {
@@ -567,20 +567,20 @@ export default function WelcomePage() {
                   </div>
                   
                   {/* Family Plan */}
-                  <div className="relative overflow-hidden rounded-lg border border-violet-300 bg-gradient-to-br from-violet-600 to-violet-800 dark:from-violet-700 dark:to-violet-900 dark:border-violet-600 p-3 transition-all duration-300 hover:shadow-md">
-                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-violet-300/20 rounded-full blur-xl"></div>
+                  <div className="relative overflow-hidden rounded-lg border border-violet-300 bg-gradient-to-br from-violet-600 to-violet-800 dark:from-violet-400 dark:to-violet-600 dark:border-violet-300 p-3 transition-all duration-300 hover:shadow-md shadow-lg">
+                    <div className="absolute top-0 right-0 w-16 h-16 -translate-y-6 translate-x-6 bg-violet-300/20 dark:bg-violet-200/30 rounded-full blur-xl"></div>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h5 className="text-sm font-bold text-white mb-1">Family Plan</h5>
-                        <p className="text-xs text-white font-medium">$149.99/year</p>
+                        <h5 className="text-sm font-bold text-white dark:text-white mb-1">Family Plan</h5>
+                        <p className="text-xs text-white dark:text-white font-medium">$149.99/year</p>
                       </div>
-                      <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-[9px] dark:bg-violet-700/50 dark:text-white dark:border-violet-600/70 font-medium">Up to 5 members</Badge>
+                      <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-[9px] dark:bg-white/30 dark:text-white dark:border-white/50 font-medium">Up to 5 members</Badge>
                     </div>
-                    <ul className="text-[10px] text-white space-y-1 mb-3 font-medium">
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> All Yearly features</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Mood tracking with consent</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Token sharing between family</li>
-                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300" /> Family wellness insights</li>
+                    <ul className="text-[10px] text-white dark:text-white space-y-1 mb-3 font-medium">
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> All Yearly features</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Mood tracking with consent</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Token sharing between family</li>
+                      <li className="flex items-center"><Check className="h-3 w-3 mr-1 text-green-300 dark:text-green-200" /> Family wellness insights</li>
                     </ul>
                     <Button variant="outline" size="sm" className="w-full text-[10px] h-7 bg-white hover:bg-white/90 text-violet-700 border-white dark:bg-violet-100 dark:text-violet-800 dark:hover:bg-violet-200 dark:border-violet-200 font-medium"
                       onClick={() => {
@@ -597,13 +597,13 @@ export default function WelcomePage() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded-md mb-4">
+                <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-200 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-md mb-4 shadow-sm border border-gray-100 dark:border-gray-700">
                   <div className="shrink-0">
-                    <Shield className="h-5 w-5 text-primary" />
+                    <Shield className="h-5 w-5 text-primary dark:text-primary-light" />
                   </div>
                   <div>
-                    <p className="text-[11px] font-medium mb-1">Secure & Flexible Subscriptions</p>
-                    <p className="text-[10px]">All plans include secure payment processing, easy cancellation, and our 14-day satisfaction guarantee. No hidden fees or commitments.</p>
+                    <p className="text-[11px] font-medium mb-1 dark:text-white">Secure & Flexible Subscriptions</p>
+                    <p className="text-[10px] dark:text-gray-200">All plans include secure payment processing, easy cancellation, and our 14-day satisfaction guarantee. No hidden fees or commitments.</p>
                   </div>
                 </div>
                 
