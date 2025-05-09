@@ -22,8 +22,10 @@ export default function AuthPageLogo({
 }: AuthPageLogoProps) {
   const [, navigate] = useLocation();
   
-  // Reduce size by 75% as requested
-  const reducedSize = Math.floor(logoSize * 0.25);
+  // Calculate size based on text size to match text height
+  const reducedSize = textSize === 'sm' ? 30 : 
+                     textSize === 'md' ? 36 : 
+                     textSize === 'lg' ? 42 : 48;
   
   // Handle logo/text click - navigates to home when authenticated
   const handleLogoClick = () => {
@@ -42,15 +44,16 @@ export default function AuthPageLogo({
 
   return (
     <div className={cn(
-      'flex items-center gap-3',
-      vertical && 'flex-col',
+      'flex items-center gap-1',
+      vertical && 'flex-col items-center',
       className
     )}>
       <div 
         className={cn(
-          "flex items-center justify-center mb-2",
+          "flex items-center justify-center mb-0",
           isAuthenticated && "cursor-pointer"
         )} 
+        style={{ display: "flex", alignItems: "center" }}
         onClick={handleLogoClick}
       >
         {/* Using the actual image directly */}
@@ -59,14 +62,15 @@ export default function AuthPageLogo({
           alt="MoodLync Logo" 
           width={reducedSize} 
           height={reducedSize} 
-          className="object-contain"
+          className="object-contain rounded-sm"
+          style={{ marginBottom: "1px" }}
         />
       </div>
       
       {!hideText && (
         <div 
           className={cn(
-            "flex flex-col mt-1",
+            "flex flex-col mt-0",
             isAuthenticated && "cursor-pointer"
           )}
           onClick={handleLogoClick}
