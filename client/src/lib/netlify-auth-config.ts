@@ -21,7 +21,14 @@ export function isNetlifyEnvironment() {
 // Helper to get the correct API path based on environment
 export function getApiPath(endpoint: string): string {
   const isNetlify = isNetlifyEnvironment();
-  const paths = isNetlify ? getNetlifyAuthPaths() : null;
+  const paths = isNetlify ? getNetlifyAuthPaths() : {
+    login: "/api/login",
+    logout: "/api/logout",
+    register: "/api/register",
+    user: "/api/user",
+    verifyEmail: "/api/verify-email",
+    resendVerification: "/api/resend-verification"
+  };
   
   if (isNetlify) {
     // Convert standard endpoints to Netlify endpoints

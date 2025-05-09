@@ -7,6 +7,7 @@ import {
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { getApiPath, isNetlifyEnvironment } from "../lib/netlify-auth-config";
 
 type AuthContextType = {
   user: SelectUser | null;
@@ -42,11 +43,10 @@ export const AuthContext = createContext<AuthContextType>(defaultContextValue);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   
-  // Check if we're running in Netlify environment for API paths
-  const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
-  const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
+  // Use our helper to get the correct API path based on environment
+  const userApiPath = getApiPath("/api/user");
   
-  console.log(`Using API path for user data: ${userApiPath} (Netlify: ${isNetlify})`);
+  console.log(`Using API path for user data: ${userApiPath} (Netlify: ${isNetlifyEnvironment()})`);
   
   // Check if user opted to be remembered
   const shouldRememberUser = typeof window !== 'undefined' && localStorage.getItem('moodlync_remember_me') === 'true';
@@ -92,11 +92,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
         
-        // Check if we're running in Netlify environment
-        const isNetlify = window.location.hostname.includes('netlify.app');
-        const apiPath = isNetlify ? "/.netlify/functions/api/login" : "/api/login";
+        // Use helper to get appropriate API path for current environment
+        const apiPath = getApiPath("/api/login");
         
-        console.log(`Using API path for login: ${apiPath} (Netlify: ${isNetlify})`);
+        console.log(`Using API path for login: ${apiPath} (Netlify: ${isNetlifyEnvironment()})`);
         
         const res = await apiRequest("POST", apiPath, loginCredentials);
         
@@ -153,8 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       // Update cache using the same path that was used to fetch user data
-      const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
-      const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
+      const userApiPath = getApiPath("/api/user");
       
       queryClient.setQueryData([userApiPath], user);
       toast({
@@ -186,11 +184,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error("You appear to be offline. Please check your internet connection and try again.");
         }
         
-        // Check if we're running in Netlify environment
-        const isNetlify = window.location.hostname.includes('netlify.app');
-        const apiPath = isNetlify ? "/.netlify/functions/api/register" : "/api/register";
+        // Use helper to get appropriate API path for current environment
+        const apiPath = getApiPath("/api/register");
         
-        console.log(`Using API path for registration: ${apiPath} (Netlify: ${isNetlify})`);
+        console.log(`Using API path for registration: ${apiPath} (Netlify: ${isNetlifyEnvironment()})`);
         
         const res = await apiRequest("POST", apiPath, credentials);
         console.log("Registration response status:", res.status, res.statusText);

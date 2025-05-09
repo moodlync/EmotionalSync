@@ -146,13 +146,15 @@ export const restoreUserState = () => {
 // Listen for QueryClient events to persist user state
 if (typeof window !== 'undefined') {
   try {
-    // Add manual event listener to store user data when it changes
-    const userKey = window.location.hostname.includes('netlify.app')
-      ? "/.netlify/functions/api/user"
-      : "/api/user";
+    // Get the appropriate user key based on environment
+    const userKey = getApiPath("/api/user");
       
     // Set up an interval to check and save user data periodically
+    // but only if "Remember Me" was selected
     const saveInterval = setInterval(() => {
+      const shouldRememberUser = localStorage.getItem('moodlync_remember_me') === 'true';
+      if (!shouldRememberUser) return;
+      
       const userData = queryClient.getQueryData([userKey]);
       if (userData) {
         localStorage.setItem('moodlync_user', JSON.stringify(userData));
