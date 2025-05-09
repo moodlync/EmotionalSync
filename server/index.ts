@@ -110,17 +110,18 @@ app.use((req, res, next) => {
     }
   };
 
+  // Set up development server with Vite
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
   // Listen on port 5000 for Replit environment
   server.listen(5000, "0.0.0.0", () => {
     log(`MoodLync server running on port 5000`);
-    // Initialize WebSocket on primary server
-    initializeWebSocketIfNeeded(server);
-    
     if (isReplitEnv) {
       log(`Running in Replit environment on port 5000`);
     }
-  }).on('error', (err: any) => {
-    console.error(`Failed to start server on port 5000:`, err.message);
-    console.error(`Server initialization failed. Please check if port 5000 is already in use.`);
   });
 })();
