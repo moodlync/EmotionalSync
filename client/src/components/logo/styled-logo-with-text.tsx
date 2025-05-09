@@ -93,7 +93,7 @@ export default function StyledLogoWithText({
             'font-extrabold tracking-tight leading-none',
             textSizeClasses[textSize]
           )}>
-            <span className={isDarkMode ? "text-white" : "text-black"}>MOOD</span>
+            <span className="text-black">MOOD</span>
             <span className="text-red-500">LYNC</span>
           </div>
           
