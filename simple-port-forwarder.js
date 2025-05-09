@@ -1,5 +1,5 @@
 /**
- * Simple Port Forwarder for MoodLync
+ * Simple Port Forwarder for MoodSync
  * This minimal script helps Replit access our application properly
  */
 

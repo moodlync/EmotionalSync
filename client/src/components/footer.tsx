@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Lock, MessageSquare, Send } from "lucide-react";
+import { Lock, MessageSquare, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,12 +41,47 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="mx-auto flex flex-col items-center justify-center mb-6">
           <div className="flex flex-col items-center justify-center gap-1">
-            <div className="flex items-center justify-center my-6">
-              <img 
-                src="/assets/IMG_4705.jpeg" 
-                alt="MoodLync Footer" 
-                className="w-96 h-auto object-contain"
-              />
+            <div className="flex flex-col items-center justify-center my-6">
+              <div className="flex items-center gap-3 mb-2">
+                {/* SVG version of the logo */}
+                <div className="flex items-center justify-center">
+                  <svg 
+                    width="50" 
+                    height="50" 
+                    viewBox="0 0 300 300" 
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {/* Blue curved line at top */}
+                    <path d="M50,100 C100,50 200,50 250,100" stroke="#3b82f6" strokeWidth="20" fill="none" />
+                    
+                    {/* Red person icon in center */}
+                    <circle cx="150" cy="120" r="25" fill="#f43f5e" />
+                    <path d="M150,145 C120,145 110,170 110,190 C110,210 120,220 150,220 C180,220 190,210 190,190 C190,170 180,145 150,145" fill="#f43f5e" />
+                    
+                    {/* Red curved line (left) */}
+                    <path d="M50,100 C30,140 30,180 50,220" stroke="#dc2626" strokeWidth="20" fill="none" />
+                    
+                    {/* Green curved line (right) */}
+                    <path d="M250,100 C270,140 270,180 250,220" stroke="#16a34a" strokeWidth="20" fill="none" />
+                  </svg>
+                </div>
+                
+                <div className="flex flex-col ml-2">
+                  <div className="font-extrabold tracking-tight text-lg leading-none text-white">
+                    <span>MOOD</span>
+                    <span className="text-rose-200">SYNC</span>
+                  </div>
+                  <div className="text-white/80 text-xs leading-tight font-medium">
+                    Connect - Detect - Reflect
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Feedback heading with icon */}
+            <div className="flex items-center justify-center gap-2 mt-2 mb-1">
+              <Sparkles className="h-5 w-5 text-yellow-300" />
+              <h3 className="font-semibold text-white text-lg">Share your feedback</h3>
             </div>
             
             {/* Feedback form below the footer image */}
@@ -65,12 +100,7 @@ export default function Footer() {
               <form onSubmit={handleSubmitFeedback} className="mt-4 w-full max-w-md">
                 <Textarea
                   placeholder="Share your feedback or suggest features..."
-                  style={{ 
-                    '::placeholder': { 
-                      color: 'var(--gray-500)',
-                    }
-                  }}
-                  className="min-h-[80px] text-sm resize-none bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700"
+                  className="min-h-[80px] text-sm resize-none bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                 />
@@ -180,8 +210,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@moodlync.io" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
-                  support@moodlync.io
+                <a href="mailto:support@moodsync.io" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                  support@moodsync.io
                 </a>
               </li>
             </ul>
@@ -190,7 +220,7 @@ export default function Footer() {
         
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-2">
           <p className="text-center text-sm text-gray-600 dark:text-gray-400 font-medium">
-            <span className="inline-block">&copy; 2025 MoodLync</span>
+            <span className="inline-block">&copy; 2025 MoodSync</span>
             <span className="mx-1 text-gray-400 dark:text-gray-500">|</span>
             <span className="inline-block">Powered by: Rollover Australia Inc.</span>
             <span className="mx-1 text-gray-400 dark:text-gray-500">|</span>

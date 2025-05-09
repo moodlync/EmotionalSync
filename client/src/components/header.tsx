@@ -89,15 +89,34 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-800 dark:to-purple-900 text-white shadow-md">
+    <header className="bg-gradient-to-r from-[#D7D7FC] via-[#4D4DE3] to-[#1A1A2E] dark:from-[#4D4DE3] dark:via-[#1A1A2E] dark:to-[#0D0D15] text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
             <div className="flex flex-row items-center gap-2">
-              <div className="w-[60px] h-[60px] flex items-center justify-center bg-blue-500 text-white font-bold rounded-full">
-                <span className="text-xl">ML</span>
+              <div className="w-[60px] h-[60px] flex items-center justify-center">
+                {/* SVG version of the logo using the exact design from the provided image */}
+                <svg 
+                  width="50" 
+                  height="50" 
+                  viewBox="0 0 300 300" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Blue curved line at top */}
+                  <path d="M50,100 C100,50 200,50 250,100" stroke="#0096FF" strokeWidth="20" fill="none" />
+                  
+                  {/* Red person icon in center */}
+                  <circle cx="150" cy="120" r="25" fill="#FF4D6A" />
+                  <path d="M150,145 C120,145 110,170 110,190 C110,210 120,220 150,220 C180,220 190,210 190,190 C190,170 180,145 150,145" fill="#FF4D6A" />
+                  
+                  {/* Red curved line (left) */}
+                  <path d="M50,100 C30,140 30,180 50,220" stroke="#BF0000" strokeWidth="20" fill="none" />
+                  
+                  {/* Green curved line (right) */}
+                  <path d="M250,100 C270,140 270,180 250,220" stroke="#008F00" strokeWidth="20" fill="none" />
+                </svg>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col ml-2">
                 <div className="font-extrabold tracking-tight text-lg leading-none text-white">
                   <span>MOOD</span>
                   <span className="text-rose-200">LYNC</span>
