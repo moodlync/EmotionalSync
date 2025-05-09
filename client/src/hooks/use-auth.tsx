@@ -29,7 +29,7 @@ const defaultContextValue: AuthContextType = {
   user: null,
   isLoading: false,
   error: null,
-  loginMutation: {} as UseMutationResult<SelectUser, Error, LoginData>,
+  loginMutation: {} as UseMutationResult<SelectUser, Error, LoginDataWithRemember>,
   logoutMutation: {} as UseMutationResult<void, Error, void>,
   registerMutation: {} as UseMutationResult<SelectUser, Error, InsertUser>,
   resendVerificationMutation: {} as UseMutationResult<{ success: boolean, message: string }, Error, void>
@@ -45,10 +45,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   console.log(`Using API path for user data: ${userApiPath} (Netlify: ${isNetlify})`);
   
-  // Initialize with data from localStorage if available
-  const initialUserData = typeof window !== 'undefined' 
+  // Check if user opted to be remembered
+  const shouldRememberUser = typeof window !== 'undefined' && localStorage.getItem('moodlync_remember_me') === 'true';
+  
+  // Initialize with data from localStorage only if "Remember Me" was selected
+  const initialUserData = (typeof window !== 'undefined' && shouldRememberUser)
     ? JSON.parse(localStorage.getItem('moodlync_user') || 'null') 
     : null;
+  
+  // Effect to clear localStorage data when "Remember Me" is not selected
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !shouldRememberUser) {
+      localStorage.removeItem('moodlync_user');
+    }
+  }, [shouldRememberUser]);
   
   const {
     data: user,
@@ -57,22 +67,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<SelectUser | null, Error>({
     queryKey: [userApiPath],
     queryFn: getQueryFn({ on401: "returnNull" }),
-    // Start with data from localStorage to prevent flashing redirects on refresh
+    // Start with data from localStorage only if user opted to be remembered
     initialData: initialUserData,
     // Clear state only after 5 minutes if we can't reach the server
     staleTime: 5 * 60 * 1000,
   });
 
   const loginMutation = useMutation({
-    mutationFn: async (credentials: LoginData) => {
+    mutationFn: async (credentials: LoginDataWithRemember) => {
       try {
+        // Extract the rememberMe flag and pass only username/password to API
+        const { rememberMe, ...loginCredentials } = credentials;
+        
+        // Store the "Remember Me" preference
+        if (typeof window !== 'undefined') {
+          if (rememberMe) {
+            localStorage.setItem('moodlync_remember_me', 'true');
+          } else {
+            localStorage.removeItem('moodlync_remember_me');
+            localStorage.removeItem('moodlync_user');
+          }
+        }
+        
         // Check if we're running in Netlify environment
         const isNetlify = window.location.hostname.includes('netlify.app');
         const apiPath = isNetlify ? "/.netlify/functions/api/login" : "/api/login";
         
         console.log(`Using API path for login: ${apiPath} (Netlify: ${isNetlify})`);
         
-        const res = await apiRequest("POST", apiPath, credentials);
+        const res = await apiRequest("POST", apiPath, loginCredentials);
         
         // Check if the response is ok before trying to parse the JSON
         if (!res.ok) {
@@ -93,16 +116,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Handle both response formats:
         // 1. { user: {...}, tokens: {...} } - extract user object
         // 2. Direct user object
+        let userData;
         if (responseData && responseData.user && typeof responseData.user === 'object') {
           console.log("Extracted user from response:", responseData.user);
-          return responseData.user;
+          userData = responseData.user;
         } else if (responseData && responseData.id) {
           console.log("Using direct user response:", responseData);
-          return responseData;
+          userData = responseData;
         } else {
           console.error("Invalid user data format in response:", responseData);
           throw new Error("Server returned invalid user data. Please try again.");
         }
+        
+        // Store in localStorage only if "Remember Me" is checked
+        if (rememberMe && typeof window !== 'undefined') {
+          localStorage.setItem('moodlync_user', JSON.stringify(userData));
+        }
+        
+        return userData;
       } catch (error) {
         console.error("Login request error:", error);
         throw error;
@@ -269,6 +300,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
       
       queryClient.setQueryData([userApiPath], null);
+      
+      // Clear localStorage data (including remember me preference) on logout
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('moodlync_user');
+        localStorage.removeItem('moodlync_remember_me');
+      }
+      
       toast({
         title: "Logged out",
         description: "You've been successfully logged out",
