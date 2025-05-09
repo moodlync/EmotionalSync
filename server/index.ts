@@ -83,7 +83,7 @@ app.use((req, res, next) => {
   const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
 
   // Use port 5001 as our primary port for compatibility with all environments
-  const primaryPort = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+  const primaryPort = 5000;
 
   // For Replit workflow detection, we run a separate script on port 5000
   const workflowPort = 5000;
