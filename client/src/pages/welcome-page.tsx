@@ -84,10 +84,30 @@ export default function WelcomePage() {
     setTestimonialRating(5);
   };
 
+  // Force light mode in welcome page
+  useEffect(() => {
+    // Save previous theme for restoration when navigating away
+    const prevTheme = localStorage.getItem('theme');
+    localStorage.setItem('prev-theme', prevTheme || 'light');
+    localStorage.setItem('theme', 'light');
+    document.documentElement.classList.remove('dark');
+    
+    return () => {
+      // Restore previous theme when component unmounts
+      const savedTheme = localStorage.getItem('prev-theme');
+      if (savedTheme) {
+        localStorage.setItem('theme', savedTheme);
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      }
+    };
+  }, []);
+  
   return (
-    <div className="min-h-screen flex flex-col welcome-page bg-[#EAEAEA] dark:bg-gray-950">
+    <div className="min-h-screen flex flex-col welcome-page bg-[#EAEAEA]">
       {/* Enhanced Header with Animation */}
-      <header className="w-full bg-white dark:bg-gray-900 border-b dark:border-gray-800 py-5 px-6 shadow-sm sticky top-0 z-50 backdrop-blur-sm bg-white/90 dark:bg-gray-900/90">
+      <header className="w-full bg-white border-b py-5 px-6 shadow-sm sticky top-0 z-50 backdrop-blur-sm bg-white/90">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <div className="relative">
