@@ -50,6 +50,7 @@ export default function AuthPage() {
   const { toast } = useToast();
   const [location, navigate] = useLocation();
   const [userGender, setUserGender] = useState<GenderType | null>(null);
+  
   const [showDevPanel, setShowDevPanel] = useState<boolean>(false);
 
   // Keyboard shortcut handler for developer access (Ctrl+Alt+D)
@@ -67,20 +68,24 @@ export default function AuthPage() {
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (user) {
+    if (!isLoading && user) {
       // Check if there's a redirect path stored in sessionStorage
       const redirectPath = sessionStorage.getItem('redirectAfterAuth');
+      
       if (redirectPath) {
         // Clear the redirect path
         sessionStorage.removeItem('redirectAfterAuth');
+        console.log("User already logged in, redirecting to session path:", redirectPath);
         // Redirect to the stored path
         navigate(redirectPath);
       } else {
-        // Default redirect to home page
-        navigate("/");
+        // Try to get the last visited path from localStorage
+        const lastPath = localStorage.getItem("moodlync_last_path") || "/";
+        console.log("User already logged in, redirecting to last path:", lastPath);
+        navigate(lastPath);
       }
     }
-  }, [user, navigate]);
+  }, [user, isLoading, navigate]);
 
   // Login form
   const loginForm = useForm<z.infer<typeof loginSchema>>({

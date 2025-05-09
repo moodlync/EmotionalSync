@@ -47,15 +47,19 @@ export default function HomePage() {
   // Mutation to update the user's emotion
   const updateEmotionMutation = useMutation({
     mutationFn: async (emotion: EmotionType) => {
+      console.log("Updating emotion to:", emotion);
       const res = await apiRequest('POST', '/api/emotion', { emotion });
       return res.json();
     },
     onSuccess: async (response) => {
       const { emotion, tokensEarned } = response;
+      console.log("Emotion update successful:", emotion);
       
       // Update emotion in the cache with the correct format
       queryClient.setQueryData(['/api/emotion', user?.id], { emotion });
-      // Force invalidation to ensure the UI updates
+      
+      // Force invalidation to ensure the UI updates - this is crucial
+      queryClient.invalidateQueries({ queryKey: ['/api/emotion'] });
       queryClient.invalidateQueries({ queryKey: ['/api/emotion', user?.id] });
       
       // Show tokens earned notification if any
@@ -117,7 +121,8 @@ export default function HomePage() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const emotion = emotions[currentEmotion || 'neutral'];
+  const emotionKey = (currentEmotion || 'neutral') as EmotionType;
+  const emotion = emotions[emotionKey];
 
   return (
     <MainLayout>
@@ -600,10 +605,10 @@ export default function HomePage() {
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'connect' && <ConnectTab currentEmotion={currentEmotion || 'neutral'} />}
+        {activeTab === 'connect' && <ConnectTab currentEmotion={emotionKey} />}
         {activeTab === 'map' && <GlobalMapTab />}
         {activeTab === 'journal' && <JournalTab />}
-        {activeTab === 'ai' && <AICompanionTab currentEmotion={currentEmotion || 'neutral'} />}
+        {activeTab === 'ai' && <AICompanionTab currentEmotion={emotionKey} />}
         {activeTab === 'premium' && <PremiumTab />}
         {activeTab === 'gamification' && (
           <div>
