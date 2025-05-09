@@ -424,8 +424,11 @@ export default function AuthPage() {
               <h3 className="font-semibold text-lg text-primary">Track, reflect, and grow - your emotions matter here.</h3>
             </div>
             
-            <div className="text-center text-sm">
-              <a href="/welcome" className="text-primary hover:text-primary/80 underline font-medium">
+            <div className="text-center text-sm mt-4">
+              <a 
+                href="/welcome" 
+                className="inline-block px-4 py-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/80 text-white font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
+              >
                 View our feature showcase
               </a>
             </div>
