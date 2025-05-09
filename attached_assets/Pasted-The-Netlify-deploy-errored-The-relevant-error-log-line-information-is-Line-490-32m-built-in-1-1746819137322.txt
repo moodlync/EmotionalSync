@@ -1,0 +1,65 @@
+The Netlify deploy errored. The relevant error log line information is:
+
+Line 490: [32m✓ built in 14.64s[39m
+Line 491: ​
+Line 492: [90m(build.command completed in 16.9s)[39m
+Line 493: [96m[1m​[22m[39m
+Line 494: [96m[1mFunctions bundling                                            [22m[39m
+Line 495: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 496: ​
+Line 497: Packaging Functions from [36mnetlify/functions[39m directory:
+Line 498:  - api.cjs
+Line 499:  - api.js
+Line 500:  - error-handler.cjs
+Line 501:  - error-handler.js
+Line 502:  - install.cjs
+Line 503:  - install.mjs
+Line 504:  - install.js
+Line 505:  - netlify.js
+Line 506: ​
+Line 507: Failed during stage 'building site': Build script returned non-zero exit code: 2
+Line 508: [91m[1m​[22m[39m
+Line 509: [91m[1mDependencies installation error                               [22m[39m
+Line 510: [91m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 511: ​
+Line 512:   [31m[1mError message[22m[39m
+Line 513:   A Netlify Function failed to require a local file.
+Line 514:   Please make sure the file exists and its path is correctly spelled.
+Line 515: ​
+Line 516:   In file "/opt/build/repo/netlify/functions/api.js"
+Line 517:   Cannot find module './routes' from '/opt/build/repo/server'
+Line 518: ​
+Line 519:   [31m[1mResolved config[22m[39m
+Line 520:   build:
+Line 521:     command: npm run build
+Line 522:     commandOrigin: config
+Line 523:     publish: /opt/build/repo/dist/public
+Line 535:       package: '@netlify/plugin-sitemap'
+Line 536:     - inputs: {}
+Line 537:       origin: ui
+Line 538:       package: netlify-plugin-subfont
+Line 539:     - inputs: {}
+Line 540:       origin: ui
+Line 541:       package: '@netlify/plugin-lighthouse'
+Line 542:   redirects:
+Line 543:     - force: true
+Line 544:       from: /api/*
+      status: 200
+      to: /.netlify/functions/api/:splat
+    - from: /*
+      status: 200
+      to: /index.
+Line 545: Build failed due to a user error: Build script returned non-zero exit code: 2
+Line 546: Failing build: Failed to build site
+Line 547: Finished processing build request in 57.654s
+
+Netlify has analyzed the error and provided the following guidance:
+
+### Diagnosis
+[line 507](#L507): The build failed due to a user error with a non-zero exit code, specifically code 2. The error message indicates that a Netlify Function failed to require a local file.
+
+### Solution
+1. The file 'api.js' is looking for a module './routes' but cannot find it in the '/opt/build/repo/server' directory.
+2. Verify that the file 'routes.js' exists in the expected location.
+3. Ensure that the path to the 'routes.js' file is correctly spelled relative to the 'api.js' file.
+4. If the 'routes.js' file is missing, add it to the '/opt/build/repo/server' directory and commit the changes to the repository.

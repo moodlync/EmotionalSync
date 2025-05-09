@@ -15,10 +15,11 @@ import {
   Loader2, Heart, Eye, EyeOff, Info, ArrowRight, Brain, Shield, Star, AlertCircle, AlertTriangle,
   Sparkles, MapPin, MessageCircle, Users, Gamepad, BarChart3, Crown, Bot, CheckCircle
 } from "lucide-react";
-import StyledLogoWithText from "@/components/logo/styled-logo-with-text";
+import AuthPageLogo from "@/components/logo/auth-page-logo";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import authImage from "@/assets/auth-hero.jpeg";
+import newLogo from "@/assets/moodlync-logo-new.jpg";
 
 // Helper to determine if we're in development mode
 const isDevelopment = import.meta.env.MODE === 'development';
@@ -410,7 +411,7 @@ export default function AuthPage() {
               {/* Logo with minimal glow and heartbeat effect */}
               <div className="mb-5">
                 <div className="flex items-center justify-center">
-                  <StyledLogoWithText 
+                  <AuthPageLogo 
                     logoSize={100} 
                     textSize="lg" 
                     showTagline={true}
