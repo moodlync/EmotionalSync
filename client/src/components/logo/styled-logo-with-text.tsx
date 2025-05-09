@@ -11,8 +11,6 @@ interface StyledLogoWithTextProps {
   vertical?: boolean;
   hideText?: boolean;
   showTagline?: boolean;
-  enableHeartbeat?: boolean;
-  enableSpin?: boolean;
   isAuthenticated?: boolean;
 }
 
@@ -23,15 +21,13 @@ export default function StyledLogoWithText({
   vertical = false,
   hideText = false,
   showTagline = false,
-  enableHeartbeat = true,
-  enableSpin = true,
   isAuthenticated = false
 }: StyledLogoWithTextProps) {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [, navigate] = useLocation();
   
-  // Calculate the adjusted size (make logo 50% larger)
+  // Calculate the adjusted size (make logo larger)
   const adjustedLogoSize = Math.floor(logoSize * 2.5);
   
   // Avoid hydration mismatch by only rendering after mount
@@ -57,7 +53,7 @@ export default function StyledLogoWithText({
   // Determine if we're in dark mode
   const isDarkMode = mounted && (theme === 'dark');
   
-  // Handle logo/text click
+  // Handle logo/text click - navigates to home when authenticated
   const handleLogoClick = () => {
     if (isAuthenticated) {
       navigate('/');
@@ -66,14 +62,13 @@ export default function StyledLogoWithText({
 
   return (
     <div className={cn(
-      'flex items-center gap-6', // Increased gap
+      'flex items-center gap-6',
       vertical && 'flex-col',
       className
     )}>
       <div 
         className={cn(
           "flex items-center justify-center cursor-pointer",
-          enableHeartbeat && "animate-very-slow-heartbeat",
           isAuthenticated && "cursor-pointer"
         )} 
         style={{ width: `${adjustedLogoSize}px`, height: `${adjustedLogoSize}px` }}
@@ -84,7 +79,7 @@ export default function StyledLogoWithText({
           alt="MoodLync Logo" 
           className={cn(
             "w-full h-full object-contain",
-            enableSpin && "animate-very-slow-spin"
+            "animate-very-slow-spin"
           )}
         />
       </div>

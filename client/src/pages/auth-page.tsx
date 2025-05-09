@@ -385,8 +385,6 @@ export default function AuthPage() {
                   <StyledLogoWithText 
                     logoSize={100} 
                     textSize="lg" 
-                    enableHeartbeat={true}
-                    enableSpin={true}
                     showTagline={true}
                   />
                 </div>

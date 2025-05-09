@@ -98,8 +98,6 @@ export default function Header() {
               logoSize={70} 
               textSize="lg" 
               hideText={false}
-              enableHeartbeat={true}
-              enableSpin={true}
               isAuthenticated={!!user}
               showTagline={false}
             />
