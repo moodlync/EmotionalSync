@@ -1285,108 +1285,108 @@ export default function WelcomePage() {
         
         <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
           {/* Testimonial 1 */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 dark:border-gray-700 relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-100 to-pink-50 dark:from-pink-900/10 dark:to-pink-800/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-pink-100 dark:border-pink-800/30 relative group dark:shadow-lg dark:shadow-pink-900/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-100 to-pink-50 dark:from-pink-900/20 dark:to-pink-800/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-bold text-xl shadow-md p-1 border-2 border-white dark:border-gray-700">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-bold text-xl shadow-md p-1 border-2 border-white dark:border-pink-700/50">
                   <span className="transform group-hover:scale-110 transition-transform duration-300">S</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-lg">Sarah K.</h4>
-                  <p className="text-xs text-muted-foreground">Designer, 28</p>
+                  <h4 className="font-semibold text-lg dark:text-white">Sarah K.</h4>
+                  <p className="text-xs text-muted-foreground dark:text-pink-200/70">Designer, 28</p>
                 </div>
               </div>
               <div className="mb-4 relative">
-                <div className="absolute -top-2 -left-2 text-pink-500 text-3xl opacity-30">"</div>
+                <div className="absolute -top-2 -left-2 text-pink-500 text-3xl opacity-30 dark:text-pink-400 dark:opacity-50">"</div>
                 <p className="text-sm text-gray-600 dark:text-gray-300 pl-4 relative z-10">
                   MoodLync helped me find friends who truly understood what I was going through during a difficult time. 
                   The emotional connection was immediate and genuine. I've never felt so understood online before.
                 </p>
-                <div className="absolute -bottom-2 -right-2 text-pink-500 text-3xl opacity-30">"</div>
+                <div className="absolute -bottom-2 -right-2 text-pink-500 text-3xl opacity-30 dark:text-pink-400 dark:opacity-50">"</div>
               </div>
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <span className="text-xs text-muted-foreground ml-2">Joined 6 months ago</span>
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <span className="text-xs text-muted-foreground ml-2 dark:text-gray-400">Joined 6 months ago</span>
               </div>
             </div>
           </div>
           
           {/* Testimonial 2 */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 dark:border-gray-700 relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/10 dark:to-blue-800/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-blue-100 dark:border-blue-800/30 relative group dark:shadow-lg dark:shadow-blue-900/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/20 dark:to-blue-800/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md p-1 border-2 border-white dark:border-gray-700">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md p-1 border-2 border-white dark:border-blue-700/50">
                   <span className="transform group-hover:scale-110 transition-transform duration-300">D</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-lg">David R.</h4>
-                  <p className="text-xs text-muted-foreground">Engineer, 34</p>
+                  <h4 className="font-semibold text-lg dark:text-white">David R.</h4>
+                  <p className="text-xs text-muted-foreground dark:text-blue-200/70">Engineer, 34</p>
                 </div>
               </div>
               <div className="mb-4 relative">
-                <div className="absolute -top-2 -left-2 text-blue-500 text-3xl opacity-30">"</div>
+                <div className="absolute -top-2 -left-2 text-blue-500 text-3xl opacity-30 dark:text-blue-400 dark:opacity-50">"</div>
                 <p className="text-sm text-gray-600 dark:text-gray-300 pl-4 relative z-10">
                   I've never felt so understood. The emotion-based matching has introduced me to people who help me process my feelings in healthy ways. The premium features are worth every penny.
                 </p>
-                <div className="absolute -bottom-2 -right-2 text-blue-500 text-3xl opacity-30">"</div>
+                <div className="absolute -bottom-2 -right-2 text-blue-500 text-3xl opacity-30 dark:text-blue-400 dark:opacity-50">"</div>
               </div>
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <span className="text-xs text-muted-foreground ml-2">Premium Member</span>
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <span className="text-xs text-muted-foreground ml-2 dark:text-blue-300">Premium Member</span>
               </div>
             </div>
           </div>
           
           {/* Testimonial 3 */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 dark:border-gray-700 relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/10 dark:to-purple-800/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-purple-100 dark:border-purple-800/30 relative group dark:shadow-lg dark:shadow-purple-900/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/20 dark:to-purple-800/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-md p-1 border-2 border-white dark:border-gray-700">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-md p-1 border-2 border-white dark:border-purple-700/50">
                   <span className="transform group-hover:scale-110 transition-transform duration-300">M</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-lg">Maria K.</h4>
+                  <h4 className="font-semibold text-lg dark:text-white">Maria K.</h4>
                   <div className="flex items-center">
-                    <p className="text-xs text-muted-foreground">Healthcare Worker, 29</p>
-                    <Badge className="ml-2 bg-gradient-to-r from-amber-500 to-amber-700 text-white text-[9px] px-1.5 py-0">VIP</Badge>
+                    <p className="text-xs text-muted-foreground dark:text-purple-200/70">Healthcare Worker, 29</p>
+                    <Badge className="ml-2 bg-gradient-to-r from-amber-500 to-amber-700 text-white text-[9px] px-1.5 py-0 dark:from-amber-400 dark:to-amber-600">VIP</Badge>
                   </div>
                 </div>
               </div>
               <div className="mb-4 relative">
-                <div className="absolute -top-2 -left-2 text-purple-500 text-3xl opacity-30">"</div>
+                <div className="absolute -top-2 -left-2 text-purple-500 text-3xl opacity-30 dark:text-purple-400 dark:opacity-50">"</div>
                 <p className="text-sm text-gray-600 dark:text-gray-300 pl-4 relative z-10">
                   The global emotion map helps me feel connected to humanity. It's comforting to see that others around the world share my emotional state and experiences.
                 </p>
-                <div className="absolute -bottom-2 -right-2 text-purple-500 text-3xl opacity-30">"</div>
+                <div className="absolute -bottom-2 -right-2 text-purple-500 text-3xl opacity-30 dark:text-purple-400 dark:opacity-50">"</div>
               </div>
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <Star className="h-4 w-4 fill-none text-amber-500" />
-                <span className="text-xs text-muted-foreground ml-2">Member since 2022</span>
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
+                <Star className="h-4 w-4 fill-none text-amber-500 dark:text-amber-400" />
+                <span className="text-xs text-muted-foreground ml-2 dark:text-purple-300">Member since 2022</span>
               </div>
             </div>
           </div>
         </div>
         
         {/* Testimonial Submission Form */}
-        <div className="max-w-2xl mx-auto mt-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
+        <div className="max-w-2xl mx-auto mt-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl shadow-md dark:shadow-lg dark:shadow-rose-900/5 border border-rose-100 dark:border-rose-800/30">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold mb-2">Share Your Experience</h3>
-            <p className="text-muted-foreground">Tell us how MoodLync has helped your emotional journey</p>
+            <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-pink-600 dark:from-rose-400 dark:to-pink-400">Share Your Experience</h3>
+            <p className="text-muted-foreground dark:text-gray-300">Tell us how MoodLync has helped your emotional journey</p>
           </div>
           
           <form onSubmit={handleTestimonialSubmit}>
@@ -1468,7 +1468,7 @@ export default function WelcomePage() {
           <p className="text-lg mb-8 text-white/90">Join thousands of users building authentic relationships based on shared emotions.</p>
           
           <Button 
-            className="bg-white text-primary hover:bg-white/90 px-8 py-6 text-lg font-semibold shadow-lg"
+            className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-8 py-6 text-lg font-semibold shadow-lg dark:shadow-xl dark:shadow-white/20"
             onClick={() => navigate('/auth')}
           >
             Sign Up Now
