@@ -22,9 +22,11 @@ export function NewMoodLyncLogo({
         style={{ width, height }}
       >
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center rounded-full w-10 h-10 bg-blue-500 text-white font-bold overflow-hidden">
-            <span className="text-xs">ML</span>
-          </div>
+          <img 
+            src="/assets/moodlync-logo-resized.jpg" 
+            alt="MoodLync Logo" 
+            className="w-10 h-10 object-contain"
+          />
           {/* Text removed as requested */}
         </div>
       </div>

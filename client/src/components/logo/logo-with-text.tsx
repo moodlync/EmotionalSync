@@ -41,14 +41,18 @@ export default function LogoWithText({
       className
     )}>
       <div 
-        className="flex items-center justify-center bg-blue-500 text-white font-bold rounded-full hover:scale-105 transition-transform duration-200"
+        className="flex items-center justify-center hover:scale-105 transition-transform duration-200"
         style={{ 
-          width: logoSize, 
-          height: logoSize,
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          height: logoSize, 
+          width: logoSize
         }}
       >
-        <span style={{ fontSize: `${fontSize}px` }}>ML</span>
+        <img 
+          src="/assets/moodlync-logo-resized.jpg" 
+          alt="MoodLync Logo" 
+          className="w-full h-full object-contain"
+          style={{ maxHeight: `${textSize === 'sm' ? 24 : textSize === 'md' ? 28 : textSize === 'lg' ? 32 : 36}px` }}
+        />
       </div>
       
       {!hideText && (
