@@ -23,8 +23,8 @@ server.listen(5000, '0.0.0.0', () => {
 
 // Start the main application using npm run dev
 const env = { ...process.env, PORT: '8080' };
-const mainApp = spawn('npm', ['run', 'dev'], {
-  env,
+const mainApp = spawn('./node_modules/.bin/tsx', ['server/index.ts'], {
+  env: { ...process.env, NODE_ENV: 'development', PORT: '8080' },
   stdio: 'inherit'
 });
 
