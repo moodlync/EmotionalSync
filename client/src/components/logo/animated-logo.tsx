@@ -1,75 +1,30 @@
-import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface AnimatedLogoProps {
   className?: string;
   size?: number;
-  hoverEffect?: boolean;
 }
 
 export default function AnimatedLogo({ 
   className, 
-  size = 56, 
-  hoverEffect = true 
+  size = 56
 }: AnimatedLogoProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [rotation, setRotation] = useState({ x: -8, y: 8, z: 0 });
-  const logoRef = useRef<HTMLDivElement>(null);
+  // Calculate font size based on logo size
+  const fontSize = Math.max(12, Math.floor(size / 3));
   
-  // Interactive 3D rotation effect on mouse move
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!logoRef.current || !isHovered) return;
-      
-      const rect = logoRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      
-      // Calculate rotation based on mouse position relative to center
-      const rotateY = ((e.clientX - centerX) / (rect.width / 2)) * 15;
-      const rotateX = ((e.clientY - centerY) / (rect.height / 2)) * -15;
-      
-      setRotation({
-        x: rotateX,
-        y: rotateY,
-        z: 0
-      });
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isHovered]);
-  
-  // Display the logo image
   return (
     <div 
-      ref={logoRef}
       className={cn(
-        "relative transition-all duration-300 overflow-visible flex items-center justify-center rounded-full",
-        isHovered ? "scale-110" : "",
+        "flex items-center justify-center bg-blue-500 text-white font-bold rounded-full hover:scale-105 transition-transform duration-200",
         className
       )} 
       style={{ 
         width: size, 
         height: size,
-        filter: isHovered 
-          ? 'drop-shadow(0 18px 15px rgba(0,0,0,0.3)) drop-shadow(0 5px 10px rgba(0,0,0,0.2))' 
-          : 'drop-shadow(0 12px 12px rgba(0,0,0,0.2))',
-        transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) rotateZ(${rotation.z}deg)`,
-        transformStyle: 'preserve-3d',
-        transition: 'transform 0.2s ease-out, filter 0.3s ease-out'
-      }}
-      onMouseEnter={() => hoverEffect && setIsHovered(true)}
-      onMouseLeave={() => {
-        if (hoverEffect) {
-          setIsHovered(false);
-          setRotation({ x: -8, y: 8, z: 0 });
-        }
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
       }}
     >
-      <div className="w-full h-full bg-blue-500 text-white font-bold flex items-center justify-center rounded-full">
-        <span className="text-base">ML</span>
-      </div>
+      <span style={{ fontSize: `${fontSize}px` }}>ML</span>
     </div>
   );
 }

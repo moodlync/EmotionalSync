@@ -1,7 +1,4 @@
 import { cn } from '@/lib/utils';
-import DynamicLogo from './dynamic-logo';
-import { useState, useEffect } from 'react';
-import { useTheme } from "next-themes";
 
 interface HeaderLogoWithTextProps {
   className?: string;
@@ -9,7 +6,6 @@ interface HeaderLogoWithTextProps {
   textSize?: 'sm' | 'md' | 'lg' | 'xl';
   vertical?: boolean;
   hideText?: boolean;
-  enableHeartbeat?: boolean;
   isWelcomeScreen?: boolean;
 }
 
@@ -19,27 +15,10 @@ export default function HeaderLogoWithText({
   textSize = 'md',
   vertical = false,
   hideText = false,
-  enableHeartbeat = true,
   isWelcomeScreen = false
 }: HeaderLogoWithTextProps) {
-  const [isAnimating, setIsAnimating] = useState(false);
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  // Avoid hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  const textSizeClasses = {
-    sm: 'text-xs font-semibold',
-    md: 'text-sm font-semibold',
-    lg: 'text-base font-semibold',
-    xl: 'text-lg font-semibold'
-  };
-
-  // Determine if we're in dark mode
-  const isDarkMode = mounted && (theme === 'dark');
+  // Calculate font size based on logo size
+  const fontSize = Math.max(14, Math.floor(logoSize / 3));
 
   return (
     <div className={cn(
@@ -63,7 +42,7 @@ export default function HeaderLogoWithText({
                 border: '2px solid rgba(96, 82, 199, 0.2)'
               }}
             >
-              <span className="text-sm">ML</span>
+              <span style={{ fontSize: `${fontSize}px` }}>ML</span>
             </div>
           </div>
         ) : (
@@ -71,7 +50,7 @@ export default function HeaderLogoWithText({
             className="flex items-center justify-center bg-blue-500 text-white font-bold rounded-full" 
             style={{ width: `${logoSize}px`, height: `${logoSize}px` }}
           >
-            <span className="text-sm">ML</span>
+            <span style={{ fontSize: `${fontSize}px` }}>ML</span>
           </div>
         )}
       </div>
