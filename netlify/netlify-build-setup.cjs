@@ -1,71 +1,52 @@
 /**
- * MoodLync Netlify Build Setup
+ * Netlify Build Setup
  * 
- * This script modifies the build environment for Netlify deployments.
- * It ensures consistent theme settings and authentication handling.
+ * This script runs during Netlify builds to set up the environment properly
+ * and ensure all paths and settings are correctly configured for the Netlify deployment.
  */
 
-const fs = require('fs');
-const path = require('path');
+console.log('Running MoodLync Netlify build setup script...');
 
-console.log('Starting MoodLync Netlify Build Setup...');
-
-// Paths may need adjustment depending on Netlify environment
-const clientSrcPath = path.join(process.cwd(), 'client', 'src');
-const clientDistPath = path.join(process.cwd(), 'dist', 'public');
-
-function fixThemeAndAuthSettings() {
-  try {
-    // Create necessary directories for Netlify functions
-    if (!fs.existsSync(path.join(process.cwd(), 'netlify', 'functions'))) {
-      fs.mkdirSync(path.join(process.cwd(), 'netlify', 'functions'), { recursive: true });
-      console.log('Created Netlify functions directory');
-    }
-
-    // Handle Authentication Configuration
-    // This injects necessary code to ensure our "Remember Me" functionality works in Netlify
-    console.log('Setting up authentication configuration for Netlify...');
-
-    // Prepare auth-specific settings for Netlify environment
-    const netlifyAuthConfig = `
-// MoodLync Netlify Authentication Configuration
-// This file is auto-generated during the Netlify build process.
-
-// Helper to handle Netlify-specific authentication paths
-export function getNetlifyAuthPaths() {
-  return {
-    login: "/.netlify/functions/api/login",
-    logout: "/.netlify/functions/api/logout",
-    register: "/.netlify/functions/api/register",
-    user: "/.netlify/functions/api/user",
-    verifyEmail: "/.netlify/functions/api/verify-email",
-    resendVerification: "/.netlify/functions/api/resend-verification"
-  };
+// Set up the NODE_ENV
+if (!process.env.NODE_ENV) {
+  console.log('Setting NODE_ENV to production');
+  process.env.NODE_ENV = 'production';
 }
 
-// Helper to determine if current environment is Netlify
-export function isNetlifyEnvironment() {
-  return typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
-}
+// Ensure theme settings are preserved
+try {
+  const fs = require('fs');
+  const path = require('path');
+  
+  // Make sure theme settings are properly set
+  const themeContent = `
+// MoodLync Theme Settings for Netlify
+// This file is generated during build and should not be edited manually
+
+// Force light mode for auth and welcome pages
+export const AUTH_PAGES_FORCE_LIGHT_MODE = true;
+
+// Set remember-me behavior
+export const PERSIST_USER_STATE = 'conditional';
 `;
 
-    // Write the authentication config file
-    const authConfigPath = path.join(clientSrcPath, 'lib', 'netlify-auth-config.ts');
-    const authConfigDir = path.dirname(authConfigPath);
-    
-    if (!fs.existsSync(authConfigDir)) {
-      fs.mkdirSync(authConfigDir, { recursive: true });
-    }
-    
-    fs.writeFileSync(authConfigPath, netlifyAuthConfig);
-    console.log('Created Netlify authentication configuration file');
-
-    console.log('MoodLync Netlify Build Setup completed successfully!');
-  } catch (error) {
-    console.error('Error during MoodLync Netlify Build Setup:', error);
-    process.exit(1);
+  // Ensure the directory exists
+  const themeDirPath = path.join(process.cwd(), 'client', 'src', 'lib');
+  if (!fs.existsSync(themeDirPath)) {
+    console.log(`Creating directory: ${themeDirPath}`);
+    fs.mkdirSync(themeDirPath, { recursive: true });
   }
+
+  // Write the theme settings file
+  const themeFilePath = path.join(themeDirPath, 'theme-settings.ts');
+  console.log(`Writing theme settings to: ${themeFilePath}`);
+  fs.writeFileSync(themeFilePath, themeContent);
+
+  console.log('Theme settings configured successfully');
+} catch (error) {
+  console.error('Error setting up theme settings:', error);
 }
 
-// Run the setup
-fixThemeAndAuthSettings();
+// Additional Netlify-specific setup can be added here
+
+console.log('MoodLync Netlify build setup completed');

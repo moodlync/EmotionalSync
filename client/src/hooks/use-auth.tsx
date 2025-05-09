@@ -173,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async (credentials: InsertUser) => {
       try {
         // Log registration data (with password masked for security)
-        const sanitizedData = { ...credentials };
+        const sanitizedData = { ...credentials } as { [key: string]: any };
         if (sanitizedData.password) {
           sanitizedData.password = "********";
         }
@@ -267,7 +267,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         
         // Handle timeout errors
-        if (error.name === 'AbortError' || (error.message && error.message.includes('timeout'))) {
+        if (
+          error instanceof Error && 
+          (error.name === 'AbortError' || (error.message && error.message.includes('timeout')))
+        ) {
           throw new Error("The registration request timed out. Please try again when you have a stronger internet connection.");
         }
         
@@ -276,8 +279,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       // Update cache using the same path that was used to fetch user data
-      const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
-      const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
+      const userApiPath = getApiPath("/api/user");
       
       queryClient.setQueryData([userApiPath], user);
       toast({
@@ -297,18 +299,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      // Check if we're running in Netlify environment
-      const isNetlify = window.location.hostname.includes('netlify.app');
-      const apiPath = isNetlify ? "/.netlify/functions/api/logout" : "/api/logout";
+      // Use helper to get appropriate API path for current environment
+      const apiPath = getApiPath("/api/logout");
       
-      console.log(`Using API path for logout: ${apiPath} (Netlify: ${isNetlify})`);
+      console.log(`Using API path for logout: ${apiPath} (Netlify: ${isNetlifyEnvironment()})`);
       
       await apiRequest("POST", apiPath);
     },
     onSuccess: () => {
       // Update cache using the same path that was used to fetch user data
-      const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
-      const userApiPath = isNetlify ? "/.netlify/functions/api/user" : "/api/user";
+      const userApiPath = getApiPath("/api/user");
       
       queryClient.setQueryData([userApiPath], null);
       
@@ -338,11 +338,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error("You need to be logged in with an email address to receive verification emails.");
       }
       
-      // Check if we're running in Netlify environment
-      const isNetlify = window.location.hostname.includes('netlify.app');
-      const apiPath = isNetlify ? "/.netlify/functions/api/resend-verification" : "/api/resend-verification";
+      // Use helper to get appropriate API path for current environment
+      const apiPath = getApiPath("/api/resend-verification");
       
-      console.log(`Using API path for resending verification: ${apiPath} (Netlify: ${isNetlify})`);
+      console.log(`Using API path for resending verification: ${apiPath} (Netlify: ${isNetlifyEnvironment()})`);
       
       const res = await apiRequest("POST", apiPath);
       if (!res.ok) {
