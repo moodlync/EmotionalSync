@@ -1,52 +1,123 @@
+#!/usr/bin/env node
 /**
- * Netlify Build Setup
+ * Netlify Pre-build Setup Script
  * 
- * This script runs during Netlify builds to set up the environment properly
- * and ensure all paths and settings are correctly configured for the Netlify deployment.
+ * This script is run before the build process on Netlify to ensure that
+ * the environment is properly configured for the build.
  */
 
-console.log('Running MoodLync Netlify build setup script...');
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+const https = require('https');
 
-// Set up the NODE_ENV
-if (!process.env.NODE_ENV) {
-  console.log('Setting NODE_ENV to production');
-  process.env.NODE_ENV = 'production';
+function logSection(message) {
+  console.log('\n' + '='.repeat(80));
+  console.log(message);
+  console.log('='.repeat(80));
 }
 
-// Ensure theme settings are preserved
+// Start the pre-build setup process
+logSection('Starting MoodLync Netlify pre-build setup');
+console.log(`Node version: ${process.version}`);
+console.log(`Current directory: ${process.cwd()}`);
+
 try {
-  const fs = require('fs');
-  const path = require('path');
-  
-  // Make sure theme settings are properly set
-  const themeContent = `
-// MoodLync Theme Settings for Netlify
-// This file is generated during build and should not be edited manually
-
-// Force light mode for auth and welcome pages
-export const AUTH_PAGES_FORCE_LIGHT_MODE = true;
-
-// Set remember-me behavior
-export const PERSIST_USER_STATE = 'conditional';
-`;
-
-  // Ensure the directory exists
-  const themeDirPath = path.join(process.cwd(), 'client', 'src', 'lib');
-  if (!fs.existsSync(themeDirPath)) {
-    console.log(`Creating directory: ${themeDirPath}`);
-    fs.mkdirSync(themeDirPath, { recursive: true });
+  // Set NODE_ENV to production if not defined
+  if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = 'production';
+    console.log('Set NODE_ENV to production');
   }
-
-  // Write the theme settings file
-  const themeFilePath = path.join(themeDirPath, 'theme-settings.ts');
-  console.log(`Writing theme settings to: ${themeFilePath}`);
-  fs.writeFileSync(themeFilePath, themeContent);
-
-  console.log('Theme settings configured successfully');
+  
+  // Update browserslist DB to avoid warnings
+  logSection('Updating browserslist DB');
+  try {
+    execSync('npx update-browserslist-db@latest', { stdio: 'inherit' });
+    console.log('Browserslist database updated successfully');
+  } catch (err) {
+    console.warn('Failed to update browserslist database:', err.message);
+    console.log('Continuing with build regardless of browserslist update status');
+  }
+  
+  // Verify that the netlify.toml file has the correct publish directory
+  logSection('Verifying netlify.toml configuration');
+  let netlifyTomlPath = path.join(process.cwd(), 'netlify.toml');
+  if (fs.existsSync(netlifyTomlPath)) {
+    let netlifyToml = fs.readFileSync(netlifyTomlPath, 'utf8');
+    
+    // Check if the publish directory is correct
+    if (netlifyToml.includes('publish = "dist/public"')) {
+      console.log('✓ netlify.toml publish directory is correctly set to dist/public');
+    } else {
+      console.warn('⚠️ netlify.toml publish directory may not be set correctly!');
+      console.log('Current content:');
+      console.log(netlifyToml);
+    }
+    
+    // Check if client-side routing redirects are set up
+    if (netlifyToml.includes('from = "/*"') && 
+        netlifyToml.includes('to = "/index.html"') &&
+        netlifyToml.includes('status = 200')) {
+      console.log('✓ Client-side routing redirects are properly configured');
+    } else {
+      console.warn('⚠️ Client-side routing redirects may not be set up correctly!');
+    }
+    
+    // Check API redirects
+    if (netlifyToml.includes('from = "/api/*"') && 
+        netlifyToml.includes('to = "/.netlify/functions/api/:splat"')) {
+      console.log('✓ API redirects are properly configured');
+    } else {
+      console.warn('⚠️ API redirects may not be set up correctly!');
+    }
+  } else {
+    console.error('❌ netlify.toml file not found!');
+  }
+  
+  // Check for required environment variables
+  logSection('Checking environment variables');
+  const requiredEnvVars = [
+    'NODE_VERSION'
+  ];
+  
+  const optionalEnvVars = [
+    'DATABASE_URL',
+    'SENDGRID_API_KEY',
+    'ANTHROPIC_API_KEY',
+    'OPENAI_API_KEY',
+    'STRIPE_SECRET_KEY',
+    'VITE_STRIPE_PUBLIC_KEY'
+  ];
+  
+  let missingRequired = false;
+  
+  requiredEnvVars.forEach(envVar => {
+    if (!process.env[envVar]) {
+      console.error(`❌ Required environment variable ${envVar} is not set!`);
+      missingRequired = true;
+    } else {
+      console.log(`✓ Required environment variable ${envVar} is set`);
+    }
+  });
+  
+  if (missingRequired) {
+    console.error('❌ Some required environment variables are missing. Deployment might fail!');
+  } else {
+    console.log('✓ All required environment variables are set');
+  }
+  
+  optionalEnvVars.forEach(envVar => {
+    if (!process.env[envVar]) {
+      console.warn(`⚠️ Optional environment variable ${envVar} is not set`);
+    } else {
+      console.log(`✓ Optional environment variable ${envVar} is set`);
+    }
+  });
+  
+  // Setup complete
+  logSection('MoodLync Netlify pre-build setup completed successfully');
+  
 } catch (error) {
-  console.error('Error setting up theme settings:', error);
+  console.error('❌ Error in pre-build setup:', error);
+  process.exit(1);
 }
-
-// Additional Netlify-specific setup can be added here
-
-console.log('MoodLync Netlify build setup completed');
