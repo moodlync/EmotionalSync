@@ -90,7 +90,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-gray-900 dark:bg-gray-950 text-gray-100 dark:text-white shadow-md">
+    <header className="bg-primary dark:bg-primary text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">

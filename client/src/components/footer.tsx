@@ -37,7 +37,7 @@ export default function Footer() {
     }
   };
   return (
-    <footer className="bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-900 dark:to-gray-950 border-t border-gray-700 dark:border-gray-800 pt-10 pb-6 mt-auto text-white">
+    <footer className="bg-primary border-t border-primary/30 pt-10 pb-6 mt-auto text-white">
       <div className="container mx-auto px-4">
         <div className="mx-auto flex flex-col items-center justify-center mb-6">
           <div className="flex flex-col items-center justify-center gap-1">

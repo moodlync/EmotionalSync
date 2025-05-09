@@ -373,7 +373,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#F3F3F3] dark:bg-gray-950">
       {/* Left side - Auth forms */}
       <div className="flex-1 flex items-center justify-center p-4 md:p-8">
         <Card className="w-full max-w-xl">

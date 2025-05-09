@@ -55,6 +55,8 @@ export default function HomePage() {
       
       // Update emotion in the cache with the correct format
       queryClient.setQueryData(['/api/emotion', user?.id], { emotion });
+      // Force invalidation to ensure the UI updates
+      queryClient.invalidateQueries({ queryKey: ['/api/emotion', user?.id] });
       
       // Show tokens earned notification if any
       if (tokensEarned > 0) {
