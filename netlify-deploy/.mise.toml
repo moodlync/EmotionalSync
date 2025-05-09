@@ -1,0 +1,14 @@
+# mise configuration for Netlify
+[tools]
+node = "18.18.0"
+
+[env]
+USE_IDIOMATIC_VERSION_FILES = "true"
+NODE_VERSION = "18.18.0"
+
+# Current recommended configuration (mise >= 2024.2.0)
+[tasks.prepare]
+shell = "echo 'Setting up node environment'"
+
+# Legacy compatibility options have been removed
+# as they were causing unknown field warnings

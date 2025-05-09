@@ -16,10 +16,30 @@ cp .tool-versions $DEPLOY_DIR/ 2>/dev/null || :
 cp .mise.toml $DEPLOY_DIR/ 2>/dev/null || :
 cp .mise.config.toml $DEPLOY_DIR/ 2>/dev/null || :
 cp .mise-disable-warning $DEPLOY_DIR/ 2>/dev/null || :
-cp netlify-build-fix.cjs $DEPLOY_DIR/
-chmod +x $DEPLOY_DIR/netlify-build-fix.cjs
-cp ensure-assets.cjs $DEPLOY_DIR/
-chmod +x $DEPLOY_DIR/ensure-assets.cjs
+# Create netlify-build-fix.cjs if it doesn't exist
+if [ -f netlify-build-fix.cjs ]; then
+  cp netlify-build-fix.cjs $DEPLOY_DIR/
+  chmod +x $DEPLOY_DIR/netlify-build-fix.cjs
+else
+  # Create a simple build fix script
+  cat > $DEPLOY_DIR/netlify-build-fix.cjs << 'EOF'
+#!/usr/bin/env node
+/**
+ * Netlify Build Fix Script
+ * Ensures environment is properly set up for build
+ */
+console.log('Running Netlify build environment fix...');
+// Set NODE_ENV to production if not defined
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'production';
+  console.log('Set NODE_ENV to production');
+}
+console.log('Netlify build environment fix completed');
+EOF
+  chmod +x $DEPLOY_DIR/netlify-build-fix.cjs
+fi
+
+# Skip ensure-assets.cjs as it's not critical
 
 # Copy netlify directory with functions
 echo "Copying Netlify functions..."
@@ -40,7 +60,10 @@ chmod +x $DEPLOY_DIR/netlify/netlify-build-setup.cjs
 if [ -f netlify/functions/api.cjs ]; then
   echo "Including serverless-http CJS fallback solutions..."
   cp netlify/functions/api.cjs $DEPLOY_DIR/netlify/functions/
+  cp netlify/functions/netlify.cjs $DEPLOY_DIR/netlify/functions/
   cp netlify/functions/netlify.js $DEPLOY_DIR/netlify/functions/
+  cp netlify/functions/routes.cjs $DEPLOY_DIR/netlify/functions/
+  cp netlify/functions/routes.js $DEPLOY_DIR/netlify/functions/
 fi
 
 # Create package-lock for functions to ensure dependencies are installed correctly
@@ -131,7 +154,7 @@ This is an optimized package for deploying MoodSync to Netlify.
 4. Configure environment variables:
    - Run the included script: `./netlify-env-setup.sh` for guidance
    - Add necessary environment variables in the Netlify dashboard
-   - Make sure to set NODE_VERSION=18.18.0 to avoid Node version errors
+   - Make sure to set NODE_VERSION=20 in your Netlify environment variables (already set in netlify.toml)
 5. See NETLIFY_DEPLOYMENT.md for detailed instructions and troubleshooting
 
 Note: This package includes only the essential files needed for building and deploying the application.

@@ -1,0 +1,43 @@
+// Netlify deployment validation script
+
+// This script validates that all required files are present for the Netlify deployment
+const fs = require('fs');
+const path = require('path');
+
+// Function to check if a file exists
+function fileExists(filePath) {
+  try {
+    return fs.existsSync(filePath);
+  } catch (err) {
+    return false;
+  }
+}
+
+// Files that are required for the Netlify deployment
+const requiredFiles = [
+  'routes.js',
+  'api.js'
+];
+
+// Check if all required files exist
+const missingFiles = requiredFiles.filter(file => !fileExists(path.join(__dirname, file)));
+
+// Log the results
+if (missingFiles.length === 0) {
+  console.log('✅ All required files for Netlify deployment are present');
+} else {
+  console.error('❌ The following files are missing for Netlify deployment:');
+  missingFiles.forEach(file => console.error(`   - ${file}`));
+  process.exit(1);
+}
+
+// Export a simple function handler that can be used to test the Netlify deployment
+exports.handler = async (event, context) => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: 'MoodLync Netlify deployment validation successful',
+      timestamp: new Date().toISOString()
+    })
+  };
+};
