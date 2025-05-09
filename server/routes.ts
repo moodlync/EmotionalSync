@@ -4348,6 +4348,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   console.log('Personalization and insights routes registered successfully');
+  
+  // Register user management routes (for admin panel)
+  const { registerUserManagementRoutes } = await import('./routes/user-management-routes');
+  registerUserManagementRoutes(app);
   // Once the security routes are fully implemented and tested, these endpoints will be removed
   
   // Setup 2FA

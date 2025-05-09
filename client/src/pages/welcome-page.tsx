@@ -219,16 +219,19 @@ export default function WelcomePage() {
           </div>
           
           <div className="flex-1">
-            <div className="relative shadow-xl rounded-lg overflow-hidden bg-white dark:bg-gray-800 p-6">
+            <div id="feature-showcase" className="relative shadow-xl rounded-lg overflow-hidden bg-white dark:bg-gray-800 p-6">
               {/* Key Features Showcase */}
               <div className="text-center mb-5 relative">
                 {/* Decorative elements */}
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/10 rounded-full blur-xl"></div>
                 <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-secondary/10 rounded-full blur-xl"></div>
                 
-                <Badge variant="outline" className="px-3 py-1.5 bg-gradient-to-r from-primary to-secondary text-white border-0 mb-2 shadow-md">
-                  <Heart className="h-3.5 w-3.5 mr-1 text-white" /> Explore Our Key Features
-                </Badge>
+                <div
+                  className="inline-block px-4 py-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/80 text-white font-medium border-0 mb-2 shadow-md hover:shadow-lg transition-all duration-300 rounded-md cursor-pointer"
+                  onClick={() => document.getElementById('feature-showcase')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <Heart className="inline-block h-3.5 w-3.5 mr-2 text-white" /> View our feature showcase
+                </div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3">
                   Powerful Emotional Intelligence Tools
                 </h3>
