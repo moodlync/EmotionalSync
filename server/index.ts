@@ -110,22 +110,16 @@ app.use((req, res, next) => {
     }
   };
 
-  // Listen on primary port (5001 for all environments)
+  // Listen on port 5000 for Replit environment
   server.listen(5000, "0.0.0.0", () => {
     log(`MoodLync server running on port 5000`);
     // Initialize WebSocket on primary server
     initializeWebSocketIfNeeded(server);
 
-    // For Replit, set up a workflow detection server on port 5000
+    // For Replit, log environment info
     if (isReplitEnv) {
-      log(`Running in Replit environment on port ${actualPort}`);
-
-      // Create a simple HTTP server on port 5000 for Replit workflow detection
-      const workflowPort = 5000;
-      const workflowServer = createServer((req: any, res: any) => {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end(`MoodLync is running on port ${actualPort}. Please visit that port for the application.`);
-      });
+      log(`Running in Replit environment on port 5000`);
+    }
 
       // Start the workflow detection server
       workflowServer.listen(workflowPort, '0.0.0.0', () => {
