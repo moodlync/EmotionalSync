@@ -143,10 +143,10 @@ export default function Header() {
           {/* Desktop Search Component - Only visible on desktop */}
           {user && (
             <div className="hidden md:flex items-center relative">
-              <div className={`flex items-center ${isSearchOpen ? 'w-64' : 'w-10'} transition-all duration-300 bg-gray-100 dark:bg-white rounded-full overflow-hidden`}>
+              <div className={`flex items-center ${isSearchOpen ? 'w-64' : 'w-10'} transition-all duration-300 bg-white/90 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full overflow-hidden shadow-sm`}>
                 <button 
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="flex items-center justify-center h-10 w-10 text-gray-500 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-800"
+                  className="flex items-center justify-center h-10 w-10 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   <Search className="h-4 w-4" />
                 </button>
@@ -157,7 +157,7 @@ export default function Header() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search MoodLync..."
-                    className="flex-1 h-10 px-2 bg-transparent border-none focus:outline-none text-sm dark:text-gray-800"
+                    className="flex-1 h-10 px-2 bg-transparent border-none focus:outline-none text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 )}
               </div>
@@ -167,10 +167,10 @@ export default function Header() {
           {/* Mobile Search Component - Only visible on mobile */}
           {user && (
             <div className="flex md:hidden items-center relative">
-              <div className={`flex items-center ${isSearchOpen ? 'w-32' : 'w-8'} transition-all duration-300 bg-gray-100 dark:bg-white rounded-full overflow-hidden`}>
+              <div className={`flex items-center ${isSearchOpen ? 'w-32' : 'w-8'} transition-all duration-300 bg-white/90 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full overflow-hidden shadow-sm`}>
                 <button 
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="flex items-center justify-center h-8 w-8 text-gray-500 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-800"
+                  className="flex items-center justify-center h-8 w-8 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   <Search className="h-3.5 w-3.5" />
                 </button>
@@ -181,7 +181,7 @@ export default function Header() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search..."
-                    className="flex-1 h-8 px-2 bg-transparent border-none focus:outline-none text-xs dark:text-gray-800"
+                    className="flex-1 h-8 px-2 bg-transparent border-none focus:outline-none text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 )}
               </div>

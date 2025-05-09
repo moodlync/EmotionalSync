@@ -27,8 +27,8 @@ export default function AuthPageLogo({
   const [mounted, setMounted] = useState(false);
   const [, navigate] = useLocation();
   
-  // Calculate the adjusted size for the auth page logo
-  const adjustedLogoSize = Math.floor(logoSize * 2.5);
+  // Calculate the adjusted size for the auth page logo - reduced by 75%
+  const adjustedLogoSize = Math.floor(logoSize * 0.625);
   
   // Avoid hydration mismatch by only rendering after mount
   useEffect(() => {

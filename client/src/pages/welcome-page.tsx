@@ -110,7 +110,7 @@ export default function WelcomePage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <div className="relative">
-              <div className="flex flex-row items-center gap-3">
+              <div className="flex flex-row items-center gap-1">
                 <div className="w-[60px] h-[60px]">
                   <img 
                     src={newLogo} 
