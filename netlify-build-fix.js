@@ -186,5 +186,15 @@ if (packageJson.scripts.build !== updatedBuildScript) {
   console.log(`${colors.green}Updated build script in package.json to use explicit path${colors.reset}`);
 }
 
+// Update browserslist database to fix the warning
+console.log(`\n${colors.blue}Updating browserslist database...${colors.reset}`);
+try {
+  execSync('npx update-browserslist-db@latest', { stdio: 'inherit' });
+  console.log(`${colors.green}Successfully updated browserslist database${colors.reset}`);
+} catch (error) {
+  console.log(`${colors.yellow}Warning: Failed to update browserslist database: ${error.message}${colors.reset}`);
+  console.log(`${colors.yellow}This may cause warnings but should not fail the build${colors.reset}`);
+}
+
 console.log(`\n${colors.green}✅ Build fix script completed successfully${colors.reset}`);
 console.log(`${colors.cyan}===== End of MoodSync Netlify Build Fix Script =====${colors.reset}`);

@@ -7,6 +7,7 @@
     "node": "18.x"
   },
   "scripts": {
+    "prebuild": "node -e \"try { require('child_process').execSync('npx update-browserslist-db@latest', {stdio: 'inherit'}); } catch(e) { console.warn('Browserslist update failed, but continuing build:', e.message); }\"",
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",

@@ -72,7 +72,34 @@ cp -r shared $DEPLOY_DIR/
 echo "Copying configuration files..."
 cp tsconfig.json $DEPLOY_DIR/ 2>/dev/null || :
 cp vite.config.ts $DEPLOY_DIR/
-cp postcss.config.js $DEPLOY_DIR/ 2>/dev/null || :
+# Create a custom postcss.config.js with browserslist configuration
+echo "Creating enhanced postcss.config.js with browserslist update..."
+cat > $DEPLOY_DIR/postcss.config.js << 'EOF'
+module.exports = {
+  plugins: {
+    autoprefixer: {
+      // Explicitly updating the browserslist data during build
+      overrideBrowserslist: require('browserslist').loadConfig({
+        path: __dirname,
+        env: process.env.NODE_ENV
+      }) || ['defaults'],
+    },
+    tailwindcss: {},
+  },
+};
+
+// Attempt to update browserslist data immediately
+try {
+  console.log('Updating browserslist database from postcss.config.js...');
+  require('child_process').execSync('npx update-browserslist-db@latest', {
+    stdio: 'inherit'
+  });
+  console.log('Browserslist database updated successfully from postcss.config.js');
+} catch (error) {
+  console.warn('Failed to update browserslist database from postcss.config.js:', error.message);
+}
+EOF
+
 cp tailwind.config.ts $DEPLOY_DIR/ 2>/dev/null || :
 cp drizzle.config.ts $DEPLOY_DIR/ 2>/dev/null || :
 cp components.json $DEPLOY_DIR/ 2>/dev/null || :
@@ -121,6 +148,29 @@ node_modules
 dist
 .env
 EOF
+
+# Add script to update browserslist database during build
+echo "Creating browserslist update script..."
+cat > $DEPLOY_DIR/update-browserslist.js << 'EOF'
+const { execSync } = require('child_process');
+
+try {
+  console.log('Updating browserslist database...');
+  execSync('npx update-browserslist-db@latest', { stdio: 'inherit' });
+  console.log('Browserslist database updated successfully.');
+} catch (error) {
+  console.error('Failed to update browserslist database:', error.message);
+  // Continue anyway, don't fail the build
+  console.log('Continuing with build regardless of browserslist update status.');
+}
+EOF
+
+# Create a modified package.json with prebuild script to update browserslist
+echo "Adding prebuild script to package.json..."
+# Reading the package.json to find the "scripts" line and insert our prebuild script
+SCRIPTS_LINE=$(grep -n '"scripts"' $DEPLOY_DIR/package.json | cut -d: -f1)
+SCRIPTS_LINE=$((SCRIPTS_LINE + 1))  # Move to the line after "scripts": {
+sed -i "${SCRIPTS_LINE}s/^/    \"prebuild\": \"node update-browserslist.js\",\n/" $DEPLOY_DIR/package.json
 
 # Create tarball file
 echo "Creating deployment tarball file..."
