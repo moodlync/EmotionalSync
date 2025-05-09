@@ -8,7 +8,8 @@ export function ProtectedRoute({
   component: Component,
 }: {
   path: string;
-  component: () => React.JSX.Element;
+  // Add support for lazy-loaded components
+  component: React.ComponentType<any> | (() => React.JSX.Element);
 }) {
   const { user, isLoading } = useAuth();
   const [location] = useLocation();

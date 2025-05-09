@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 
 interface AdminRouteProps {
   path: string;
-  component: React.ComponentType<any>;
+  component: React.ComponentType<any> | (() => React.JSX.Element);
 }
 
 export function AdminRoute({ path, component: Component }: AdminRouteProps) {

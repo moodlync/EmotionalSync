@@ -35,6 +35,7 @@ import { AdminRoute } from "./lib/admin-route";
 import { Toaster } from "@/components/ui/toaster";
 import AutoChallengeUpdater from "@/components/auto-challenge-updater";
 import FloatingChatButton from "@/components/contact/floating-chat-button";
+import SessionHandler from "@/components/session-handler";
 
 // Eagerly loaded core pages
 import NotFound from "@/pages/not-found";
@@ -238,6 +239,7 @@ function App() {
                         <MoodProvider>
                           <Toaster />
                           <RouterComponent />
+                          <SessionHandler />
                           <FloatingChatButton />
                           <AutoChallengeUpdater />
                           <CapacitorInitializer />
