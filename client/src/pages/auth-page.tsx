@@ -15,11 +15,10 @@ import {
   Loader2, Heart, Eye, EyeOff, Info, ArrowRight, Brain, Shield, Star, AlertCircle, AlertTriangle,
   Sparkles, MapPin, MessageCircle, Users, Gamepad, BarChart3, Crown, Bot, CheckCircle
 } from "lucide-react";
-import DynamicLogoWithText from "@/components/logo/dynamic-logo-with-text";
+import StyledLogoWithText from "@/components/logo/styled-logo-with-text";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import authImage from "@/assets/auth-hero.jpeg";
-import logoImage from '@/assets/moodlync-logo.png';
 
 // Helper to determine if we're in development mode
 const isDevelopment = import.meta.env.MODE === 'development';
@@ -381,30 +380,15 @@ export default function AuthPage() {
           <CardHeader className="space-y-4">
             <div className="flex flex-col items-center justify-center py-4">
               {/* Logo with minimal glow and heartbeat effect */}
-              <div className="mb-3">
+              <div className="mb-5">
                 <div className="flex items-center justify-center">
-                  {/* Heartbeat container */}
-                  <div className="animate-heartbeat" style={{ 
-                    transformOrigin: 'center',
-                    animationDelay: '0.5s'
-                  }}>
-                    <img 
-                      src={logoImage} 
-                      alt="moodlync Logo" 
-                      className="object-contain"
-                      style={{
-                        backgroundColor: 'white',
-                        boxShadow: '0 6px 16px rgba(96, 82, 199, 0.3)',
-                        width: '320px',
-                        height: '120px',
-                        borderRadius: '9999px', 
-                        padding: '10px 20px',
-                        border: '2px solid rgba(96, 82, 199, 0.2)',
-                        filter: 'brightness(1.05) contrast(1.1)',
-                        background: 'linear-gradient(to right, white, #f8f9fa)'
-                      }}
-                    />
-                  </div>
+                  <StyledLogoWithText 
+                    logoSize={70} 
+                    textSize="xl" 
+                    enableHeartbeat={true}
+                    enableSpin={true}
+                    showTagline={true}
+                  />
                 </div>
               </div>
               <div className="w-full overflow-hidden rounded-xl shadow-xl relative mb-2">
@@ -427,7 +411,7 @@ export default function AuthPage() {
             <div className="text-center text-sm mt-4">
               <a 
                 href="/welcome" 
-                className="inline-block px-4 py-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/80 text-white font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
+                className="inline-block px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/80 text-white font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
               >
                 View our feature showcase
               </a>

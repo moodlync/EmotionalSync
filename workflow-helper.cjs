@@ -9,6 +9,29 @@
  */
 
 const http = require('http');
+const fs = require('fs');
+
+// Create a log file
+const logFile = fs.createWriteStream('./workflow-helper.log', { flags: 'a' });
+const logTimestamp = () => new Date().toISOString();
+
+// Redirect console output to both console and log file
+const originalConsoleLog = console.log;
+console.log = function() {
+  const args = Array.from(arguments);
+  const timestamp = `[${logTimestamp()}] `;
+  
+  originalConsoleLog.apply(console, [timestamp, ...args]);
+  logFile.write(timestamp + args.join(' ') + '\n');
+};
+
+console.error = function() {
+  const args = Array.from(arguments);
+  const timestamp = `[${logTimestamp()}] ERROR: `;
+  
+  originalConsoleLog.apply(console, [timestamp, ...args]);
+  logFile.write(timestamp + args.join(' ') + '\n');
+};
 
 console.log('🚀 Starting MoodLync Workflow Helper');
 

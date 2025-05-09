@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from 'cors';
 import * as http from 'http';
+import { createServer } from 'http';
 
 const app = express();
 app.use(express.json());
@@ -119,11 +120,23 @@ app.use((req, res, next) => {
     // Initialize WebSocket on primary server
     initializeWebSocketIfNeeded(server);
     
-    // Note: For Replit workflow compatibility, we're now using our combined-starter.cjs
-    // which handles port 5000 separately, so no additional ports need to be opened here.
+    // For Replit, set up a workflow detection server on port 5000
     if (isReplitEnv) {
       log(`Running in Replit environment on port ${actualPort}`);
-      log(`Workflow compatibility is handled by combined-starter.cjs`);
+      
+      // Create a simple HTTP server on port 5000 for Replit workflow detection
+      const workflowPort = 5000;
+      const workflowServer = createServer((req: any, res: any) => {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end(`MoodLync is running on port ${actualPort}. Please visit that port for the application.`);
+      });
+      
+      // Start the workflow detection server
+      workflowServer.listen(workflowPort, '0.0.0.0', () => {
+        log(`Workflow detection server running on port ${workflowPort}`);
+      }).on('error', (err: any) => {
+        console.error(`Failed to start workflow detection server on port ${workflowPort}:`, err.message);
+      });
     }
   }).on('error', (err: any) => {
     console.error(`Failed to start server on port ${primaryPort}:`, err.message);

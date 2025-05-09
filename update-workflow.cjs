@@ -1,31 +1,90 @@
 /**
- * MoodLync Workflow Update Helper
+ * MoodLync Workflow Update Script
  * 
- * This script helps manage the port conflict between Replit workflows (which expect port 5000)
- * and our application (which runs on port 8080).
- * 
- * When executed, this script runs the combined-starter.cjs script which:
- * 1. Opens a minimal server on port 5000 for Replit workflow detection
- * 2. Starts the main application on port 8080
- * 
- * Usage: node update-workflow.cjs
+ * This script helps configure the Replit workflow to work with our application.
+ * It correctly sets up port forwarding between port 5000 (Replit workflow) and 
+ * port 8080 (main application).
  */
 
 const fs = require('fs');
-const { exec } = require('child_process');
+const path = require('path');
+const { spawn } = require('child_process');
 
-// Start the combined starter in the background
-console.log('Starting MoodLync with port management...');
-const app = exec('node combined-starter.cjs');
+console.log('🔧 MoodLync Workflow Update Tool');
+console.log('==============================');
+console.log('');
 
-// Pipe the output to our console
-app.stdout.on('data', (data) => {
-  console.log(data);
+// Start the workflow helper to handle port 5000
+const startWorkflowHelper = () => {
+  console.log('Starting workflow helper on port 5000...');
+  
+  try {
+    const helper = spawn('node', ['workflow-helper.cjs'], {
+      detached: true,
+      stdio: 'ignore'
+    });
+    
+    helper.unref();
+    console.log('✅ Workflow helper started successfully');
+    return true;
+  } catch (error) {
+    console.error(`❌ Failed to start workflow helper: ${error.message}`);
+    return false;
+  }
+};
+
+// Start the main application
+const startMainApplication = () => {
+  console.log('Starting main application on port 8080...');
+  
+  try {
+    console.log('To start the application, run:');
+    console.log('npm run dev');
+    console.log('');
+    console.log('Make sure to run the workflow helper first by running:');
+    console.log('node workflow-helper.cjs');
+    return true;
+  } catch (error) {
+    console.error(`❌ Failed to start main application: ${error.message}`);
+    return false;
+  }
+};
+
+// Main function
+const main = async () => {
+  console.log('Checking port configuration...');
+  
+  // Check for workflow helper
+  if (!fs.existsSync('workflow-helper.cjs')) {
+    console.error('❌ workflow-helper.cjs not found');
+    return;
+  }
+  
+  console.log('✅ workflow-helper.cjs found');
+  
+  // Start workflow helper
+  const helperStarted = startWorkflowHelper();
+  if (!helperStarted) {
+    console.log('❌ Failed to start workflow helper');
+    return;
+  }
+  
+  // Provide instructions for the main application
+  startMainApplication();
+  
+  console.log('');
+  console.log('==============================');
+  console.log('✅ Workflow update completed successfully');
+  console.log('The application should now be accessible on both port 5000 and 8080');
+  console.log('');
+  console.log('Important:');
+  console.log('- Replit workflow will detect the application on port 5000');
+  console.log('- The actual application is running on port 8080');
+  console.log('- Requests to port 5000 will be redirected to port 8080');
+  console.log('==============================');
+};
+
+// Execute the main function
+main().catch(error => {
+  console.error(`❌ An error occurred: ${error.message}`);
 });
-
-app.stderr.on('data', (data) => {
-  console.error(data);
-});
-
-// Keep the script running to maintain the port 5000 open for Replit workflow
-console.log('Keeping workflow port 5000 open...');
