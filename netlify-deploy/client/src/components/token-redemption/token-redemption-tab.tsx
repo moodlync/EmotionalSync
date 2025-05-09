@@ -12,8 +12,16 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, AlertCircle, CheckCircle, CreditCard, ArrowRight, Repeat, Gift } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle, CreditCard, ArrowRight, Repeat, Gift, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useAuth } from '@/hooks/use-auth';
 import TokenTransferForm from './token-transfer-form';
 import RedemptionSuccess from './redemption-success';
@@ -125,8 +133,40 @@ export default function TokenRedemptionTab() {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create redemption request');
+        try {
+          const contentType = response.headers.get('content-type');
+          
+          // Try to parse error as JSON for more specific messages if it's JSON
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            
+            if (errorData.message) {
+              throw new Error(errorData.message);
+            } else if (errorData.error) {
+              throw new Error(errorData.error);
+            }
+          }
+          
+          // Handle specific HTTP status codes with user-friendly messages
+          if (response.status === 400) {
+            throw new Error('Please check your redemption information and try again.');
+          } else if (response.status === 401) {
+            throw new Error('You need to be logged in to redeem tokens.');
+          } else if (response.status === 403) {
+            throw new Error('You don\'t have permission to perform this action.');
+          } else if (response.status === 429) {
+            throw new Error('Too many requests. Please wait before trying again.');
+          } else if (response.status >= 500) {
+            throw new Error('Our token system is temporarily unavailable. Please try again later.');
+          }
+        } catch (parseError) {
+          if (parseError instanceof Error) {
+            throw parseError;
+          }
+        }
+        
+        // Default error message if we couldn't parse the response
+        throw new Error('Failed to create redemption request. Please try again later.');
       }
       
       return response.json();
@@ -166,8 +206,39 @@ export default function TokenRedemptionTab() {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to cancel redemption request');
+        try {
+          const contentType = response.headers.get('content-type');
+          
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            
+            if (errorData.message) {
+              throw new Error(errorData.message);
+            } else if (errorData.error) {
+              throw new Error(errorData.error);
+            }
+          }
+          
+          // Handle specific HTTP status codes
+          if (response.status === 400) {
+            throw new Error('This request cannot be canceled at this time.');
+          } else if (response.status === 401) {
+            throw new Error('You need to be logged in to cancel a request.');
+          } else if (response.status === 403) {
+            throw new Error('You don\'t have permission to cancel this request.');
+          } else if (response.status === 404) {
+            throw new Error('The request you\'re trying to cancel could not be found.');
+          } else if (response.status >= 500) {
+            throw new Error('Our system is temporarily unavailable. Please try again later.');
+          }
+        } catch (parseError) {
+          if (parseError instanceof Error) {
+            throw parseError;
+          }
+        }
+        
+        // Default error message
+        throw new Error('Unable to cancel the redemption request. Please try again or contact support.');
       }
       
       return response.json();
@@ -215,10 +286,27 @@ export default function TokenRedemptionTab() {
     createRedemptionMutation.mutate(values);
   };
   
+  // State for cancel confirmation dialog
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [redemptionToCancel, setRedemptionToCancel] = useState<number | null>(null);
+  
   const handleCancelRedemption = (redemptionId: number) => {
-    if (confirm('Are you sure you want to cancel this redemption request?')) {
-      cancelRedemptionMutation.mutate(redemptionId);
+    // Open custom confirmation dialog instead of using browser's default
+    setRedemptionToCancel(redemptionId);
+    setShowCancelConfirm(true);
+  };
+  
+  const confirmCancellation = () => {
+    if (redemptionToCancel !== null) {
+      cancelRedemptionMutation.mutate(redemptionToCancel);
+      setShowCancelConfirm(false);
+      setRedemptionToCancel(null);
     }
+  };
+  
+  const cancelCancellation = () => {
+    setShowCancelConfirm(false);
+    setRedemptionToCancel(null);
   };
   
   const getStatusBadge = (status: RedemptionStatus) => {
@@ -272,6 +360,49 @@ export default function TokenRedemptionTab() {
   
   return (
     <div className="space-y-6">
+      {/* Cancellation Confirmation Dialog */}
+      <Dialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Cancel Redemption Request
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this token redemption request? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-muted/50 p-3 rounded-md text-sm">
+            <p>When you cancel a redemption request:</p>
+            <ul className="list-disc pl-5 mt-2 space-y-1">
+              <li>Your tokens will be returned to your balance immediately</li>
+              <li>The request will be marked as canceled in your history</li>
+              <li>You can create a new redemption request at any time</li>
+            </ul>
+          </div>
+          <DialogFooter className="flex sm:justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={cancelCancellation}
+            >
+              Keep Request
+            </Button>
+            <Button
+              type="button" 
+              variant="destructive"
+              onClick={confirmCancellation}
+              disabled={cancelRedemptionMutation.isPending}
+            >
+              {cancelRedemptionMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Yes, Cancel Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="redeem">Redeem Tokens</TabsTrigger>
@@ -445,13 +576,20 @@ export default function TokenRedemptionTab() {
             </CardHeader>
             <CardContent className="space-y-4">
               {eligibilityError ? (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>
-                    {eligibilityError instanceof Error ? eligibilityError.message : 'Failed to load eligibility information'}
-                  </AlertDescription>
-                </Alert>
+                <div className="text-center py-6 space-y-4">
+                  <AlertCircle className="h-10 w-10 mx-auto text-destructive" />
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Unable to Load Token Information</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
+                      {eligibilityError instanceof Error && !eligibilityError.message.includes('TypeError') && !eligibilityError.message.includes('undefined')
+                        ? eligibilityError.message
+                        : "We're having trouble connecting to our token system. This might be due to a temporary connection issue."}
+                    </p>
+                    <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/token-redemption/eligibility'] })}>
+                      Try Again
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <>
                   <div className="grid grid-cols-2 gap-4">
@@ -694,13 +832,20 @@ export default function TokenRedemptionTab() {
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
               ) : historyError ? (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>
-                    {historyError instanceof Error ? historyError.message : 'Failed to load redemption history'}
-                  </AlertDescription>
-                </Alert>
+                <div className="text-center py-6 space-y-4">
+                  <AlertCircle className="h-10 w-10 mx-auto text-destructive" />
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Unable to Load Redemption History</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
+                      {historyError instanceof Error && !historyError.message.includes('TypeError') && !historyError.message.includes('undefined')
+                        ? historyError.message
+                        : "We're having trouble connecting to our transaction system. This might be due to a temporary connection issue."}
+                    </p>
+                    <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/token-redemption/history'] })}>
+                      Try Again
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {redemptionHistory && redemptionHistory.length > 0 ? (

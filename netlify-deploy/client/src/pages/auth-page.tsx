@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,25 +10,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import { 
-  Loader2, Heart, Eye, EyeOff, Info, ArrowRight, Brain, Shield, Star,
-  Sparkles, MapPin, MessageCircle, Users, Gamepad, BarChart3, Crown, Bot
+  Loader2, Heart, Eye, EyeOff, Info, ArrowRight, Brain, Shield, Star, AlertCircle, AlertTriangle,
+  Sparkles, MapPin, MessageCircle, Users, Gamepad, BarChart3, Crown, Bot, CheckCircle
 } from "lucide-react";
-import DynamicLogoWithText from "@/components/logo/dynamic-logo-with-text";
+import StyledLogoWithText from "@/components/logo/styled-logo-with-text";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import authImage from "@/assets/auth-hero.jpeg";
-import logoImage from '@/assets/moodlync-logo.png';
-import { StaticProductDialog } from '@/components/learn-more/detailed-product-description';
-
-// Lazy load product descriptions for better performance
-const EmotionMatchingDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.EmotionMatchingDescription })));
-const EmotionalJournalDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.EmotionalJournalDescription })));
-const EmotionalNFTsDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.EmotionalNFTsDescription })));
-const TokenRewardsDescription = lazy(() => import('@/components/learn-more/product-descriptions').then(mod => ({ default: mod.TokenRewardsDescription })));
 
 // Helper to determine if we're in development mode
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = import.meta.env.MODE === 'development';
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -54,8 +47,10 @@ const registerSchema = insertUserSchema.extend({
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
+  const { toast } = useToast();
   const [location, navigate] = useLocation();
   const [userGender, setUserGender] = useState<GenderType | null>(null);
+  
   const [showDevPanel, setShowDevPanel] = useState<boolean>(false);
 
   // Keyboard shortcut handler for developer access (Ctrl+Alt+D)
@@ -73,20 +68,24 @@ export default function AuthPage() {
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (user) {
+    if (!isLoading && user) {
       // Check if there's a redirect path stored in sessionStorage
       const redirectPath = sessionStorage.getItem('redirectAfterAuth');
+      
       if (redirectPath) {
         // Clear the redirect path
         sessionStorage.removeItem('redirectAfterAuth');
+        console.log("User already logged in, redirecting to session path:", redirectPath);
         // Redirect to the stored path
         navigate(redirectPath);
       } else {
-        // Default redirect to home page
-        navigate("/");
+        // Try to get the last visited path from localStorage
+        const lastPath = localStorage.getItem("moodlync_last_path") || "/";
+        console.log("User already logged in, redirecting to last path:", lastPath);
+        navigate(lastPath);
       }
     }
-  }, [user, navigate]);
+  }, [user, isLoading, navigate]);
 
   // Login form
   const loginForm = useForm<z.infer<typeof loginSchema>>({
@@ -124,22 +123,170 @@ export default function AuthPage() {
     return () => subscription.unsubscribe();
   }, [registerForm]);
 
-  const onLoginSubmit = (values: z.infer<typeof loginSchema>) => {
-    loginMutation.mutate(values);
+  const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
+    try {
+      // Add detailed logs for debugging
+      console.log("Login form data being submitted:", {
+        username: values.username,
+        password: values.password ? '********' : undefined // Don't log actual password
+      });
+      
+      // Network connection check
+      if (!navigator.onLine) {
+        const errorMessage = "You appear to be offline. Please check your internet connection and try again.";
+        loginForm.setError('root', {
+          type: 'manual',
+          message: errorMessage
+        });
+        
+        // Also show a toast for better visibility
+        toast({
+          title: "Connection Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Create a loading message
+      toast({
+        title: "Logging in",
+        description: "Please wait while we sign you in...",
+      });
+      
+      loginMutation.mutate(values, {
+        onError: (error) => {
+          console.error("Login mutation error:", error);
+          
+          // Handle login errors by setting form field errors
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : "An unexpected error occurred during login";
+          
+          // First check for technical errors that should never be shown to users
+          if (errorMessage.includes('TypeError') || 
+              errorMessage.includes('single') || 
+              errorMessage.includes('undefined') || 
+              errorMessage.includes('null') ||
+              errorMessage.includes('Cannot read') ||
+              errorMessage.includes('is not a function')) {
+            // For technical errors, show a generic user-friendly message
+            loginForm.setError('root', {
+              type: 'manual',
+              message: "We're experiencing some technical issues. Please try again in a few moments."
+            });
+          }
+          // Map user-friendly error messages to specific form fields
+          else if (errorMessage.toLowerCase().includes('username') || errorMessage.toLowerCase().includes('not found')) {
+            loginForm.setError('username', { 
+              type: 'manual',
+              message: "Username not found. Please check your username or register for a new account."
+            });
+          } else if (errorMessage.toLowerCase().includes('password') || errorMessage.toLowerCase().includes('invalid')) {
+            loginForm.setError('password', { 
+              type: 'manual',
+              message: "Incorrect password. Please try again or use the forgot password option."
+            });
+          } else if (errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('connection')) {
+            // Network-related errors
+            loginForm.setError('root', {
+              type: 'manual',
+              message: "Network error. Please check your internet connection and try again."
+            });
+          } else {
+            // General error message - make sure not to expose technical details
+            loginForm.setError('root', {
+              type: 'manual',
+              message: "Login failed. Please check your credentials and try again."
+            });
+          }
+        }
+      });
+    } catch (error) {
+      // Log the actual error for debugging purposes
+      console.error("Error in login form submission:", error);
+      
+      // Never expose technical error details to users
+      // Instead, show a user-friendly message
+      
+      // Set a general error message at the form level
+      loginForm.setError('root', {
+        type: 'manual',
+        message: "We couldn't process your login request. Please try again."
+      });
+      
+      // Also display a toast for better visibility with a user-friendly message
+      toast({
+        title: "Login Error",
+        description: "We encountered an issue with your login. Please check your information and try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const onRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {
     try {
+      // First, check if there are any validation errors in the form
+      const formErrors = registerForm.formState.errors;
+      if (Object.keys(formErrors).length > 0) {
+        console.log("Form has validation errors:", formErrors);
+        return; // Don't submit if there are validation errors
+      }
+
       // Remove confirmPassword as it's not part of the API schema
       const { confirmPassword, ...registerData } = values;
       
-      // Validate email format before submission to provide immediate feedback
-      if (registerData.email && !registerData.email.includes('@')) {
-        registerForm.setError('email', { 
+      // Additional email format validation
+      if (registerData.email) {
+        // More comprehensive email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(registerData.email)) {
+          registerForm.setError('email', { 
+            type: 'manual',
+            message: 'Please enter a valid email address'
+          });
+          return;
+        }
+      }
+      
+      // Check network connection
+      if (!navigator.onLine) {
+        const errorMessage = "You appear to be offline. Please check your internet connection and try again.";
+        registerForm.setError('root', {
           type: 'manual',
-          message: 'Please enter a valid email address'
+          message: errorMessage
+        });
+        
+        // Also show a toast for better visibility
+        toast({
+          title: "Connection Error",
+          description: errorMessage,
+          variant: "destructive",
         });
         return;
+      }
+      
+      // Password strength validation (could be expanded)
+      if (registerData.password) {
+        if (registerData.password.length < 8) {
+          registerForm.setError('password', { 
+            type: 'manual',
+            message: 'Password should be at least 8 characters long for better security'
+          });
+          return;
+        }
+      }
+      
+      // Username validation (no spaces, special characters)
+      if (registerData.username) {
+        const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+        if (!usernameRegex.test(registerData.username)) {
+          registerForm.setError('username', { 
+            type: 'manual',
+            message: 'Username can only contain letters, numbers, underscores and hyphens'
+          });
+          return;
+        }
       }
       
       // Add detailed logs for debugging
@@ -148,67 +295,103 @@ export default function AuthPage() {
         password: registerData.password ? '********' : undefined // Don't log actual password
       });
       
-      // The IP address will be captured on the server
-      registerMutation.mutate(registerData);
-    } catch (error) {
-      console.error("Error in registration form submission:", error);
-      // If there's a client-side error, show a toast message
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "An unknown error occurred during registration";
+      // Create a loading message
+      toast({
+        title: "Creating your account",
+        description: "Please wait while we set up your MoodSync experience...",
+      });
       
-      // Use setError to display specific form field errors
-      if (errorMessage.toLowerCase().includes('username')) {
-        registerForm.setError('username', { 
-          type: 'manual',
-          message: errorMessage
-        });
-      } else if (errorMessage.toLowerCase().includes('email')) {
-        registerForm.setError('email', { 
-          type: 'manual',
-          message: errorMessage
-        });
-      } else if (errorMessage.toLowerCase().includes('password')) {
-        registerForm.setError('password', { 
-          type: 'manual',
-          message: errorMessage
-        });
-      }
+      // The IP address will be captured on the server
+      registerMutation.mutate(registerData, {
+        onError: (error) => {
+          // Handle registration errors by setting form field errors
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : "An unexpected error occurred during registration";
+          
+          console.error("Registration mutation error:", errorMessage);
+          
+          // First check for technical errors that should never be shown to users
+          if (errorMessage.includes('TypeError') || 
+              errorMessage.includes('single') || 
+              errorMessage.includes('undefined') || 
+              errorMessage.includes('null') ||
+              errorMessage.includes('Cannot read') ||
+              errorMessage.includes('is not a function')) {
+            // For technical errors, show a generic user-friendly message
+            registerForm.setError('root', {
+              type: 'manual',
+              message: "We're experiencing some technical issues. Please try again in a few moments."
+            });
+          }
+          // Map user-friendly error messages to specific form fields
+          else if (errorMessage.toLowerCase().includes('username') || errorMessage.toLowerCase().includes('taken')) {
+            registerForm.setError('username', { 
+              type: 'manual',
+              message: "This username is already taken. Please choose a different one."
+            });
+          } else if (errorMessage.toLowerCase().includes('email') || errorMessage.toLowerCase().includes('already registered')) {
+            registerForm.setError('email', { 
+              type: 'manual',
+              message: "This email is already registered. Please use a different email or login to your existing account."
+            });
+          } else if (errorMessage.toLowerCase().includes('password')) {
+            registerForm.setError('password', { 
+              type: 'manual',
+              message: "Password doesn't meet security requirements. Please choose a stronger password."
+            });
+          } else if (errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('connection')) {
+            // Network-related errors
+            registerForm.setError('root', {
+              type: 'manual',
+              message: "Network error. Please check your internet connection and try again."
+            });
+          } else {
+            // General error message - make sure not to expose technical details
+            registerForm.setError('root', {
+              type: 'manual',
+              message: "Registration could not be completed. Please try again later."
+            });
+          }
+        }
+      });
+    } catch (error) {
+      // Log the actual error for debugging purposes only
+      console.error("Error in registration form submission:", error);
+      
+      // Never expose technical error details to users in UI
+      console.error("Registration form error details:", error);
+      
+      // Set a user-friendly general error message at the form level
+      registerForm.setError('root', {
+        type: 'manual',
+        message: "We couldn't complete your registration. Please try again later."
+      });
+      
+      // Also display a toast for better visibility with user-friendly message
+      toast({
+        title: "Registration Error",
+        description: "We encountered an issue while creating your account. Please check your information and try again.",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#EAEAEA] dark:bg-gray-950">
       {/* Left side - Auth forms */}
       <div className="flex-1 flex items-center justify-center p-4 md:p-8">
         <Card className="w-full max-w-xl">
           <CardHeader className="space-y-4">
             <div className="flex flex-col items-center justify-center py-4">
               {/* Logo with minimal glow and heartbeat effect */}
-              <div className="mb-3">
+              <div className="mb-5">
                 <div className="flex items-center justify-center">
-                  {/* Heartbeat container */}
-                  <div className="animate-heartbeat" style={{ 
-                    transformOrigin: 'center',
-                    animationDelay: '0.5s'
-                  }}>
-                    <img 
-                      src={logoImage} 
-                      alt="moodlync Logo" 
-                      className="object-contain"
-                      style={{
-                        backgroundColor: 'white',
-                        boxShadow: '0 6px 16px rgba(96, 82, 199, 0.3)',
-                        width: '320px',
-                        height: '120px',
-                        borderRadius: '9999px', 
-                        padding: '10px 20px',
-                        border: '2px solid rgba(96, 82, 199, 0.2)',
-                        filter: 'brightness(1.05) contrast(1.1)',
-                        background: 'linear-gradient(to right, white, #f8f9fa)'
-                      }}
-                    />
-                  </div>
+                  <StyledLogoWithText 
+                    logoSize={100} 
+                    textSize="lg" 
+                    showTagline={true}
+                  />
                 </div>
               </div>
               <div className="w-full overflow-hidden rounded-xl shadow-xl relative mb-2">
@@ -228,14 +411,13 @@ export default function AuthPage() {
               <h3 className="font-semibold text-lg text-primary">Track, reflect, and grow - your emotions matter here.</h3>
             </div>
             
-            <div className="text-center text-sm">
-              <a href="/welcome" className="text-primary hover:text-primary/80 underline font-medium">
-                View our feature showcase
-              </a>
-              <span className="mx-2">•</span>
-              <a href="/premium/compare" className="text-primary hover:text-primary/80 underline font-medium">
-                Compare plans
-              </a>
+            <div className="text-center mt-4">
+              <Button 
+                asChild
+                className="px-5 py-6 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 rounded-md"
+              >
+                <a href="/welcome">View our feature showcase</a>
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -248,6 +430,18 @@ export default function AuthPage() {
               <TabsContent value="login">
                 <Form {...loginForm}>
                   <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                    {/* Display form-level errors */}
+                    {loginForm.formState.errors.root && (
+                      <div className="bg-destructive/10 p-3 rounded-md mb-4 border border-destructive/20">
+                        <div className="flex gap-2 items-start">
+                          <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                          <div className="text-destructive text-sm font-medium">
+                            {loginForm.formState.errors.root.message}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     <FormField
                       control={loginForm.control}
                       name="username"
@@ -322,11 +516,11 @@ export default function AuthPage() {
                       />
                     </Button>
                     
-                    {/* Login status messages */}
+                    {/* Login status messages - show user-friendly message */}
                     {loginMutation.isError && (
                       <div className="mt-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-600 dark:text-red-400">
                         <p className="font-medium">Login failed</p>
-                        <p>{loginMutation.error?.message || "Invalid username or password."}</p>
+                        <p>{"Please check your username and password and try again."}</p>
                       </div>
                     )}
                   </form>
@@ -369,6 +563,18 @@ export default function AuthPage() {
               <TabsContent value="register">
                 <Form {...registerForm}>
                   <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                    {/* Display form-level errors */}
+                    {registerForm.formState.errors.root && (
+                      <div className="bg-destructive/10 p-3 rounded-md mb-4 border border-destructive/20">
+                        <div className="flex gap-2 items-start">
+                          <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                          <div className="text-destructive text-sm font-medium">
+                            {registerForm.formState.errors.root.message}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Personal Information Section */}
                     <div className="space-y-4">
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300">Personal Information</h3>
@@ -954,18 +1160,54 @@ export default function AuthPage() {
                       />
                     </Button>
                     
+                    {/* Form-level validation errors */}
+                    {registerForm.formState.errors.root && (
+                      <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-md text-sm text-amber-700 dark:text-amber-400 flex items-start">
+                        <div className="h-5 w-5 mr-2 flex-shrink-0 text-amber-500">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                            <path d="M12 9v4"></path>
+                            <path d="M12 17h.01"></path>
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium">Registration Issue</p>
+                          <p>{registerForm.formState.errors.root.message}</p>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Registration status messages */}
                     {registerMutation.isError && (
-                      <div className="mt-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-600 dark:text-red-400">
-                        <p className="font-medium">Registration failed</p>
-                        <p>{registerMutation.error?.message || "Please check your information and try again."}</p>
+                      <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 rounded-md text-sm text-red-600 dark:text-red-400 flex items-start">
+                        <div className="h-5 w-5 mr-2 flex-shrink-0 text-red-500">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium">Registration failed</p>
+                          <p>{registerMutation.error?.message || "Please check your information and try again."}</p>
+                          <ul className="mt-2 list-disc list-inside space-y-1 text-xs">
+                            <li>Check if your username contains only letters, numbers, underscores or hyphens</li>
+                            <li>Ensure your password is at least 8 characters long</li>
+                            <li>Verify your email address is correct</li>
+                            <li>Check your internet connection</li>
+                          </ul>
+                          <p className="mt-2 text-xs">If you continue to have issues, please contact support at <span className="font-medium">support@moodlync.com</span></p>
+                        </div>
                       </div>
                     )}
                     
                     {registerMutation.isSuccess && (
-                      <div className="mt-4 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md text-sm text-green-600 dark:text-green-400">
-                        <p className="font-medium">Account created successfully!</p>
-                        <p>You are now logged in to MoodLync. Redirecting you to the app...</p>
+                      <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-md text-sm text-green-600 dark:text-green-400 flex items-start">
+                        <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                        <div>
+                          <p className="font-medium">Account created successfully!</p>
+                          <p>You are now logged in to MoodLync. Redirecting you to the app...</p>
+                        </div>
                       </div>
                     )}
                   </form>
@@ -1009,11 +1251,17 @@ export default function AuthPage() {
                 Connect with others who share your current emotional state for authentic, meaningful conversations using our AI-powered emotion detection system.
               </p>
               <div className="mt-2">
-                <StaticProductDialog 
-                  description={EmotionMatchingDescription}
-                  buttonVariant="outline"
-                  buttonClassName="bg-white/10 text-white/70 border-white/20 hover:bg-white/20"
-                />
+                <button 
+                  className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                  onClick={() => {
+                    toast({
+                      title: "Emotion Matching",
+                      description: "Connect with others who share your current emotions",
+                    });
+                  }}
+                >
+                  Learn more
+                </button>
               </div>
             </div>
             
@@ -1028,11 +1276,17 @@ export default function AuthPage() {
                 Track your emotional journey with our comprehensive journaling tools that provide insights and patterns into your emotional wellbeing.
               </p>
               <div className="mt-2">
-                <StaticProductDialog 
-                  description={EmotionalJournalDescription}
-                  buttonVariant="outline"
-                  buttonClassName="bg-white/10 text-white/70 border-white/20 hover:bg-white/20"
-                />
+                <button 
+                  className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                  onClick={() => {
+                    toast({
+                      title: "Emotional Journal",
+                      description: "Track your emotional journey with our comprehensive journaling tools",
+                    });
+                  }}
+                >
+                  Learn more
+                </button>
               </div>
             </div>
           </div>
@@ -1048,9 +1302,9 @@ export default function AuthPage() {
           </div>
           
           <div className="mt-4 text-center">
-            <a href="/premium/compare" className="text-white hover:text-white/80 underline text-sm">
-              View all premium features →
-            </a>
+            <span className="text-white text-sm">
+              Exclusive premium features available
+            </span>
           </div>
         </div>
         
@@ -1074,11 +1328,17 @@ export default function AuthPage() {
               Premium members earn unique NFTs that evolve with your emotional journey, unlocking real-world perks and benefits.
             </p>
             <div className="mt-2">
-              <StaticProductDialog 
-                description={EmotionalNFTsDescription}
-                buttonVariant="outline"
-                buttonClassName="bg-white/10 text-white/70 border-white/20 hover:bg-white/20"
-              />
+              <button 
+                className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                onClick={() => {
+                  toast({
+                    title: "Emotional NFTs",
+                    description: "Unlock premium digital collectibles that evolve with your emotional journey",
+                  });
+                }}
+              >
+                Learn more
+              </button>
             </div>
           </div>
         </div>

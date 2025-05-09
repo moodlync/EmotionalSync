@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
+import SEOHead from '@/components/seo/seo-head';
+import { seoConfig } from '@/components/seo/seo-config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import UserNftCollection from '@/components/premium-features/user-nft-collection';
 import TokenPoolStats from '@/components/premium-features/token-pool-stats';
+import SampleNftCollection from '@/components/premium-features/sample-nft-collection';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import MainLayout from '@/components/layout/main-layout';
 import { 
   Sparkles, 
   Info, 
@@ -17,12 +20,11 @@ import {
   AlertCircle 
 } from 'lucide-react';
 
-// Note: For deployment, we'll use placeholder image references
-// which will be replaced with actual NFT images from the server
-const emoteNft1 = '/placeholder-nft-1.jpg';
-const badMoodNft = '/placeholder-nft-2.jpg';
-const angerNft = '/placeholder-nft-3.jpg';
-const surpriseNft = '/placeholder-nft-4.jpg';
+// Import emotion-based NFT images from assets
+import emotionalNFT1 from "@assets/individual Emotional NFt 1.jpg";
+import badMoodNFT from "@assets/individual bad mood Emotional NFt 2.jpg";
+import angerNFT from "@assets/individual for Anger Emotional NFt.jpg";
+import surpriseNFT from "@assets/individual for Surprise Emotional NFt.jpg";
 
 export default function NftCollectionPage() {
   const { user, isLoading } = useAuth();
@@ -39,12 +41,10 @@ export default function NftCollectionPage() {
     : 0;
 
   return (
-    <>
-      <Helmet>
-        <title>Emotional NFT Collection | MoodSync</title>
-      </Helmet>
+    <MainLayout showBackButton={true} title="Emotional NFT Collection">
+      <SEOHead {...seoConfig.nftCollection} />
 
-      <div className="container max-w-6xl mx-auto py-8 px-4">
+      <div className="container max-w-6xl mx-auto py-4 px-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2 flex items-center">
@@ -110,12 +110,12 @@ export default function NftCollectionPage() {
                   <CardContent>
                     <div className="mb-6 grid grid-cols-2 gap-4">
                       <img 
-                        src={emoteNft1} 
+                        src={emotionalNFT1} 
                         alt="Joy Essence NFT" 
                         className="w-full rounded-lg shadow-md" 
                       />
                       <img 
-                        src={badMoodNft} 
+                        src={badMoodNFT} 
                         alt="Melancholy Mastery NFT" 
                         className="w-full rounded-lg shadow-md" 
                       />
@@ -145,12 +145,12 @@ export default function NftCollectionPage() {
                   <CardContent>
                     <div className="mb-6 grid grid-cols-2 gap-4">
                       <img 
-                        src={angerNft} 
+                        src={angerNFT} 
                         alt="Anger Management NFT" 
                         className="w-full rounded-lg shadow-md" 
                       />
                       <img 
-                        src={surpriseNft} 
+                        src={surpriseNFT} 
                         alt="Surprise Discovery NFT" 
                         className="w-full rounded-lg shadow-md" 
                       />
@@ -236,10 +236,10 @@ export default function NftCollectionPage() {
                   that evolves with your emotional journey.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  <img src={emoteNft1} alt="Joy NFT" className="w-full h-auto rounded-lg opacity-50" />
-                  <img src={badMoodNft} alt="Melancholy NFT" className="w-full h-auto rounded-lg opacity-50" />
-                  <img src={angerNft} alt="Anger NFT" className="w-full h-auto rounded-lg opacity-50" />
-                  <img src={surpriseNft} alt="Surprise NFT" className="w-full h-auto rounded-lg opacity-50" />
+                  <img src={emotionalNFT1} alt="Joy NFT" className="w-full h-auto rounded-lg opacity-50" />
+                  <img src={badMoodNFT} alt="Melancholy NFT" className="w-full h-auto rounded-lg opacity-50" />
+                  <img src={angerNFT} alt="Anger NFT" className="w-full h-auto rounded-lg opacity-50" />
+                  <img src={surpriseNFT} alt="Surprise NFT" className="w-full h-auto rounded-lg opacity-50" />
                 </div>
                 <Button size="lg">Upgrade to Premium</Button>
               </div>
@@ -247,6 +247,6 @@ export default function NftCollectionPage() {
           </Card>
         )}
       </div>
-    </>
+    </MainLayout>
   );
 }

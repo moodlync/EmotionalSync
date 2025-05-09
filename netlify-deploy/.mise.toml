@@ -1,13 +1,14 @@
-# Explicitly enable idiomatic version files for mise (used by Netlify)
-[settings]
-idiomatic_version_files = true
-
+# mise configuration for Netlify
 [tools]
 node = "18.18.0"
 
 [env]
 USE_IDIOMATIC_VERSION_FILES = "true"
+NODE_VERSION = "18.18.0"
 
-# This is the recommended format for mise >= 2024.2.0
-[config]
-node.use_idiomatic_version_files = true
+# Current recommended configuration (mise >= 2024.2.0)
+[tasks.prepare]
+shell = "echo 'Setting up node environment'"
+
+# Legacy compatibility options have been removed
+# as they were causing unknown field warnings

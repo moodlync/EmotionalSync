@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -172,10 +173,11 @@ export default function PremiumSubscriptionTab() {
   ];
 
   const selectedPlanDetails = pricingOptions.find(option => option.id === selectedPlan) || pricingOptions[1];
+  const [, setLocation] = useLocation();
 
   const handleSubscribe = () => {
-    // Simulate payment process - in a real app, this would connect to a payment processor
-    activatePremiumMutation.mutate();
+    // Redirect to checkout page with the selected plan
+    setLocation(`/checkout/${selectedPlan}`);
   };
 
   if (isLoadingSubscription) {

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { X, Camera, Mic } from "lucide-react";
 import { EmotionType, emotions } from "@/lib/emotions";
 import EmotionWheel from "./emotion-wheel";
+import { useEffect } from "react";
 
 interface MoodSelectionModalProps {
   isOpen: boolean;
@@ -15,6 +16,24 @@ export default function MoodSelectionModal({
   onClose,
   onSelectEmotion 
 }: MoodSelectionModalProps) {
+  // This useEffect will force refresh the content when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      // Force re-render when modal opens
+      const timer = setTimeout(() => {
+        document.querySelector('.emotion-wheel')?.classList.add('emotion-wheel-visible');
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  const handleEmotionSelect = (emotion: EmotionType) => {
+    // Directly call parent callback to update emotion
+    onSelectEmotion(emotion);
+    // Close the modal after selection
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md">
@@ -33,7 +52,7 @@ export default function MoodSelectionModal({
         </DialogHeader>
         
         <div className="mb-6">
-          <EmotionWheel onSelectEmotion={onSelectEmotion} />
+          <EmotionWheel onSelectEmotion={handleEmotionSelect} />
         </div>
         
         <div className="mt-4">
@@ -42,23 +61,25 @@ export default function MoodSelectionModal({
             <Button 
               className="flex items-center justify-center space-x-2"
               onClick={() => {
-                // In a real app, this would trigger the camera and AI analysis
-                // For now, we'll just close the modal
-                onClose();
+                // For demo purposes, select a random emotion
+                const emotionKeys = Object.keys(emotions) as EmotionType[];
+                const randomEmotion = emotionKeys[Math.floor(Math.random() * emotionKeys.length)];
+                handleEmotionSelect(randomEmotion);
               }}
             >
-              <Camera className="w-5 h-5" />
+              <Camera className="w-5 h-5 mr-2" />
               <span>Take a Selfie</span>
             </Button>
             <Button 
               className="flex items-center justify-center space-x-2"
               onClick={() => {
-                // In a real app, this would trigger voice recording and AI analysis
-                // For now, we'll just close the modal
-                onClose();
+                // For demo purposes, select a random emotion
+                const emotionKeys = Object.keys(emotions) as EmotionType[];
+                const randomEmotion = emotionKeys[Math.floor(Math.random() * emotionKeys.length)];
+                handleEmotionSelect(randomEmotion);
               }}
             >
-              <Mic className="w-5 h-5" />
+              <Mic className="w-5 h-5 mr-2" />
               <span>Voice Analysis</span>
             </Button>
           </div>

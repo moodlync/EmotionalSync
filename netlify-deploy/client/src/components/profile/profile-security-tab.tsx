@@ -344,6 +344,46 @@ export default function ProfileSecurityTab() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            Password Management
+          </CardTitle>
+          <CardDescription>
+            Manage your password and recovery options
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm">
+            You can request a password reset link to be sent to your email address.
+            This is useful if you've forgotten your password or want to change it for security reasons.
+          </p>
+          
+          <Button 
+            onClick={() => {
+              toast({
+                title: "Password Reset Link Sent",
+                description: "If an account exists with your email, you will receive a password reset link shortly.",
+              });
+              apiRequest('POST', '/api/auth/forgot-password', {});
+            }}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            Reset Password
+          </Button>
+          
+          <div className="rounded-md bg-muted p-4 mt-2">
+            <p className="text-xs text-muted-foreground">
+              For security reasons, we don't confirm whether an account exists. If you don't receive an email, 
+              please check your spam folder or contact support.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5" />
             Two-Factor Authentication
           </CardTitle>

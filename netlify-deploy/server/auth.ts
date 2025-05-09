@@ -6,6 +6,7 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
+import { emailService } from "./services/email-service";
 
 declare global {
   namespace Express {
@@ -31,11 +32,13 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "moodsync_secret_key",
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Changed to true to save session on every request
+    saveUninitialized: true, // Changed to true to create session for unauthenticated users
     store: storage.sessionStore,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      secure: process.env.NODE_ENV === 'production', // Only use secure in production
+      httpOnly: true, // Prevent client-side JS from reading the cookie
     }
   };
 
@@ -80,8 +83,7 @@ export function setupAuth(app: Express) {
       console.log("Registration request received:", { 
         username: req.body.username,
         email: req.body.email,
-        hasPassword: !!req.body.password,
-        hasReferralCode: !!req.body.referralCode
+        hasPassword: !!req.body.password 
       });
       
       // Validate required fields are present
@@ -112,26 +114,6 @@ export function setupAuth(app: Express) {
         }
       }
       
-      // Check referral code validity if provided
-      if (req.body.referralCode) {
-        try {
-          const referral = await storage.getReferralByCode(req.body.referralCode);
-          if (!referral) {
-            return res.status(400).json({ error: "Invalid referral code" });
-          }
-          
-          // Check if the referral has expired
-          if (referral.status === 'expired' || new Date(referral.expiresAt) < new Date()) {
-            return res.status(400).json({ error: "Referral code has expired" });
-          }
-        } catch (refError) {
-          console.error("Error checking referral code:", refError);
-          // Instead of failing, we'll allow registration to proceed without a valid referral
-          // But we'll set the referralCode to null to indicate it wasn't valid
-          req.body.referralCode = null;
-        }
-      }
-      
       // Capture IP address to prevent duplicate accounts
       let ipAddress: string | null = null;
       if (req.ip) {
@@ -155,13 +137,33 @@ export function setupAuth(app: Express) {
 
       try {
         // Create the user with hashed password and IP address
+        // Set isEmailVerified to false initially
         const user = await storage.createUser({
           ...req.body,
           password: await hashPassword(req.body.password),
           ipAddress: ipAddress as string,
+          isEmailVerified: false
         });
 
         console.log("User created successfully:", { id: user.id, username: user.username });
+
+        // Only create verification token if user has an email
+        if (user.email) {
+          try {
+            // Create a verification token for the user
+            const verificationToken = await storage.createEmailVerificationToken(user.id, user.email);
+            
+            // Send verification email
+            await emailService.sendVerificationEmail(user, verificationToken.token);
+            
+            console.log(`Verification email sent to ${user.email} for user ${user.username}`);
+          } catch (verificationError) {
+            console.error("Error sending verification email:", verificationError);
+            // We'll continue with login even if verification email fails
+          }
+        } else {
+          console.log(`User ${user.username} registered without email, no verification required`);
+        }
 
         req.login(user, (err) => {
           if (err) {
@@ -170,7 +172,17 @@ export function setupAuth(app: Express) {
           }
           
           console.log("User logged in after registration:", { id: user.id, username: user.username });
-          res.status(201).json(user);
+          
+          // Return a response indicating whether email verification is needed
+          if (user.email) {
+            res.status(201).json({
+              ...user,
+              emailVerificationSent: true,
+              message: "Please check your email to verify your account."
+            });
+          } else {
+            res.status(201).json(user);
+          }
         });
       } catch (createError) {
         console.error("Error creating user:", createError);
@@ -188,42 +200,73 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/login", passport.authenticate("local"), async (req, res) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ error: 'Authentication failed' });
+  app.post("/api/login", (req, res, next) => {
+    console.log("Login attempt for username:", req.body.username);
+    
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ error: 'Internal server error during authentication' });
       }
       
-      // Reward user with tokens for daily login
-      // In a real app, you would check if they've already received the daily login bonus today
-      // For now, we'll give them tokens every time they log in
-      const tokensEarned = 10; // 10 tokens for logging in
-      const rewardActivity = await storage.createRewardActivity(
-        req.user.id,
-        'daily_login',
-        tokensEarned,
-        'Daily login reward'
-      );
+      if (!user) {
+        console.log("Authentication failed for username:", req.body.username);
+        return res.status(401).json({ 
+          error: 'Authentication failed',
+          message: 'Invalid username or password'
+        });
+      }
       
-      // Get the updated token balance to send to client
-      const tokenBalance = await storage.getUserTokens(req.user.id);
+      console.log("User authenticated successfully:", user.username);
       
-      res.status(200).json({
-        user: req.user,
-        tokens: {
-          balance: tokenBalance,
-          earned: tokensEarned
+      // Log the user in
+      req.logIn(user, async (loginErr) => {
+        if (loginErr) {
+          console.error("Login session error:", loginErr);
+          return res.status(500).json({ error: 'Failed to create login session' });
         }
+        
+        // Save the session explicitly to ensure it's stored before response
+        req.session.save(async (saveErr) => {
+          if (saveErr) {
+            console.error("Session save error:", saveErr);
+            return res.status(500).json({ error: 'Failed to save session' });
+          }
+          
+          console.log("Session saved successfully for user:", user.username);
+          
+          try {
+            // Reward user with tokens for daily login
+            // In a real app, you would check if they've already received the daily login bonus today
+            // For now, we'll give them tokens every time they log in
+            const tokensEarned = 10; // 10 tokens for logging in
+            const rewardActivity = await storage.createRewardActivity(
+              user.id,
+              'daily_login',
+              tokensEarned,
+              'Daily login reward'
+            );
+            
+            // Get the updated token balance to send to client
+            const tokenBalance = await storage.getUserTokens(user.id);
+            
+            console.log(`Login successful: User ${user.username} earned ${tokensEarned} tokens. Balance: ${tokenBalance}`);
+            
+            return res.status(200).json({
+              user: user,
+              tokens: {
+                balance: tokenBalance,
+                earned: tokensEarned
+              }
+            });
+          } catch (error) {
+            console.error('Error processing login rewards:', error);
+            // Even if there's an error with rewards, the user should still be logged in
+            return res.status(200).json(user);
+          }
+        });
       });
-    } catch (error) {
-      console.error('Error processing login rewards:', error);
-      // Even if there's an error with rewards, the user should still be logged in
-      if (req.user) {
-        res.status(200).json(req.user);
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    }
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res, next) => {
@@ -236,6 +279,125 @@ export function setupAuth(app: Express) {
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
+  });
+  
+  // Email verification endpoint
+  app.get("/api/verify-email", async (req, res) => {
+    const token = req.query.token as string;
+    
+    if (!token) {
+      return res.status(400).json({ error: "Missing verification token" });
+    }
+    
+    try {
+      // Get the token from storage
+      const verificationToken = await storage.getEmailVerificationToken(token);
+      
+      if (!verificationToken) {
+        return res.status(404).json({ error: "Invalid verification token" });
+      }
+      
+      // Check if token is expired
+      if (new Date() > new Date(verificationToken.expiresAt)) {
+        return res.status(400).json({ 
+          error: "Verification token has expired",
+          message: "Please request a new verification email"
+        });
+      }
+      
+      // Check if token is already used
+      if (verificationToken.usedAt) {
+        return res.status(400).json({ 
+          error: "Verification token has already been used",
+          message: "Your email is already verified"
+        });
+      }
+      
+      // Mark the token as used
+      await storage.markEmailVerificationTokenAsUsed(token);
+      
+      // Mark the user as verified
+      const user = await storage.markUserAsVerified(verificationToken.userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      // If user is not logged in, redirect to login page
+      if (!req.isAuthenticated()) {
+        return res.redirect('/auth?verified=true');
+      }
+      
+      // If user is logged in and it's the same user, redirect to profile
+      if (req.user.id === verificationToken.userId) {
+        return res.redirect('/profile?verified=true');
+      }
+      
+      // If user is logged in but it's a different user, redirect to login page
+      return res.redirect('/auth?verified=true&logout=true');
+    } catch (error) {
+      console.error("Email verification error:", error);
+      return res.status(500).json({ 
+        error: "Failed to verify email",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+  
+  // Frontend-friendly email verification endpoint
+  app.get("/verify-email", (req, res) => {
+    // Redirect to the API endpoint with the same token
+    const token = req.query.token;
+    res.redirect(`/api/verify-email?token=${token}`);
+  });
+  
+  // Resend verification email endpoint
+  app.post("/api/resend-verification", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    
+    const user = req.user;
+    
+    // Check if user already verified
+    if (user.isEmailVerified) {
+      return res.status(400).json({ 
+        error: "Email already verified",
+        message: "Your email is already verified" 
+      });
+    }
+    
+    // Check if user has an email
+    if (!user.email) {
+      return res.status(400).json({ 
+        error: "No email address",
+        message: "You don't have an email address to verify" 
+      });
+    }
+    
+    try {
+      // Delete any existing tokens for this user
+      await storage.deleteEmailVerificationTokensByUserId(user.id);
+      
+      // Create a new verification token
+      const verificationToken = await storage.createEmailVerificationToken(user.id, user.email);
+      
+      // Send verification email
+      await emailService.sendVerificationEmail(user, verificationToken.token);
+      
+      console.log(`Resent verification email to ${user.email} for user ${user.username}`);
+      
+      return res.status(200).json({ 
+        success: true,
+        message: "Verification email has been sent. Please check your inbox." 
+      });
+    } catch (error) {
+      console.error("Error resending verification email:", error);
+      return res.status(500).json({ 
+        error: "Failed to resend verification email",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
   });
   
   // Search for users by query (username, email, firstname, lastname)

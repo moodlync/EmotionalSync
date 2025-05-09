@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Challenge } from '@shared/schema';
 import ChallengeCreator from '@/components/challenges/challenge-creator';
 import ChallengeCompletion from '@/components/challenges/challenge-completion';
+import MainLayout from '@/components/layout/main-layout';
 
 import {
   Tabs,
@@ -130,28 +131,26 @@ export default function UserChallengesPage() {
   );
   
   return (
-    <div className="container max-w-6xl py-6 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Community Challenges</h1>
-        <p className="text-muted-foreground mt-2">
+    <MainLayout showBackButton={true} title="Community Challenges">
+      <div className="container max-w-6xl py-4 space-y-8">
+        <p className="text-muted-foreground">
           Create and participate in wellness challenges created by the community
         </p>
-      </div>
-      
-      <Separator />
-      
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="browse">
-            <Search className="h-4 w-4 mr-2" />
-            Browse Challenges
-          </TabsTrigger>
-          {user?.isPremium && (
-            <TabsTrigger value="my-challenges">
-              <User className="h-4 w-4 mr-2" />
-              My Challenges
+        
+        <Separator />
+        
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="browse">
+              <Search className="h-4 w-4 mr-2" />
+              Browse Challenges
             </TabsTrigger>
-          )}
+            {user?.isPremium && (
+              <TabsTrigger value="my-challenges">
+                <User className="h-4 w-4 mr-2" />
+                My Challenges
+              </TabsTrigger>
+            )}
         </TabsList>
         
         <div className="flex items-center space-x-4 my-6">
@@ -297,5 +296,6 @@ export default function UserChallengesPage() {
         )}
       </Tabs>
     </div>
+    </MainLayout>
   );
 }

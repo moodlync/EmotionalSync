@@ -98,6 +98,17 @@ export default {
           "42%": { transform: "scale(1.02)" },
           "70%": { transform: "scale(1)" },
         },
+        "very-slow-heartbeat": {
+          "0%": { transform: "scale(1)" },
+          "25%": { transform: "scale(1.015)" },
+          "50%": { transform: "scale(1)" },
+          "75%": { transform: "scale(1.015)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "very-slow-spin": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +116,8 @@ export default {
         "float": "float 3s ease-in-out infinite",
         "pulse-slow": "pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "heartbeat": "heartbeat 40s ease-in-out infinite",
+        "very-slow-heartbeat": "very-slow-heartbeat 8s ease-in-out infinite",
+        "very-slow-spin": "very-slow-spin 30s linear infinite",
       },
     },
   },

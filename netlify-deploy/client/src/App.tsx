@@ -16,6 +16,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { AuthProvider } from "./hooks/use-auth";
+import { SubscriptionProvider } from "./hooks/use-subscription";
 import { WebSocketProvider } from "./hooks/use-websocket";
 import { GamificationProvider } from "./hooks/use-gamification";
 import { MusicPlayerProvider } from "./hooks/use-music-player";
@@ -34,6 +35,7 @@ import { AdminRoute } from "./lib/admin-route";
 import { Toaster } from "@/components/ui/toaster";
 import AutoChallengeUpdater from "@/components/auto-challenge-updater";
 import FloatingChatButton from "@/components/contact/floating-chat-button";
+import SessionHandler from "@/components/session-handler";
 
 // Eagerly loaded core pages
 import NotFound from "@/pages/not-found";
@@ -53,6 +55,8 @@ const PremiumPage = lazy(() => import("@/pages/premium-page"));
 const PremiumFeaturesPage = lazy(() => import("@/pages/premium-features-page"));
 const PremiumComparisonPage = lazy(() => import("@/pages/premium-comparison-page"));
 const PremiumChatPage = lazy(() => import("@/pages/premium-chat-page"));
+const CheckoutPage = lazy(() => import("@/pages/checkout"));
+const CheckoutSuccessPage = lazy(() => import("@/pages/checkout-success"));
 const ContactPage = lazy(() => import("@/pages/contact-page"));
 const ReferralPage = lazy(() => import("@/pages/referral-page"));
 const UserChallengesPage = lazy(() => import("@/pages/user-challenges-page"));
@@ -66,6 +70,8 @@ const VerificationPage = lazy(() => import("@/pages/verification-page"));
 const EmotionalImprintsPage = lazy(() => import("@/pages/emotional-imprints-page"));
 const MilestonePage = lazy(() => import("@/pages/share/milestone-page"));
 const NftCollectionPage = lazy(() => import("@/pages/nft-collection-page"));
+const PersonalizationPage = lazy(() => import("@/pages/personalization-page"));
+const EmotionalIntelligenceQuizPage = lazy(() => import("@/pages/emotional-intelligence-quiz-page"));
 const TermsConditionsPage = lazy(() => import("@/pages/terms-conditions-page"));
 const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy-page"));
 const SecurityPage = lazy(() => import("@/pages/security-page"));
@@ -73,6 +79,7 @@ const SecurityCenterPage = lazy(() => import("@/pages/security-center"));
 const CompliancePage = lazy(() => import("@/pages/compliance-page"));
 const FAQPage = lazy(() => import("@/pages/faq-page"));
 const RoadmapPage = lazy(() => import("@/pages/roadmap-page"));
+const CommunityFeedPage = lazy(() => import("@/pages/community-feed-page"));
 
 // Admin pages (lazily loaded)
 const AdminLoginPage = lazy(() => import("@/pages/admin/admin-login-page"));
@@ -80,8 +87,12 @@ const AdminDashboardPage = lazy(() => import("@/pages/admin/admin-dashboard-page
 const AdminTicketsPage = lazy(() => import("@/pages/admin/admin-tickets-page"));
 const AdminRefundsPage = lazy(() => import("@/pages/admin/admin-refunds-page"));
 const AdminUsersPage = lazy(() => import("@/pages/admin/admin-users-page"));
+const AdminFeedbacksPage = lazy(() => import("@/pages/admin/admin-feedbacks-page"));
 const AdminActionsPage = lazy(() => import("@/pages/admin/admin-actions-page"));
 const AdminQuotesPage = lazy(() => import("@/pages/admin/admin-quotes-page"));
+const AdminSeoPage = lazy(() => import("@/pages/admin/admin-seo-page"));
+const AdminBackupPage = lazy(() => import("@/pages/admin/admin-backup-page"));
+const AdminStudyPage = lazy(() => import("@/pages/admin/admin-study-page"));
 const AdminDirectAccess = lazy(() => import("@/pages/admin-direct-access"));
 
 // Loading indicator for lazy-loaded components
@@ -150,6 +161,8 @@ const RouterComponent = () => {
     { path: "/premium/features", component: PremiumFeaturesPage },
     { path: "/premium/chat", component: PremiumChatPage },
     { path: "/premium/chat/:id", component: PremiumChatPage },
+    { path: "/checkout/:planId", component: CheckoutPage },
+    { path: "/checkout-success", component: CheckoutSuccessPage },
     { path: "/family", component: FamilyPlanPage },
     { path: "/nft-collection", component: NftCollectionPage },
     { path: "/user-challenges", component: UserChallengesPage },
@@ -161,7 +174,10 @@ const RouterComponent = () => {
     { path: "/friends", component: FriendBookPage },
     { path: "/verification", component: VerificationPage },
     { path: "/emotional-imprints", component: EmotionalImprintsPage },
+    { path: "/emotional-intelligence-quiz", component: EmotionalIntelligenceQuizPage },
+    { path: "/personalization", component: PersonalizationPage },
     { path: "/security-center", component: SecurityCenterPage },
+    { path: "/community", component: CommunityFeedPage },
   ];
   
   const adminRoutes = [
@@ -171,8 +187,12 @@ const RouterComponent = () => {
     { path: "/admin/tickets", component: AdminTicketsPage },
     { path: "/admin/refunds", component: AdminRefundsPage },
     { path: "/admin/users", component: AdminUsersPage },
+    { path: "/admin/feedbacks", component: AdminFeedbacksPage },
     { path: "/admin/actions", component: AdminActionsPage },
     { path: "/admin/quotes", component: AdminQuotesPage },
+    { path: "/admin/seo", component: AdminSeoPage },
+    { path: "/admin/backup", component: AdminBackupPage },
+    { path: "/admin/study", component: AdminStudyPage },
   ];
   
   return (
@@ -210,21 +230,26 @@ function App() {
       <ThemeProvider>
         <HelmetProvider>
           <AuthProvider>
-            <GamificationProvider>
-              <WebSocketProvider>
-                <MusicPlayerProvider>
-                  <PremiumFeatureModalProvider>
-                    <TooltipProvider>
-                      <Toaster />
-                      <RouterComponent />
-                      <FloatingChatButton />
-                      <AutoChallengeUpdater />
-                      <CapacitorInitializer />
-                    </TooltipProvider>
-                  </PremiumFeatureModalProvider>
-                </MusicPlayerProvider>
-              </WebSocketProvider>
-            </GamificationProvider>
+            <SubscriptionProvider>
+              <GamificationProvider>
+                <WebSocketProvider>
+                  <MusicPlayerProvider>
+                    <PremiumFeatureModalProvider>
+                      <TooltipProvider>
+                        <MoodProvider>
+                          <Toaster />
+                          <RouterComponent />
+                          <SessionHandler />
+                          <FloatingChatButton />
+                          <AutoChallengeUpdater />
+                          <CapacitorInitializer />
+                        </MoodProvider>
+                      </TooltipProvider>
+                    </PremiumFeatureModalProvider>
+                  </MusicPlayerProvider>
+                </WebSocketProvider>
+              </GamificationProvider>
+            </SubscriptionProvider>
           </AuthProvider>
         </HelmetProvider>
       </ThemeProvider>

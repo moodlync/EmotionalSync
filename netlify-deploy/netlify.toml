@@ -3,13 +3,15 @@
   command = """
     export NPM_CONFIG_AUDIT=false &&
     npm install --no-audit --no-fund &&
+    node ensure-assets.cjs &&
     node netlify-build-fix.cjs &&
     npm install --no-audit --no-fund --production serverless-http cors express body-parser express-session memorystore uuid &&
     npm install --no-audit --no-fund vite esbuild @vitejs/plugin-react typescript react-scripts &&
     NODE_ENV=production npm run build && 
-    node netlify/functions/install.js
+    # Try to run the ES module version first, fall back to CommonJS if that fails
+    node netlify/functions/install.mjs || node netlify/functions/install.cjs
   """
-  publish = "dist/client"
+  publish = "dist/public"
   functions = "netlify/functions"
   
 [build.environment]
@@ -23,6 +25,15 @@
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["express", "serverless-http", "cors", "body-parser", "express-session", "memorystore", "uuid"]
+  
+  # Define environment variables for functions
+  [functions.environment]
+    NODE_ENV = "production"
+    # Force path handling in JS to use current working directory
+    FUNCTIONS_PATH_MODE = "cwd"
+    # Explicitly tell Netlify functions to use ES modules
+    ES_MODULE_SUPPORT = "true"
 
 [[plugins]]
 package = "@netlify/plugin-functions-install-core"
@@ -31,7 +42,35 @@ package = "@netlify/plugin-functions-install-core"
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
 
+# Admin routes
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Specific routes that need to be handled by the SPA
+[[redirects]]
+  from = "/auth"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/profile/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/emotions/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Default catch-all route for SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -1,10 +1,30 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import cors from 'cors';
+import * as http from 'http';
+import { createServer } from 'http';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: true, // Allow any origin
+  credentials: true, // Allow credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Add headers for Replit compatibility
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -57,114 +77,69 @@ app.use((req, res, next) => {
   }
 
   // Global variables to track the server state
-  let boundPort: number | null = null;
   let websocketInitialized = false;
   
-  // For Replit compatibility, if PORT env var is set, we should use it
-  const replitPort = process.env.PORT ? parseInt(process.env.PORT, 10) : null;
+  // Determine which ports to try based on environment
+  const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
   
-  // Try to serve the app on port 5000 or fallback to alternate ports
-  // This serves both the API and the client
-  const tryListen = (port: number, maxRetries = 3, retryCount = 0) => {
-    // If we already have a bound port, don't try to bind again
-    if (boundPort !== null) {
-      log(`Server already running on port ${boundPort}`);
-      return;
-    }
+  // Use port 8080 for Replit which is our main application port
+  const primaryPort = process.env.PORT ? parseInt(process.env.PORT) : 
+                     isReplitEnv ? 8080 : 5001;
+
+  // For Replit workflow detection, we run a separate script on port 5000
+  const workflowPort = 5000;
+
+  // Simple direct server listen approach
+  log(`Starting MoodLync server on port ${primaryPort}...`);
+  
+  // Create a function to initialize WebSocket server
+  const initializeWebSocketIfNeeded = (server: http.Server) => {
+    if (websocketInitialized) return;
     
-    // For Replit compatibility, force port 5000 if we're in a workflow
-    if (replitPort && port !== replitPort) {
-      log(`Using Replit-assigned port: ${replitPort}`);
-      port = replitPort;
-    }
-    
-    const serverOpts = {
-      port,
-      host: "0.0.0.0" as const,
-      reusePort: true,
-    };
-
-    // Kill any existing server instances just to be safe
-    try {
-      // @ts-ignore - Accessing internal property for cleanup
-      if (server._handle) server.close();
-    } catch (error) {
-      // Ignore errors during cleanup
-    }
-
-    // Before binding, let's kill any process that might be using our port
-    // This is especially important in development environments like Replit
-    try {
-      // Force kill any process using this port before we try to bind
-      // This is a bit aggressive but needed for development environments
-      if (process.env.NODE_ENV === 'development') {
-        log(`Attempting to force bind to port ${port} for Replit compatibility`);
-      }
-    } catch (error) {
-      // Ignore errors during port cleanup
-    }
-
-    server.listen(serverOpts, () => {
+    // @ts-ignore - Access dynamically exported function
+    const initializeWebSocketServer = server['initializeWebSocketServer'];
+    if (typeof initializeWebSocketServer === 'function') {
       try {
-        // Get the actual bound port - might be different from the requested port
-        const address = server.address();
-        const actualPort = typeof address === 'object' && address ? address.port : port;
-        
-        // Remember the bound port to prevent multiple bindings
-        boundPort = actualPort;
-        log(`MoodLync server running on port ${actualPort}`);
-      
-        // Initialize WebSocket only once
-        if (!websocketInitialized) {
-          // After server starts successfully, initialize WebSocket
-          // We need to access this function from routes.ts
-          // @ts-ignore - Access dynamically exported function
-          const initializeWebSocketServer = server['initializeWebSocketServer'];
-          if (typeof initializeWebSocketServer === 'function') {
-            try {
-              initializeWebSocketServer();
-              websocketInitialized = true;
-              log(`WebSocket server initialized on port ${actualPort}`);
-            } catch (error) {
-              console.error('Failed to initialize WebSocket server:', error);
-            }
-          } else {
-            console.warn('WebSocket server initialization function not found');
-          }
-        }
+        initializeWebSocketServer();
+        websocketInitialized = true;
+        log(`WebSocket server initialized`);
       } catch (error) {
-        console.error('Error during server initialization:', error);
+        console.error('Failed to initialize WebSocket server:', error);
       }
-    }).on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE' && retryCount < maxRetries) {
-        // Port is in use, try next port
-        const nextPort = replitPort || (port + 1);
-        
-        // If we're on Replit and using the assigned port, we shouldn't try other ports
-        if (replitPort && replitPort === port) {
-          log(`Replit port ${port} is in use, but we must use this port. Attempting forced bind...`);
-          // Force a tiny delay to let any cleanup happen
-          setTimeout(() => tryListen(port, maxRetries, retryCount + 1), 1000);
-        } else {
-          log(`Port ${port} is already in use, trying port ${nextPort}...`);
-          tryListen(nextPort, maxRetries, retryCount + 1);
-        }
-      } else {
-        // Either not an EADDRINUSE error or we've exhausted retries
-        console.error(`Failed to start server: ${err.message}`);
-        
-        // In development, try to continue on a different port anyway as a last resort
-        if (process.env.NODE_ENV === 'development' && !replitPort) {
-          const emergencyPort = 8080;
-          log(`Trying emergency port ${emergencyPort}...`);
-          tryListen(emergencyPort, 0, 0);
-        } else {
-          process.exit(1);
-        }
-      }
-    });
+    } else {
+      console.warn('WebSocket server initialization function not found');
+    }
   };
-
-  // Start with the default port 5000 or Replit-assigned port
-  tryListen(replitPort || 5000);
+  
+  // Listen on primary port (8080 for Replit or 5001 for local/Netlify)
+  server.listen(primaryPort, "0.0.0.0", () => {
+    const address = server.address();
+    const actualPort = typeof address === 'object' && address ? address.port : primaryPort;
+    log(`MoodLync server running on port ${actualPort}`);
+    
+    // Initialize WebSocket on primary server
+    initializeWebSocketIfNeeded(server);
+    
+    // For Replit, set up a workflow detection server on port 5000
+    if (isReplitEnv) {
+      log(`Running in Replit environment on port ${actualPort}`);
+      
+      // Create a simple HTTP server on port 5000 for Replit workflow detection
+      const workflowPort = 5000;
+      const workflowServer = createServer((req: any, res: any) => {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end(`MoodLync is running on port ${actualPort}. Please visit that port for the application.`);
+      });
+      
+      // Start the workflow detection server
+      workflowServer.listen(workflowPort, '0.0.0.0', () => {
+        log(`Workflow detection server running on port ${workflowPort}`);
+      }).on('error', (err: any) => {
+        console.error(`Failed to start workflow detection server on port ${workflowPort}:`, err.message);
+      });
+    }
+  }).on('error', (err: any) => {
+    console.error(`Failed to start server on port ${primaryPort}:`, err.message);
+    console.error(`Server initialization failed. Please check if port ${primaryPort} is already in use.`);
+  });
 })();

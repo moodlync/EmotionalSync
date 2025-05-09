@@ -16,17 +16,8 @@ import crypto from "crypto";
 // Note: Account and subscription management routes are imported dynamically in registerRoutes function
 
 // Since __dirname is not available in ES modules
-// Use a safer approach for Netlify functions that works in both dev and production
-let __dirname;
-try {
-  // Try the standard ES modules approach first
-  const __filename = fileURLToPath(import.meta.url);
-  __dirname = path.dirname(__filename);
-} catch (error) {
-  // Fallback for Netlify Functions environment where import.meta.url might be undefined
-  console.log("Using fallback method for __dirname in Netlify environment");
-  __dirname = process.cwd();
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { AdminUser } from "@shared/schema";
 
 // Extend Express Request interface to include admin user
@@ -305,29 +296,59 @@ function setupTrialCheckSchedule() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add a debug route at the very top level, before any authentication or other middleware
+  app.get('/debug', (req, res) => {
+    console.log('Debug route accessed at:', new Date().toISOString());
+    res.json({ 
+      status: 'ok', 
+      serverTime: new Date().toISOString(),
+      message: 'Server is running correctly'
+    });
+  });
+  
+  // Add a route to serve the debug HTML page
+  app.get('/debug-page', (req, res) => {
+    console.log('Debug HTML page requested');
+    res.sendFile(path.join(process.cwd(), 'debug.html'));
+  });
   // Set up account and subscription management routes
   try {
     const accountManagementRoutes = (await import('./routes/account-management')).default;
-    const subscriptionManagementRoutes = (await import('./routes/subscription-management')).default;
+    const subscriptionRoutes = (await import('./routes/subscription-routes')).default;
     const nftPoolRoutes = (await import('./routes/nft-pool-routes')).default;
     const nftCollectionRoutes = (await import('./routes/nft-collection-routes')).default;
     const paymentRoutes = (await import('./routes/payment-routes')).default;
+    const communityRoutes = (await import('./routes/community-routes')).default;
     
-    app.use('/api/account', accountManagementRoutes);
-    app.use('/api/subscription', subscriptionManagementRoutes);
+    app.use(accountManagementRoutes);
+    app.use(subscriptionRoutes);
     app.use('/api', nftPoolRoutes);
     app.use('/api', nftCollectionRoutes);
     app.use('/api/payments', paymentRoutes);
+    app.use('/api/community', communityRoutes);
     
     // Import and register admin routes
     const { registerAdminRoutes } = await import('./routes/admin-routes');
     registerAdminRoutes(app);
     
+    // Import and register profile routes
+    const { registerProfileRoutes } = await import('./routes/profile-routes');
+    const profileRouter = express.Router();
+    registerProfileRoutes(profileRouter);
+    app.use('/api', profileRouter);
+    
+    // Import and register emotional intelligence routes
+    const { registerEmotionalIntelligenceRoutes } = await import('./routes/emotional-intelligence-routes');
+    registerEmotionalIntelligenceRoutes(app);
+    
     console.log("Account and subscription management routes registered successfully");
     console.log("NFT token pool system routes registered successfully");
     console.log("NFT collection routes registered successfully");
     console.log("Payment processing routes registered successfully");
+    console.log("Community and support features registered successfully");
     console.log("Admin panel routes registered successfully");
+    console.log("Profile routes registered successfully");
+    console.log("Emotional intelligence quiz routes registered successfully");
   } catch (error) {
     console.error("Error registering routes:", error);
   }
@@ -691,8 +712,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const emotion = await storage.getUserEmotion(req.user.id);
-      return res.status(200).json(emotion || 'neutral');
+      const emotionValue = await storage.getUserEmotion(req.user.id);
+      // Ensure we always return { emotion: value } format
+      // Log what's being returned to help with debugging
+      console.log('GET /api/emotion response:', { emotion: emotionValue || 'neutral' });
+      return res.status(200).json({ emotion: emotionValue || 'neutral' });
     } catch (error) {
       console.error('Error fetching emotion:', error);
       return res.status(500).json({ error: 'Failed to fetch emotion' });
@@ -1531,9 +1555,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const redemptions = await storage.getUserTokenRedemptions(req.user.id);
-      return res.status(200).json(redemptions);
+      // Always return an array, even if no redemptions found
+      return res.status(200).json(redemptions || []);
     } catch (error) {
       console.error('Error fetching redemption history:', error);
+      // Provide more helpful error message
       return res.status(500).json({ 
         error: 'Failed to fetch redemption history',
         message: error instanceof Error ? error.message : 'Unknown error'
@@ -4165,6 +4191,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
   
   // Existing 2FA routes will be deprecated in favor of the new security service
+  
+  // ====== PERSONALIZATION AND INSIGHTS ROUTES ======
+  
+  // Custom mood tags routes
+  app.post("/api/custom-mood-tags", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const tagData: InsertCustomMoodTag = {
+        userId,
+        tagName: req.body.tagName,
+        tagDescription: req.body.tagDescription,
+        baseEmotion: req.body.baseEmotion,
+        color: req.body.color,
+        icon: req.body.icon,
+        isActive: true
+      };
+      
+      const customMoodTag = await storage.createCustomMoodTag(tagData);
+      res.status(201).json(customMoodTag);
+    } catch (error) {
+      console.error('Error creating custom mood tag:', error);
+      res.status(500).json({ message: "Error creating custom mood tag", error });
+    }
+  });
+
+  app.get("/api/custom-mood-tags", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const customMoodTags = await storage.getUserCustomMoodTags(userId);
+      res.json(customMoodTags);
+    } catch (error) {
+      console.error('Error getting custom mood tags:', error);
+      res.status(500).json({ message: "Error getting custom mood tags", error });
+    }
+  });
+
+  app.get("/api/custom-mood-tags/:tagId", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const tagId = parseInt(req.params.tagId);
+      
+      if (isNaN(tagId)) {
+        return res.status(400).json({ message: "Invalid tag ID" });
+      }
+      
+      const customMoodTag = await storage.getCustomMoodTag(userId, tagId);
+      
+      if (!customMoodTag) {
+        return res.status(404).json({ message: "Custom mood tag not found" });
+      }
+      
+      res.json(customMoodTag);
+    } catch (error) {
+      console.error('Error getting custom mood tag:', error);
+      res.status(500).json({ message: "Error getting custom mood tag", error });
+    }
+  });
+
+  app.patch("/api/custom-mood-tags/:tagId", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const tagId = parseInt(req.params.tagId);
+      
+      if (isNaN(tagId)) {
+        return res.status(400).json({ message: "Invalid tag ID" });
+      }
+      
+      const tagData: Partial<InsertCustomMoodTag> = {
+        tagName: req.body.tagName,
+        tagDescription: req.body.tagDescription,
+        baseEmotion: req.body.baseEmotion,
+        color: req.body.color,
+        icon: req.body.icon,
+        isActive: req.body.isActive
+      };
+      
+      // Remove undefined fields
+      Object.keys(tagData).forEach(key => {
+        if (tagData[key as keyof typeof tagData] === undefined) {
+          delete tagData[key as keyof typeof tagData];
+        }
+      });
+      
+      const updatedTag = await storage.updateCustomMoodTag(userId, tagId, tagData);
+      res.json(updatedTag);
+    } catch (error) {
+      console.error('Error updating custom mood tag:', error);
+      res.status(500).json({ message: "Error updating custom mood tag", error });
+    }
+  });
+
+  app.delete("/api/custom-mood-tags/:tagId", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const tagId = parseInt(req.params.tagId);
+      
+      if (isNaN(tagId)) {
+        return res.status(400).json({ message: "Invalid tag ID" });
+      }
+      
+      await storage.deleteCustomMoodTag(userId, tagId);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting custom mood tag:', error);
+      res.status(500).json({ message: "Error deleting custom mood tag", error });
+    }
+  });
+
+  // Weekly mood reports routes
+  app.post("/api/weekly-mood-reports/generate", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const weeklyReport = await storage.generateWeeklyMoodReport(userId);
+      res.status(201).json(weeklyReport);
+    } catch (error) {
+      console.error('Error generating weekly mood report:', error);
+      res.status(500).json({ message: "Error generating weekly mood report", error });
+    }
+  });
+
+  app.get("/api/weekly-mood-reports", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const weeklyReports = await storage.getUserWeeklyMoodReports(userId);
+      res.json(weeklyReports);
+    } catch (error) {
+      console.error('Error getting weekly mood reports:', error);
+      res.status(500).json({ message: "Error getting weekly mood reports", error });
+    }
+  });
+
+  app.get("/api/weekly-mood-reports/latest", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const latestReport = await storage.getLatestWeeklyMoodReport(userId);
+      
+      if (!latestReport) {
+        return res.status(404).json({ message: "No weekly mood reports found" });
+      }
+      
+      res.json(latestReport);
+    } catch (error) {
+      console.error('Error getting latest weekly mood report:', error);
+      res.status(500).json({ message: "Error getting latest weekly mood report", error });
+    }
+  });
+  
+  // Import and register wellness tips routes
+  try {
+    const wellnessTipRoutes = (await import('./routes/wellness-tip-routes')).default;
+    app.use('/api', wellnessTipRoutes);
+    console.log('Wellness tips routes registered successfully');
+  } catch (error) {
+    console.error('Error registering wellness tips routes:', error);
+  }
+
+  console.log('Personalization and insights routes registered successfully');
+  
+  // Register user management routes (for admin panel)
+  const { registerUserManagementRoutes } = await import('./routes/user-management-routes');
+  registerUserManagementRoutes(app);
   // Once the security routes are fully implemented and tested, these endpoints will be removed
   
   // Setup 2FA
@@ -5338,6 +5525,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deleting notification:', error);
       return res.status(500).json({ error: 'Server error' });
+    }
+  });
+
+  // User feedback endpoint
+  app.post('/api/feedback', async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!content || typeof content !== 'string' || content.trim().length === 0) {
+        return res.status(400).json({ error: 'Feedback content is required' });
+      }
+      
+      // Create the feedback entry in storage
+      const userId = req.isAuthenticated() ? req.user!.id : null;
+      const feedback = await storage.createUserFeedback({
+        userId,
+        content: content.trim(),
+        status: 'new',
+        source: 'footer'
+      });
+      
+      // Add a small token reward if user is authenticated
+      if (userId) {
+        await storage.createRewardActivity(
+          userId,
+          'help_others',
+          3, // Small token reward for providing feedback
+          'Provided feedback to improve MoodSync'
+        );
+      }
+      
+      res.status(201).json({ success: true, message: 'Feedback submitted successfully' });
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      res.status(500).json({ error: 'Failed to submit feedback' });
+    }
+  });
+  
+  // Admin feedback management endpoints
+  app.get('/api/admin/feedbacks', requireAdmin, async (req, res) => {
+    try {
+      const { status = 'all', page = '1', search = '' } = req.query;
+      
+      const options = {
+        status: status as any,
+        page: parseInt(page as string, 10),
+        limit: 10,
+        search: search as string
+      };
+      
+      const result = await storage.getUserFeedbacks(options);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error fetching user feedbacks:', error);
+      res.status(500).json({ error: 'Failed to fetch user feedbacks' });
+    }
+  });
+  
+  app.get('/api/admin/feedbacks/:id', requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id, 10);
+      
+      if (isNaN(feedbackId)) {
+        return res.status(400).json({ error: 'Invalid feedback ID' });
+      }
+      
+      const feedback = await storage.getUserFeedbackById(feedbackId);
+      
+      if (!feedback) {
+        return res.status(404).json({ error: 'Feedback not found' });
+      }
+      
+      res.json(feedback);
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+      res.status(500).json({ error: 'Failed to fetch feedback details' });
+    }
+  });
+  
+  app.patch('/api/admin/feedbacks/:id', requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id, 10);
+      
+      if (isNaN(feedbackId)) {
+        return res.status(400).json({ error: 'Invalid feedback ID' });
+      }
+      
+      const { status, notes } = req.body;
+      
+      if (!status || !['new', 'reviewed', 'completed', 'ignored'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status value' });
+      }
+      
+      const updatedFeedback = await storage.updateUserFeedback(feedbackId, {
+        status: status as any,
+        notes: notes || null,
+        reviewedBy: req.adminUser!.id
+      });
+      
+      res.json(updatedFeedback);
+    } catch (error) {
+      console.error('Error updating feedback:', error);
+      res.status(500).json({ error: 'Failed to update feedback' });
     }
   });
 

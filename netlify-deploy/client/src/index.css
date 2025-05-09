@@ -8,6 +8,44 @@
     image-rendering: crisp-edges;
     -ms-interpolation-mode: nearest-neighbor;
   }
+  
+  /* Soft breathing animations for mood-related elements */
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.015);
+    }
+  }
+  
+  @keyframes mood-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.01);
+    }
+  }
+  
+  @keyframes micro-bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+  
+  .animate-micro-bounce {
+    animation: micro-bounce 2s ease-in-out infinite;
+  }
+  
+  .emotion-orb {
+    transition: all 0.5s ease-in-out;
+  }
 }
 
 @layer base {
@@ -96,6 +134,29 @@
   color: rgb(230, 230, 250);
 }
 
+/* Enhance subheaders in dark mode */
+.dark .subheader,
+.dark h3.text-gray-800,
+.dark h3.text-gray-700,
+.dark h3.font-medium,
+.dark h4.font-medium {
+  background-color: #222639;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.dark .subheader:hover,
+.dark h3.text-gray-800:hover,
+.dark h3.text-gray-700:hover,
+.dark h3.font-medium:hover,
+.dark h4.font-medium:hover {
+  text-shadow: 0 0 8px #0FFF0C, 0 0 12px #0FFF0C;
+  color: #0FFF0C;
+  cursor: pointer;
+}
+
 /* Fix footer heading and links in dark mode */
 .dark footer h3.text-gray-900 {
   color: rgb(230, 230, 250);
@@ -107,6 +168,63 @@
 
 .dark footer .text-gray-600:hover {
   color: hsl(var(--primary));
+}
+
+/* Custom button highlights for dark mode */
+.dark button:active,
+.dark .button:active,
+.dark [role="button"]:active,
+.dark button:focus-visible,
+.dark .active,
+.dark .selected {
+  background-color: #A6FF6F !important;
+  border-color: #A6FF6F !important;
+  color: black !important;
+}
+
+/* Enhanced button interactions for better visibility */
+button, 
+.button, 
+[role="button"] {
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+button:before, 
+.button:before, 
+[role="button"]:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+  z-index: 0;
+}
+
+button:hover:before, 
+.button:hover:before, 
+[role="button"]:hover:before {
+  width: 150%;
+  height: 150%;
+}
+
+button > *, 
+.button > *, 
+[role="button"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+.dark button:hover, 
+.dark .button:hover, 
+.dark [role="button"]:hover {
+  box-shadow: 0 0 10px rgba(166, 255, 111, 0.4);
 }
 
 /* Fix welcome page header in dark mode */
@@ -206,6 +324,10 @@
     transform: translateY(0) translateX(0);
     opacity: 0.3;
   }
+}
+
+.animate-float {
+  animation: float 15s ease-in-out infinite;
 }
 
 :root {
@@ -406,6 +528,13 @@
 }
 
 @layer components {
+  /* Token button styling with black text */
+  .token-button,
+  button.token-button,
+  [data-token-button="true"] {
+    @apply text-black font-medium !important;
+  }
+  
   /* Enhanced emotion styling with glows and improved colors */
   .bg-happy {
     @apply bg-amber-400;
@@ -688,6 +817,21 @@
 
 .animate-fadeIn {
   animation: fadeIn 1s ease both;
+}
+
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 /* Wave animation for AI-generated video */

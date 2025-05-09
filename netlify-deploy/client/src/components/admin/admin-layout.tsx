@@ -10,7 +10,11 @@ import {
   ChevronRight,
   LogOut,
   Menu,
-  X
+  X,
+  Search,
+  Database,
+  BookOpenText,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,6 +44,16 @@ const sidebarItems = [
     icon: Users
   },
   {
+    title: "Feedbacks",
+    href: "/admin/feedbacks",
+    icon: MessageSquare
+  },
+  {
+    title: "SEO Settings",
+    href: "/admin/seo",
+    icon: Search
+  },
+  {
     title: "Actions Log",
     href: "/admin/actions",
     icon: ClipboardList
@@ -48,6 +62,16 @@ const sidebarItems = [
     title: "Quotes",
     href: "/admin/quotes",
     icon: Quote
+  },
+  {
+    title: "Backup",
+    href: "/admin/backup",
+    icon: Database
+  },
+  {
+    title: "User Study",
+    href: "/admin/study",
+    icon: BookOpenText
   }
 ];
 

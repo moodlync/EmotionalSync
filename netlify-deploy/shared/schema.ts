@@ -19,6 +19,7 @@ export type GameCategory = "puzzle" | "relaxation" | "meditation" | "focus" | "m
 export type GameDifficulty = "beginner" | "intermediate" | "advanced";
 export type ActivityType = "work" | "study" | "exercise" | "social" | "family" | "rest" | "entertainment" | "meditation" | "outdoors" | "home" | "other";
 export type VerificationStatus = "not_verified" | "pending" | "verified";
+export type SubscriptionTier = "free" | "trial" | "premium" | "family" | "lifetime";
 
 // Tokenomics constants
 export const TOKEN_CONVERSION_RATE = 0.0010; // $0.0010 per token
@@ -50,6 +51,7 @@ export type TicketPriority = "low" | "medium" | "high" | "urgent";
 export type TicketCategory = "account" | "payment" | "refund" | "technical" | "feature_request" | "bug_report" | "content" | "other";
 export type RefundStatus = "pending" | "approved" | "rejected" | "processed";
 export type AdminActionType = "user_ban" | "user_unban" | "content_removal" | "warning_issued" | "payment_processed" | "refund_processed" | "account_recovery" | "challenge_approval" | "support_response";
+export type FeedbackStatus = "new" | "reviewed" | "in_progress" | "implemented" | "declined";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -59,6 +61,8 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").unique(),
   password: text("password").notNull(),
+  isEmailVerified: boolean("is_email_verified").default(false),
+  emailVerifiedAt: timestamp("email_verified_at"),
   gender: text("gender").$type<GenderType>(),
   state: text("state"),
   country: text("country"),
@@ -488,6 +492,19 @@ export const userGamePlays = pgTable("user_game_plays", {
   tokensEarned: integer("tokens_earned"),
 });
 
+export const customMoodTags = pgTable("custom_mood_tags", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tagName: text("tag_name").notNull(),
+  tagDescription: text("tag_description"),
+  baseEmotion: text("base_emotion").$type<EmotionType>(),
+  color: text("color").default("#6366f1"),
+  icon: text("icon").default("😊"),
+  createdAt: timestamp("created_at").defaultNow(),
+  usageCount: integer("usage_count").default(0),
+  isActive: boolean("is_active").default(true),
+});
+
 export const userMoodTrends = pgTable("user_mood_trends", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
@@ -497,6 +514,10 @@ export const userMoodTrends = pgTable("user_mood_trends", {
   moodScore: integer("mood_score").notNull(), // 1-10 scale
   notes: text("notes"),
   recommendedGameCategory: text("recommended_game_category").$type<GameCategory>(),
+  customMoodTagId: integer("custom_mood_tag_id").references(() => customMoodTags.id),
+  weatherConditions: text("weather_conditions"),
+  sleepHours: numeric("sleep_hours"),
+  physicalActivity: text("physical_activity"),
 });
 
 export const userSessions = pgTable("user_sessions", {
@@ -1494,6 +1515,15 @@ export const emotionalImprints = pgTable("emotional_imprints", {
   customization: json("customization"),
 });
 
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+});
+
 export const emotionalImprintInteractions = pgTable("emotional_imprint_interactions", {
   id: serial("id").primaryKey(),
   imprintId: integer("imprint_id").notNull().references(() => emotionalImprints.id),
@@ -1595,6 +1625,15 @@ export type EmotionalImprint = typeof emotionalImprints.$inferSelect;
 export type InsertEmotionalImprintInteraction = z.infer<typeof insertEmotionalImprintInteractionSchema>;
 export type EmotionalImprintInteraction = typeof emotionalImprintInteractions.$inferSelect;
 
+export const insertEmailVerificationTokenSchema = createInsertSchema(emailVerificationTokens, {
+  userId: z.number().int().positive(),
+  token: z.string(),
+  expiresAt: z.date(),
+});
+
+export type InsertEmailVerificationToken = z.infer<typeof insertEmailVerificationTokenSchema>;
+export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect;
+
 export type InsertAdvertisement = z.infer<typeof insertAdvertisementSchema>;
 export type Advertisement = typeof advertisements.$inferSelect;
 export type InsertAdvertisementBooking = z.infer<typeof insertAdvertisementBookingSchema>;
@@ -1611,3 +1650,123 @@ export const insertMilestoneShareSchema = createInsertSchema(milestoneShares, {
   ipAddress: z.string().optional(),
   trackingId: z.string().uuid(),
 });
+
+// User Subscription table
+// Use existing customMoodTags declaration
+
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tier: text("tier").notNull().$type<SubscriptionTier>().default("free"),
+  isActive: boolean("is_active").default(false),
+  startDate: timestamp("start_date").defaultNow(),
+  expiryDate: timestamp("expiry_date"),
+  renewsAt: timestamp("renews_at"),
+  cancelledAt: timestamp("cancelled_at"),
+  hadTrialBefore: boolean("had_trial_before").default(false),
+  paymentMethod: text("payment_method"),
+  lastPaymentDate: timestamp("last_payment_date"),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Create the insert schema for subscriptions
+export const insertSubscriptionSchema = createInsertSchema(subscriptions, {
+  userId: z.number().int().positive(),
+  tier: z.enum(["free", "trial", "premium", "family", "lifetime"]),
+  isActive: z.boolean().default(false),
+  expiryDate: z.date().optional().nullable(),
+  renewsAt: z.date().optional().nullable(),
+  hadTrialBefore: z.boolean().default(false),
+  paymentMethod: z.string().optional().nullable(),
+});
+
+// Type definitions for subscriptions
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type Subscription = typeof subscriptions.$inferSelect;
+
+// Custom mood tags schema
+export const insertCustomMoodTagSchema = createInsertSchema(customMoodTags, {
+  userId: z.number().int().positive(),
+  tagName: z.string().min(2).max(30),
+  tagDescription: z.string().max(200).optional(),
+  baseEmotion: z.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]).optional(),
+  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).default("#6366f1"),
+  icon: z.string().default("😊"),
+  isActive: z.boolean().default(true),
+});
+
+export type InsertCustomMoodTag = z.infer<typeof insertCustomMoodTagSchema>;
+export type CustomMoodTag = typeof customMoodTags.$inferSelect;
+
+// Weekly mood report type
+export interface WeeklyMoodReport {
+  userId: number;
+  weekStartDate: Date;
+  weekEndDate: Date;
+  predominantMoods: Record<string, number>; // Emotion -> percentage
+  dailyMoods: Record<string, EmotionType | null>; // day -> emotion
+  moodTrends: {
+    improvement: boolean;
+    percentageChange: number;
+    previousWeekAverage: number;
+    currentWeekAverage: number;
+  };
+  insightsSummary: string[];
+  correlationInsights: {
+    weather: Record<string, EmotionType[]> | null;
+    sleepHours: Record<string, number> | null; // hours -> average mood score
+    physicalActivity: Record<string, number> | null; // activity -> average mood score
+  };
+  recommendedActions: string[];
+  generatedAt: Date;
+}
+
+// SEO configuration schema
+export const seoConfigurations = pgTable("seo_configurations", {
+  id: serial("id").primaryKey(),
+  pageKey: text("page_key").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  keywords: json("keywords").$type<string[]>().default([]),
+  ogImage: text("og_image"),
+  noindex: boolean("noindex").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => adminUsers.id),
+});
+
+export const insertSeoConfigurationSchema = createInsertSchema(seoConfigurations, {
+  pageKey: z.string().min(2).max(100),
+  title: z.string().min(5).max(200),
+  description: z.string().min(10).max(500),
+  keywords: z.array(z.string()).optional().default([]),
+  ogImage: z.string().optional(),
+  noindex: z.boolean().default(false),
+  lastModifiedBy: z.number().int().positive().optional(),
+});
+
+export type InsertSeoConfiguration = z.infer<typeof insertSeoConfigurationSchema>;
+export type SeoConfiguration = typeof seoConfigurations.$inferSelect;
+
+// Emotional Intelligence Quiz
+export const emotionalIntelligenceResults = pgTable("emotional_intelligence_results", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  totalScore: integer("total_score").notNull(),
+  categoryScores: json("category_scores").notNull(),
+  completedAt: timestamp("completed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertEmotionalIntelligenceResultSchema = createInsertSchema(emotionalIntelligenceResults, {
+  userId: z.number().int().positive(),
+  totalScore: z.number().int().min(0).max(60),
+  categoryScores: z.string().min(2), // JSON stringified object
+  completedAt: z.date(),
+});
+
+export type InsertEmotionalIntelligenceResult = z.infer<typeof insertEmotionalIntelligenceResultSchema>;
+export type EmotionalIntelligenceResult = typeof emotionalIntelligenceResults.$inferSelect;

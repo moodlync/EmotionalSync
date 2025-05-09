@@ -25,6 +25,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import FeedbackForm from "@/components/feedback/feedback-form";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import logoImage from '@/assets/moodlync-logo.png';
 
 export default function Footer() {
   const { user } = useAuth();
@@ -101,10 +102,10 @@ export default function Footer() {
           {/* Logo and main info */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center space-x-2">
-              <Heart className="h-6 w-6 text-primary" />
+              <img src={logoImage} alt="MoodLync Logo" className="h-10 w-auto" />
               <span className="text-2xl font-bold">
                 <span className="text-black font-extrabold" style={{ textShadow: '0px 1px 2px rgba(0,0,0,0.1)' }}>Mood</span>
-                <span className="text-red-600 font-extrabold" style={{ textShadow: '0px 1px 2px rgba(220,38,38,0.1)' }}>Sync</span>
+                <span className="text-red-600 font-extrabold" style={{ textShadow: '0px 1px 2px rgba(220,38,38,0.1)' }}>Lync</span>
               </span>
             </div>
             <p className="text-muted-foreground">
@@ -165,7 +166,7 @@ export default function Footer() {
         <div className="border-t mt-10 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} <span className="text-black font-medium">Mood</span><span className="text-red-600 font-medium">Sync</span>. All rights reserved.
+              © 2025 <span className="text-black font-medium">MoodLync</span> | Powered by: <span className="font-medium">Rollover Australia Inc.</span> | All rights reserved.
             </div>
             <div className="flex space-x-4">
               {socialLinks.map((link, index) => (

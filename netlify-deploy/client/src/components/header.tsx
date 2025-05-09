@@ -1,7 +1,7 @@
-import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search } from "lucide-react";
+import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import HeaderLogoWithText from "@/components/logo/header-logo-with-text";
+import StyledLogoWithText from "@/components/logo/styled-logo-with-text";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   DropdownMenu,
@@ -90,43 +90,22 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white dark:bg-black text-black dark:text-white shadow-md">
+    <header className="bg-primary dark:bg-primary text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
-            <HeaderLogoWithText 
-              logoSize={100} 
+            <StyledLogoWithText 
+              logoSize={70} 
               textSize="lg" 
-              enableHeartbeat={logoHeartbeat}
-              hideText={true}
-              className="bg-white dark:bg-white dark:bg-opacity-10 p-1 rounded-full"
+              hideText={false}
+              isAuthenticated={!!user}
+              showTagline={false}
             />
           </div>
         </Link>
         
-        {/* Search Component */}
-        <div className="hidden md:flex items-center relative mx-4">
-          <div className={`flex items-center ${isSearchOpen ? 'w-64' : 'w-10'} transition-all duration-300 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden`}>
-            <button 
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="flex items-center justify-center h-10 w-10 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              <Search className="h-4 w-4" />
-            </button>
-            
-            {isSearchOpen && (
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search MoodLync..."
-                className="flex-1 h-10 px-2 bg-transparent border-none focus:outline-none text-sm"
-              />
-            )}
-          </div>
-        </div>
-
         <div className="flex items-center space-x-2 md:space-x-4">
+          {/* Token Display - Only for logged in users */}
           {user && (
             <TooltipProvider>
               <Tooltip>
@@ -149,10 +128,56 @@ export default function Header() {
               </Tooltip>
             </TooltipProvider>
           )}
-          
-          {/* Removed buttons from header as requested */}
 
-          {/* Notification Bell */}
+          {/* Desktop Search Component - Only visible on desktop */}
+          {user && (
+            <div className="hidden md:flex items-center relative">
+              <div className={`flex items-center ${isSearchOpen ? 'w-64' : 'w-10'} transition-all duration-300 bg-gray-100 dark:bg-white rounded-full overflow-hidden`}>
+                <button 
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="flex items-center justify-center h-10 w-10 text-gray-500 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-800"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+                
+                {isSearchOpen && (
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search MoodLync..."
+                    className="flex-1 h-10 px-2 bg-transparent border-none focus:outline-none text-sm dark:text-gray-800"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Mobile Search Component - Only visible on mobile */}
+          {user && (
+            <div className="flex md:hidden items-center relative">
+              <div className={`flex items-center ${isSearchOpen ? 'w-32' : 'w-8'} transition-all duration-300 bg-gray-100 dark:bg-white rounded-full overflow-hidden`}>
+                <button 
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="flex items-center justify-center h-8 w-8 text-gray-500 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-800"
+                >
+                  <Search className="h-3.5 w-3.5" />
+                </button>
+                
+                {isSearchOpen && (
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search..."
+                    className="flex-1 h-8 px-2 bg-transparent border-none focus:outline-none text-xs dark:text-gray-800"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Notification Bell - Always visible */}
           {user && (
             <div>
               <TooltipProvider>
@@ -168,8 +193,8 @@ export default function Header() {
             </div>
           )}
           
-          {/* Theme Toggle Button */}
-          <div>
+          {/* Theme Toggle Button - Hidden on mobile, moved to account dropdown */}
+          <div className="hidden md:block">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
@@ -240,9 +265,21 @@ export default function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/community" className="w-full flex items-center">
+                    <MessageCircle className="h-4 w-4 mr-2 text-emerald-500 flex-shrink-0" />
+                    <span className="truncate">Community Feed</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link to="/premium" className="w-full flex items-center">
                     <Crown className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span className="truncate">Premium Features</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/profile?tab=profile" className="w-full flex items-center">
+                    <CreditCard className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">My Subscription</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
@@ -278,6 +315,12 @@ export default function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/community" className="w-full flex items-center">
+                    <MessageCircle className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" />
+                    <span className="truncate">Community Feed</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link to="/contact" className="w-full flex items-center">
                     <HelpCircle className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span className="truncate">Contact Support</span>
@@ -286,6 +329,18 @@ export default function Header() {
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <div className="w-full">
                     <AppTestPanel />
+                  </div>
+                </DropdownMenuItem>
+                {/* Mobile-only Theme Toggle in Dropdown */}
+                <DropdownMenuSeparator className="md:hidden" />
+                <DropdownMenuItem className="md:hidden flex items-center justify-between" asChild>
+                  <div className="w-full flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Sun className="h-4 w-4 mr-2 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute h-4 w-4 mr-2 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      <span>Theme</span>
+                    </div>
+                    <ThemeToggle />
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

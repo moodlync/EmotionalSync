@@ -1,5 +1,6 @@
 import {
   users,
+  emailVerificationTokens,
   type User,
   type InsertUser,
   type Badge,
@@ -38,6 +39,8 @@ import {
   type InsertUserFollow,
   type UserSession,
   type InsertUserSession,
+  type EmailVerificationToken,
+  type InsertEmailVerificationToken,
   type MoodMatch,
   type InsertMoodMatch,
   type EmotionalImprint,
@@ -48,6 +51,13 @@ import {
   type InsertAdvertisement,
   type AdvertisementBooking,
   type InsertAdvertisementBooking,
+  type SeoConfiguration,
+  type InsertSeoConfiguration,
+  seoConfigurations,
+  userPosts,
+  postComments,
+  postReactions,
+  type ContentVisibility,
   type DeletionRequest,
   type InsertDeletionRequest,
   deletionRequests,
@@ -156,10 +166,22 @@ export interface IStorage {
   updateUser(userId: number, userData: Partial<User>): Promise<User>;
   removeUser(userId: number): Promise<boolean>;
   
+  // Emotional Intelligence Quiz
+  saveEmotionalIntelligenceResults(result: InsertEmotionalIntelligenceResult): Promise<EmotionalIntelligenceResult>;
+  getEmotionalIntelligenceResults(userId: number): Promise<EmotionalIntelligenceResult[]>;
+  getLatestEmotionalIntelligenceResult(userId: number): Promise<EmotionalIntelligenceResult | undefined>;
+  updateUserEqScore(userId: number, score: number): Promise<void>;
+  
   // Trial management
   startFreeTrial(userId: number, trialDays: number): Promise<User>;
   isUserInActiveTrial(userId: number): Promise<boolean>;
   checkAndExpireTrials(): Promise<void>;
+  
+  // SEO Management
+  getAllSeoConfigurations(): Promise<SeoConfiguration[]>;
+  getSeoConfigurationByKey(pageKey: string): Promise<SeoConfiguration | undefined>;
+  createSeoConfiguration(pageKey: string, config: Omit<InsertSeoConfiguration, 'pageKey'>): Promise<SeoConfiguration>;
+  updateSeoConfiguration(pageKey: string, config: Partial<Omit<InsertSeoConfiguration, 'pageKey'>>): Promise<SeoConfiguration>;
   
   // User session management
   createUserSession(sessionData: InsertUserSession): Promise<UserSession>;
@@ -188,6 +210,10 @@ export interface IStorage {
   createChatRoom(userId: number, chatRoom: InsertChatRoom): Promise<ChatRoom>;
   updateChatRoom(chatRoomId: number, updates: Partial<InsertChatRoom>): Promise<ChatRoom>;
   deleteChatRoom(chatRoomId: number): Promise<boolean>;
+  
+  // Subscription management
+  getUserSubscription(userId: number): Promise<UserSubscription | undefined>;
+  updateUserSubscription(userId: number, data: Partial<UserSubscription>): Promise<UserSubscription>;
   getChatRoomById(chatRoomId: number): Promise<ChatRoom | undefined>;
   getPrivateChatRoomsByUserId(userId: number): Promise<ChatRoom[]>;
   
@@ -238,8 +264,18 @@ export interface IStorage {
   getRecentActiveGamificationProfiles(): Promise<any[]>;
   incrementChallengeProgress(userId: number, challengeId: string, amount: number): Promise<any>;
   
-  // Profile picture related methods
+  // Profile related methods
   updateUserProfilePicture(userId: number, profilePicture: string): Promise<User>;
+  updateUserProfile(userId: number, profileData: Partial<User>): Promise<User>;
+  getUserByProfileLink(profileLink: string): Promise<User | undefined>;
+  getUserNotificationSettings(userId: number): Promise<any>;
+  updateUserNotificationSettings(userId: number, settings: any): Promise<any>;
+  
+  // Email verification methods
+  createEmailVerificationToken(userId: number): Promise<EmailVerificationToken>;
+  getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined>;
+  verifyUserEmail(userId: number, token: string): Promise<User | undefined>;
+  updateVerificationStatus(userId: number, status: string): Promise<User>;
   
   // Milestone sharing methods
   createMilestoneShare(shareData: InsertMilestoneShare): Promise<MilestoneShare>;
@@ -298,6 +334,21 @@ export interface IStorage {
   
   // Video posts methods for premium users
   createVideoPost(userId: number, videoPostData: InsertVideoPost): Promise<VideoPost>;
+  
+  // Community and support features
+  getCommunityPosts(filter: string, userId: number): Promise<Array<any>>;
+  getCommunityPostById(postId: number): Promise<any | undefined>;
+  createCommunityPost(data: { userId: number; content: string; emotion?: string; visibility: string; mediaUrl?: string; mediaType?: string }): Promise<any>;
+  updateCommunityPost(postId: number, updates: any): Promise<any>;
+  deleteCommunityPost(postId: number): Promise<boolean>;
+  getPostComments(postId: number): Promise<Array<any>>;
+  createPostComment(postId: number, userId: number, content: string): Promise<any>;
+  deletePostComment(postId: number, commentId: number): Promise<boolean>;
+  likePost(postId: number, userId: number): Promise<{ postId: number; userId: number; likeCount: number }>;
+  unlikePost(postId: number, userId: number): Promise<{ postId: number; userId: number; likeCount: number }>;
+  checkFriendship(userId: number, otherUserId: number): Promise<boolean>;
+  getSupportGroups(): Promise<any[]>;
+  getExpertTips(category?: string): Promise<any[]>;
   
   // NFT Token Pool System
   createTokenPool(data: InsertTokenPool): Promise<TokenPool>;
@@ -562,20 +613,107 @@ export interface IStorage {
     actionLink?: string,
     icon?: string
   ): Promise<Notification[]>;
+  
+  // Subscription management methods
+  getUserSubscription(userId: number): Promise<Subscription | undefined>;
+  updateUserSubscription(userId: number, data: Partial<Subscription>): Promise<Subscription>;
+  
+  // User feedback methods
+  createUserFeedback(data: { userId: number | null; content: string; status: FeedbackStatus; source: string; category?: string }): Promise<any>;
+  getUserFeedbacks(options?: { status?: FeedbackStatus; page?: number; limit?: number; search?: string }): Promise<{ feedbacks: any[]; total: number; pageSize: number }>;
+  getUserFeedbackById(id: number): Promise<any>;
+  updateUserFeedback(id: number, data: { status?: FeedbackStatus; notes?: string | null; reviewedBy?: number | null }): Promise<any>;
+  
+  // Email verification methods
+  createEmailVerificationToken(userId: number, email: string): Promise<EmailVerificationToken>;
+  getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined>;
+  getUserEmailVerificationTokens(userId: number): Promise<EmailVerificationToken[]>;
+  markEmailVerificationTokenAsUsed(token: string): Promise<EmailVerificationToken | undefined>;
+  markUserAsVerified(userId: number): Promise<User | undefined>;
+  deleteEmailVerificationTokensByUserId(userId: number): Promise<boolean>;
 
   sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {
+  // Emotional Intelligence Quiz methods
+  async saveEmotionalIntelligenceResults(result: InsertEmotionalIntelligenceResult): Promise<EmotionalIntelligenceResult> {
+    const newResult: EmotionalIntelligenceResult = {
+      id: this.nextEmotionalIntelligenceResultId++,
+      userId: result.userId,
+      totalScore: result.totalScore,
+      categoryScores: result.categoryScores,
+      completedAt: result.completedAt,
+      createdAt: new Date()
+    };
+    
+    // Add to user's emotional intelligence results
+    if (!this.emotionalIntelligenceResults.has(result.userId)) {
+      this.emotionalIntelligenceResults.set(result.userId, []);
+    }
+    
+    this.emotionalIntelligenceResults.get(result.userId)!.push(newResult);
+    
+    return newResult;
+  }
+  
+  async getEmotionalIntelligenceResults(userId: number): Promise<EmotionalIntelligenceResult[]> {
+    return this.emotionalIntelligenceResults.get(userId) || [];
+  }
+  
+  async getLatestEmotionalIntelligenceResult(userId: number): Promise<EmotionalIntelligenceResult | undefined> {
+    const results = this.emotionalIntelligenceResults.get(userId) || [];
+    
+    if (results.length === 0) {
+      return undefined;
+    }
+    
+    // Sort by completedAt date (newest first) and return the first one
+    return results.sort((a, b) => {
+      return new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime();
+    })[0];
+  }
+  
+  async updateUserEqScore(userId: number, score: number): Promise<void> {
+    if (!this.users.has(userId)) {
+      throw new Error("User not found");
+    }
+    
+    const user = this.users.get(userId)!;
+    
+    // Only update if this is first assessment or if score is higher
+    if (user.eqScore === undefined || user.eqScore === null || score > user.eqScore) {
+      user.eqScore = score;
+      this.users.set(userId, user);
+    }
+  }
   private nextDeletionRequestId = 1;
+  private nextCommunityPostId = 1;
+  private nextPostCommentId = 1;
+  private nextPostReactionId = 1;
+  
   // Make these properties accessible to test-controller.ts
   public users: Map<number, User> = new Map();
   public userEmotions: Map<number, EmotionType> = new Map();
   public journalEntries: Map<number, JournalEntry[]> = new Map();
   public notifications: Map<number, Notification> = new Map();
+  public emotionalIntelligenceResults: Map<number, EmotionalIntelligenceResult[]> = new Map();
+  private nextEmotionalIntelligenceResultId = 1;
   public userNotifications: Map<number, number[]> = new Map(); // userId -> notificationIds
   public deletionRequests: Map<number, DeletionRequest> = new Map();
   public userDeletionRequests: Map<number, number[]> = new Map(); // userId -> deletionRequestIds
+  
+  // Email verification token storage
+  public emailVerificationTokens: Map<string, EmailVerificationToken> = new Map(); // token -> verification token
+  public userEmailVerificationTokens: Map<number, string[]> = new Map(); // userId -> token strings
+  private nextEmailVerificationTokenId = 1;
+  
+  // Community feature maps
+  public communityPosts: Map<number, any> = new Map(); // postId -> Post
+  public postComments: Map<number, any[]> = new Map(); // postId -> Comments[]
+  public postReactions: Map<number, Map<number, any>> = new Map(); // postId -> Map<userId, Reaction>
+  public supportGroups: any[] = [];
+  public expertTips: any[] = [];
   
   // NFT Pool System storage
   private nextTokenPoolId = 1;
@@ -589,6 +727,23 @@ export class MemStorage implements IStorage {
   public userPoolContributions: Map<number, number[]> = new Map(); // userId -> contributionIds
   public poolDistributions: Map<number, PoolDistribution> = new Map();
   public userPoolDistributions: Map<number, number[]> = new Map(); // userId -> distributionIds
+  
+  // Subscription storage
+  private nextSubscriptionId = 1;
+  public subscriptions: Map<number, Subscription> = new Map(); // userId -> subscription
+  
+  // Custom mood tags and insights
+  private nextCustomMoodTagId = 1;
+  public customMoodTags: Map<number, CustomMoodTag[]> = new Map(); // userId -> custom mood tags
+  public weeklyMoodReports: Map<number, WeeklyMoodReport[]> = new Map(); // userId -> weekly reports
+  
+  // SEO Configurations
+  private nextSeoConfigId = 1;
+  public seoConfigurations: Map<string, SeoConfiguration> = new Map(); // pageKey -> config
+  
+  // User feedback storage
+  private nextFeedbackId = 1;
+  public userFeedback: Map<number, any> = new Map(); // feedbackId -> feedback
   // User Session Management methods
   async createUserSession(sessionData: InsertUserSession): Promise<UserSession> {
     const session: UserSession = {
@@ -1119,6 +1274,62 @@ export class MemStorage implements IStorage {
     this.rewardActivities = new Map();
     this.userTokens = new Map();
     this.userProfiles = new Map();
+    
+    // Initialize sample support groups
+    this.supportGroups = [
+      {
+        id: 1,
+        name: "Anxiety Support Circle",
+        description: "A safe space to share experiences and coping strategies for anxiety",
+        members: 24,
+        nextMeeting: "2025-05-15T18:00:00Z",
+        emotion: "anxious"
+      },
+      {
+        id: 2,
+        name: "Happiness Practice Group",
+        description: "Daily practices and discussions to cultivate lasting happiness",
+        members: 42,
+        nextMeeting: "2025-05-10T16:30:00Z",
+        emotion: "happy"
+      },
+      {
+        id: 3,
+        name: "Grief & Loss Support",
+        description: "Support for those navigating the complex journey of grief",
+        members: 18,
+        nextMeeting: "2025-05-12T19:00:00Z",
+        emotion: "sad"
+      }
+    ];
+    
+    // Initialize sample expert tips
+    this.expertTips = [
+      {
+        id: 1,
+        title: "Managing Anxiety Through Mindfulness",
+        content: "Practicing mindfulness for just 5 minutes a day can help reduce anxiety by bringing your focus to the present moment",
+        author: "Dr. Sarah Chen",
+        category: "anxiety",
+        postedAt: "2025-05-01T12:00:00Z"
+      },
+      {
+        id: 2,
+        title: "Building Emotional Resilience",
+        content: "Emotional resilience can be strengthened through positive self-talk, maintaining social connections, and practicing self-care",
+        author: "Dr. James Wilson",
+        category: "resilience",
+        postedAt: "2025-05-03T14:30:00Z"
+      },
+      {
+        id: 3,
+        title: "The Science of Happiness",
+        content: "Research shows that expressing gratitude, engaging in acts of kindness, and maintaining social bonds significantly increase happiness levels",
+        author: "Dr. Maya Rodriguez",
+        category: "happiness",
+        postedAt: "2025-05-05T09:15:00Z"
+      }
+    ];
     this.userStreaks = new Map();
     this.challenges = [];
     this.achievements = [];
@@ -1219,12 +1430,12 @@ export class MemStorage implements IStorage {
     const sagarAdminId = this.adminId++;
     const sagarAdmin: AdminUser = {
       id: sagarAdminId,
-      username: 'Sagar',
-      password: 'Queanbeyan@9', // Same as the Sagar user account
+      username: 'admin',
+      password: 'Queanbeyan@9', // Updated to username 'admin' with the same password
       email: 'sagar@moodsync.app',
       firstName: 'Sagar',
       lastName: 'Admin',
-      role: 'admin' as AdminRole,
+      role: 'SUPER_ADMIN' as AdminRole, // Updated role to ensure full access
       isActive: true,
       lastLogin: null,
       createdAt: new Date(),
@@ -1527,8 +1738,9 @@ export class MemStorage implements IStorage {
     
     // Initialize sample challenges
     this.challenges = [
+      // Easy Challenges
       {
-        id: 'c1',
+        id: 'e1',
         title: 'Emotional Explorer',
         description: 'Track 5 different emotions in a week',
         category: 'tracking',
@@ -1540,21 +1752,71 @@ export class MemStorage implements IStorage {
         progress: 0
       },
       {
-        id: 'c2',
+        id: 'e2',
+        title: 'Mindful Moment',
+        description: 'Log your current emotion for 3 consecutive days',
+        category: 'daily',
+        difficulty: 'easy',
+        tokenReward: 30,
+        targetValue: 3,
+        iconUrl: '🧘',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'e3',
+        title: 'Global Citizen',
+        description: 'Check the global emotion map for 5 days',
+        category: 'exploration',
+        difficulty: 'easy',
+        tokenReward: 40,
+        targetValue: 5,
+        iconUrl: '🌍',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'e4',
+        title: 'Emotion Notes',
+        description: 'Create your first journal entry reflecting on your emotions',
+        category: 'journal',
+        difficulty: 'easy',
+        tokenReward: 25,
+        targetValue: 1,
+        iconUrl: '📝',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'e5',
+        title: 'Connection Seeker',
+        description: 'Find a mood match with someone feeling the same emotion',
+        category: 'social',
+        difficulty: 'easy',
+        tokenReward: 35,
+        targetValue: 1,
+        iconUrl: '🔍',
+        isCompleted: false,
+        progress: 0
+      },
+      
+      // Moderate Challenges
+      {
+        id: 'm1',
         title: 'Journaling Journey',
-        description: 'Create a journal entry 3 days in a row',
+        description: 'Create a journal entry 5 days in a row',
         category: 'journal',
         difficulty: 'moderate',
         tokenReward: 75,
-        targetValue: 3,
+        targetValue: 5,
         iconUrl: '📔',
         isCompleted: false,
         progress: 0
       },
       {
-        id: 'c3',
+        id: 'm2',
         title: 'Social Butterfly',
-        description: 'Join 5 different chat rooms',
+        description: 'Join 5 different mood-based chat rooms',
         category: 'social',
         difficulty: 'moderate',
         tokenReward: 80,
@@ -1564,26 +1826,162 @@ export class MemStorage implements IStorage {
         progress: 0
       },
       {
-        id: 'c4',
+        id: 'm3',
+        title: 'Mood Pattern Tracker',
+        description: 'Record your emotions at different times of the day for a week',
+        category: 'tracking',
+        difficulty: 'moderate',
+        tokenReward: 90,
+        targetValue: 7,
+        iconUrl: '📊',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'm4',
+        title: 'Emotional Support',
+        description: 'Provide helpful responses to 3 users in chat rooms',
+        category: 'social',
+        difficulty: 'moderate',
+        tokenReward: 85,
+        targetValue: 3,
+        iconUrl: '🤝',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'm5',
+        title: 'Positivity Streaker',
+        description: 'Maintain a positive emotion for 3 consecutive days',
+        category: 'tracking',
+        difficulty: 'moderate',
+        tokenReward: 70,
+        targetValue: 3,
+        iconUrl: '✨',
+        isCompleted: false,
+        progress: 0
+      },
+      
+      // Hard Challenges
+      {
+        id: 'h1',
         title: 'Emotional Wisdom',
-        description: 'Have 10 conversations with the AI companion',
+        description: 'Have 10 conversations with the AI companion about different emotions',
         category: 'ai',
         difficulty: 'hard',
-        tokenReward: 100,
+        tokenReward: 120,
         targetValue: 10,
         iconUrl: '🧠',
         isCompleted: false,
         progress: 0
       },
       {
-        id: 'c5',
-        title: 'Global Citizen',
-        description: 'Check the global emotion map for 7 days',
+        id: 'h2',
+        title: 'Emotion Mastery',
+        description: 'Track all 8 core emotions in the application',
+        category: 'tracking',
+        difficulty: 'hard',
+        tokenReward: 150,
+        targetValue: 8,
+        iconUrl: '🎭',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'h3',
+        title: 'Emotion Transformation',
+        description: 'Document shifting from a negative to positive emotion in your journal 5 times',
+        category: 'journal',
+        difficulty: 'hard',
+        tokenReward: 140,
+        targetValue: 5,
+        iconUrl: '🔄',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'h4',
+        title: 'Community Builder',
+        description: 'Create a chat room and attract 10 participants',
+        category: 'social',
+        difficulty: 'hard',
+        tokenReward: 130,
+        targetValue: 10,
+        iconUrl: '🏗️',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'h5',
+        title: 'Streak Master',
+        description: 'Log your emotions for 14 consecutive days',
+        category: 'daily',
+        difficulty: 'hard',
+        tokenReward: 160,
+        targetValue: 14,
+        iconUrl: '🔥',
+        isCompleted: false,
+        progress: 0
+      },
+      
+      // Extreme Challenges
+      {
+        id: 'x1',
+        title: 'Emotional Intelligence Guru',
+        description: 'Complete 30 days of daily emotion tracking without missing a day',
+        category: 'daily',
+        difficulty: 'extreme',
+        tokenReward: 300,
+        targetValue: 30,
+        iconUrl: '👑',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'x2',
+        title: 'Social Wellness Ambassador',
+        description: 'Help 25 users through meaningful conversations in chat rooms',
+        category: 'social',
+        difficulty: 'extreme',
+        tokenReward: 350,
+        targetValue: 25,
+        iconUrl: '🏅',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'x3',
+        title: 'Emotional Journal Master',
+        description: 'Create 50 detailed journal entries about your emotional journey',
+        category: 'journal',
+        difficulty: 'extreme',
+        tokenReward: 400,
+        targetValue: 50,
+        iconUrl: '📚',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'x4',
+        title: 'Emotional Balance Achiever',
+        description: 'Maintain an equal distribution of positive and negative emotions for a month',
+        category: 'tracking',
+        difficulty: 'extreme',
+        tokenReward: 450,
+        targetValue: 30,
+        iconUrl: '⚖️',
+        isCompleted: false,
+        progress: 0
+      },
+      {
+        id: 'x5',
+        title: 'MoodSync Pioneer',
+        description: 'Use every feature in the app at least once and maintain a 45-day streak',
         category: 'exploration',
-        difficulty: 'easy',
-        tokenReward: 60,
-        targetValue: 7,
-        iconUrl: '🌍',
+        difficulty: 'extreme',
+        tokenReward: 500,
+        targetValue: 45,
+        iconUrl: '🚀',
         isCompleted: false,
         progress: 0
       }
@@ -1786,6 +2184,72 @@ export class MemStorage implements IStorage {
   }
   
   /**
+   * Start a trial for a specific premium plan
+   * @param userId User ID
+   * @param planType The plan type for this trial (gold, platinum, family, etc.)
+   * @param trialDays Number of days for the trial period
+   * @returns Updated user
+   */
+  async startPlanTrial(userId: number, planType: string = 'gold', trialDays: number = 14): Promise<User> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // If user is already premium, don't start a trial
+    if (user.isPremium) {
+      throw new Error('User already has a premium subscription');
+    }
+    
+    // If user already has an active trial, don't start a new one
+    if (user.isInTrialPeriod) {
+      throw new Error('User already has an active trial');
+    }
+    
+    const trialStartDate = new Date();
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + trialDays);
+    
+    // Mark the user as having used a trial
+    const updatedUser = await this.updateUser(userId, {
+      isInTrialPeriod: true,
+      trialStartDate,
+      trialEndDate,
+      hadPremiumTrial: true, // Mark that they've used a trial
+      isPremium: true, // Set premium status during trial
+      premiumPlanType: planType, // Set the plan type
+      premiumExpiryDate: trialEndDate // Set expiry to match trial end
+    });
+    
+    // Create a subscription record
+    await this.createOrUpdateSubscription({
+      userId,
+      tier: planType,
+      status: 'trialing', // Mark as trialing
+      startedAt: trialStartDate,
+      expiresAt: trialEndDate,
+      autoRenew: true, // Default to auto-renew after trial
+      paymentMethod: null,
+      lastBilledAt: null,
+      cancelledAt: null
+    });
+    
+    // Also create a record in the premium plans table
+    await this.createPremiumPlan(userId, {
+      planType,
+      paymentAmount: 0, // Free trial
+      currency: 'USD',
+      memberLimit: planType.includes('family') ? 5 : 1,
+      isLifetime: false,
+      isTrial: true,
+      trialStartDate,
+      trialEndDate
+    });
+    
+    return updatedUser;
+  }
+  
+  /**
    * Check if a user is currently in an active trial period
    * @param userId The user ID to check
    * @returns Boolean indicating if the user is in an active trial
@@ -1830,14 +2294,25 @@ export class MemStorage implements IStorage {
         // Trial expired - update user record
         await this.updateUser(userId, {
           isInTrialPeriod: false,
+          isPremium: false, // Remove premium status
           // Keep the trial dates for record-keeping
         });
+        
+        // Also update subscription status to 'expired'
+        const subscription = await this.getUserSubscription(userId);
+        if (subscription && subscription.status === 'trialing') {
+          await this.createOrUpdateSubscription({
+            ...subscription,
+            status: 'expired',
+            expiresAt: subscription.expiresAt || new Date()
+          });
+        }
         
         // Notify user about trial expiration
         await this.createNotification({
           userId,
           title: "Free Trial Expired",
-          content: "Your 14-day free trial has ended. Upgrade to a premium plan to continue enjoying all premium features.",
+          content: `Your 14-day free trial of the ${user.premiumPlanType || 'premium'} plan has ended. Upgrade to continue enjoying all premium features.`,
           type: "subscription",
           actionLink: "/premium",
           icon: "crown"
@@ -3200,7 +3675,7 @@ export class MemStorage implements IStorage {
     };
   }
 
-  // Profile picture related methods
+  // Profile related methods
   async updateUserProfilePicture(userId: number, profilePicture: string): Promise<User> {
     const user = await this.getUser(userId);
     if (!user) {
@@ -3212,6 +3687,63 @@ export class MemStorage implements IStorage {
     this.users.set(userId, user);
     
     return user;
+  }
+  
+  async updateUserProfile(userId: number, profileData: Partial<User>): Promise<User> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // Update user profile with provided data
+    const updatedUser = { ...user, ...profileData };
+    this.users.set(userId, updatedUser);
+    
+    return updatedUser;
+  }
+  
+  async getUserByProfileLink(profileLink: string): Promise<User | undefined> {
+    // Find user with the given profile link
+    for (const user of this.users.values()) {
+      if (user.publicProfileLink === profileLink) {
+        return user;
+      }
+    }
+    return undefined;
+  }
+  
+  async getUserNotificationSettings(userId: number): Promise<any> {
+    // In a real implementation, this would query from a notification_settings table
+    // For now, we'll initialize with default values if not found
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // Return notification settings from user data if exists, or default values
+    return user.notificationSettings || {
+      dailyReminder: false,
+      weeklyInsights: false,
+      emailNotifications: true,
+      pushNotifications: true
+    };
+  }
+  
+  async updateUserNotificationSettings(userId: number, settings: any): Promise<any> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // Merge existing notification settings with new ones
+    const currentSettings = user.notificationSettings || {};
+    const updatedSettings = { ...currentSettings, ...settings };
+    
+    // Update user record with new notification settings
+    user.notificationSettings = updatedSettings;
+    this.users.set(userId, user);
+    
+    return updatedSettings;
   }
   
   // Badge related methods
@@ -3523,6 +4055,10 @@ export class MemStorage implements IStorage {
   }
   
   async getUserTokenRedemptions(userId: number): Promise<TokenRedemption[]> {
+    // Ensure the tokenRedemptions map has an entry for this user
+    if (!this.tokenRedemptions.has(userId)) {
+      this.tokenRedemptions.set(userId, []);
+    }
     return this.tokenRedemptions.get(userId) || [];
   }
   
@@ -6283,6 +6819,831 @@ export class MemStorage implements IStorage {
     
     this.emotionalNfts.set(nftId, updatedNft);
     return updatedNft;
+  }
+  
+  // Subscription management methods
+  async getUserSubscription(userId: number): Promise<Subscription | undefined> {
+    return this.subscriptions.get(userId);
+  }
+  
+  async updateUserSubscription(userId: number, data: Partial<Subscription>): Promise<Subscription> {
+    // Get existing subscription or create a new one
+    let subscription = this.subscriptions.get(userId);
+    
+    if (!subscription) {
+      // Create a new subscription with default values
+      subscription = {
+        id: this.nextSubscriptionId++,
+        userId,
+        tier: 'free',
+        isActive: false,
+        startDate: new Date(),
+        expiryDate: null,
+        renewsAt: null,
+        cancelledAt: null,
+        hadTrialBefore: false,
+        paymentMethod: null,
+        lastPaymentDate: null,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
+    
+    // Update the subscription with the new data
+    const updatedSubscription = {
+      ...subscription,
+      ...data,
+      updatedAt: new Date()
+    };
+    
+    // Save the updated subscription
+    this.subscriptions.set(userId, updatedSubscription);
+    
+    return updatedSubscription;
+  }
+  
+  // Custom mood tags methods
+  async createCustomMoodTag(tagData: InsertCustomMoodTag): Promise<CustomMoodTag> {
+    const tag: CustomMoodTag = {
+      id: this.nextCustomMoodTagId++,
+      ...tagData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    if (!this.customMoodTags.has(tagData.userId)) {
+      this.customMoodTags.set(tagData.userId, []);
+    }
+    
+    this.customMoodTags.get(tagData.userId)!.push(tag);
+    return tag;
+  }
+  
+  async getUserCustomMoodTags(userId: number): Promise<CustomMoodTag[]> {
+    return this.customMoodTags.get(userId) || [];
+  }
+  
+  async getCustomMoodTag(userId: number, tagId: number): Promise<CustomMoodTag | undefined> {
+    const userTags = this.customMoodTags.get(userId) || [];
+    return userTags.find(tag => tag.id === tagId);
+  }
+  
+  async updateCustomMoodTag(userId: number, tagId: number, tagData: Partial<InsertCustomMoodTag>): Promise<CustomMoodTag> {
+    const userTags = this.customMoodTags.get(userId) || [];
+    const tagIndex = userTags.findIndex(tag => tag.id === tagId);
+    
+    if (tagIndex === -1) {
+      throw new Error("Custom mood tag not found");
+    }
+    
+    const updatedTag = {
+      ...userTags[tagIndex],
+      ...tagData,
+      updatedAt: new Date()
+    };
+    
+    userTags[tagIndex] = updatedTag;
+    this.customMoodTags.set(userId, userTags);
+    
+    return updatedTag;
+  }
+  
+  async deleteCustomMoodTag(userId: number, tagId: number): Promise<void> {
+    const userTags = this.customMoodTags.get(userId) || [];
+    const filteredTags = userTags.filter(tag => tag.id !== tagId);
+    
+    if (filteredTags.length === userTags.length) {
+      throw new Error("Custom mood tag not found");
+    }
+    
+    this.customMoodTags.set(userId, filteredTags);
+  }
+  
+  // Weekly mood report methods
+  async generateWeeklyMoodReport(userId: number): Promise<WeeklyMoodReport> {
+    // Get user emotion records from the past week
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    const emotionRecords = (this.emotionRecords.get(userId) || [])
+      .filter(record => record.createdAt > weekAgo && record.createdAt <= now);
+      
+    // Calculate predominant moods
+    const emotionCounts: Record<string, number> = {};
+    emotionRecords.forEach(record => {
+      if (!emotionCounts[record.emotion]) {
+        emotionCounts[record.emotion] = 0;
+      }
+      emotionCounts[record.emotion]++;
+    });
+    
+    // Calculate percentages
+    const totalRecords = emotionRecords.length || 1; // Avoid division by zero
+    const predominantMoods: Record<string, number> = {};
+    
+    for (const [emotion, count] of Object.entries(emotionCounts)) {
+      predominantMoods[emotion] = Math.round((count / totalRecords) * 100);
+    }
+    
+    // Get daily moods (most common emotion per day)
+    const dailyEmotions: Record<string, EmotionType[]> = {};
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    emotionRecords.forEach(record => {
+      const day = days[record.createdAt.getDay()];
+      if (!dailyEmotions[day]) {
+        dailyEmotions[day] = [];
+      }
+      dailyEmotions[day].push(record.emotion);
+    });
+    
+    const dailyMoods: Record<string, EmotionType | null> = {};
+    
+    for (const [day, emotions] of Object.entries(dailyEmotions)) {
+      const emotionCounts: Record<string, number> = {};
+      emotions.forEach(emotion => {
+        if (!emotionCounts[emotion]) {
+          emotionCounts[emotion] = 0;
+        }
+        emotionCounts[emotion]++;
+      });
+      
+      let maxCount = 0;
+      let predominantEmotion: EmotionType | null = null;
+      
+      for (const [emotion, count] of Object.entries(emotionCounts)) {
+        if (count > maxCount) {
+          maxCount = count;
+          predominantEmotion = emotion as EmotionType;
+        }
+      }
+      
+      dailyMoods[day] = predominantEmotion;
+    }
+    
+    // Calculate mood trends
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const previousWeekRecords = (this.emotionRecords.get(userId) || [])
+      .filter(record => record.createdAt > twoWeeksAgo && record.createdAt <= weekAgo);
+    
+    // Simple scoring system: happy/excited = 5, neutral = 3, sad/anxious/angry = 1
+    const getEmotionScore = (emotion: EmotionType): number => {
+      if (emotion === 'happy' || emotion === 'excited') return 5;
+      if (emotion === 'neutral') return 3;
+      return 1; // sad, anxious, angry
+    };
+    
+    const currentWeekScores = emotionRecords.map(record => getEmotionScore(record.emotion));
+    const previousWeekScores = previousWeekRecords.map(record => getEmotionScore(record.emotion));
+    
+    const currentWeekAverage = currentWeekScores.length ? 
+      currentWeekScores.reduce((sum, score) => sum + score, 0) / currentWeekScores.length : 0;
+    
+    const previousWeekAverage = previousWeekScores.length ? 
+      previousWeekScores.reduce((sum, score) => sum + score, 0) / previousWeekScores.length : 0;
+    
+    const percentageChange = previousWeekAverage ? 
+      ((currentWeekAverage - previousWeekAverage) / previousWeekAverage) * 100 : 0;
+    
+    // Generate insights based on data
+    const insightsSummary = [];
+    
+    // Mood distribution insight
+    const sortedEmotions = Object.entries(predominantMoods)
+      .sort((a, b) => b[1] - a[1])
+      .map(([emotion, percentage]) => `${emotion} (${percentage}%)`);
+      
+    if (sortedEmotions.length) {
+      insightsSummary.push(`Your predominant moods this week were ${sortedEmotions.join(', ')}.`);
+    } else {
+      insightsSummary.push('No mood data was recorded this week. Try tracking your emotions daily for more insights.');
+    }
+    
+    // Trend insight
+    if (Math.abs(percentageChange) > 5) {
+      const direction = percentageChange > 0 ? 'improved' : 'declined';
+      insightsSummary.push(`Your overall mood has ${direction} by ${Math.abs(Math.round(percentageChange))}% compared to last week.`);
+    } else {
+      insightsSummary.push('Your overall mood has remained relatively stable compared to last week.');
+    }
+    
+    // Generate recommendations based on data
+    const recommendedActions = [];
+    
+    // If predominantly negative emotions
+    const negativeEmotions = ['sad', 'angry', 'anxious'];
+    const negativePercentage = negativeEmotions.reduce((sum, emotion) => 
+      sum + (predominantMoods[emotion] || 0), 0);
+      
+    if (negativePercentage > 50) {
+      recommendedActions.push('Consider practicing daily mindfulness or meditation to improve emotional regulation.');
+      recommendedActions.push('Reach out to a friend or family member for support.');
+      recommendedActions.push('Prioritize self-care activities that bring you joy.');
+    }
+    
+    // If mood swings (multiple emotions with similar percentages)
+    const topEmotions = Object.values(predominantMoods).sort((a, b) => b - a);
+    if (topEmotions.length >= 3 && (topEmotions[0] - topEmotions[2] < 15)) {
+      recommendedActions.push('Your emotions appear to fluctuate throughout the week. Journaling might help identify patterns.');
+      recommendedActions.push('Establishing a regular routine can help stabilize mood swings.');
+    }
+    
+    // Default recommendations
+    if (recommendedActions.length === 0) {
+      recommendedActions.push('Continue tracking your emotions daily for more personalized insights.');
+      recommendedActions.push('Explore the Mood Correlation feature to identify factors affecting your emotions.');
+    }
+    
+    // Create the weekly report
+    const weeklyReport: WeeklyMoodReport = {
+      userId,
+      weekStartDate: weekAgo,
+      weekEndDate: now,
+      predominantMoods,
+      dailyMoods,
+      moodTrends: {
+        improvement: percentageChange >= 0,
+        percentageChange: Math.round(Math.abs(percentageChange)),
+        previousWeekAverage: Math.round(previousWeekAverage * 10) / 10,
+        currentWeekAverage: Math.round(currentWeekAverage * 10) / 10
+      },
+      insightsSummary,
+      correlationInsights: {
+        weather: null, // Would require weather data integration
+        sleepHours: null, // Would require sleep tracking data
+        physicalActivity: null // Would require activity tracking data
+      },
+      recommendedActions,
+      generatedAt: now
+    };
+    
+    // Save the weekly report
+    if (!this.weeklyMoodReports.has(userId)) {
+      this.weeklyMoodReports.set(userId, []);
+    }
+    
+    this.weeklyMoodReports.get(userId)!.push(weeklyReport);
+    
+    return weeklyReport;
+  }
+  
+  async getUserWeeklyMoodReports(userId: number): Promise<WeeklyMoodReport[]> {
+    return this.weeklyMoodReports.get(userId) || [];
+  }
+  
+  async getLatestWeeklyMoodReport(userId: number): Promise<WeeklyMoodReport | undefined> {
+    const userReports = this.weeklyMoodReports.get(userId) || [];
+    
+    if (userReports.length === 0) {
+      return undefined;
+    }
+    
+    // Sort by generation date (newest first)
+    return userReports.sort((a, b) => b.generatedAt.getTime() - a.generatedAt.getTime())[0];
+  }
+
+  // Community features methods
+  async getCommunityPosts(filter: string, userId: number): Promise<Array<any>> {
+    const posts = Array.from(this.communityPosts.values());
+    let filteredPosts = posts;
+    
+    // Apply filter if provided
+    if (filter === 'mine') {
+      filteredPosts = posts.filter(post => post.userId === userId);
+    } else if (filter === 'friends') {
+      // For now, just show own posts in friends filter since friend system isn't implemented yet
+      filteredPosts = posts.filter(post => post.userId === userId || post.visibility === 'public');
+    } else {
+      // Default to showing public posts
+      filteredPosts = posts.filter(post => post.visibility === 'public');
+    }
+    
+    // Enrich posts with user info and reaction status
+    const enrichedPosts = filteredPosts.map(post => {
+      const user = this.users.get(post.userId);
+      const userHasLiked = this.postReactions.has(post.id) && 
+                          this.postReactions.get(post.id)?.has(userId);
+                          
+      const likeCount = this.postReactions.has(post.id) 
+                      ? this.postReactions.get(post.id)?.size || 0 
+                      : 0;
+                      
+      const commentCount = this.postComments.has(post.id) 
+                         ? this.postComments.get(post.id)?.length || 0 
+                         : 0;
+      
+      return {
+        ...post,
+        username: user?.username || 'Anonymous',
+        profilePicture: user?.profilePicture,
+        isPremium: user?.isPremium || false,
+        userHasLiked: userHasLiked || false,
+        likeCount,
+        commentCount
+      };
+    });
+    
+    // Sort by newest first
+    return enrichedPosts.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+  
+  async getCommunityPostById(postId: number): Promise<any | undefined> {
+    return this.communityPosts.get(postId);
+  }
+  
+  async createCommunityPost(data: { userId: number; content: string; emotion?: string; visibility: string; mediaUrl?: string; mediaType?: string }): Promise<any> {
+    const post = {
+      id: this.nextCommunityPostId++,
+      userId: data.userId,
+      content: data.content,
+      emotion: data.emotion,
+      visibility: data.visibility,
+      mediaUrl: data.mediaUrl,
+      mediaType: data.mediaType,
+      createdAt: new Date().toISOString(),
+      updatedAt: null,
+      likeCount: 0,
+      commentCount: 0
+    };
+    
+    this.communityPosts.set(post.id, post);
+    return post;
+  }
+  
+  async updateCommunityPost(postId: number, updates: any): Promise<any> {
+    const post = this.communityPosts.get(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    const updatedPost = {
+      ...post,
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    
+    this.communityPosts.set(postId, updatedPost);
+    return updatedPost;
+  }
+  
+  async deleteCommunityPost(postId: number): Promise<boolean> {
+    const exists = this.communityPosts.has(postId);
+    if (exists) {
+      this.communityPosts.delete(postId);
+      // Also clean up related comments and reactions
+      this.postComments.delete(postId);
+      this.postReactions.delete(postId);
+    }
+    return exists;
+  }
+  
+  async getPostComments(postId: number): Promise<any[]> {
+    const comments = this.postComments.get(postId) || [];
+    
+    // Enrich comments with user info
+    return comments.map(comment => {
+      const user = this.users.get(comment.userId);
+      return {
+        ...comment,
+        username: user?.username || 'Anonymous',
+        profilePicture: user?.profilePicture
+      };
+    }).sort((a, b) => 
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }
+  
+  async createPostComment(postId: number, userId: number, content: string): Promise<any> {
+    const post = this.communityPosts.get(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    if (!this.postComments.has(postId)) {
+      this.postComments.set(postId, []);
+    }
+    
+    const comment = {
+      id: this.nextPostCommentId++,
+      postId,
+      userId,
+      content,
+      createdAt: new Date().toISOString()
+    };
+    
+    this.postComments.get(postId)!.push(comment);
+    
+    // Update comment count on post
+    post.commentCount = (post.commentCount || 0) + 1;
+    this.communityPosts.set(postId, post);
+    
+    const user = this.users.get(userId);
+    return {
+      ...comment,
+      username: user?.username || 'Anonymous',
+      profilePicture: user?.profilePicture
+    };
+  }
+  
+  async deletePostComment(postId: number, commentId: number): Promise<boolean> {
+    if (!this.postComments.has(postId)) {
+      return false;
+    }
+    
+    const comments = this.postComments.get(postId)!;
+    const initialLength = comments.length;
+    const filteredComments = comments.filter(c => c.id !== commentId);
+    
+    if (initialLength !== filteredComments.length) {
+      this.postComments.set(postId, filteredComments);
+      
+      // Update comment count on post
+      const post = this.communityPosts.get(postId);
+      if (post) {
+        post.commentCount = Math.max(0, (post.commentCount || 0) - 1);
+        this.communityPosts.set(postId, post);
+      }
+      
+      return true;
+    }
+    
+    return false;
+  }
+  
+  async likePost(postId: number, userId: number): Promise<{ postId: number; userId: number; likeCount: number }> {
+    const post = this.communityPosts.get(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    // Initialize the reactions map for this post if it doesn't exist
+    if (!this.postReactions.has(postId)) {
+      this.postReactions.set(postId, new Map());
+    }
+    
+    const postReactionsMap = this.postReactions.get(postId)!;
+    
+    // Check if user already liked the post
+    if (postReactionsMap.has(userId)) {
+      return {
+        postId,
+        userId,
+        likeCount: postReactionsMap.size
+      };
+    }
+    
+    // Add the like
+    const reaction = {
+      id: this.nextPostReactionId++,
+      postId,
+      userId,
+      type: 'like',
+      createdAt: new Date().toISOString()
+    };
+    
+    postReactionsMap.set(userId, reaction);
+    
+    // Update like count on post
+    post.likeCount = postReactionsMap.size;
+    this.communityPosts.set(postId, post);
+    
+    return {
+      postId,
+      userId,
+      likeCount: postReactionsMap.size
+    };
+  }
+  
+  async unlikePost(postId: number, userId: number): Promise<{ postId: number; userId: number; likeCount: number }> {
+    const post = this.communityPosts.get(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    if (!this.postReactions.has(postId)) {
+      return {
+        postId,
+        userId,
+        likeCount: 0
+      };
+    }
+    
+    const postReactionsMap = this.postReactions.get(postId)!;
+    
+    // Remove the reaction
+    postReactionsMap.delete(userId);
+    
+    // Update like count on post
+    post.likeCount = postReactionsMap.size;
+    this.communityPosts.set(postId, post);
+    
+    return {
+      postId,
+      userId,
+      likeCount: postReactionsMap.size
+    };
+  }
+  
+  async checkFriendship(userId: number, otherUserId: number): Promise<boolean> {
+    // For now, just return true for simplicity
+    // This would be replaced with actual friendship checking logic when implemented
+    return true;
+  }
+  
+  async getSupportGroups(): Promise<any[]> {
+    return this.supportGroups;
+  }
+  
+  async getSupportGroupById(groupId: number): Promise<any | null> {
+    const group = this.supportGroups.find(g => g.id === groupId);
+    return group || null;
+  }
+  
+  async joinSupportGroup(userId: number, groupId: number): Promise<boolean> {
+    const group = await this.getSupportGroupById(groupId);
+    if (!group) return false;
+    
+    // In a real implementation, we would track users in groups
+    // For now, we'll just increment the member count
+    group.members += 1;
+    
+    // Add tokens for community engagement
+    await this.createRewardActivity(
+      userId,
+      'help_others',
+      5,
+      `Joined the "${group.name}" support group`
+    );
+    
+    return true;
+  }
+  
+  async leaveSupportGroup(userId: number, groupId: number): Promise<boolean> {
+    const group = await this.getSupportGroupById(groupId);
+    if (!group) return false;
+    
+    // Decrement member count if there are members
+    if (group.members > 0) {
+      group.members -= 1;
+    }
+    
+    return true;
+  }
+  
+  async getExpertTips(category?: string): Promise<any[]> {
+    if (category) {
+      return this.expertTips.filter(tip => tip.category === category);
+    }
+    return this.expertTips;
+  }
+
+  /******************************
+   * SEO CONFIGURATION METHODS
+   ******************************/
+  
+  async getAllSeoConfigurations(): Promise<SeoConfiguration[]> {
+    return Array.from(this.seoConfigurations.values());
+  }
+  
+  async getSeoConfigurationByKey(pageKey: string): Promise<SeoConfiguration | undefined> {
+    return this.seoConfigurations.get(pageKey);
+  }
+  
+  async createSeoConfiguration(pageKey: string, config: Omit<InsertSeoConfiguration, 'pageKey'>): Promise<SeoConfiguration> {
+    // Check if configuration already exists
+    if (this.seoConfigurations.has(pageKey)) {
+      throw new Error(`SEO configuration for ${pageKey} already exists`);
+    }
+    
+    const newConfig: SeoConfiguration = {
+      id: this.nextSeoConfigId++,
+      pageKey,
+      ...config,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.seoConfigurations.set(pageKey, newConfig);
+    return newConfig;
+  }
+  
+  async updateSeoConfiguration(pageKey: string, config: Partial<Omit<InsertSeoConfiguration, 'pageKey'>>): Promise<SeoConfiguration> {
+    // Check if configuration exists
+    if (!this.seoConfigurations.has(pageKey)) {
+      throw new Error(`SEO configuration for ${pageKey} not found`);
+    }
+    
+    const existingConfig = this.seoConfigurations.get(pageKey)!;
+    
+    const updatedConfig: SeoConfiguration = {
+      ...existingConfig,
+      ...config,
+      updatedAt: new Date()
+    };
+    
+    this.seoConfigurations.set(pageKey, updatedConfig);
+    return updatedConfig;
+  }
+  
+  /******************************
+   * USER FEEDBACK METHODS
+   ******************************/
+  
+  async createUserFeedback(data: { userId: number | null; content: string; status: FeedbackStatus; source: string; category?: string }): Promise<any> {
+    const feedback = {
+      id: this.nextFeedbackId++,
+      ...data,
+      createdAt: new Date(),
+      reviewedAt: null,
+      reviewedBy: null,
+      notes: null
+    };
+    
+    this.userFeedback.set(feedback.id, feedback);
+    
+    return feedback;
+  }
+  
+  async getUserFeedbacks(options?: { status?: FeedbackStatus; page?: number; limit?: number; search?: string }): Promise<{ feedbacks: any[]; total: number; pageSize: number }> {
+    let feedbacks = Array.from(this.userFeedback.values());
+    
+    // Filter by status if provided
+    if (options?.status && options.status !== "all") {
+      feedbacks = feedbacks.filter(feedback => feedback.status === options.status);
+    }
+    
+    // Search filtering if provided
+    if (options?.search) {
+      const searchTerm = options.search.toLowerCase();
+      feedbacks = feedbacks.filter(feedback => 
+        feedback.content.toLowerCase().includes(searchTerm) || 
+        (feedback.notes && feedback.notes.toLowerCase().includes(searchTerm))
+      );
+    }
+    
+    // Sort by creation date (newest first)
+    feedbacks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    // Add username for each feedback if user exists
+    feedbacks = feedbacks.map(feedback => {
+      if (feedback.userId) {
+        const user = this.users.get(feedback.userId);
+        if (user) {
+          return { ...feedback, username: user.username };
+        }
+      }
+      return feedback;
+    });
+    
+    // Pagination
+    const pageSize = options?.limit || 10;
+    const page = options?.page || 1;
+    const total = feedbacks.length;
+    
+    // Get the selected page of feedbacks
+    const start = (page - 1) * pageSize;
+    const paginatedFeedbacks = feedbacks.slice(start, start + pageSize);
+    
+    return {
+      feedbacks: paginatedFeedbacks,
+      total,
+      pageSize
+    };
+  }
+
+  async getUserFeedbackById(id: number): Promise<any> {
+    const feedback = this.userFeedback.get(id);
+    
+    if (!feedback) {
+      return null;
+    }
+    
+    // Add username if user exists
+    if (feedback.userId) {
+      const user = this.users.get(feedback.userId);
+      if (user) {
+        return { ...feedback, username: user.username };
+      }
+    }
+    
+    return feedback;
+  }
+
+  async updateUserFeedback(id: number, data: { status?: FeedbackStatus; notes?: string | null; reviewedBy?: number | null }): Promise<any> {
+    const feedback = this.userFeedback.get(id);
+    
+    if (!feedback) {
+      throw new Error("Feedback not found");
+    }
+    
+    const updatedFeedback = {
+      ...feedback,
+      ...data,
+    };
+    
+    // If status is changed, update reviewedAt
+    if (data.status && data.status !== feedback.status) {
+      updatedFeedback.reviewedAt = new Date();
+    }
+    
+    this.userFeedback.set(id, updatedFeedback);
+    
+    // Add username if user exists
+    if (updatedFeedback.userId) {
+      const user = this.users.get(updatedFeedback.userId);
+      if (user) {
+        return { ...updatedFeedback, username: user.username };
+      }
+    }
+    
+    return updatedFeedback;
+  }
+  
+  // Email verification methods
+  async createEmailVerificationToken(userId: number, email: string): Promise<EmailVerificationToken> {
+    // Generate a random token
+    const tokenString = crypto.randomBytes(32).toString('hex');
+    
+    const token: EmailVerificationToken = {
+      id: this.nextEmailVerificationTokenId++,
+      userId,
+      email,
+      token: tokenString,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expires in 24 hours
+      usedAt: null
+    };
+    
+    // Store the token
+    this.emailVerificationTokens.set(tokenString, token);
+    
+    // Add to user tokens map
+    if (!this.userEmailVerificationTokens.has(userId)) {
+      this.userEmailVerificationTokens.set(userId, []);
+    }
+    this.userEmailVerificationTokens.get(userId)!.push(tokenString);
+    
+    return token;
+  }
+  
+  async getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined> {
+    return this.emailVerificationTokens.get(token);
+  }
+  
+  async getUserEmailVerificationTokens(userId: number): Promise<EmailVerificationToken[]> {
+    const tokenStrings = this.userEmailVerificationTokens.get(userId) || [];
+    const tokens: EmailVerificationToken[] = [];
+    
+    for (const tokenString of tokenStrings) {
+      const token = this.emailVerificationTokens.get(tokenString);
+      if (token) {
+        tokens.push(token);
+      }
+    }
+    
+    return tokens;
+  }
+  
+  async markEmailVerificationTokenAsUsed(token: string): Promise<EmailVerificationToken | undefined> {
+    const verificationToken = this.emailVerificationTokens.get(token);
+    
+    if (verificationToken) {
+      verificationToken.usedAt = new Date();
+      this.emailVerificationTokens.set(token, verificationToken);
+    }
+    
+    return verificationToken;
+  }
+  
+  async markUserAsVerified(userId: number): Promise<User | undefined> {
+    const user = this.users.get(userId);
+    
+    if (user) {
+      user.isEmailVerified = true;
+      user.emailVerifiedAt = new Date();
+      this.users.set(userId, user);
+    }
+    
+    return user;
+  }
+
+  async deleteEmailVerificationTokensByUserId(userId: number): Promise<boolean> {
+    // Get all tokens for this user
+    const tokens = this.userEmailVerificationTokens.get(userId) || [];
+    
+    // Remove each token from the emailVerificationTokens map
+    for (const token of tokens) {
+      this.emailVerificationTokens.delete(token);
+    }
+    
+    // Clear the user's tokens array
+    this.userEmailVerificationTokens.delete(userId);
+    
+    return true;
   }
 }
 

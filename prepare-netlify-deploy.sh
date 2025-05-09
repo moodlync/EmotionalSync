@@ -18,6 +18,8 @@ cp .mise.config.toml $DEPLOY_DIR/ 2>/dev/null || :
 cp .mise-disable-warning $DEPLOY_DIR/ 2>/dev/null || :
 cp netlify-build-fix.cjs $DEPLOY_DIR/
 chmod +x $DEPLOY_DIR/netlify-build-fix.cjs
+cp ensure-assets.cjs $DEPLOY_DIR/
+chmod +x $DEPLOY_DIR/ensure-assets.cjs
 
 # Copy netlify directory with functions
 echo "Copying Netlify functions..."

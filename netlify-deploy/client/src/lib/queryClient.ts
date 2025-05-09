@@ -84,3 +84,70 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Function to persist the user auth state in localStorage
+export const persistUserState = () => {
+  if (typeof window === 'undefined') return;
+  
+  const userKey = window.location.hostname.includes('netlify.app')
+    ? "/.netlify/functions/api/user"
+    : "/api/user";
+  
+  try {
+    const user = queryClient.getQueryData([userKey]);
+    if (user) {
+      localStorage.setItem('moodlync_user', JSON.stringify(user));
+    }
+  } catch (error) {
+    console.error('Error persisting user state:', error);
+  }
+};
+
+// Function to restore user state from localStorage
+export const restoreUserState = () => {
+  if (typeof window === 'undefined') return;
+  
+  const userKey = window.location.hostname.includes('netlify.app')
+    ? "/.netlify/functions/api/user"
+    : "/api/user";
+  
+  try {
+    const savedUser = localStorage.getItem('moodlync_user');
+    if (savedUser) {
+      queryClient.setQueryData([userKey], JSON.parse(savedUser));
+    }
+  } catch (error) {
+    console.error('Error restoring user state:', error);
+  }
+};
+
+// Listen for QueryClient events to persist user state
+if (typeof window !== 'undefined') {
+  try {
+    // Add manual event listener to store user data when it changes
+    const userKey = window.location.hostname.includes('netlify.app')
+      ? "/.netlify/functions/api/user"
+      : "/api/user";
+      
+    // Set up an interval to check and save user data periodically
+    const saveInterval = setInterval(() => {
+      const userData = queryClient.getQueryData([userKey]);
+      if (userData) {
+        localStorage.setItem('moodlync_user', JSON.stringify(userData));
+      }
+    }, 5000); // Check every 5 seconds
+    
+    // Clean up interval on page unload
+    window.addEventListener('beforeunload', () => {
+      clearInterval(saveInterval);
+      persistUserState(); // Final save before page unload
+    });
+  } catch (error) {
+    console.error('Error setting up auth persistence:', error);
+  }
+  
+  // Restore user state when the script is loaded
+  setTimeout(() => {
+    restoreUserState();
+  }, 0);
+}

@@ -7,6 +7,7 @@ import { PremiumUpgradeButton } from "@/components/ui/premium-upgrade-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Crown, Coins, Palette, Users, Calendar, Bell, HomeIcon, Sparkles, Music, Fingerprint, Gem } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useSubscription } from "@/hooks/use-subscription";
 
 // Premium feature components
 import DynamicThemeFeature from "./premium-features/dynamic-theme";
@@ -23,7 +24,12 @@ type FeatureTabType = 'plans' | 'themes' | 'social' | 'checkins' | 'notification
 
 export default function PremiumTab() {
   const { user } = useAuth();
+  const { isActive, isTrial, tier, expiryDate, cancelSubscriptionMutation } = useSubscription();
+  // Determine more specific subscription types
+  const isLifetime = tier === 'lifetime';
+  const isFamily = tier === 'family';
   const [activeFeatureTab, setActiveFeatureTab] = useState<FeatureTabType>('plans');
+  const [, setLocation] = useLocation();
   
   // Fetch token balance
   const { data: tokenData } = useQuery({
@@ -36,29 +42,68 @@ export default function PremiumTab() {
     enabled: !!user // Only fetch if user is logged in
   });
 
-  // Mock premium status check - in a real app, this would come from the server
-  const isPremium = false;
-
   return (
     <section>
       <div className="mb-8">
-        {isPremium ? (
-          <div className="bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 rounded-lg p-6 flex items-center justify-between mb-8">
+        {isActive || isTrial ? (
+          <div className={`bg-gradient-to-r ${
+            isLifetime 
+              ? "from-violet-100 to-purple-100 border-violet-200 dark:from-violet-900/20 dark:to-purple-900/20 dark:border-violet-800" 
+              : isFamily 
+                ? "from-indigo-100 to-blue-100 border-indigo-200 dark:from-indigo-900/20 dark:to-blue-900/20 dark:border-indigo-800"
+                : isTrial 
+                  ? "from-green-100 to-emerald-100 border-green-200 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800"
+                  : "from-amber-100 to-yellow-100 border-amber-200 dark:from-amber-900/20 dark:to-yellow-900/20 dark:border-amber-800"
+          } border rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8`}>
             <div className="flex items-center gap-3">
-              <div className="bg-amber-500 rounded-full p-2">
+              <div className={`rounded-full p-2 ${
+                isLifetime 
+                  ? "bg-violet-500" 
+                  : isFamily 
+                    ? "bg-indigo-500"
+                    : isTrial 
+                      ? "bg-green-500"
+                      : "bg-amber-500"
+              }`}>
                 <Crown className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Premium Member</h3>
-                <p className="text-sm text-muted-foreground">You have access to all premium features</p>
+                <h3 className="font-semibold text-lg">
+                  {isLifetime 
+                    ? "Lifetime Member" 
+                    : isFamily 
+                      ? "Family Plan Member"
+                      : isTrial 
+                        ? "Trial Member"
+                        : "Premium Member"}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {isTrial 
+                    ? `Your trial ends on ${expiryDate?.toLocaleDateString()}`
+                    : `Your ${tier} subscription ${isLifetime ? "never expires" : `renews on ${expiryDate?.toLocaleDateString()}`}`}
+                </p>
               </div>
             </div>
-            <Button variant="outline" className="border-amber-500 text-amber-700">
-              Manage Subscription
-            </Button>
+            {!isLifetime && (
+              <Button 
+                variant="outline" 
+                className={`${
+                  isLifetime 
+                    ? "border-violet-500 text-violet-700 dark:border-violet-600 dark:text-violet-400" 
+                    : isFamily 
+                      ? "border-indigo-500 text-indigo-700 dark:border-indigo-600 dark:text-indigo-400"
+                      : isTrial 
+                        ? "border-green-500 text-green-700 dark:border-green-600 dark:text-green-400"
+                        : "border-amber-500 text-amber-700 dark:border-amber-600 dark:text-amber-400"
+                }`}
+                onClick={() => setActiveFeatureTab('plans')}
+              >
+                {isTrial ? "Upgrade Subscription" : "Manage Subscription"}
+              </Button>
+            )}
           </div>
         ) : (
-          <div className="bg-gradient-to-r from-slate-100 to-slate-200 border border-slate-200 rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div className="bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-900/40 dark:to-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div className="flex items-center gap-3">
               <div className="bg-slate-500 rounded-full p-2">
                 <Crown className="h-6 w-6 text-white" />
@@ -69,13 +114,16 @@ export default function PremiumTab() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 text-yellow-600">
+              <div className="flex items-center gap-1 text-yellow-600 dark:text-yellow-400">
                 <Coins className="h-5 w-5" />
                 <span className="font-semibold">{tokenData?.tokens || 0} tokens</span>
               </div>
-              <PremiumUpgradeButton>
-                Upgrade Now
-              </PremiumUpgradeButton>
+              <Button 
+                className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
+                onClick={() => setActiveFeatureTab('plans')}
+              >
+                View Plans
+              </Button>
             </div>
           </div>
         )}
@@ -175,7 +223,7 @@ export default function PremiumTab() {
                 </div>
               </div>
               <Button 
-                onClick={() => window.location.href = '/nft-collection'}
+                onClick={() => setLocation('/nft-collection')}
                 className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600"
               >
                 View Full Collection

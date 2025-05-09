@@ -167,10 +167,10 @@ export default function TokenMilestonesPage() {
     }
   };
 
-  // Decreased milestone values by 60%
-  const nextMilestone = [40, 200, 400, 1000, 2000, 4000, 10000].find(
+  // Decreased milestone values by 25%
+  const nextMilestone = [30, 150, 300, 750, 1500, 3000, 7500].find(
     milestone => milestone > userTokens
-  ) || 10000;
+  ) || 7500;
   
   const progress = Math.min(
     100,
