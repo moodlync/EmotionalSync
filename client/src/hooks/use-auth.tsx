@@ -19,7 +19,10 @@ type AuthContextType = {
 };
 
 // Basic login data
-type LoginData = Pick<InsertUser, "username" | "password">;
+interface LoginData {
+  username: string;
+  password: string;
+}
 
 // Extended login data with remember me option
 type LoginDataWithRemember = LoginData & { rememberMe: boolean };
@@ -129,8 +132,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         
         // Store in localStorage only if "Remember Me" is checked
-        if (rememberMe && typeof window !== 'undefined') {
-          localStorage.setItem('moodlync_user', JSON.stringify(userData));
+        if (typeof window !== 'undefined') {
+          // Save the remember me preference
+          localStorage.setItem('moodlync_remember_me', rememberMe ? 'true' : 'false');
+          
+          // Store user data if remember me is checked
+          if (rememberMe) {
+            localStorage.setItem('moodlync_user', JSON.stringify(userData));
+          } else {
+            // If not remembering, ensure we clear any previously saved data
+            localStorage.removeItem('moodlync_user');
+          }
         }
         
         return userData;
@@ -162,10 +174,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
       try {
-        console.log("Registration mutation - submitting data:", { 
-          ...credentials, 
-          password: credentials.password ? "********" : undefined // Don't log actual password
-        });
+        // Log registration data (with password masked for security)
+        const sanitizedData = { ...credentials };
+        if (sanitizedData.password) {
+          sanitizedData.password = "********";
+        }
+        console.log("Registration mutation - submitting data:", sanitizedData);
         
         // Network connection check
         if (!navigator.onLine) {

@@ -31,14 +31,19 @@ export default function SessionHandler() {
   useEffect(() => {
     if (!isLoading) {
       const lastPath = localStorage.getItem('moodlync_last_path');
+      const shouldRememberUser = localStorage.getItem('moodlync_remember_me') === 'true';
       
       // If we have a stored path but no user, it might indicate session expiration
-      if (lastPath && !user && location !== '/auth' && !showSessionExpiredDialog) {
+      // We only show session expired dialog if the user previously chose to be remembered
+      if (lastPath && !user && location !== '/auth' && !showSessionExpiredDialog && shouldRememberUser) {
         setStoredPath(lastPath);
         setShowSessionExpiredDialog(true);
+      } else if (!user && location !== '/auth' && location !== '/welcome' && !shouldRememberUser) {
+        // If user didn't choose to be remembered, just redirect to auth page
+        navigate('/auth');
       }
     }
-  }, [isLoading, user, location, showSessionExpiredDialog]);
+  }, [isLoading, user, location, showSessionExpiredDialog, navigate]);
   
   // Handle dialog close and redirect to auth page
   const handleLogin = () => {
