@@ -3,6 +3,7 @@
   command = """
     export NPM_CONFIG_AUDIT=false &&
     npm install --no-audit --no-fund &&
+    node ensure-assets.js &&
     node netlify-build-fix.cjs &&
     npm install --no-audit --no-fund --production serverless-http cors express body-parser express-session memorystore uuid &&
     npm install --no-audit --no-fund vite esbuild @vitejs/plugin-react typescript react-scripts &&

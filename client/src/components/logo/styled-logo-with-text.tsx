@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { useLocation } from 'wouter';
-import logoImage from '@/assets/moodlync-logo-enhanced.png';
+import logoImage from '@/assets/new-logo.png';
 
 interface StyledLogoWithTextProps {
   className?: string;

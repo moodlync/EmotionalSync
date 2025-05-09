@@ -206,6 +206,58 @@ if (packageJson.scripts.build !== updatedBuildScript) {
   console.log(`${colors.green}Updated build script in package.json to use explicit path${colors.reset}`);
 }
 
+// Check for asset files
+console.log(`\n${colors.blue}Checking for important asset files...${colors.reset}`);
+
+// Ensure the client/src/assets directory exists
+if (!fs.existsSync('client/src/assets')) {
+  console.log(`${colors.yellow}Creating client/src/assets directory...${colors.reset}`);
+  try {
+    fs.mkdirSync('client/src/assets', { recursive: true });
+    console.log(`${colors.green}Successfully created client/src/assets directory${colors.reset}`);
+  } catch (error) {
+    console.error(`${colors.red}Failed to create client/src/assets directory: ${error.message}${colors.reset}`);
+  }
+}
+
+// Check for logo files
+const logoFileDestPath = 'client/src/assets/new-logo.png';
+const logoSources = [
+  'attached_assets/logo-transparent-png.png',
+  'attached_assets/logo-png.png',
+  'public/logo-transparent-png.png',
+  'public/logo-png.png',
+  'client/src/assets/moodlync-logo-enhanced.png',
+  'client/public/logo-transparent-png.png',
+  'client/public/logo-png.png'
+];
+
+let logoFound = false;
+if (!fs.existsSync(logoFileDestPath)) {
+  console.log(`${colors.yellow}Logo file not found at ${logoFileDestPath}, searching for alternatives...${colors.reset}`);
+  
+  for (const sourcePath of logoSources) {
+    if (fs.existsSync(sourcePath)) {
+      console.log(`${colors.green}Found logo at ${sourcePath}, copying to ${logoFileDestPath}...${colors.reset}`);
+      try {
+        fs.copyFileSync(sourcePath, logoFileDestPath);
+        console.log(`${colors.green}Successfully copied logo file${colors.reset}`);
+        logoFound = true;
+        break;
+      } catch (error) {
+        console.error(`${colors.red}Failed to copy logo file: ${error.message}${colors.reset}`);
+      }
+    }
+  }
+  
+  if (!logoFound) {
+    console.log(`${colors.yellow}Warning: Could not find any logo files. This may cause build issues.${colors.reset}`);
+  }
+} else {
+  console.log(`${colors.green}Logo file found at ${logoFileDestPath}${colors.reset}`);
+  logoFound = true;
+}
+
 // Scan source files for imports to detect missing dependencies
 console.log(`\n${colors.blue}Scanning source code for import statements...${colors.reset}`);
 

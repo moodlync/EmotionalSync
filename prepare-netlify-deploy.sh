@@ -77,6 +77,11 @@ mkdir -p $DEPLOY_DIR/attached_assets
 cp attached_assets/*.svg $DEPLOY_DIR/attached_assets/ 2>/dev/null || :
 cp attached_assets/logo*.* $DEPLOY_DIR/attached_assets/ 2>/dev/null || :
 
+# Copy client/src/assets directory to ensure logos are available
+echo "Copying client assets for logo and image access..."
+mkdir -p $DEPLOY_DIR/client/src/assets
+cp -r client/src/assets/* $DEPLOY_DIR/client/src/assets/ 2>/dev/null || :
+
 # Create a README for deployment
 echo "Creating deployment README..."
 cat > $DEPLOY_DIR/README.md << 'EOF'
