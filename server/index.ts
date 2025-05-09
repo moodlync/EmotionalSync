@@ -111,9 +111,9 @@ app.use((req, res, next) => {
   };
 
   // Listen on primary port (5001 for all environments)
-  server.listen(primaryPort, "0.0.0.0", () => {
+  server.listen(5000, "0.0.0.0", () => {
     const address = server.address();
-    const actualPort = typeof address === 'object' && address ? address.port : primaryPort;
+    const actualPort = typeof address === 'object' && address ? address.port : 5000;
     log(`MoodLync server running on port ${actualPort}`);
 
     // Initialize WebSocket on primary server
