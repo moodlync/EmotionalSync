@@ -2,7 +2,6 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { useLocation } from 'wouter';
-import logoImage from '@/assets/logo-transparent-png.png';
 
 interface StyledLogoWithTextProps {
   className?: string;
@@ -74,11 +73,9 @@ export default function StyledLogoWithText({
         style={{ width: `${adjustedLogoSize}px`, height: `${adjustedLogoSize}px` }}
         onClick={handleLogoClick}
       >
-        <img 
-          src={logoImage} 
-          alt="MoodLync Logo" 
-          className="w-full h-full object-contain"
-        />
+        <div className="w-full h-full bg-blue-500 text-white font-bold flex items-center justify-center rounded-full">
+          <span className="text-lg">ML</span>
+        </div>
       </div>
       
       {!hideText && (

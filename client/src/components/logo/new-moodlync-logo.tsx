@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import logoImage from '@/assets/logo-transparent-png.png';
 
 interface NewMoodLyncLogoProps {
   className?: string;
@@ -23,12 +22,8 @@ export function NewMoodLyncLogo({
         style={{ width, height }}
       >
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center rounded-full w-10 h-10 overflow-hidden">
-            <img 
-              src={logoImage} 
-              alt="MoodLync Logo" 
-              className="w-full h-full object-contain" 
-            />
+          <div className="flex items-center justify-center rounded-full w-10 h-10 bg-blue-500 text-white font-bold overflow-hidden">
+            <span className="text-xs">ML</span>
           </div>
           {/* Text removed as requested */}
         </div>

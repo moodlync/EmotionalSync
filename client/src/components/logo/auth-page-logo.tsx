@@ -1,8 +1,5 @@
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
-import { useTheme } from "next-themes";
 import { useLocation } from 'wouter';
-import logoImage from '@/assets/new-logo.jpg';
 
 interface AuthPageLogoProps {
   className?: string;
@@ -16,40 +13,18 @@ interface AuthPageLogoProps {
 
 export default function AuthPageLogo({
   className,
-  logoSize = 12, // Reduced by 75% from original size of 48
+  logoSize = 12,
   textSize = 'md',
   vertical = false,
   hideText = false,
   showTagline = false,
   isAuthenticated = false
 }: AuthPageLogoProps) {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [, navigate] = useLocation();
   
-  // Calculate the adjusted size for the auth page logo - reduced by 75%
-  const adjustedLogoSize = Math.floor(logoSize * 0.625);
+  // Calculate the size for the logo
+  const finalSize = logoSize || 60;
   
-  // Avoid hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  // Text size classes
-  const textSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base',
-    xl: 'text-lg'
-  };
-
-  const taglineSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-xs',
-    lg: 'text-sm',
-    xl: 'text-base'
-  };
-
   // Handle logo/text click - navigates to home when authenticated
   const handleLogoClick = () => {
     if (isAuthenticated) {
@@ -57,25 +32,34 @@ export default function AuthPageLogo({
     }
   };
 
+  // Text size mapping
+  const textClasses = {
+    sm: 'text-xs',
+    md: 'text-sm',
+    lg: 'text-base',
+    xl: 'text-lg'
+  };
+  
+  // Font size for the ML text based on logo size
+  const mlTextSize = finalSize >= 100 ? 'text-4xl' : 
+                     finalSize >= 60 ? 'text-2xl' : 
+                     finalSize >= 40 ? 'text-xl' : 'text-base';
+
   return (
     <div className={cn(
-      'flex items-center gap-6',
+      'flex items-center gap-3',
       vertical && 'flex-col',
       className
     )}>
       <div 
         className={cn(
-          "flex items-center justify-center",
+          "flex items-center justify-center bg-blue-500 text-white font-bold rounded-full",
           isAuthenticated && "cursor-pointer"
         )} 
-        style={{ width: `${adjustedLogoSize}px`, height: `${adjustedLogoSize}px` }}
+        style={{ width: `${finalSize}px`, height: `${finalSize}px` }}
         onClick={handleLogoClick}
       >
-        <img 
-          src={logoImage} 
-          alt="MoodLync Logo" 
-          className="w-full h-full object-contain"
-        />
+        <span className={mlTextSize}>ML</span>
       </div>
       
       {!hideText && (
@@ -88,17 +72,14 @@ export default function AuthPageLogo({
         >
           <div className={cn(
             'font-extrabold tracking-tight leading-none',
-            textSizeClasses[textSize]
+            textClasses[textSize]
           )}>
             <span className="text-black">MOOD</span>
             <span className="text-red-500">LYNC</span>
           </div>
           
           {showTagline && (
-            <div className={cn(
-              'text-black/70 dark:text-white/70 leading-tight',
-              taglineSizeClasses[textSize]
-            )}>
+            <div className="text-black/70 text-xs leading-tight">
               Connect - Detect - Reflect
             </div>
           )}

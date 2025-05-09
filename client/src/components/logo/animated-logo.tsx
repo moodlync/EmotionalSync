@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import logoImage from '@/assets/logo-transparent-png.png';
 
 interface AnimatedLogoProps {
   className?: string;
@@ -68,11 +67,9 @@ export default function AnimatedLogo({
         }
       }}
     >
-      <img 
-        src={logoImage} 
-        alt="MoodLync Logo" 
-        className="w-full h-full object-contain rounded-full"
-      />
+      <div className="w-full h-full bg-blue-500 text-white font-bold flex items-center justify-center rounded-full">
+        <span className="text-base">ML</span>
+      </div>
     </div>
   );
 }

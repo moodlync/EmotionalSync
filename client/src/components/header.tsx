@@ -1,7 +1,6 @@
 import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import newLogo from "@/assets/logo-transparent-png.png";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   DropdownMenu,
@@ -95,12 +94,8 @@ export default function Header() {
         <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
             <div className="flex flex-row items-center gap-2">
-              <div className="w-[60px] h-[60px]">
-                <img 
-                  src={newLogo} 
-                  alt="MoodLync Logo" 
-                  className="w-full h-full object-contain"
-                />
+              <div className="w-[60px] h-[60px] flex items-center justify-center bg-blue-500 text-white font-bold rounded-full">
+                <span className="text-xl">ML</span>
               </div>
               <div className="flex flex-col">
                 <div className="font-extrabold tracking-tight text-lg leading-none text-white">

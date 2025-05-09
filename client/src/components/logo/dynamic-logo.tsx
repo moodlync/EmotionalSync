@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTheme } from "next-themes";
-import logoImage from '@/assets/new-logo.jpg';
 
 interface DynamicLogoProps {
   className?: string;
@@ -32,29 +31,16 @@ export default function DynamicLogo({
   return (
     <div 
       className={cn(
-        "relative cursor-pointer flex items-center justify-center",
+        "relative cursor-pointer flex items-center justify-center bg-blue-500 text-white font-bold",
         className
       )} 
       style={{ 
         width: size, 
         height: size,
-        backgroundColor: 'transparent',
         borderRadius: '50%'
       }}
     >
-      {/* Simple transparent logo with no effects */}
-      <div 
-        className="w-full h-full rounded-full flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundColor: 'transparent'
-        }}
-      >
-        <img 
-          src={logoImage} 
-          alt="MoodLync Logo" 
-          className="w-full h-full object-contain" 
-        />
-      </div>
+      <div className="text-xs">ML</div>
     </div>
   );
 }

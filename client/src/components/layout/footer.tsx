@@ -27,7 +27,6 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import FeedbackForm from "@/components/feedback/feedback-form";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import logoImage from '@/assets/logo-transparent-png.png';
 
 export default function Footer() {
   const { user } = useAuth();
@@ -108,7 +107,9 @@ export default function Footer() {
           {/* Logo and main info */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center space-x-2">
-              <img src={logoImage} alt="MoodLync Logo" className="h-10 w-auto" />
+              <div className="h-10 w-10 flex items-center justify-center bg-blue-500 text-white font-bold rounded-full">
+                <span className="text-sm">ML</span>
+              </div>
               <span className="text-2xl font-bold">
                 <span className="text-slate-900 dark:text-slate-100 font-extrabold" style={{ textShadow: '0px 1px 2px rgba(0,0,0,0.05)' }}>Mood</span>
                 <span className="text-indigo-600 dark:text-indigo-400 font-extrabold" style={{ textShadow: '0px 1px 2px rgba(79,70,229,0.05)' }}>Lync</span>

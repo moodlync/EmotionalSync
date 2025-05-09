@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import newLogo from '@/assets/logo-transparent-png.png';
 import { 
   Heart, ArrowRight, ChevronDown, Crown, Sparkles, Shield, Star, Video, UserCheck,
   BarChart3, Fingerprint, Gamepad2, Users, Music, Palette, Brush, PartyPopper, 
@@ -111,12 +110,8 @@ export default function WelcomePage() {
           <div className="flex items-center">
             <div className="relative">
               <div className="flex flex-row items-center gap-1">
-                <div className="w-[60px] h-[60px]">
-                  <img 
-                    src={newLogo} 
-                    alt="MoodLync Logo" 
-                    className="w-full h-full object-contain"
-                  />
+                <div className="w-[60px] h-[60px] flex items-center justify-center bg-blue-500 text-white font-bold rounded-full">
+                  <span className="text-xl">ML</span>
                 </div>
                 <div className="flex flex-col">
                   <div className="font-extrabold tracking-tight text-2xl leading-none">

@@ -19,7 +19,7 @@ import AuthPageLogo from "@/components/logo/auth-page-logo";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import authImage from "@/assets/auth-hero.jpeg";
-import newLogo from "@/assets/logo-transparent-png.png";
+
 
 // Helper to determine if we're in development mode
 const isDevelopment = import.meta.env.MODE === 'development';
@@ -409,25 +409,8 @@ export default function AuthPage() {
           <CardHeader className="space-y-2 pb-2">
             <div className="flex flex-col items-center justify-center py-2">
               {/* Logo with minimal glow and heartbeat effect */}
-              <div className="mb-2">
-                <div className="flex flex-col items-center justify-center gap-1">
-                  <div className="w-[125px] h-[125px]">
-                    <img 
-                      src={newLogo} 
-                      alt="MoodLync Logo" 
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div className="text-center">
-                    <div className="font-extrabold tracking-tight text-base leading-none">
-                      <span className="text-black">MOOD</span>
-                      <span className="text-red-500">LYNC</span>
-                    </div>
-                    <div className="text-black/70 text-xs leading-tight">
-                      Connect - Detect - Reflect
-                    </div>
-                  </div>
-                </div>
+              <div className="mb-2 flex items-center justify-center">
+                <AuthPageLogo logoSize={125} vertical showTagline textSize="lg" />
               </div>
               <div className="w-full overflow-hidden rounded-lg shadow-md relative mb-1">
                 <img 
