@@ -6,8 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import logoImage from '@/assets/moodlync-logo-icon.png';
-import StyledLogoWithText from '@/components/logo/styled-logo-with-text';
+import newLogo from '@/assets/moodlync-logo-new.jpg';
 import { 
   Heart, ArrowRight, ChevronDown, Crown, Sparkles, Shield, Star, Video, UserCheck,
   BarChart3, Fingerprint, Gamepad2, Users, Music, Palette, Brush, PartyPopper, 
@@ -111,13 +110,23 @@ export default function WelcomePage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <div className="relative">
-              <div className="p-3 relative">
-                <StyledLogoWithText 
-                  logoSize={48} 
-                  textSize="lg" 
-                  hideText={false}
-                  showTagline={true}
-                />
+              <div className="flex flex-row items-center gap-3">
+                <div className="w-[80px] h-[80px]">
+                  <img 
+                    src={newLogo} 
+                    alt="MoodLync Logo" 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <div className="font-extrabold tracking-tight text-lg leading-none">
+                    <span className="text-black">MOOD</span>
+                    <span className="text-red-500">LYNC</span>
+                  </div>
+                  <div className="text-black/70 text-sm leading-tight">
+                    Connect - Detect - Reflect
+                  </div>
+                </div>
               </div>
             </div>
           </div>

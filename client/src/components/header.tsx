@@ -1,7 +1,7 @@
 import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import StyledLogoWithText from "@/components/logo/styled-logo-with-text";
+import newLogo from "@/assets/moodlync-logo-new.jpg";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   DropdownMenu,
@@ -94,13 +94,24 @@ export default function Header() {
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
-            <StyledLogoWithText 
-              logoSize={70} 
-              textSize="lg" 
-              hideText={false}
-              isAuthenticated={!!user}
-              showTagline={false}
-            />
+            <div className="flex flex-row items-center gap-2">
+              <div className="w-[60px] h-[60px]">
+                <img 
+                  src={newLogo} 
+                  alt="MoodLync Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="flex flex-col">
+                <div className="font-extrabold tracking-tight text-lg leading-none text-white">
+                  <span>MOOD</span>
+                  <span className="text-red-300">LYNC</span>
+                </div>
+                <div className="text-white/70 text-xs leading-tight">
+                  Connect - Detect - Reflect
+                </div>
+              </div>
+            </div>
           </div>
         </Link>
         

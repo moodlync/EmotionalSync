@@ -410,12 +410,23 @@ export default function AuthPage() {
             <div className="flex flex-col items-center justify-center py-4">
               {/* Logo with minimal glow and heartbeat effect */}
               <div className="mb-5">
-                <div className="flex items-center justify-center">
-                  <AuthPageLogo 
-                    logoSize={100} 
-                    textSize="lg" 
-                    showTagline={true}
-                  />
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <div className="w-[250px] h-[250px]">
+                    <img 
+                      src={newLogo} 
+                      alt="MoodLync Logo" 
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <div className="font-extrabold tracking-tight text-lg leading-none">
+                      <span className="text-black">MOOD</span>
+                      <span className="text-red-500">LYNC</span>
+                    </div>
+                    <div className="text-black/70 text-sm leading-tight">
+                      Connect - Detect - Reflect
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="w-full overflow-hidden rounded-xl shadow-xl relative mb-2">
