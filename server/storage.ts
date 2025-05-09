@@ -1,5 +1,6 @@
 import {
   users,
+  emailVerificationTokens,
   type User,
   type InsertUser,
   type Badge,
@@ -38,6 +39,8 @@ import {
   type InsertUserFollow,
   type UserSession,
   type InsertUserSession,
+  type EmailVerificationToken,
+  type InsertEmailVerificationToken,
   type MoodMatch,
   type InsertMoodMatch,
   type EmotionalImprint,
@@ -267,6 +270,12 @@ export interface IStorage {
   getUserByProfileLink(profileLink: string): Promise<User | undefined>;
   getUserNotificationSettings(userId: number): Promise<any>;
   updateUserNotificationSettings(userId: number, settings: any): Promise<any>;
+  
+  // Email verification methods
+  createEmailVerificationToken(userId: number): Promise<EmailVerificationToken>;
+  getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined>;
+  verifyUserEmail(userId: number, token: string): Promise<User | undefined>;
+  updateVerificationStatus(userId: number, status: string): Promise<User>;
   
   // Milestone sharing methods
   createMilestoneShare(shareData: InsertMilestoneShare): Promise<MilestoneShare>;
@@ -614,6 +623,14 @@ export interface IStorage {
   getUserFeedbacks(options?: { status?: FeedbackStatus; page?: number; limit?: number; search?: string }): Promise<{ feedbacks: any[]; total: number; pageSize: number }>;
   getUserFeedbackById(id: number): Promise<any>;
   updateUserFeedback(id: number, data: { status?: FeedbackStatus; notes?: string | null; reviewedBy?: number | null }): Promise<any>;
+  
+  // Email verification methods
+  createEmailVerificationToken(userId: number, email: string): Promise<EmailVerificationToken>;
+  getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined>;
+  getUserEmailVerificationTokens(userId: number): Promise<EmailVerificationToken[]>;
+  markEmailVerificationTokenAsUsed(token: string): Promise<EmailVerificationToken | undefined>;
+  markUserAsVerified(userId: number): Promise<User | undefined>;
+  deleteEmailVerificationTokensByUserId(userId: number): Promise<boolean>;
 
   sessionStore: session.Store;
 }
@@ -685,6 +702,11 @@ export class MemStorage implements IStorage {
   public userNotifications: Map<number, number[]> = new Map(); // userId -> notificationIds
   public deletionRequests: Map<number, DeletionRequest> = new Map();
   public userDeletionRequests: Map<number, number[]> = new Map(); // userId -> deletionRequestIds
+  
+  // Email verification token storage
+  public emailVerificationTokens: Map<string, EmailVerificationToken> = new Map(); // token -> verification token
+  public userEmailVerificationTokens: Map<number, string[]> = new Map(); // userId -> token strings
+  private nextEmailVerificationTokenId = 1;
   
   // Community feature maps
   public communityPosts: Map<number, any> = new Map(); // postId -> Post
@@ -7539,6 +7561,89 @@ export class MemStorage implements IStorage {
     }
     
     return updatedFeedback;
+  }
+  
+  // Email verification methods
+  async createEmailVerificationToken(userId: number, email: string): Promise<EmailVerificationToken> {
+    // Generate a random token
+    const tokenString = crypto.randomBytes(32).toString('hex');
+    
+    const token: EmailVerificationToken = {
+      id: this.nextEmailVerificationTokenId++,
+      userId,
+      email,
+      token: tokenString,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expires in 24 hours
+      usedAt: null
+    };
+    
+    // Store the token
+    this.emailVerificationTokens.set(tokenString, token);
+    
+    // Add to user tokens map
+    if (!this.userEmailVerificationTokens.has(userId)) {
+      this.userEmailVerificationTokens.set(userId, []);
+    }
+    this.userEmailVerificationTokens.get(userId)!.push(tokenString);
+    
+    return token;
+  }
+  
+  async getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined> {
+    return this.emailVerificationTokens.get(token);
+  }
+  
+  async getUserEmailVerificationTokens(userId: number): Promise<EmailVerificationToken[]> {
+    const tokenStrings = this.userEmailVerificationTokens.get(userId) || [];
+    const tokens: EmailVerificationToken[] = [];
+    
+    for (const tokenString of tokenStrings) {
+      const token = this.emailVerificationTokens.get(tokenString);
+      if (token) {
+        tokens.push(token);
+      }
+    }
+    
+    return tokens;
+  }
+  
+  async markEmailVerificationTokenAsUsed(token: string): Promise<EmailVerificationToken | undefined> {
+    const verificationToken = this.emailVerificationTokens.get(token);
+    
+    if (verificationToken) {
+      verificationToken.usedAt = new Date();
+      this.emailVerificationTokens.set(token, verificationToken);
+    }
+    
+    return verificationToken;
+  }
+  
+  async markUserAsVerified(userId: number): Promise<User | undefined> {
+    const user = this.users.get(userId);
+    
+    if (user) {
+      user.isEmailVerified = true;
+      user.emailVerifiedAt = new Date();
+      this.users.set(userId, user);
+    }
+    
+    return user;
+  }
+
+  async deleteEmailVerificationTokensByUserId(userId: number): Promise<boolean> {
+    // Get all tokens for this user
+    const tokens = this.userEmailVerificationTokens.get(userId) || [];
+    
+    // Remove each token from the emailVerificationTokens map
+    for (const token of tokens) {
+      this.emailVerificationTokens.delete(token);
+    }
+    
+    // Clear the user's tokens array
+    this.userEmailVerificationTokens.delete(userId);
+    
+    return true;
   }
 }
 

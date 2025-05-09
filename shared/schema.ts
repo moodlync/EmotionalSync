@@ -61,6 +61,8 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").unique(),
   password: text("password").notNull(),
+  isEmailVerified: boolean("is_email_verified").default(false),
+  emailVerifiedAt: timestamp("email_verified_at"),
   gender: text("gender").$type<GenderType>(),
   state: text("state"),
   country: text("country"),
@@ -1513,6 +1515,15 @@ export const emotionalImprints = pgTable("emotional_imprints", {
   customization: json("customization"),
 });
 
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+});
+
 export const emotionalImprintInteractions = pgTable("emotional_imprint_interactions", {
   id: serial("id").primaryKey(),
   imprintId: integer("imprint_id").notNull().references(() => emotionalImprints.id),
@@ -1613,6 +1624,15 @@ export type InsertEmotionalImprint = z.infer<typeof insertEmotionalImprintSchema
 export type EmotionalImprint = typeof emotionalImprints.$inferSelect;
 export type InsertEmotionalImprintInteraction = z.infer<typeof insertEmotionalImprintInteractionSchema>;
 export type EmotionalImprintInteraction = typeof emotionalImprintInteractions.$inferSelect;
+
+export const insertEmailVerificationTokenSchema = createInsertSchema(emailVerificationTokens, {
+  userId: z.number().int().positive(),
+  token: z.string(),
+  expiresAt: z.date(),
+});
+
+export type InsertEmailVerificationToken = z.infer<typeof insertEmailVerificationTokenSchema>;
+export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect;
 
 export type InsertAdvertisement = z.infer<typeof insertAdvertisementSchema>;
 export type Advertisement = typeof advertisements.$inferSelect;

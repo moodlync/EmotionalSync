@@ -1,13 +1,13 @@
 import { useAuth } from '@/hooks/use-auth';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, UseMutationResult } from '@tanstack/react-query';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
+import { User as SelectUser } from '@shared/schema';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, User, Award, Flame, Settings, Clock, BarChart, Shield, Lock, ShieldCheck, Bell, Database, Home, Heart, Crown } from 'lucide-react';
+import { Loader2, User, Award, Flame, Settings, Clock, BarChart, Shield, Lock, ShieldCheck, Bell, Database, Home, Heart, Crown, Mail, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Redirect, Link } from 'wouter';
-import { useAuth } from '@/hooks/use-auth';
 import ProfilePictureForm from '@/components/profile/profile-picture-form';
 import ProfileInformationForm from '@/components/profile/profile-information-form';
 import ProfileSecurityTab from '@/components/profile/profile-security-tab';
@@ -22,7 +22,67 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { EmotionType } from '@/types/imprints';
-import { useQuery, useMutation } from '@tanstack/react-query';
+
+// Component to show email verification status and provide resend function
+function EmailVerificationSection({ user, resendVerificationMutation }: { 
+  user: SelectUser | null; 
+  resendVerificationMutation: UseMutationResult<{ success: boolean, message: string }, Error, void>;
+}) {
+  const [showResendButton, setShowResendButton] = useState(true);
+  
+  // If no email or already verified, don't show section
+  if (!user?.email || user?.isEmailVerified) {
+    return null;
+  }
+  
+  return (
+    <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
+      <CardContent className="pt-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="bg-amber-100 dark:bg-amber-900/50 p-2 rounded-full">
+            <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-500" />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-medium mb-1">Please verify your email address</h4>
+            <p className="text-xs text-muted-foreground mb-3">
+              We sent a verification link to {user.email}. Please check your inbox and click the link to verify your account.
+            </p>
+            {showResendButton ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  resendVerificationMutation.mutate();
+                  setShowResendButton(false);
+                  // Re-enable the button after 60 seconds
+                  setTimeout(() => setShowResendButton(true), 60000);
+                }}
+                disabled={resendVerificationMutation.isPending}
+                className="text-xs"
+              >
+                {resendVerificationMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="h-3 w-3 mr-1" />
+                    Resend verification email
+                  </>
+                )}
+              </Button>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Verification email sent. Please wait 60 seconds before requesting another one.
+              </p>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 // Component to show verification status and link to verification page for all users
 function VerificationStatusSection() {
@@ -87,7 +147,7 @@ function VerificationStatusSection() {
 }
 
 export default function ProfilePage() {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading, resendVerificationMutation } = useAuth();
   const { toast } = useToast();
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
 
@@ -369,6 +429,12 @@ export default function ProfilePage() {
           </TabsContent>
           
           <TabsContent value="home" className="space-y-6">
+            {/* Email Verification Banner (only shows if email is not verified) */}
+            <EmailVerificationSection 
+              user={user}
+              resendVerificationMutation={resendVerificationMutation}
+            />
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="md:col-span-2">
                 <CardHeader>

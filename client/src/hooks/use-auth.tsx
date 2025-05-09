@@ -15,6 +15,7 @@ type AuthContextType = {
   loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
+  resendVerificationMutation: UseMutationResult<{ success: boolean, message: string }, Error, void>;
 };
 
 type LoginData = Pick<InsertUser, "username" | "password">;
@@ -26,7 +27,8 @@ const defaultContextValue: AuthContextType = {
   error: null,
   loginMutation: {} as UseMutationResult<SelectUser, Error, LoginData>,
   logoutMutation: {} as UseMutationResult<void, Error, void>,
-  registerMutation: {} as UseMutationResult<SelectUser, Error, InsertUser>
+  registerMutation: {} as UseMutationResult<SelectUser, Error, InsertUser>,
+  resendVerificationMutation: {} as UseMutationResult<{ success: boolean, message: string }, Error, void>
 };
 
 export const AuthContext = createContext<AuthContextType>(defaultContextValue);
@@ -276,6 +278,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
   });
+  
+  const resendVerificationMutation = useMutation({
+    mutationFn: async () => {
+      if (!user || !user.email) {
+        throw new Error("You need to be logged in with an email address to receive verification emails.");
+      }
+      
+      // Check if we're running in Netlify environment
+      const isNetlify = window.location.hostname.includes('netlify.app');
+      const apiPath = isNetlify ? "/.netlify/functions/api/resend-verification" : "/api/resend-verification";
+      
+      console.log(`Using API path for resending verification: ${apiPath} (Netlify: ${isNetlify})`);
+      
+      const res = await apiRequest("POST", apiPath);
+      if (!res.ok) {
+        let errorMessage = "Failed to resend verification email. Please try again later.";
+        
+        try {
+          // Try to parse error details from response
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await res.json();
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            }
+          }
+        } catch (err) {
+          console.error("Error parsing resend verification error:", err);
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      try {
+        return await res.json();
+      } catch (err) {
+        console.error("Error parsing resend verification response:", err);
+        return { 
+          success: true, 
+          message: "Verification email sent successfully. Please check your inbox." 
+        };
+      }
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Verification email sent",
+        description: data.message || "Please check your inbox for a verification link.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to send verification email",
+        description: error.message || "An unexpected error occurred. Please try again later.",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <AuthContext.Provider
@@ -286,6 +345,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginMutation,
         logoutMutation,
         registerMutation,
+        resendVerificationMutation,
       }}
     >
       {children}
