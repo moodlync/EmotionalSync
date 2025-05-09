@@ -13,7 +13,8 @@ import {
   X,
   Search,
   Database,
-  BookOpenText
+  BookOpenText,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -41,6 +42,11 @@ const sidebarItems = [
     title: "Users",
     href: "/admin/users",
     icon: Users
+  },
+  {
+    title: "Feedbacks",
+    href: "/admin/feedbacks",
+    icon: MessageSquare
   },
   {
     title: "SEO Settings",

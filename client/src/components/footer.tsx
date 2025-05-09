@@ -9,6 +9,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 export default function Footer() {
   const [feedback, setFeedback] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const { toast } = useToast();
 
   const handleSubmitFeedback = async (e: React.FormEvent) => {
@@ -20,11 +21,10 @@ export default function Footer() {
       // Send feedback to the server
       await apiRequest("POST", "/api/feedback", { content: feedback });
       
-      toast({
-        title: "Feedback Sent",
-        description: "Thank you for your feedback! We value your input.",
-      });
+      // Show more detailed thank you message
+      setFeedbackSubmitted(true);
       
+      // Reset form
       setFeedback("");
     } catch (error) {
       toast({
@@ -50,31 +50,45 @@ export default function Footer() {
             </div>
             
             {/* Feedback form below the footer image */}
-            <form onSubmit={handleSubmitFeedback} className="mt-4 w-full max-w-md">
-              <Textarea
-                placeholder="Share your feedback or suggest features..."
-                className="min-h-[80px] text-sm resize-none bg-white dark:bg-gray-800"
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-              />
-              <Button 
-                type="submit" 
-                className="mt-2 w-full bg-gradient-to-r from-primary to-primary-foreground/90 hover:opacity-90"
-                disabled={isSending || !feedback.trim()}
-              >
-                {isSending ? (
-                  <span className="flex items-center gap-1">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
-                    Sending...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1">
-                    <Send className="h-3.5 w-3.5" />
-                    Send Feedback
-                  </span>
-                )}
-              </Button>
-            </form>
+            {feedbackSubmitted ? (
+              <div className="mt-6 p-4 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-800 text-center w-full max-w-md mx-auto">
+                <h4 className="text-green-700 dark:text-green-300 font-semibold mb-2">Thank you for your feedback!</h4>
+                <p className="text-green-600 dark:text-green-400 text-sm">We will take your suggestions into account and will start working on it right away.</p>
+                <Button 
+                  className="mt-3 bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => setFeedbackSubmitted(false)}
+                >
+                  Submit another feedback
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmitFeedback} className="mt-4 w-full max-w-md">
+                <Textarea
+                  placeholder="Share your feedback or suggest features..."
+                  className="min-h-[80px] text-sm resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  style={{ color: 'white' }}
+                />
+                <Button 
+                  type="submit" 
+                  className="mt-2 w-full bg-gradient-to-r from-primary to-primary-foreground/90 hover:opacity-90"
+                  disabled={isSending || !feedback.trim()}
+                >
+                  {isSending ? (
+                    <span className="flex items-center gap-1">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
+                      Sending...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <Send className="h-3.5 w-3.5" />
+                      Send Feedback
+                    </span>
+                  )}
+                </Button>
+              </form>
+            )}
           </div>
         </div>
         
@@ -165,37 +179,6 @@ export default function Footer() {
                 <a href="mailto:support@moodlync.io" className="text-gray-600 hover:text-primary">
                   support@moodlync.io
                 </a>
-              </li>
-              <li className="mt-4">
-                <div className="flex items-center justify-end md:justify-end gap-2 text-gray-600">
-                  <MessageSquare className="h-4 w-4" />
-                  <span className="font-semibold">Share Your Feedback</span>
-                </div>
-                <form onSubmit={handleSubmitFeedback} className="mt-2">
-                  <Textarea
-                    placeholder="Suggest features or share your thoughts..."
-                    className="min-h-[80px] text-sm resize-none bg-white"
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                  />
-                  <Button 
-                    type="submit" 
-                    className="mt-2 w-full bg-gradient-to-r from-primary to-primary-foreground/90 hover:opacity-90"
-                    disabled={isSending || !feedback.trim()}
-                  >
-                    {isSending ? (
-                      <span className="flex items-center gap-1">
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
-                        Sending...
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1">
-                        <Send className="h-3.5 w-3.5" />
-                        Send Feedback
-                      </span>
-                    )}
-                  </Button>
-                </form>
               </li>
             </ul>
           </div>

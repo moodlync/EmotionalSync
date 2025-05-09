@@ -611,6 +611,9 @@ export interface IStorage {
   
   // User feedback methods
   createUserFeedback(data: { userId: number | null; content: string; status: FeedbackStatus; source: string; category?: string }): Promise<any>;
+  getUserFeedbacks(options?: { status?: FeedbackStatus; page?: number; limit?: number; search?: string }): Promise<{ feedbacks: any[]; total: number; pageSize: number }>;
+  getUserFeedbackById(id: number): Promise<any>;
+  updateUserFeedback(id: number, data: { status?: FeedbackStatus; notes?: string | null; reviewedBy?: number | null }): Promise<any>;
 
   sessionStore: session.Store;
 }
@@ -7441,6 +7444,101 @@ export class MemStorage implements IStorage {
     this.userFeedback.set(feedback.id, feedback);
     
     return feedback;
+  }
+  
+  async getUserFeedbacks(options?: { status?: FeedbackStatus; page?: number; limit?: number; search?: string }): Promise<{ feedbacks: any[]; total: number; pageSize: number }> {
+    let feedbacks = Array.from(this.userFeedback.values());
+    
+    // Filter by status if provided
+    if (options?.status && options.status !== "all") {
+      feedbacks = feedbacks.filter(feedback => feedback.status === options.status);
+    }
+    
+    // Search filtering if provided
+    if (options?.search) {
+      const searchTerm = options.search.toLowerCase();
+      feedbacks = feedbacks.filter(feedback => 
+        feedback.content.toLowerCase().includes(searchTerm) || 
+        (feedback.notes && feedback.notes.toLowerCase().includes(searchTerm))
+      );
+    }
+    
+    // Sort by creation date (newest first)
+    feedbacks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    // Add username for each feedback if user exists
+    feedbacks = feedbacks.map(feedback => {
+      if (feedback.userId) {
+        const user = this.users.get(feedback.userId);
+        if (user) {
+          return { ...feedback, username: user.username };
+        }
+      }
+      return feedback;
+    });
+    
+    // Pagination
+    const pageSize = options?.limit || 10;
+    const page = options?.page || 1;
+    const total = feedbacks.length;
+    
+    // Get the selected page of feedbacks
+    const start = (page - 1) * pageSize;
+    const paginatedFeedbacks = feedbacks.slice(start, start + pageSize);
+    
+    return {
+      feedbacks: paginatedFeedbacks,
+      total,
+      pageSize
+    };
+  }
+
+  async getUserFeedbackById(id: number): Promise<any> {
+    const feedback = this.userFeedback.get(id);
+    
+    if (!feedback) {
+      return null;
+    }
+    
+    // Add username if user exists
+    if (feedback.userId) {
+      const user = this.users.get(feedback.userId);
+      if (user) {
+        return { ...feedback, username: user.username };
+      }
+    }
+    
+    return feedback;
+  }
+
+  async updateUserFeedback(id: number, data: { status?: FeedbackStatus; notes?: string | null; reviewedBy?: number | null }): Promise<any> {
+    const feedback = this.userFeedback.get(id);
+    
+    if (!feedback) {
+      throw new Error("Feedback not found");
+    }
+    
+    const updatedFeedback = {
+      ...feedback,
+      ...data,
+    };
+    
+    // If status is changed, update reviewedAt
+    if (data.status && data.status !== feedback.status) {
+      updatedFeedback.reviewedAt = new Date();
+    }
+    
+    this.userFeedback.set(id, updatedFeedback);
+    
+    // Add username if user exists
+    if (updatedFeedback.userId) {
+      const user = this.users.get(updatedFeedback.userId);
+      if (user) {
+        return { ...updatedFeedback, username: user.username };
+      }
+    }
+    
+    return updatedFeedback;
   }
 }
 

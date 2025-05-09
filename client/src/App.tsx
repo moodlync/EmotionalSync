@@ -86,6 +86,7 @@ const AdminDashboardPage = lazy(() => import("@/pages/admin/admin-dashboard-page
 const AdminTicketsPage = lazy(() => import("@/pages/admin/admin-tickets-page"));
 const AdminRefundsPage = lazy(() => import("@/pages/admin/admin-refunds-page"));
 const AdminUsersPage = lazy(() => import("@/pages/admin/admin-users-page"));
+const AdminFeedbacksPage = lazy(() => import("@/pages/admin/admin-feedbacks-page"));
 const AdminActionsPage = lazy(() => import("@/pages/admin/admin-actions-page"));
 const AdminQuotesPage = lazy(() => import("@/pages/admin/admin-quotes-page"));
 const AdminSeoPage = lazy(() => import("@/pages/admin/admin-seo-page"));
@@ -185,6 +186,7 @@ const RouterComponent = () => {
     { path: "/admin/tickets", component: AdminTicketsPage },
     { path: "/admin/refunds", component: AdminRefundsPage },
     { path: "/admin/users", component: AdminUsersPage },
+    { path: "/admin/feedbacks", component: AdminFeedbacksPage },
     { path: "/admin/actions", component: AdminActionsPage },
     { path: "/admin/quotes", component: AdminQuotesPage },
     { path: "/admin/seo", component: AdminSeoPage },

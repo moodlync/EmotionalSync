@@ -5562,6 +5562,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to submit feedback' });
     }
   });
+  
+  // Admin feedback management endpoints
+  app.get('/api/admin/feedbacks', requireAdmin, async (req, res) => {
+    try {
+      const { status = 'all', page = '1', search = '' } = req.query;
+      
+      const options = {
+        status: status as any,
+        page: parseInt(page as string, 10),
+        limit: 10,
+        search: search as string
+      };
+      
+      const result = await storage.getUserFeedbacks(options);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error fetching user feedbacks:', error);
+      res.status(500).json({ error: 'Failed to fetch user feedbacks' });
+    }
+  });
+  
+  app.get('/api/admin/feedbacks/:id', requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id, 10);
+      
+      if (isNaN(feedbackId)) {
+        return res.status(400).json({ error: 'Invalid feedback ID' });
+      }
+      
+      const feedback = await storage.getUserFeedbackById(feedbackId);
+      
+      if (!feedback) {
+        return res.status(404).json({ error: 'Feedback not found' });
+      }
+      
+      res.json(feedback);
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+      res.status(500).json({ error: 'Failed to fetch feedback details' });
+    }
+  });
+  
+  app.patch('/api/admin/feedbacks/:id', requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id, 10);
+      
+      if (isNaN(feedbackId)) {
+        return res.status(400).json({ error: 'Invalid feedback ID' });
+      }
+      
+      const { status, notes } = req.body;
+      
+      if (!status || !['new', 'reviewed', 'completed', 'ignored'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status value' });
+      }
+      
+      const updatedFeedback = await storage.updateUserFeedback(feedbackId, {
+        status: status as any,
+        notes: notes || null,
+        reviewedBy: req.adminUser!.id
+      });
+      
+      res.json(updatedFeedback);
+    } catch (error) {
+      console.error('Error updating feedback:', error);
+      res.status(500).json({ error: 'Failed to update feedback' });
+    }
+  });
 
   // Expose the initialization function to the HTTP server
   // @ts-ignore - Adding dynamic property
