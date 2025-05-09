@@ -71,6 +71,12 @@ var init_storage = __esm({
       deletionRequests = /* @__PURE__ */ new Map();
       userDeletionRequests = /* @__PURE__ */ new Map();
       // userId -> deletionRequestIds
+      // Email verification token storage
+      emailVerificationTokens = /* @__PURE__ */ new Map();
+      // token -> verification token
+      userEmailVerificationTokens = /* @__PURE__ */ new Map();
+      // userId -> token strings
+      nextEmailVerificationTokenId = 1;
       // Community feature maps
       communityPosts = /* @__PURE__ */ new Map();
       // postId -> Post
@@ -5164,6 +5170,131 @@ var init_storage = __esm({
         this.userFeedback.set(feedback.id, feedback);
         return feedback;
       }
+      async getUserFeedbacks(options) {
+        let feedbacks = Array.from(this.userFeedback.values());
+        if (options?.status && options.status !== "all") {
+          feedbacks = feedbacks.filter((feedback) => feedback.status === options.status);
+        }
+        if (options?.search) {
+          const searchTerm = options.search.toLowerCase();
+          feedbacks = feedbacks.filter(
+            (feedback) => feedback.content.toLowerCase().includes(searchTerm) || feedback.notes && feedback.notes.toLowerCase().includes(searchTerm)
+          );
+        }
+        feedbacks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        feedbacks = feedbacks.map((feedback) => {
+          if (feedback.userId) {
+            const user = this.users.get(feedback.userId);
+            if (user) {
+              return { ...feedback, username: user.username };
+            }
+          }
+          return feedback;
+        });
+        const pageSize = options?.limit || 10;
+        const page = options?.page || 1;
+        const total = feedbacks.length;
+        const start = (page - 1) * pageSize;
+        const paginatedFeedbacks = feedbacks.slice(start, start + pageSize);
+        return {
+          feedbacks: paginatedFeedbacks,
+          total,
+          pageSize
+        };
+      }
+      async getUserFeedbackById(id) {
+        const feedback = this.userFeedback.get(id);
+        if (!feedback) {
+          return null;
+        }
+        if (feedback.userId) {
+          const user = this.users.get(feedback.userId);
+          if (user) {
+            return { ...feedback, username: user.username };
+          }
+        }
+        return feedback;
+      }
+      async updateUserFeedback(id, data) {
+        const feedback = this.userFeedback.get(id);
+        if (!feedback) {
+          throw new Error("Feedback not found");
+        }
+        const updatedFeedback = {
+          ...feedback,
+          ...data
+        };
+        if (data.status && data.status !== feedback.status) {
+          updatedFeedback.reviewedAt = /* @__PURE__ */ new Date();
+        }
+        this.userFeedback.set(id, updatedFeedback);
+        if (updatedFeedback.userId) {
+          const user = this.users.get(updatedFeedback.userId);
+          if (user) {
+            return { ...updatedFeedback, username: user.username };
+          }
+        }
+        return updatedFeedback;
+      }
+      // Email verification methods
+      async createEmailVerificationToken(userId, email) {
+        const tokenString = crypto.randomBytes(32).toString("hex");
+        const token = {
+          id: this.nextEmailVerificationTokenId++,
+          userId,
+          email,
+          token: tokenString,
+          createdAt: /* @__PURE__ */ new Date(),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1e3),
+          // Expires in 24 hours
+          usedAt: null
+        };
+        this.emailVerificationTokens.set(tokenString, token);
+        if (!this.userEmailVerificationTokens.has(userId)) {
+          this.userEmailVerificationTokens.set(userId, []);
+        }
+        this.userEmailVerificationTokens.get(userId).push(tokenString);
+        return token;
+      }
+      async getEmailVerificationToken(token) {
+        return this.emailVerificationTokens.get(token);
+      }
+      async getUserEmailVerificationTokens(userId) {
+        const tokenStrings = this.userEmailVerificationTokens.get(userId) || [];
+        const tokens = [];
+        for (const tokenString of tokenStrings) {
+          const token = this.emailVerificationTokens.get(tokenString);
+          if (token) {
+            tokens.push(token);
+          }
+        }
+        return tokens;
+      }
+      async markEmailVerificationTokenAsUsed(token) {
+        const verificationToken = this.emailVerificationTokens.get(token);
+        if (verificationToken) {
+          verificationToken.usedAt = /* @__PURE__ */ new Date();
+          this.emailVerificationTokens.set(token, verificationToken);
+        }
+        return verificationToken;
+      }
+      async markUserAsVerified(userId) {
+        const user = this.users.get(userId);
+        if (user) {
+          user.isEmailVerified = true;
+          user.emailVerifiedAt = /* @__PURE__ */ new Date();
+          this.users.set(userId, user);
+        }
+        return user;
+      }
+      async deleteEmailVerificationTokensByUserId(userId) {
+        const tokens = this.userEmailVerificationTokens.get(userId) || [];
+        for (const token of tokens) {
+          this.emailVerificationTokens.delete(token);
+        }
+        this.userEmailVerificationTokens.delete(userId);
+        return true;
+      }
     };
     storage = new MemStorage();
   }
@@ -5187,6 +5318,7 @@ __export(schema_exports, {
   chatRooms: () => chatRooms,
   customMoodTags: () => customMoodTags,
   deletionRequests: () => deletionRequests,
+  emailVerificationTokens: () => emailVerificationTokens,
   emotionalImprintInteractions: () => emotionalImprintInteractions,
   emotionalImprints: () => emotionalImprints,
   emotionalIntelligenceResults: () => emotionalIntelligenceResults,
@@ -5207,6 +5339,7 @@ __export(schema_exports, {
   insertChatRoomSchema: () => insertChatRoomSchema,
   insertCustomMoodTagSchema: () => insertCustomMoodTagSchema,
   insertDeletionRequestSchema: () => insertDeletionRequestSchema,
+  insertEmailVerificationTokenSchema: () => insertEmailVerificationTokenSchema,
   insertEmotionSchema: () => insertEmotionSchema,
   insertEmotionalImprintInteractionSchema: () => insertEmotionalImprintInteractionSchema,
   insertEmotionalImprintSchema: () => insertEmotionalImprintSchema,
@@ -5299,7 +5432,7 @@ __export(schema_exports, {
 import { pgTable, text, serial, integer, boolean, timestamp, numeric, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-var TOKEN_CONVERSION_RATE, MIN_REDEMPTION_TOKENS, PREMIUM_ACCESS_TOKENS, users, emotions, journalEntries, chatRooms, rewardActivities, badges, userBadges, blockedUsers, chatRoomParticipants, challenges, verificationDocuments, tokenRedemptions, familyRelationships, tokenTransfers, premiumPlans, userChallengeCompletions, referrals, nftCollections, nftItems, userNfts, nftTransfers, emotionalNfts, tokenPool, poolContributions, poolDistributions, moodGames, userGamePlays, customMoodTags, userMoodTrends, userSessions, moodMatches, adminUsers, supportTickets, ticketResponses, refundRequests, notifications, adminActions, quotes, videoPosts, videoLikes, videoComments, videoFollows, videoSaves, videoDownloads, userFollows, insertUserSchema, insertUserSessionSchema, insertEmotionSchema, insertJournalEntrySchema, insertRewardActivitySchema, insertNftCollectionSchema, insertNftItemSchema, insertUserNftSchema, insertNftTransferSchema, insertEmotionalNftSchema, insertTokenPoolSchema, insertPoolContributionSchema, insertPoolDistributionSchema, insertBadgeSchema, insertUserBadgeSchema, insertChallengeSchema, updateUserSchema, insertNotificationSchema, insertTokenRedemptionSchema, insertChatRoomSchema, insertBlockedUserSchema, insertChatRoomParticipantSchema, insertFamilyRelationshipSchema, insertTokenTransferSchema, insertPremiumPlanSchema, insertUserChallengeCompletionSchema, insertReferralSchema, insertAdminUserSchema, insertSupportTicketSchema, insertTicketResponseSchema, insertRefundRequestSchema, insertAdminActionSchema, insertQuoteSchema, insertVideoPostSchema, insertVideoLikeSchema, insertVideoCommentSchema, deletionRequests, insertDeletionRequestSchema, insertVideoFollowSchema, insertVideoSaveSchema, insertVideoDownloadSchema, insertUserFollowSchema, insertMoodMatchSchema, milestoneShares, advertisements, advertisementBookings, insertAdvertisementSchema, insertAdvertisementBookingSchema, friendships, userMessages, userPosts, postReactions, postComments, userVideoCalls, userNotificationSettings, charityOrganizations, gofundmeCampaigns, feedbackSubmissions, emotionalImprints, emotionalImprintInteractions, insertFriendshipSchema, insertUserMessageSchema, insertUserPostSchema, insertGofundmeCampaignSchema, insertFeedbackSubmissionSchema, insertEmotionalImprintSchema, insertEmotionalImprintInteractionSchema, insertMilestoneShareSchema, subscriptions, insertSubscriptionSchema, insertCustomMoodTagSchema, seoConfigurations, insertSeoConfigurationSchema, emotionalIntelligenceResults, insertEmotionalIntelligenceResultSchema;
+var TOKEN_CONVERSION_RATE, MIN_REDEMPTION_TOKENS, PREMIUM_ACCESS_TOKENS, users, emotions, journalEntries, chatRooms, rewardActivities, badges, userBadges, blockedUsers, chatRoomParticipants, challenges, verificationDocuments, tokenRedemptions, familyRelationships, tokenTransfers, premiumPlans, userChallengeCompletions, referrals, nftCollections, nftItems, userNfts, nftTransfers, emotionalNfts, tokenPool, poolContributions, poolDistributions, moodGames, userGamePlays, customMoodTags, userMoodTrends, userSessions, moodMatches, adminUsers, supportTickets, ticketResponses, refundRequests, notifications, adminActions, quotes, videoPosts, videoLikes, videoComments, videoFollows, videoSaves, videoDownloads, userFollows, insertUserSchema, insertUserSessionSchema, insertEmotionSchema, insertJournalEntrySchema, insertRewardActivitySchema, insertNftCollectionSchema, insertNftItemSchema, insertUserNftSchema, insertNftTransferSchema, insertEmotionalNftSchema, insertTokenPoolSchema, insertPoolContributionSchema, insertPoolDistributionSchema, insertBadgeSchema, insertUserBadgeSchema, insertChallengeSchema, updateUserSchema, insertNotificationSchema, insertTokenRedemptionSchema, insertChatRoomSchema, insertBlockedUserSchema, insertChatRoomParticipantSchema, insertFamilyRelationshipSchema, insertTokenTransferSchema, insertPremiumPlanSchema, insertUserChallengeCompletionSchema, insertReferralSchema, insertAdminUserSchema, insertSupportTicketSchema, insertTicketResponseSchema, insertRefundRequestSchema, insertAdminActionSchema, insertQuoteSchema, insertVideoPostSchema, insertVideoLikeSchema, insertVideoCommentSchema, deletionRequests, insertDeletionRequestSchema, insertVideoFollowSchema, insertVideoSaveSchema, insertVideoDownloadSchema, insertUserFollowSchema, insertMoodMatchSchema, milestoneShares, advertisements, advertisementBookings, insertAdvertisementSchema, insertAdvertisementBookingSchema, friendships, userMessages, userPosts, postReactions, postComments, userVideoCalls, userNotificationSettings, charityOrganizations, gofundmeCampaigns, feedbackSubmissions, emotionalImprints, emailVerificationTokens, emotionalImprintInteractions, insertFriendshipSchema, insertUserMessageSchema, insertUserPostSchema, insertGofundmeCampaignSchema, insertFeedbackSubmissionSchema, insertEmotionalImprintSchema, insertEmotionalImprintInteractionSchema, insertEmailVerificationTokenSchema, insertMilestoneShareSchema, subscriptions, insertSubscriptionSchema, insertCustomMoodTagSchema, seoConfigurations, insertSeoConfigurationSchema, emotionalIntelligenceResults, insertEmotionalIntelligenceResultSchema;
 var init_schema = __esm({
   "shared/schema.ts"() {
     "use strict";
@@ -5319,6 +5452,8 @@ var init_schema = __esm({
       username: text("username").notNull().unique(),
       email: text("email").unique(),
       password: text("password").notNull(),
+      isEmailVerified: boolean("is_email_verified").default(false),
+      emailVerifiedAt: timestamp("email_verified_at"),
       gender: text("gender").$type(),
       state: text("state"),
       country: text("country"),
@@ -6593,6 +6728,14 @@ var init_schema = __esm({
       aiGenerated: boolean("ai_generated").default(false),
       customization: json("customization")
     });
+    emailVerificationTokens = pgTable("email_verification_tokens", {
+      id: serial("id").primaryKey(),
+      userId: integer("user_id").notNull().references(() => users.id),
+      token: text("token").notNull().unique(),
+      createdAt: timestamp("created_at").defaultNow(),
+      expiresAt: timestamp("expires_at").notNull(),
+      usedAt: timestamp("used_at")
+    });
     emotionalImprintInteractions = pgTable("emotional_imprint_interactions", {
       id: serial("id").primaryKey(),
       imprintId: integer("imprint_id").notNull().references(() => emotionalImprints.id),
@@ -6670,6 +6813,11 @@ var init_schema = __esm({
       feedbackNote: z.string().optional(),
       senderNote: z.string().optional(),
       isAnonymous: z.boolean().default(true)
+    });
+    insertEmailVerificationTokenSchema = createInsertSchema(emailVerificationTokens, {
+      userId: z.number().int().positive(),
+      token: z.string(),
+      expiresAt: z.date()
     });
     insertMilestoneShareSchema = createInsertSchema(milestoneShares, {
       userId: z.number().int().positive(),
@@ -8841,13 +8989,13 @@ var init_admin_schema = __esm({
 });
 
 // server/encryption.ts
-import crypto2 from "crypto";
+import crypto4 from "crypto";
 function hashText(text3) {
   if (!text3) return "";
-  return crypto2.createHash("sha256").update(text3).digest("hex");
+  return crypto4.createHash("sha256").update(text3).digest("hex");
 }
 function generateToken(length = 32) {
-  return crypto2.randomBytes(length).toString("hex");
+  return crypto4.randomBytes(length).toString("hex");
 }
 var ENCRYPTION_KEY;
 var init_encryption = __esm({
@@ -11714,11 +11862,170 @@ var init_wellness_tip_routes = __esm({
   }
 });
 
+// server/routes/user-management-routes.ts
+var user_management_routes_exports = {};
+__export(user_management_routes_exports, {
+  registerUserManagementRoutes: () => registerUserManagementRoutes
+});
+import express4 from "express";
+import { z as z7 } from "zod";
+function registerUserManagementRoutes(app2) {
+  const router9 = express4.Router();
+  router9.use((req, res, next) => {
+    if (!req.isAuthenticated() || !req.adminUser) {
+      return res.status(401).json({ error: "Unauthorized. Admin access required." });
+    }
+    next();
+  });
+  router9.get("/registered-users", async (req, res) => {
+    try {
+      const { search, page = "1", limit = "25" } = req.query;
+      const pageNum = parseInt(page);
+      const limitNum = parseInt(limit);
+      const offset = (pageNum - 1) * limitNum;
+      let usersList = [];
+      let totalUsers = 0;
+      if (search) {
+        usersList = await storage.searchUsers(search);
+        totalUsers = usersList.length;
+        usersList = usersList.slice(offset, offset + limitNum);
+      } else {
+        const allUsers = Array.from(storage.users.values());
+        totalUsers = allUsers.length;
+        usersList = allUsers.sort((a, b) => {
+          const dateA = a.createdAt instanceof Date ? a.createdAt : /* @__PURE__ */ new Date();
+          const dateB = b.createdAt instanceof Date ? b.createdAt : /* @__PURE__ */ new Date();
+          return dateB.getTime() - dateA.getTime();
+        }).slice(offset, offset + limitNum);
+      }
+      res.json({
+        users: usersList,
+        pagination: {
+          total: totalUsers,
+          page: pageNum,
+          limit: limitNum,
+          pages: Math.ceil(totalUsers / limitNum)
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching registered users:", error);
+      res.status(500).json({ error: "Failed to retrieve users list" });
+    }
+  });
+  router9.delete("/users/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      if (["admin", "sagar", "dev", "test"].includes(user.username)) {
+        return res.status(403).json({
+          error: "Cannot delete system accounts. This account is protected."
+        });
+      }
+      const removed = await storage.removeUser(userId);
+      if (!removed) {
+        return res.status(500).json({ error: "Failed to remove user" });
+      }
+      console.log(`Admin ${req.adminUser ? req.adminUser.username : "Unknown"} deleted user: ${user.username} (ID: ${userId})`);
+      res.json({
+        success: true,
+        message: `User ${user.username} has been successfully removed from the system.`
+      });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ error: "An error occurred while trying to delete the user" });
+    }
+  });
+  router9.post("/send-update", async (req, res) => {
+    try {
+      const schema = z7.object({
+        title: z7.string().min(3).max(100),
+        content: z7.string().min(10).max(1e3),
+        // Optional parameters
+        sendToAll: z7.boolean().optional().default(true),
+        userIds: z7.array(z7.number()).optional(),
+        autoGenerate: z7.boolean().optional().default(false)
+      });
+      const result = schema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({
+          error: "Invalid request data",
+          details: result.error.format()
+        });
+      }
+      const { title, content, sendToAll, userIds, autoGenerate } = result.data;
+      let finalTitle = title;
+      let finalContent = content;
+      if (autoGenerate) {
+        finalTitle = `MoodLync Update: ${title}`;
+        finalContent = generateUpdateContent(content);
+      }
+      let targetUserIds = [];
+      if (sendToAll) {
+        targetUserIds = Array.from(storage.users.values()).map((user) => user.id);
+      } else if (userIds && userIds.length > 0) {
+        targetUserIds = userIds;
+      } else {
+        return res.status(400).json({
+          error: "Either sendToAll must be true or userIds must contain at least one user ID"
+        });
+      }
+      const sentNotifications = await storage.sendSystemNotification(
+        targetUserIds,
+        finalTitle,
+        finalContent,
+        "APP_UPDATE",
+        "/updates",
+        "BellRing"
+        // Icon for updates
+      );
+      res.json({
+        success: true,
+        message: `Update notification sent to ${sentNotifications.length} users`,
+        details: {
+          title: finalTitle,
+          preview: finalContent.substring(0, 100) + (finalContent.length > 100 ? "..." : ""),
+          recipientCount: sentNotifications.length
+        }
+      });
+    } catch (error) {
+      console.error("Error sending update notification:", error);
+      res.status(500).json({ error: "Failed to send update notification" });
+    }
+  });
+  app2.use("/api/admin", router9);
+  console.log("User management routes registered successfully");
+}
+function generateUpdateContent(baseContent) {
+  const date = (/* @__PURE__ */ new Date()).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+  return `\u{1F514} **New MoodLync Update - ${date}**
+
+${baseContent}
+
+---
+Thank you for being part of the MoodLync community! If you have any questions about this update, please contact our support team.`;
+}
+var init_user_management_routes = __esm({
+  "server/routes/user-management-routes.ts"() {
+    "use strict";
+    init_storage();
+  }
+});
+
 // server/index.ts
-import express6 from "express";
+import express7 from "express";
 
 // server/routes.ts
-import express4 from "express";
+import express5 from "express";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 
@@ -11729,6 +12036,99 @@ import { Strategy as LocalStrategy } from "passport-local";
 import session2 from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+
+// server/services/email-service.ts
+import { MailService } from "@sendgrid/mail";
+import crypto2 from "crypto";
+var mailService = new MailService();
+if (process.env.SENDGRID_API_KEY) {
+  mailService.setApiKey(process.env.SENDGRID_API_KEY);
+}
+var VERIFICATION_TOKEN_EXPIRY = 24;
+async function sendEmail(params) {
+  try {
+    if (!process.env.SENDGRID_API_KEY) {
+      console.warn("SENDGRID_API_KEY not set. Email service is disabled.");
+      return false;
+    }
+    const fromEmail = params.from || "noreply@moodlync.com";
+    await mailService.send({
+      to: params.to,
+      from: fromEmail,
+      subject: params.subject,
+      text: params.text || "",
+      html: params.html
+    });
+    console.log(`Email sent successfully to ${params.to}`);
+    return true;
+  } catch (error) {
+    console.error("SendGrid email error:", error);
+    return false;
+  }
+}
+function generateVerificationToken() {
+  return crypto2.randomBytes(32).toString("hex");
+}
+async function sendVerificationEmail(user, verificationToken) {
+  if (!user.email) {
+    console.error("Cannot send verification email: User has no email address");
+    return false;
+  }
+  const baseUrl = process.env.NODE_ENV === "production" ? "https://moodlync.com" : "http://localhost:8080";
+  const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
+  const emailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: #6366f1; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="color: white; margin: 0;">Welcome to MoodLync!</h1>
+      </div>
+      <div style="padding: 20px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px;">
+        <p>Hello ${user.firstName || user.username},</p>
+        <p>Thank you for creating a MoodLync account. To complete your registration and access all features, please verify your email address by clicking the button below:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}" style="background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Verify My Email</a>
+        </div>
+        <p>If the button doesn't work, you can also copy and paste this link into your browser:</p>
+        <p style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; word-break: break-all;">${verificationUrl}</p>
+        <p>This verification link will expire in ${VERIFICATION_TOKEN_EXPIRY} hours.</p>
+        <p>If you didn't create this account, you can safely ignore this email.</p>
+        <p>Best regards,<br>The MoodLync Team</p>
+      </div>
+      <div style="text-align: center; margin-top: 20px; color: #64748b; font-size: 12px;">
+        <p>MoodLync - Connect through emotions</p>
+      </div>
+    </div>
+  `;
+  const emailText = `
+    Welcome to MoodLync!
+    
+    Hello ${user.firstName || user.username},
+    
+    Thank you for creating a MoodLync account. To complete your registration and access all features, please verify your email address by clicking the link below:
+    
+    ${verificationUrl}
+    
+    This verification link will expire in ${VERIFICATION_TOKEN_EXPIRY} hours.
+    
+    If you didn't create this account, you can safely ignore this email.
+    
+    Best regards,
+    The MoodLync Team
+  `;
+  return sendEmail({
+    to: user.email,
+    subject: "Verify Your MoodLync Email Address",
+    html: emailHtml,
+    text: emailText
+  });
+}
+var emailService = {
+  sendEmail,
+  generateVerificationToken,
+  sendVerificationEmail,
+  VERIFICATION_TOKEN_EXPIRY
+};
+
+// server/auth.ts
 var scryptAsync = promisify(scrypt);
 async function hashPassword(password) {
   const salt = randomBytes(16).toString("hex");
@@ -11834,16 +12234,36 @@ function setupAuth(app2) {
         const user = await storage.createUser({
           ...req.body,
           password: await hashPassword(req.body.password),
-          ipAddress
+          ipAddress,
+          isEmailVerified: false
         });
         console.log("User created successfully:", { id: user.id, username: user.username });
+        if (user.email) {
+          try {
+            const verificationToken = await storage.createEmailVerificationToken(user.id, user.email);
+            await emailService.sendVerificationEmail(user, verificationToken.token);
+            console.log(`Verification email sent to ${user.email} for user ${user.username}`);
+          } catch (verificationError) {
+            console.error("Error sending verification email:", verificationError);
+          }
+        } else {
+          console.log(`User ${user.username} registered without email, no verification required`);
+        }
         req.login(user, (err) => {
           if (err) {
             console.error("Login error after registration:", err);
             return next(err);
           }
           console.log("User logged in after registration:", { id: user.id, username: user.username });
-          res.status(201).json(user);
+          if (user.email) {
+            res.status(201).json({
+              ...user,
+              emailVerificationSent: true,
+              message: "Please check your email to verify your account."
+            });
+          } else {
+            res.status(201).json(user);
+          }
         });
       } catch (createError) {
         console.error("Error creating user:", createError);
@@ -11920,6 +12340,86 @@ function setupAuth(app2) {
   app2.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
+  });
+  app2.get("/api/verify-email", async (req, res) => {
+    const token = req.query.token;
+    if (!token) {
+      return res.status(400).json({ error: "Missing verification token" });
+    }
+    try {
+      const verificationToken = await storage.getEmailVerificationToken(token);
+      if (!verificationToken) {
+        return res.status(404).json({ error: "Invalid verification token" });
+      }
+      if (/* @__PURE__ */ new Date() > new Date(verificationToken.expiresAt)) {
+        return res.status(400).json({
+          error: "Verification token has expired",
+          message: "Please request a new verification email"
+        });
+      }
+      if (verificationToken.usedAt) {
+        return res.status(400).json({
+          error: "Verification token has already been used",
+          message: "Your email is already verified"
+        });
+      }
+      await storage.markEmailVerificationTokenAsUsed(token);
+      const user = await storage.markUserAsVerified(verificationToken.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      if (!req.isAuthenticated()) {
+        return res.redirect("/auth?verified=true");
+      }
+      if (req.user.id === verificationToken.userId) {
+        return res.redirect("/profile?verified=true");
+      }
+      return res.redirect("/auth?verified=true&logout=true");
+    } catch (error) {
+      console.error("Email verification error:", error);
+      return res.status(500).json({
+        error: "Failed to verify email",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+  app2.get("/verify-email", (req, res) => {
+    const token = req.query.token;
+    res.redirect(`/api/verify-email?token=${token}`);
+  });
+  app2.post("/api/resend-verification", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    const user = req.user;
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        error: "Email already verified",
+        message: "Your email is already verified"
+      });
+    }
+    if (!user.email) {
+      return res.status(400).json({
+        error: "No email address",
+        message: "You don't have an email address to verify"
+      });
+    }
+    try {
+      await storage.deleteEmailVerificationTokensByUserId(user.id);
+      const verificationToken = await storage.createEmailVerificationToken(user.id, user.email);
+      await emailService.sendVerificationEmail(user, verificationToken.token);
+      console.log(`Resent verification email to ${user.email} for user ${user.username}`);
+      return res.status(200).json({
+        success: true,
+        message: "Verification email has been sent. Please check your inbox."
+      });
+    } catch (error) {
+      console.error("Error resending verification email:", error);
+      return res.status(500).json({
+        error: "Failed to resend verification email",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
   });
   app2.get("/api/users/search", async (req, res) => {
     if (!req.isAuthenticated()) {
@@ -12222,17 +12722,17 @@ var testController = {
 
 // server/routes.ts
 init_schema();
-import { z as z7 } from "zod";
+import { z as z8 } from "zod";
 import multer2 from "multer";
 import path3 from "path";
 import { fileURLToPath } from "url";
 import fs3 from "fs";
-import crypto3 from "crypto";
+import crypto5 from "crypto";
 
 // server/two-factor.ts
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
-import crypto from "crypto";
+import crypto3 from "crypto";
 function generateSecret(username) {
   return speakeasy.generateSecret({
     name: `MoodLync:${username}`,
@@ -12242,13 +12742,13 @@ function generateSecret(username) {
 function generateBackupCodes2(count = 10) {
   const codes = [];
   for (let i = 0; i < count; i++) {
-    const code = crypto.randomBytes(5).toString("hex").toUpperCase();
+    const code = crypto3.randomBytes(5).toString("hex").toUpperCase();
     codes.push(code.slice(0, 4) + "-" + code.slice(4, 8) + "-" + code.slice(8));
   }
   return codes;
 }
 function generateRecoveryKey2() {
-  const key = crypto.randomBytes(18).toString("hex").toUpperCase();
+  const key = crypto3.randomBytes(18).toString("hex").toUpperCase();
   return key.match(/.{1,4}/g)?.join("-") || key;
 }
 function verifyToken(token, secret) {
@@ -12500,7 +13000,7 @@ async function registerRoutes(app2) {
     const { registerAdminRoutes: registerAdminRoutes2 } = await Promise.resolve().then(() => (init_admin_routes(), admin_routes_exports));
     registerAdminRoutes2(app2);
     const { registerProfileRoutes: registerProfileRoutes2 } = await Promise.resolve().then(() => (init_profile_routes(), profile_routes_exports));
-    const profileRouter = express4.Router();
+    const profileRouter = express5.Router();
     registerProfileRoutes2(profileRouter);
     app2.use("/api", profileRouter);
     const { registerEmotionalIntelligenceRoutes: registerEmotionalIntelligenceRoutes2 } = await Promise.resolve().then(() => (init_emotional_intelligence_routes(), emotional_intelligence_routes_exports));
@@ -12589,7 +13089,7 @@ async function registerRoutes(app2) {
     res.sendFile(path3.join(__dirname2, "..", "client", "public", "admin-login.html"));
   });
   setupAuth(app2);
-  app2.use("/uploads", express4.static(path3.join(__dirname2, "../uploads")));
+  app2.use("/uploads", express5.static(path3.join(__dirname2, "../uploads")));
   const httpServer = createServer(app2);
   let wss;
   const initializeWebSocketServer = () => {
@@ -12734,8 +13234,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const emotionSchema = z7.object({
-        emotion: z7.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"])
+      const emotionSchema = z8.object({
+        emotion: z8.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"])
       });
       const { emotion } = emotionSchema.parse(req.body);
       const currentEmotion = await storage.getUserEmotion(req.user.id);
@@ -12785,9 +13285,9 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const entrySchema = z7.object({
-        emotion: z7.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]),
-        note: z7.string().min(1)
+      const entrySchema = z8.object({
+        emotion: z8.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]),
+        note: z8.string().min(1)
       });
       const { emotion, note } = entrySchema.parse(req.body);
       const entry = await storage.createJournalEntry(req.user.id, emotion, note);
@@ -12840,7 +13340,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/users/:emotion", async (req, res) => {
     try {
-      const emotionSchema = z7.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]);
+      const emotionSchema = z8.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]);
       const emotion = emotionSchema.parse(req.params.emotion);
       const users2 = await storage.getUsersByEmotion(emotion);
       return res.status(200).json(users2);
@@ -12949,10 +13449,10 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const rewardSchema = z7.object({
-        activityType: z7.enum(["journal_entry", "chat_participation", "emotion_update", "daily_login", "help_others"]),
-        tokensEarned: z7.number().int().positive(),
-        description: z7.string()
+      const rewardSchema = z8.object({
+        activityType: z8.enum(["journal_entry", "chat_participation", "emotion_update", "daily_login", "help_others"]),
+        tokensEarned: z8.number().int().positive(),
+        description: z8.string()
       });
       const { activityType, tokensEarned, description } = rewardSchema.parse(req.body);
       const today = /* @__PURE__ */ new Date();
@@ -13022,8 +13522,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const activitySchema = z7.object({
-        activityId: z7.string()
+      const activitySchema = z8.object({
+        activityId: z8.string()
       });
       const { activityId } = activitySchema.parse(req.body);
       const result = await storage.completeGamificationActivity(req.user.id, activityId);
@@ -13038,8 +13538,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const achievementSchema = z7.object({
-        achievementId: z7.string()
+      const achievementSchema = z8.object({
+        achievementId: z8.string()
       });
       const { achievementId } = achievementSchema.parse(req.body);
       const result = await storage.claimAchievementReward(req.user.id, achievementId);
@@ -13054,8 +13554,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const checkInSchema = z7.object({
-        emotion: z7.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"])
+      const checkInSchema = z8.object({
+        emotion: z8.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"])
       });
       const { emotion } = checkInSchema.parse(req.body);
       const today = /* @__PURE__ */ new Date();
@@ -13186,8 +13686,8 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const profilePicSchema = z7.object({
-        profilePicture: z7.string().url()
+      const profilePicSchema = z8.object({
+        profilePicture: z8.string().url()
       });
       const { profilePicture } = profilePicSchema.parse(req.body);
       const user = await storage.updateUserProfilePicture(req.user.id, profilePicture);
@@ -13259,7 +13759,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/challenges/:difficulty", async (req, res) => {
     try {
-      const difficultySchema = z7.enum(["easy", "moderate", "hard", "extreme"]);
+      const difficultySchema = z8.enum(["easy", "moderate", "hard", "extreme"]);
       const difficulty = difficultySchema.parse(req.params.difficulty);
       const challenges2 = await storage.getChallengesByDifficulty(difficulty);
       return res.status(200).json(challenges2);
@@ -13343,7 +13843,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/challenges/:difficulty", async (req, res) => {
     try {
-      const difficultySchema = z7.enum(["easy", "moderate", "hard", "extreme"]);
+      const difficultySchema = z8.enum(["easy", "moderate", "hard", "extreme"]);
       const difficulty = difficultySchema.parse(req.params.difficulty);
       const challenges2 = await storage.getChallengesByDifficulty(difficulty);
       return res.status(200).json(challenges2);
@@ -13500,9 +14000,9 @@ async function registerRoutes(app2) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
-      const paymentSchema = z7.object({
-        paymentProvider: z7.enum(["paypal", "stripe"]),
-        accountInfo: z7.string()
+      const paymentSchema = z8.object({
+        paymentProvider: z8.enum(["paypal", "stripe"]),
+        accountInfo: z8.string()
       });
       const { paymentProvider, accountInfo } = paymentSchema.parse(req.body);
       const updatedUser = await storage.updateUserPaymentDetails(
@@ -13528,13 +14028,13 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/premium/chat-rooms", requireAuth8, requirePremium, async (req, res) => {
     try {
-      const chatRoomSchema = z7.object({
-        name: z7.string().min(3).max(50),
-        description: z7.string().min(10).max(200),
-        emotion: z7.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]),
-        isPrivate: z7.boolean().default(true),
-        maxParticipants: z7.number().int().min(2).max(100).default(20),
-        themeColor: z7.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).default("#6366f1")
+      const chatRoomSchema = z8.object({
+        name: z8.string().min(3).max(50),
+        description: z8.string().min(10).max(200),
+        emotion: z8.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]),
+        isPrivate: z8.boolean().default(true),
+        maxParticipants: z8.number().int().min(2).max(100).default(20),
+        themeColor: z8.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).default("#6366f1")
       });
       const chatRoomData = chatRoomSchema.parse(req.body);
       const newChatRoom = await storage.createChatRoom(req.user.id, chatRoomData);
@@ -13578,12 +14078,12 @@ async function registerRoutes(app2) {
           message: "Only the creator can update the chat room"
         });
       }
-      const chatRoomSchema = z7.object({
-        name: z7.string().min(3).max(50).optional(),
-        description: z7.string().min(10).max(200).optional(),
-        emotion: z7.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]).optional(),
-        maxParticipants: z7.number().int().min(2).max(100).optional(),
-        themeColor: z7.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional()
+      const chatRoomSchema = z8.object({
+        name: z8.string().min(3).max(50).optional(),
+        description: z8.string().min(10).max(200).optional(),
+        emotion: z8.enum(["happy", "sad", "angry", "anxious", "excited", "neutral"]).optional(),
+        maxParticipants: z8.number().int().min(2).max(100).optional(),
+        themeColor: z8.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional()
       });
       const chatRoomUpdates = chatRoomSchema.parse(req.body);
       const updatedChatRoom = await storage.updateChatRoom(chatRoomId, chatRoomUpdates);
@@ -13637,9 +14137,9 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/premium/block-user", requireAuth8, requirePremium, async (req, res) => {
     try {
-      const blockSchema = z7.object({
-        blockedUserId: z7.number().int().positive(),
-        reason: z7.string().max(200).optional()
+      const blockSchema = z8.object({
+        blockedUserId: z8.number().int().positive(),
+        reason: z8.string().max(200).optional()
       });
       const { blockedUserId, reason } = blockSchema.parse(req.body);
       if (blockedUserId === req.user.id) {
@@ -13735,14 +14235,14 @@ async function registerRoutes(app2) {
       if (!premiumPlan || premiumPlan.planType !== "family") {
         return res.status(403).json({ error: "You need a family plan to add family members" });
       }
-      const familySchema = z7.object({
-        relatedUserId: z7.number(),
-        relationshipType: z7.enum(["parent", "child", "spouse", "sibling", "grandparent", "other"]),
-        canViewMood: z7.boolean().default(false),
-        canViewJournal: z7.boolean().default(false),
-        canReceiveAlerts: z7.boolean().default(false),
-        canTransferTokens: z7.boolean().default(false),
-        notes: z7.string().nullish()
+      const familySchema = z8.object({
+        relatedUserId: z8.number(),
+        relationshipType: z8.enum(["parent", "child", "spouse", "sibling", "grandparent", "other"]),
+        canViewMood: z8.boolean().default(false),
+        canViewJournal: z8.boolean().default(false),
+        canReceiveAlerts: z8.boolean().default(false),
+        canTransferTokens: z8.boolean().default(false),
+        notes: z8.string().nullish()
       });
       const validatedData = familySchema.parse(req.body);
       const relationship = await storage.addFamilyMember(req.user.id, {
@@ -13761,13 +14261,13 @@ async function registerRoutes(app2) {
   app2.patch("/api/family-members/:id", requireAuth8, async (req, res) => {
     try {
       const relationshipId = parseInt(req.params.id);
-      const updateSchema = z7.object({
-        canViewMood: z7.boolean().optional(),
-        canViewJournal: z7.boolean().optional(),
-        canReceiveAlerts: z7.boolean().optional(),
-        canTransferTokens: z7.boolean().optional(),
-        relationshipType: z7.enum(["parent", "child", "spouse", "sibling", "grandparent", "other"]).optional(),
-        notes: z7.string().nullish()
+      const updateSchema = z8.object({
+        canViewMood: z8.boolean().optional(),
+        canViewJournal: z8.boolean().optional(),
+        canReceiveAlerts: z8.boolean().optional(),
+        canTransferTokens: z8.boolean().optional(),
+        relationshipType: z8.enum(["parent", "child", "spouse", "sibling", "grandparent", "other"]).optional(),
+        notes: z8.string().nullish()
       });
       const validatedData = updateSchema.parse(req.body);
       const relationship = await storage.updateFamilyMember(relationshipId, validatedData);
@@ -13783,8 +14283,8 @@ async function registerRoutes(app2) {
   app2.patch("/api/family-members/:id/status", requireAuth8, async (req, res) => {
     try {
       const relationshipId = parseInt(req.params.id);
-      const statusSchema = z7.object({
-        status: z7.enum(["accepted", "rejected"])
+      const statusSchema = z8.object({
+        status: z8.enum(["accepted", "rejected"])
       });
       const { status } = statusSchema.parse(req.body);
       const relationship = await storage.updateFamilyRelationshipStatus(relationshipId, status);
@@ -13828,8 +14328,8 @@ async function registerRoutes(app2) {
   });
   app2.patch("/api/mood-tracking-consent", requireAuth8, async (req, res) => {
     try {
-      const consentSchema = z7.object({
-        allowMoodTracking: z7.boolean()
+      const consentSchema = z8.object({
+        allowMoodTracking: z8.boolean()
       });
       const { allowMoodTracking } = consentSchema.parse(req.body);
       const user = await storage.updateMoodTrackingConsent(req.user.id, allowMoodTracking);
@@ -13888,10 +14388,10 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/token-transfers", requireAuth8, async (req, res) => {
     try {
-      const transferSchema = z7.object({
-        toUserId: z7.number(),
-        amount: z7.number().positive(),
-        notes: z7.string().optional()
+      const transferSchema = z8.object({
+        toUserId: z8.number(),
+        amount: z8.number().positive(),
+        notes: z8.string().optional()
       });
       const validatedData = transferSchema.parse(req.body);
       const result = await storage.transferTokens(
@@ -13911,12 +14411,12 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/milestone-shares", requireAuth8, async (req, res) => {
     try {
-      const shareSchema = z7.object({
-        milestone: z7.number().int().positive(),
-        platform: z7.enum(["twitter", "facebook", "linkedin", "whatsapp", "telegram", "email", "pinterest", "reddit", "copy_link"]),
-        shareUrl: z7.string().url(),
-        shareMessage: z7.string().optional(),
-        trackingId: z7.string().uuid()
+      const shareSchema = z8.object({
+        milestone: z8.number().int().positive(),
+        platform: z8.enum(["twitter", "facebook", "linkedin", "whatsapp", "telegram", "email", "pinterest", "reddit", "copy_link"]),
+        shareUrl: z8.string().url(),
+        shareMessage: z8.string().optional(),
+        trackingId: z8.string().uuid()
       });
       const validatedData = shareSchema.parse(req.body);
       const shareData = {
@@ -14037,8 +14537,8 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/referrals", requireAuth8, async (req, res) => {
     try {
-      const referralSchema = z7.object({
-        email: z7.string().email()
+      const referralSchema = z8.object({
+        email: z8.string().email()
       });
       const { email } = referralSchema.parse(req.body);
       const referralCode = req.user.referralCode;
@@ -14067,7 +14567,7 @@ async function registerRoutes(app2) {
       });
     } catch (error) {
       console.error("Error creating referral:", error);
-      if (error instanceof z7.ZodError) {
+      if (error instanceof z8.ZodError) {
         return res.status(400).json({
           error: "Invalid data",
           details: error.errors
@@ -14119,16 +14619,16 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/register/referral", async (req, res, next) => {
     try {
-      const registerSchema = z7.object({
-        username: z7.string().min(3),
-        password: z7.string().min(6),
-        email: z7.string().email(),
-        referralCode: z7.string(),
-        firstName: z7.string().optional(),
-        lastName: z7.string().optional(),
-        gender: z7.string().optional(),
-        state: z7.string().optional(),
-        country: z7.string().optional()
+      const registerSchema = z8.object({
+        username: z8.string().min(3),
+        password: z8.string().min(6),
+        email: z8.string().email(),
+        referralCode: z8.string(),
+        firstName: z8.string().optional(),
+        lastName: z8.string().optional(),
+        gender: z8.string().optional(),
+        state: z8.string().optional(),
+        country: z8.string().optional()
       });
       const userData = registerSchema.parse(req.body);
       const referral = await storage.getReferralByCode(userData.referralCode);
@@ -14180,7 +14680,7 @@ async function registerRoutes(app2) {
       });
     } catch (error) {
       console.error("Error registering with referral:", error);
-      if (error instanceof z7.ZodError) {
+      if (error instanceof z8.ZodError) {
         return res.status(400).json({
           error: "Invalid registration data",
           details: error.errors
@@ -14314,9 +14814,9 @@ async function registerRoutes(app2) {
   app2.post("/api/admin/login", async (req, res) => {
     try {
       console.log("Admin login attempt:", req.body);
-      const loginSchema = z7.object({
-        username: z7.string().min(1),
-        password: z7.string().min(1)
+      const loginSchema = z8.object({
+        username: z8.string().min(1),
+        password: z8.string().min(1)
       });
       const { username, password } = loginSchema.parse(req.body);
       console.log("Admin login credentials parsed:", { username, password: "********" });
@@ -14584,8 +15084,8 @@ async function registerRoutes(app2) {
   app2.patch("/api/admin/responses/:id/helpful", requireAuth8, async (req, res) => {
     try {
       const responseId = parseInt(req.params.id);
-      const helpfulSchema = z7.object({
-        isHelpful: z7.boolean()
+      const helpfulSchema = z8.object({
+        isHelpful: z8.boolean()
       });
       const { isHelpful } = helpfulSchema.parse(req.body);
       const updatedResponse = await storage.markResponseHelpful(responseId, isHelpful);
@@ -14647,9 +15147,9 @@ async function registerRoutes(app2) {
       if (!existingRefund) {
         return res.status(404).json({ error: "Refund request not found" });
       }
-      const updateSchema = z7.object({
-        status: z7.enum(["pending", "approved", "rejected", "processed"]).optional(),
-        notes: z7.string().optional()
+      const updateSchema = z8.object({
+        status: z8.enum(["pending", "approved", "rejected", "processed"]).optional(),
+        notes: z8.string().optional()
       });
       const updateData = updateSchema.parse(req.body);
       const updatedRefund = await storage.updateRefundRequest(refundId, {
@@ -14753,8 +15253,8 @@ async function registerRoutes(app2) {
       if (!existingQuote) {
         return res.status(404).json({ error: "Quote not found" });
       }
-      const statusSchema = z7.object({
-        status: z7.enum(["pending", "accepted", "rejected", "expired", "canceled"])
+      const statusSchema = z8.object({
+        status: z8.enum(["pending", "accepted", "rejected", "expired", "canceled"])
       });
       const { status } = statusSchema.parse(req.body);
       if (!req.adminUser && existingQuote.userId !== req.user.id) {
@@ -15559,6 +16059,8 @@ async function registerRoutes(app2) {
     console.error("Error registering wellness tips routes:", error);
   }
   console.log("Personalization and insights routes registered successfully");
+  const { registerUserManagementRoutes: registerUserManagementRoutes2 } = await Promise.resolve().then(() => (init_user_management_routes(), user_management_routes_exports));
+  registerUserManagementRoutes2(app2);
   app2.post("/api/auth/2fa/setup", requireAuth8, async (req, res) => {
     try {
       const userId = req.user.id;
@@ -15599,8 +16101,8 @@ async function registerRoutes(app2) {
       if (user.twoFactorEnabled) {
         return res.status(400).json({ error: "2FA is already enabled for this account" });
       }
-      const tokenSchema = z7.object({
-        token: z7.string().min(6).max(6)
+      const tokenSchema = z8.object({
+        token: z8.string().min(6).max(6)
       });
       const { token } = tokenSchema.parse(req.body);
       if (!user.twoFactorSecret) {
@@ -15634,9 +16136,9 @@ async function registerRoutes(app2) {
       if (!user.twoFactorEnabled) {
         return res.status(400).json({ error: "2FA is not enabled for this account" });
       }
-      const schema = z7.object({
-        token: z7.string().min(6).max(6).optional(),
-        password: z7.string().optional()
+      const schema = z8.object({
+        token: z8.string().min(6).max(6).optional(),
+        password: z8.string().optional()
       });
       const { token, password } = schema.parse(req.body);
       let isValid = false;
@@ -15665,11 +16167,11 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/auth/2fa/validate", async (req, res) => {
     try {
-      const schema = z7.object({
-        username: z7.string(),
-        token: z7.string().min(6).max(6).optional(),
-        backupCode: z7.string().optional(),
-        recoveryKey: z7.string().optional()
+      const schema = z8.object({
+        username: z8.string(),
+        token: z8.string().min(6).max(6).optional(),
+        backupCode: z8.string().optional(),
+        recoveryKey: z8.string().optional()
       });
       const { username, token, backupCode, recoveryKey } = schema.parse(req.body);
       const user = await storage.getUserByUsername(username);
@@ -15728,8 +16230,8 @@ async function registerRoutes(app2) {
       if (!user.twoFactorEnabled) {
         return res.status(400).json({ error: "2FA is not enabled for this account" });
       }
-      const schema = z7.object({
-        token: z7.string().min(6).max(6)
+      const schema = z8.object({
+        token: z8.string().min(6).max(6)
       });
       const { token } = schema.parse(req.body);
       if (!user.twoFactorSecret || !verifyToken(token, user.twoFactorSecret)) {
@@ -15758,8 +16260,8 @@ async function registerRoutes(app2) {
       if (!user.twoFactorEnabled) {
         return res.status(400).json({ error: "2FA is not enabled for this account" });
       }
-      const schema = z7.object({
-        token: z7.string().min(6).max(6)
+      const schema = z8.object({
+        token: z8.string().min(6).max(6)
       });
       const { token } = schema.parse(req.body);
       if (!user.twoFactorSecret || !verifyToken(token, user.twoFactorSecret)) {
@@ -15819,7 +16321,7 @@ async function registerRoutes(app2) {
   app2.get("/api/advertisements/type/:type", async (req, res) => {
     try {
       const { type } = req.params;
-      const typeSchema = z7.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]);
+      const typeSchema = z8.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]);
       const validatedType = typeSchema.parse(type);
       const advertisements2 = await storage.getAdvertisementsByType(validatedType);
       res.json(advertisements2);
@@ -15852,19 +16354,19 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/advertisements", requireAuth8, requirePremium, async (req, res) => {
     try {
-      const adSchema = z7.object({
-        title: z7.string().min(5).max(100),
-        description: z7.string().min(20).max(1e3),
-        type: z7.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]),
-        imageUrl: z7.string().url().optional(),
-        websiteUrl: z7.string().url().optional(),
-        contactEmail: z7.string().email().optional(),
-        contactPhone: z7.string().optional(),
-        locationDetails: z7.string().optional(),
-        budget: z7.string().optional(),
-        additionalNotes: z7.string().optional(),
-        startDate: z7.string().optional(),
-        endDate: z7.string().optional()
+      const adSchema = z8.object({
+        title: z8.string().min(5).max(100),
+        description: z8.string().min(20).max(1e3),
+        type: z8.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]),
+        imageUrl: z8.string().url().optional(),
+        websiteUrl: z8.string().url().optional(),
+        contactEmail: z8.string().email().optional(),
+        contactPhone: z8.string().optional(),
+        locationDetails: z8.string().optional(),
+        budget: z8.string().optional(),
+        additionalNotes: z8.string().optional(),
+        startDate: z8.string().optional(),
+        endDate: z8.string().optional()
       });
       const adData = adSchema.parse(req.body);
       const advertisement = await storage.createAdvertisement(req.user.id, adData);
@@ -15887,19 +16389,19 @@ async function registerRoutes(app2) {
       if (req.user.id !== advertisement.userId && !req.adminUser) {
         return res.status(403).json({ error: "Unauthorized to update this advertisement" });
       }
-      const updateSchema = z7.object({
-        title: z7.string().min(5).max(100).optional(),
-        description: z7.string().min(20).max(1e3).optional(),
-        type: z7.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]).optional(),
-        imageUrl: z7.string().url().optional().nullable(),
-        websiteUrl: z7.string().url().optional().nullable(),
-        contactEmail: z7.string().email().optional().nullable(),
-        contactPhone: z7.string().optional().nullable(),
-        locationDetails: z7.string().optional().nullable(),
-        budget: z7.string().optional().nullable(),
-        additionalNotes: z7.string().optional().nullable(),
-        startDate: z7.string().optional().nullable(),
-        endDate: z7.string().optional().nullable()
+      const updateSchema = z8.object({
+        title: z8.string().min(5).max(100).optional(),
+        description: z8.string().min(20).max(1e3).optional(),
+        type: z8.enum(["health_service", "wellness_program", "mental_health", "nutrition", "fitness", "other"]).optional(),
+        imageUrl: z8.string().url().optional().nullable(),
+        websiteUrl: z8.string().url().optional().nullable(),
+        contactEmail: z8.string().email().optional().nullable(),
+        contactPhone: z8.string().optional().nullable(),
+        locationDetails: z8.string().optional().nullable(),
+        budget: z8.string().optional().nullable(),
+        additionalNotes: z8.string().optional().nullable(),
+        startDate: z8.string().optional().nullable(),
+        endDate: z8.string().optional().nullable()
       });
       const updateData = updateSchema.parse(req.body);
       const updatedAdvertisement = await storage.updateAdvertisement(id, updateData);
@@ -15942,9 +16444,9 @@ async function registerRoutes(app2) {
       if (req.user.id !== advertisement.userId) {
         return res.status(403).json({ error: "Unauthorized to process payment for this advertisement" });
       }
-      const paymentSchema = z7.object({
-        provider: z7.enum(["stripe", "paypal"]),
-        transactionId: z7.string()
+      const paymentSchema = z8.object({
+        provider: z8.enum(["stripe", "paypal"]),
+        transactionId: z8.string()
       });
       const paymentData = paymentSchema.parse(req.body);
       const updatedAdvertisement = await storage.createAdvertisementPayment(
@@ -15971,12 +16473,12 @@ async function registerRoutes(app2) {
       if (advertisement.status !== "published") {
         return res.status(400).json({ error: "Advertisement is not available for booking" });
       }
-      const bookingSchema = z7.object({
-        notes: z7.string().optional(),
-        contactDetails: z7.string(),
-        locationDetails: z7.string().optional(),
-        requestedStartDate: z7.string().optional(),
-        requestedEndDate: z7.string().optional()
+      const bookingSchema = z8.object({
+        notes: z8.string().optional(),
+        contactDetails: z8.string(),
+        locationDetails: z8.string().optional(),
+        requestedStartDate: z8.string().optional(),
+        requestedEndDate: z8.string().optional()
       });
       const bookingData = bookingSchema.parse(req.body);
       const booking = await storage.createAdvertisementBooking({
@@ -16034,8 +16536,8 @@ async function registerRoutes(app2) {
       if (req.user.id !== advertisement.userId && !req.adminUser) {
         return res.status(403).json({ error: "Unauthorized to update this booking" });
       }
-      const statusSchema = z7.object({
-        status: z7.enum(["pending", "approved", "rejected", "completed", "canceled"])
+      const statusSchema = z8.object({
+        status: z8.enum(["pending", "approved", "rejected", "completed", "canceled"])
       });
       const { status } = statusSchema.parse(req.body);
       const updatedBooking = await storage.updateAdvertisementBookingStatus(id, status);
@@ -16193,14 +16695,14 @@ async function registerRoutes(app2) {
   app2.post("/api/system/restore/:backupId", requireAuth8, testController.restoreBackup);
   app2.post("/api/sessions", requireAuth8, async (req, res) => {
     try {
-      const sessionSchema = z7.object({
-        device: z7.string().optional(),
-        browser: z7.string().optional(),
-        ipAddress: z7.string().optional(),
-        location: z7.string().optional()
+      const sessionSchema = z8.object({
+        device: z8.string().optional(),
+        browser: z8.string().optional(),
+        ipAddress: z8.string().optional(),
+        location: z8.string().optional()
       });
       const validated = sessionSchema.parse(req.body);
-      const sessionToken = crypto3.randomUUID();
+      const sessionToken = crypto5.randomUUID();
       const session3 = await storage.createUserSession({
         userId: req.user.id,
         sessionToken,
@@ -16229,8 +16731,8 @@ async function registerRoutes(app2) {
   app2.put("/api/sessions/:token/status", requireAuth8, async (req, res) => {
     try {
       const { token } = req.params;
-      const statusSchema = z7.object({
-        status: z7.enum(["online", "offline", "away", "busy"])
+      const statusSchema = z8.object({
+        status: z8.enum(["online", "offline", "away", "busy"])
       });
       const { status } = statusSchema.parse(req.body);
       const session3 = await storage.getUserSession(token);
@@ -16438,12 +16940,65 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to submit feedback" });
     }
   });
+  app2.get("/api/admin/feedbacks", requireAdmin, async (req, res) => {
+    try {
+      const { status = "all", page = "1", search = "" } = req.query;
+      const options = {
+        status,
+        page: parseInt(page, 10),
+        limit: 10,
+        search
+      };
+      const result = await storage.getUserFeedbacks(options);
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching user feedbacks:", error);
+      res.status(500).json({ error: "Failed to fetch user feedbacks" });
+    }
+  });
+  app2.get("/api/admin/feedbacks/:id", requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id, 10);
+      if (isNaN(feedbackId)) {
+        return res.status(400).json({ error: "Invalid feedback ID" });
+      }
+      const feedback = await storage.getUserFeedbackById(feedbackId);
+      if (!feedback) {
+        return res.status(404).json({ error: "Feedback not found" });
+      }
+      res.json(feedback);
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+      res.status(500).json({ error: "Failed to fetch feedback details" });
+    }
+  });
+  app2.patch("/api/admin/feedbacks/:id", requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id, 10);
+      if (isNaN(feedbackId)) {
+        return res.status(400).json({ error: "Invalid feedback ID" });
+      }
+      const { status, notes } = req.body;
+      if (!status || !["new", "reviewed", "completed", "ignored"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status value" });
+      }
+      const updatedFeedback = await storage.updateUserFeedback(feedbackId, {
+        status,
+        notes: notes || null,
+        reviewedBy: req.adminUser.id
+      });
+      res.json(updatedFeedback);
+    } catch (error) {
+      console.error("Error updating feedback:", error);
+      res.status(500).json({ error: "Failed to update feedback" });
+    }
+  });
   httpServer.initializeWebSocketServer = initializeWebSocketServer;
   return httpServer;
 }
 
 // server/vite.ts
-import express5 from "express";
+import express6 from "express";
 import fs4 from "fs";
 import path5 from "path";
 import { createServer as createViteServer, createLogger } from "vite";
@@ -16538,7 +17093,7 @@ function serveStatic(app2) {
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
   }
-  app2.use(express5.static(distPath));
+  app2.use(express6.static(distPath));
   app2.use("*", (_req, res) => {
     res.sendFile(path5.resolve(distPath, "index.html"));
   });
@@ -16546,9 +17101,10 @@ function serveStatic(app2) {
 
 // server/index.ts
 import cors from "cors";
-var app = express6();
-app.use(express6.json());
-app.use(express6.urlencoded({ extended: false }));
+import { createServer as createServer2 } from "http";
+var app = express7();
+app.use(express7.json());
+app.use(express7.urlencoded({ extended: false }));
 app.use(cors({
   origin: true,
   // Allow any origin
@@ -16601,31 +17157,46 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
-  let boundPort = null;
   let websocketInitialized = false;
-  const port = 5e3;
-  log(`Starting MoodLync server on port ${port}...`);
-  server.listen(port, "0.0.0.0", () => {
-    const address = server.address();
-    const actualPort = typeof address === "object" && address ? address.port : port;
-    boundPort = actualPort;
-    log(`MoodLync server running on port ${actualPort}`);
-    if (!websocketInitialized) {
-      const initializeWebSocketServer = server["initializeWebSocketServer"];
-      if (typeof initializeWebSocketServer === "function") {
-        try {
-          initializeWebSocketServer();
-          websocketInitialized = true;
-          log(`WebSocket server initialized on port ${actualPort}`);
-        } catch (error) {
-          console.error("Failed to initialize WebSocket server:", error);
-        }
-      } else {
-        console.warn("WebSocket server initialization function not found");
+  const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
+  const primaryPort = process.env.PORT ? parseInt(process.env.PORT) : 5001;
+  const workflowPort = 5e3;
+  log(`Starting MoodLync server on port ${primaryPort}...`);
+  const initializeWebSocketIfNeeded = (server2) => {
+    if (websocketInitialized) return;
+    const initializeWebSocketServer = server2["initializeWebSocketServer"];
+    if (typeof initializeWebSocketServer === "function") {
+      try {
+        initializeWebSocketServer();
+        websocketInitialized = true;
+        log(`WebSocket server initialized`);
+      } catch (error) {
+        console.error("Failed to initialize WebSocket server:", error);
       }
+    } else {
+      console.warn("WebSocket server initialization function not found");
+    }
+  };
+  server.listen(primaryPort, "0.0.0.0", () => {
+    const address = server.address();
+    const actualPort = typeof address === "object" && address ? address.port : primaryPort;
+    log(`MoodLync server running on port ${actualPort}`);
+    initializeWebSocketIfNeeded(server);
+    if (isReplitEnv) {
+      log(`Running in Replit environment on port ${actualPort}`);
+      const workflowPort2 = 5e3;
+      const workflowServer = createServer2((req, res) => {
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end(`MoodLync is running on port ${actualPort}. Please visit that port for the application.`);
+      });
+      workflowServer.listen(workflowPort2, "0.0.0.0", () => {
+        log(`Workflow detection server running on port ${workflowPort2}`);
+      }).on("error", (err) => {
+        console.error(`Failed to start workflow detection server on port ${workflowPort2}:`, err.message);
+      });
     }
   }).on("error", (err) => {
-    console.error(`Failed to start server on port ${port}:`, err.message);
-    console.error(`Server initialization failed. Please check if port ${port} is already in use.`);
+    console.error(`Failed to start server on port ${primaryPort}:`, err.message);
+    console.error(`Server initialization failed. Please check if port ${primaryPort} is already in use.`);
   });
 })();
