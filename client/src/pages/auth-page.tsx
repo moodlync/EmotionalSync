@@ -411,13 +411,13 @@ export default function AuthPage() {
               <h3 className="font-semibold text-lg text-primary">Track, reflect, and grow - your emotions matter here.</h3>
             </div>
             
-            <div className="text-center text-sm mt-4">
-              <a 
-                href="/welcome" 
-                className="inline-block px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/80 text-white font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
+            <div className="text-center mt-4">
+              <Button 
+                asChild
+                className="px-5 py-6 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 rounded-md"
               >
-                View our feature showcase
-              </a>
+                <a href="/welcome">View our feature showcase</a>
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
