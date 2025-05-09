@@ -37,7 +37,7 @@ export default function Footer() {
     }
   };
   return (
-    <footer className="bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 pt-10 pb-6 mt-auto">
+    <footer className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 border-t border-gray-200 dark:border-gray-800 pt-10 pb-6 mt-auto">
       <div className="container mx-auto px-4">
         <div className="mx-auto flex flex-col items-center justify-center mb-6">
           <div className="flex flex-col items-center justify-center gap-1">
@@ -65,10 +65,14 @@ export default function Footer() {
               <form onSubmit={handleSubmitFeedback} className="mt-4 w-full max-w-md">
                 <Textarea
                   placeholder="Share your feedback or suggest features..."
+                  style={{ 
+                    '::placeholder': { 
+                      color: 'var(--gray-500)',
+                    }
+                  }}
                   className="min-h-[80px] text-sm resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
-                  style={{ color: 'white' }}
                 />
                 <Button 
                   type="submit" 
@@ -94,32 +98,32 @@ export default function Footer() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="text-center md:text-left">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 mb-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-gray-100 mb-3">
               Platform
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-600 hover:text-primary">
+                <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/user-challenges" className="text-gray-600 hover:text-primary">
+                <Link to="/user-challenges" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Challenges
                 </Link>
               </li>
               <li>
-                <Link to="/premium" className="text-gray-600 hover:text-primary">
+                <Link to="/premium" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Premium
                 </Link>
               </li>
               <li>
-                <Link to="/tokens" className="text-gray-600 hover:text-primary">
+                <Link to="/tokens" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Token Redemption
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="text-gray-600 hover:text-primary">
+                <Link to="/faq" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   FAQ
                 </Link>
               </li>
@@ -127,32 +131,32 @@ export default function Footer() {
           </div>
           
           <div className="text-center">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 mb-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-gray-100 mb-3">
               Legal
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/privacy" className="text-gray-600 hover:text-primary">
+                <Link to="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="text-gray-600 hover:text-primary">
+                <Link to="/terms" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link to="/security" className="text-gray-600 hover:text-primary">
+                <Link to="/security" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Security & Privacy
                 </Link>
               </li>
               <li>
-                <Link to="/roadmap" className="text-gray-600 hover:text-primary">
+                <Link to="/roadmap" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Roadmap
                 </Link>
               </li>
               <li>
-                <Link to="/admin/login" className="text-gray-600 hover:text-primary flex items-center justify-center md:justify-start">
+                <Link to="/admin/login" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary flex items-center justify-center md:justify-start">
                   <Lock className="h-3.5 w-3.5 mr-1" />
                   <span className="font-semibold">Admin Access</span>
                 </Link>
@@ -161,22 +165,22 @@ export default function Footer() {
           </div>
           
           <div className="text-center md:text-right">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 mb-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-gray-100 mb-3">
               Connect
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/contact" className="text-gray-600 hover:text-primary">
+                <Link to="/contact" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Contact Support
                 </Link>
               </li>
               <li>
-                <Link to="/referrals" className="text-gray-600 hover:text-primary">
+                <Link to="/referrals" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   Invite Friends
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@moodlync.io" className="text-gray-600 hover:text-primary">
+                <a href="mailto:support@moodlync.io" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
                   support@moodlync.io
                 </a>
               </li>
@@ -184,12 +188,12 @@ export default function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-gray-200 pt-6 pb-2">
-          <p className="text-center text-sm text-gray-600 font-medium">
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-2">
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400 font-medium">
             <span className="inline-block">&copy; 2025 MoodLync</span>
-            <span className="mx-1 text-gray-400">|</span>
+            <span className="mx-1 text-gray-400 dark:text-gray-500">|</span>
             <span className="inline-block">Powered by: Rollover Australia Inc.</span>
-            <span className="mx-1 text-gray-400">|</span>
+            <span className="mx-1 text-gray-400 dark:text-gray-500">|</span>
             <span className="inline-block">All rights reserved.</span>
           </p>
         </div>

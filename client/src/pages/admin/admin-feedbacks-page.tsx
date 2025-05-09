@@ -129,10 +129,10 @@ export default function AdminFeedbacksPage() {
   };
 
   const statusColors = {
-    new: "bg-blue-100 text-blue-800 border-blue-200",
-    reviewed: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    completed: "bg-green-100 text-green-800 border-green-200",
-    ignored: "bg-gray-100 text-gray-800 border-gray-200",
+    new: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+    reviewed: "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800",
+    completed: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800",
+    ignored: "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700",
   };
 
   return (
@@ -140,12 +140,17 @@ export default function AdminFeedbacksPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">User Feedbacks</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl font-bold tracking-tight dark:text-white">User Feedbacks</h1>
+            <p className="text-muted-foreground dark:text-gray-300">
               Manage and respond to user feedback and suggestions
             </p>
           </div>
-          <Button onClick={fetchFeedbacks} variant="outline" size="sm">
+          <Button 
+            onClick={fetchFeedbacks} 
+            variant="outline" 
+            size="sm"
+            className="dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
+          >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -153,11 +158,31 @@ export default function AdminFeedbacksPage() {
 
         <div className="flex items-center justify-between">
           <Tabs defaultValue="all" className="w-[400px]" onValueChange={setFilter}>
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="new">New</TabsTrigger>
-              <TabsTrigger value="reviewed">In Progress</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsList className="dark:bg-gray-800">
+              <TabsTrigger 
+                value="all" 
+                className="dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground dark:text-gray-300"
+              >
+                All
+              </TabsTrigger>
+              <TabsTrigger 
+                value="new"
+                className="dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground dark:text-gray-300"
+              >
+                New
+              </TabsTrigger>
+              <TabsTrigger 
+                value="reviewed"
+                className="dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground dark:text-gray-300"
+              >
+                In Progress
+              </TabsTrigger>
+              <TabsTrigger 
+                value="completed"
+                className="dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground dark:text-gray-300"
+              >
+                Completed
+              </TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -166,9 +191,9 @@ export default function AdminFeedbacksPage() {
               placeholder="Search feedbacks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-[250px]"
+              className="max-w-[250px] dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-400 dark:border-gray-700"
             />
-            <Button type="submit" size="sm">
+            <Button type="submit" size="sm" className="dark:bg-primary dark:text-white dark:hover:bg-primary/90">
               <Search className="h-4 w-4 mr-1" />
               Search
             </Button>
@@ -188,42 +213,47 @@ export default function AdminFeedbacksPage() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>User Suggestions</CardTitle>
-                <CardDescription>
+                <CardTitle className="dark:text-white">User Suggestions</CardTitle>
+                <CardDescription className="dark:text-gray-300">
                   Review and manage feedback from users
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {loading ? (
                   <div className="flex justify-center items-center py-8">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary dark:border-primary-foreground border-t-transparent"></div>
                   </div>
                 ) : feedbacks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <MessageSquare className="mx-auto h-12 w-12 opacity-20 mb-2" />
+                  <div className="text-center py-8 text-muted-foreground dark:text-gray-400">
+                    <MessageSquare className="mx-auto h-12 w-12 opacity-20 dark:opacity-15 mb-2" />
                     <p>No feedbacks found with the current filter</p>
                   </div>
                 ) : (
-                  <div className="rounded-md border">
+                  <div className="rounded-md border dark:border-gray-700">
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[80px]">ID</TableHead>
-                          <TableHead>Feedback</TableHead>
-                          <TableHead className="w-[100px]">User</TableHead>
-                          <TableHead className="w-[100px]">Status</TableHead>
-                          <TableHead className="w-[100px]">Date</TableHead>
-                          <TableHead className="w-[100px] text-right">Actions</TableHead>
+                      <TableHeader className="dark:bg-gray-800">
+                        <TableRow className="dark:border-gray-700">
+                          <TableHead className="w-[80px] dark:text-gray-300">ID</TableHead>
+                          <TableHead className="dark:text-gray-300">Feedback</TableHead>
+                          <TableHead className="w-[100px] dark:text-gray-300">User</TableHead>
+                          <TableHead className="w-[100px] dark:text-gray-300">Status</TableHead>
+                          <TableHead className="w-[100px] dark:text-gray-300">Date</TableHead>
+                          <TableHead className="w-[100px] text-right dark:text-gray-300">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {feedbacks.map((feedback) => (
-                          <TableRow key={feedback.id} className={selectedFeedback?.id === feedback.id ? "bg-muted/50" : ""}>
-                            <TableCell>{feedback.id}</TableCell>
-                            <TableCell className="font-medium line-clamp-2">
+                          <TableRow 
+                            key={feedback.id} 
+                            className={`dark:border-gray-700 dark:hover:bg-gray-800/50 ${
+                              selectedFeedback?.id === feedback.id ? "bg-muted/50 dark:bg-gray-800/70" : ""
+                            }`}
+                          >
+                            <TableCell className="dark:text-gray-300">{feedback.id}</TableCell>
+                            <TableCell className="font-medium line-clamp-2 dark:text-white">
                               {feedback.content}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="dark:text-gray-300">
                               {feedback.username || (feedback.userId ? `User ${feedback.userId}` : "Anonymous")}
                             </TableCell>
                             <TableCell>
@@ -231,7 +261,7 @@ export default function AdminFeedbacksPage() {
                                 {feedback.status}
                               </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="dark:text-gray-300">
                               {new Date(feedback.createdAt).toLocaleDateString()}
                             </TableCell>
                             <TableCell className="text-right">
@@ -239,6 +269,7 @@ export default function AdminFeedbacksPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSelectedFeedback(feedback)}
+                                className="dark:hover:bg-gray-700 dark:text-gray-300"
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                                 <span className="sr-only">Details</span>
@@ -257,7 +288,7 @@ export default function AdminFeedbacksPage() {
                     <PaginationItem>
                       <PaginationPrevious
                         onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        className={currentPage === 1 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+                        className={`${currentPage === 1 ? "cursor-not-allowed opacity-50" : "cursor-pointer"} dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800`}
                       />
                     </PaginationItem>
                     
@@ -274,6 +305,7 @@ export default function AdminFeedbacksPage() {
                           <PaginationLink
                             isActive={currentPage === pageNum}
                             onClick={() => setCurrentPage(pageNum)}
+                            className="dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 dark:data-[active=true]:bg-primary dark:data-[active=true]:text-white"
                           >
                             {pageNum}
                           </PaginationLink>
@@ -283,14 +315,14 @@ export default function AdminFeedbacksPage() {
                     
                     {totalPages > 5 && currentPage < totalPages - 2 && (
                       <PaginationItem>
-                        <PaginationEllipsis />
+                        <PaginationEllipsis className="dark:text-gray-400" />
                       </PaginationItem>
                     )}
                     
                     <PaginationItem>
                       <PaginationNext
                         onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        className={currentPage === totalPages ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+                        className={`${currentPage === totalPages ? "cursor-not-allowed opacity-50" : "cursor-pointer"} dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800`}
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -303,8 +335,8 @@ export default function AdminFeedbacksPage() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle>Feedback Details</CardTitle>
-                <CardDescription>
+                <CardTitle className="dark:text-white">Feedback Details</CardTitle>
+                <CardDescription className="dark:text-gray-300">
                   View and update feedback status
                 </CardDescription>
               </CardHeader>
@@ -312,39 +344,39 @@ export default function AdminFeedbacksPage() {
                 {selectedFeedback ? (
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Feedback Content</h3>
-                      <p className="mt-1 text-sm">{selectedFeedback.content}</p>
+                      <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">Feedback Content</h3>
+                      <p className="mt-1 text-sm dark:text-white">{selectedFeedback.content}</p>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Submitted By</h3>
-                        <p className="mt-1 text-sm">
+                        <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">Submitted By</h3>
+                        <p className="mt-1 text-sm dark:text-white">
                           {selectedFeedback.username || (selectedFeedback.userId ? `User ${selectedFeedback.userId}` : "Anonymous")}
                         </p>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Submission Date</h3>
-                        <p className="mt-1 text-sm">
+                        <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">Submission Date</h3>
+                        <p className="mt-1 text-sm dark:text-white">
                           {new Date(selectedFeedback.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+                        <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">Status</h3>
                         <Badge variant="outline" className={`mt-1 ${statusColors[selectedFeedback.status] || ""}`}>
                           {selectedFeedback.status}
                         </Badge>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Source</h3>
-                        <p className="mt-1 text-sm capitalize">{selectedFeedback.source || "Website"}</p>
+                        <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">Source</h3>
+                        <p className="mt-1 text-sm dark:text-white capitalize">{selectedFeedback.source || "Website"}</p>
                       </div>
                     </div>
                     
                     {selectedFeedback.reviewedAt && (
                       <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Reviewed On</h3>
-                        <p className="mt-1 text-sm">
+                        <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">Reviewed On</h3>
+                        <p className="mt-1 text-sm dark:text-white">
                           {new Date(selectedFeedback.reviewedAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -352,28 +384,31 @@ export default function AdminFeedbacksPage() {
                     
                     {selectedFeedback.notes && (
                       <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Admin Notes</h3>
-                        <p className="mt-1 text-sm">{selectedFeedback.notes}</p>
+                        <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">Admin Notes</h3>
+                        <p className="mt-1 text-sm dark:text-white">{selectedFeedback.notes}</p>
                       </div>
                     )}
                     
                     <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-1">Add Notes</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300 mb-1">Add Notes</h3>
                       <Input
                         value={adminNotes}
                         onChange={(e) => setAdminNotes(e.target.value)}
                         placeholder="Add your notes about this feedback..."
-                        className="mt-1"
+                        className="mt-1 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-400"
                       />
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Update Status</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300 mb-2">Update Status</h3>
                       <div className="flex flex-wrap gap-2">
                         <Button 
                           size="sm" 
                           variant={selectedFeedback.status === "new" ? "default" : "outline"}
                           onClick={() => handleStatusChange(selectedFeedback.id, "new")}
+                          className={selectedFeedback.status === "new" 
+                            ? "dark:bg-primary dark:text-white" 
+                            : "dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700"}
                         >
                           New
                         </Button>
@@ -381,6 +416,9 @@ export default function AdminFeedbacksPage() {
                           size="sm" 
                           variant={selectedFeedback.status === "reviewed" ? "default" : "outline"}
                           onClick={() => handleStatusChange(selectedFeedback.id, "reviewed")}
+                          className={selectedFeedback.status === "reviewed" 
+                            ? "dark:bg-primary dark:text-white" 
+                            : "dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700"}
                         >
                           In Progress
                         </Button>
@@ -388,6 +426,9 @@ export default function AdminFeedbacksPage() {
                           size="sm" 
                           variant={selectedFeedback.status === "completed" ? "default" : "outline"}
                           onClick={() => handleStatusChange(selectedFeedback.id, "completed")}
+                          className={selectedFeedback.status === "completed" 
+                            ? "dark:bg-primary dark:text-white" 
+                            : "dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700"}
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Completed
@@ -396,6 +437,9 @@ export default function AdminFeedbacksPage() {
                           size="sm" 
                           variant={selectedFeedback.status === "ignored" ? "default" : "outline"}
                           onClick={() => handleStatusChange(selectedFeedback.id, "ignored")}
+                          className={selectedFeedback.status === "ignored" 
+                            ? "dark:bg-primary dark:text-white" 
+                            : "dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700"}
                         >
                           <XCircle className="h-4 w-4 mr-1" />
                           Ignore
@@ -404,8 +448,8 @@ export default function AdminFeedbacksPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <MessageSquare className="mx-auto h-12 w-12 opacity-20 mb-2" />
+                  <div className="text-center py-8 text-muted-foreground dark:text-gray-400">
+                    <MessageSquare className="mx-auto h-12 w-12 opacity-20 dark:opacity-15 mb-2" />
                     <p>Select a feedback to view details</p>
                   </div>
                 )}
