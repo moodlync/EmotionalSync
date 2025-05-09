@@ -82,10 +82,10 @@ app.use((req, res, next) => {
   // Determine which ports to try based on environment
   const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
 
-  // Use port 5001 as our primary port for compatibility with all environments
+  // Switch back to port 5000 for Replit compatibility
   const primaryPort = 5000;
-
-  // For Replit workflow detection, we run a separate script on port 5000
+  
+  // Keep the workflow port the same
   const workflowPort = 5000;
 
   // Simple direct server listen approach
@@ -117,12 +117,22 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Ensure PORT is a number for TypeScript type checking
-  const PORT: number = typeof process.env.PORT === 'string' ? parseInt(process.env.PORT, 10) : 5000;
-  server.listen(PORT, "0.0.0.0", () => {
-    log(`MoodLync server running on port ${PORT}`);
+  // Special handling for Replit environment
+  const usePort = typeof process.env.PORT === 'string' ? parseInt(process.env.PORT, 10) : primaryPort;
+  
+  // Add a healthcheck route to confirm the server is running
+  app.get('/api/healthcheck', (req, res) => {
+    res.status(200).json({ status: 'ok', message: 'MoodLync server is running!' });
+  });
+
+  // Clearer logging for server start
+  log(`Starting MoodLync server on port ${usePort}...`);
+  
+  // Use 0.0.0.0 instead of localhost to bind to all interfaces
+  server.listen(usePort, "0.0.0.0", () => {
+    log(`MoodLync server running on port ${usePort}`);
     if (isReplitEnv) {
-      log(`Running in Replit environment on port ${PORT}`);
+      log(`Running in Replit environment on port ${usePort}`);
     }
     // Initialize WebSocket server after HTTP server is running
     initializeWebSocketIfNeeded(server);

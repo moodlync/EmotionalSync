@@ -77,8 +77,13 @@ export const SEOHead: React.FC<SeoProps> = ({
   reviewCount,
   priceRange
 }) => {
-  // Combine provided keywords with core keywords
-  const allKeywords = [...new Set([...keywords, ...CORE_KEYWORDS])].join(', ');
+  // Combine provided keywords with core keywords and remove duplicates
+  // Create a combined array first and then filter out duplicates
+  const combinedKeywords = [...keywords, ...CORE_KEYWORDS];
+  const uniqueKeywords = combinedKeywords.filter((value, index, self) => 
+    self.indexOf(value) === index
+  );
+  const allKeywords = uniqueKeywords.join(', ');
   
   // Determine canonical URL from window if not provided
   const siteUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -92,7 +97,7 @@ export const SEOHead: React.FC<SeoProps> = ({
     name: 'MoodSync',
     description: 'An emotion-driven social network connecting people through shared emotional experiences',
     url: siteUrl,
-    logo: `${siteUrl}/logo-transparent-png.png`,
+    logo: `${siteUrl}/moodlync-logo-new.jpg`,
     sameAs: [
       'https://twitter.com/moodsync',
       'https://facebook.com/moodsync',

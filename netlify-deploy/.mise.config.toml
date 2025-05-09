@@ -1,6 +1,0 @@
-# Alternative mise configuration file for broader compatibility
-idiomatic_version_files = true
-use_idiomatic_file = true
-
-[node]
-use_idiomatic_file = true

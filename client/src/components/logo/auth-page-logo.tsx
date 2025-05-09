@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { useLocation } from 'wouter';
+import logoImage from '@/assets/moodlync-logo-new.jpg';
 
 interface AuthPageLogoProps {
   className?: string;
@@ -71,7 +72,7 @@ export default function AuthPageLogo({
         onClick={handleLogoClick}
       >
         <img 
-          src="/images/moodlync-logo-new.jpg" 
+          src={logoImage} 
           alt="MoodLync Logo" 
           className="w-full h-full object-contain"
         />

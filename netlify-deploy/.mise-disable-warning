@@ -1,3 +1,0 @@
-# This file completely disables mise warnings
-# Added to fix unknown field and deprecated configuration warnings
-# that were causing build failures in the deployment process
