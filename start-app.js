@@ -12,8 +12,8 @@
 
 const { exec } = require('child_process');
 
-console.log('Starting MoodLync with port proxy...');
-const app = exec('node start-with-proxy.js', (error, stdout, stderr) => {
+console.log('Starting MoodLync with combined starter (handles ports 5000 and 8080)...');
+const app = exec('node combined-starter.cjs', (error, stdout, stderr) => {
   if (error) {
     console.error(`Execution error: ${error.message}`);
     return;

@@ -1,7 +1,7 @@
 import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import HeaderLogoWithText from "@/components/logo/header-logo-with-text";
+import StyledLogoWithText from "@/components/logo/styled-logo-with-text";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   DropdownMenu,
@@ -90,16 +90,15 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white dark:bg-black text-black dark:text-white shadow-md">
+    <header className="bg-gray-900 dark:bg-gray-950 text-gray-100 dark:text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
-            <HeaderLogoWithText 
-              logoSize={100} 
+            <StyledLogoWithText 
+              logoSize={55} 
               textSize="lg" 
-              enableHeartbeat={logoHeartbeat}
-              hideText={true}
-              isWelcomeScreen={true} /* Changed from rounded to welcome page style */
+              hideText={false}
+              showTagline={false}
             />
           </div>
         </Link>

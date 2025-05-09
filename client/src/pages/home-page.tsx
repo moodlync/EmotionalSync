@@ -31,11 +31,18 @@ export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('connect');
 
-  // Fetch the user's current emotion
-  const { data: currentEmotion, isLoading: emotionLoading } = useQuery<EmotionType>({
+  // Fetch the user's current emotion - fixed to properly handle response format
+  const { data: emotionData, isLoading: emotionLoading } = useQuery({
     queryKey: ['/api/emotion', user?.id],
-    initialData: 'neutral',
+    queryFn: async () => {
+      const res = await apiRequest('GET', '/api/emotion');
+      const data = await res.json();
+      return data;
+    },
   });
+  
+  // Extract the emotion from the data - API returns { emotion: 'value' } format
+  const currentEmotion = emotionData?.emotion || 'neutral';
 
   // Mutation to update the user's emotion
   const updateEmotionMutation = useMutation({
@@ -46,8 +53,8 @@ export default function HomePage() {
     onSuccess: async (response) => {
       const { emotion, tokensEarned } = response;
       
-      // Update emotion in the cache
-      queryClient.setQueryData(['/api/emotion', user?.id], emotion);
+      // Update emotion in the cache with the correct format
+      queryClient.setQueryData(['/api/emotion', user?.id], { emotion });
       
       // Show tokens earned notification if any
       if (tokensEarned > 0) {

@@ -37,7 +37,7 @@ export default function Footer() {
     }
   };
   return (
-    <footer className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 border-t border-gray-200 dark:border-gray-800 pt-10 pb-6 mt-auto">
+    <footer className="bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-900 dark:to-gray-950 border-t border-gray-700 dark:border-gray-800 pt-10 pb-6 mt-auto text-white">
       <div className="container mx-auto px-4">
         <div className="mx-auto flex flex-col items-center justify-center mb-6">
           <div className="flex flex-col items-center justify-center gap-1">
@@ -70,7 +70,7 @@ export default function Footer() {
                       color: 'var(--gray-500)',
                     }
                   }}
-                  className="min-h-[80px] text-sm resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="min-h-[80px] text-sm resize-none bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700"
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                 />

@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import logoImage from '@/assets/moodlync-logo.png';
+import logoImage from '@/assets/moodlync-logo-icon.png';
+import StyledLogoWithText from '@/components/logo/styled-logo-with-text';
 import { 
   Heart, ArrowRight, ChevronDown, Crown, Sparkles, Shield, Star, Video, UserCheck,
   BarChart3, Fingerprint, Gamepad2, Users, Music, Palette, Brush, PartyPopper, 
@@ -91,20 +92,14 @@ export default function WelcomePage() {
           <div className="flex items-center">
             <div className="relative group">
               <div className="absolute inset-[-10%] bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
-              <img 
-                src={logoImage} 
-                alt="MoodLync Logo" 
-                className="object-contain relative" 
-                style={{
-                  boxShadow: '0 6px 16px rgba(96, 82, 199, 0.3)',
-                  backgroundColor: 'white',
-                  width: '200px',
-                  height: '75px',
-                  borderRadius: '9999px',
-                  padding: '10px',
-                  border: '2px solid rgba(96, 82, 199, 0.2)'
-                }}
-              />
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md relative">
+                <StyledLogoWithText 
+                  logoSize={48} 
+                  textSize="lg" 
+                  hideText={false}
+                  showTagline={true}
+                />
+              </div>
             </div>
           </div>
           
