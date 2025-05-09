@@ -123,9 +123,6 @@ export default function WelcomePage() {
                     <span className="text-black">MOOD</span>
                     <span className="text-red-500">LYNC</span>
                   </div>
-                  <div className="text-black/70 text-sm leading-tight">
-                    Connect - Detect - Reflect
-                  </div>
                 </div>
               </div>
             </div>
