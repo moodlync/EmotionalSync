@@ -1,127 +1,90 @@
 /**
  * MoodLync Combined Starter
  * 
- * This script:
- * 1. Starts a simple TCP server on port 5000 for Replit workflow detection
- * 2. Then starts the main application on port 8080
+ * This script starts both the Replit port helper (on port 5000)
+ * and the main MoodLync application (on port 5001) in a single process.
  * 
- * This allows the application to function properly while still satisfying
- * Replit's workflow requirements.
+ * It ensures that port 5000 is accessible for Replit workflow detection
+ * while the actual application runs on port 5001.
  */
 
-const net = require('net');
 const http = require('http');
-const { fork, spawn, execSync } = require('child_process');
+const { spawn } = require('child_process');
 
-console.log('🚀 Starting MoodLync Combined Server');
+// Configuration
+const REPLIT_PORT = 5000; // For Replit workflow detection
+const APP_PORT = 5001;    // For the actual application
 
-// IMPORTANT: For Replit workflow detection, we must open port 5000 first
-// Create a minimal HTTP server that the Replit workflow can detect
-const workflowServer = http.createServer((req, res) => {
-  res.writeHead(200, { 
-    'Content-Type': 'text/html',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
-  });
+console.log('🚀 Starting MoodLync Combined Starter');
+
+// Create the port signal server on port 5000
+console.log(`Creating port signal server on port ${REPLIT_PORT}...`);
+
+const signalServer = http.createServer((req, res) => {
+  // Get hostname without port
+  const hostname = req.headers.host ? req.headers.host.split(':')[0] : 'localhost';
   
-  res.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>MoodLync - Application Running</title>
-        <meta http-equiv="refresh" content="0;url=http://${req.headers.host.replace('5000', '8080')}" />
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-          h1 { color: #4F46E5; }
-          p { margin: 20px 0; }
-          .redirect { color: #9333EA; font-weight: bold; }
-        </style>
-      </head>
-      <body>
-        <h1>MoodLync Application</h1>
-        <p>The application is running on port 8080.</p>
-        <p class="redirect">Redirecting you to the main application...</p>
-        <script>
-          window.location.href = "http://" + window.location.host.replace('5000', '8080');
-        </script>
-      </body>
-    </html>
-  `);
+  // Redirect to the actual application
+  res.writeHead(302, {
+    'Location': `http://${hostname}:${APP_PORT}${req.url}`
+  });
   res.end();
 });
 
-// Make sure the workflow port is opened first and wait for it
-console.log('Opening Replit workflow port 5000...');
-
-workflowServer.listen(5000, '0.0.0.0', () => {
-  console.log('✅ Successfully opened Replit workflow port 5000');
-  console.log('✅ Workflow should now detect this application');
+signalServer.listen(REPLIT_PORT, '0.0.0.0', () => {
+  console.log(`✅ Port signal server running on port ${REPLIT_PORT}`);
   
-  // Start generating activity to keep the workflow connection active
-  setInterval(() => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] Workflow port healthcheck`);
-  }, 5000);
-});
-
-// Helper to check if a port is available
-function isPortAvailable(port) {
-  try {
-    const server = net.createServer();
-    return new Promise((resolve) => {
-      server.once('error', () => {
-        resolve(false);
-      });
-      server.once('listening', () => {
-        server.close();
-        resolve(true);
-      });
-      server.listen(port);
-    });
-  } catch (e) {
-    return Promise.resolve(false);
-  }
-}
-
-// Start the main application
-async function startMainApplication() {
-  console.log('Starting main MoodLync application...');
+  // Now start the main application
+  console.log('🚀 Starting main MoodLync application...');
   
-  // Check if port 8080 is available
-  const port8080Available = await isPortAvailable(8080);
-  if (!port8080Available) {
-    console.log('⚠️ Port 8080 is already in use. Attempting to find another port...');
-  }
-  
-  // Start the application with the port environment variable
-  const app = spawn('npm', ['run', 'dev'], {
+  const appProcess = spawn('npm', ['run', 'dev'], {
     stdio: 'inherit',
-    env: { ...process.env, PORT: '8080' }
+    env: { ...process.env, PORT: APP_PORT.toString() }
   });
   
-  app.on('error', (err) => {
-    console.error(`Failed to start MoodLync application: ${err.message}`);
+  appProcess.on('error', (error) => {
+    console.error(`Failed to start application: ${error.message}`);
     process.exit(1);
   });
   
-  // Generate some activity to keep the workflow running
-  const healthCheck = setInterval(() => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] MoodLync application health check`);
-  }, 10000);
-  
-  app.on('exit', (code) => {
-    clearInterval(healthCheck);
-    console.log(`MoodLync application exited with code ${code}`);
+  appProcess.on('exit', (code) => {
+    console.log(`Application exited with code ${code}`);
+    // Close the signal server when the main app exits
+    signalServer.close();
     process.exit(code || 0);
   });
-}
+  
+  // Output health check messages periodically to keep the workflow alive
+  setInterval(() => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] MoodLync running - signal:${REPLIT_PORT}, app:${APP_PORT}`);
+  }, 60000); // Every minute
+});
 
-// Start main application after ensuring port 5000 is set up
-setTimeout(startMainApplication, 1000);
+signalServer.on('error', (err) => {
+  console.error(`Signal server error: ${err.message}`);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${REPLIT_PORT} is already in use!`);
+    console.log('Trying to start only the main application...');
+    
+    // Start just the main application if the signal port is already in use
+    const appProcess = spawn('npm', ['run', 'dev'], {
+      stdio: 'inherit',
+      env: { ...process.env, PORT: APP_PORT.toString() }
+    });
+    
+    appProcess.on('error', (error) => {
+      console.error(`Failed to start application: ${error.message}`);
+      process.exit(1);
+    });
+  } else {
+    process.exit(1);
+  }
+});
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
   console.log('Shutting down...');
+  signalServer.close();
   process.exit(0);
 });
