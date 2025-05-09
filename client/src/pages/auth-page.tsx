@@ -410,7 +410,7 @@ export default function AuthPage() {
             <div className="flex flex-col items-center justify-center py-2">
               {/* Updated logo with new design */}
               <div className="mb-2 flex items-center justify-center">
-                <AuthPageLogo logoSize={125} vertical showTagline textSize="lg" />
+                <AuthPageLogo logoSize={200} vertical showTagline textSize="lg" />
               </div>
               <div className="w-full overflow-hidden rounded-lg shadow-md relative mb-1">
                 <img 

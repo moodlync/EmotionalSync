@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodSync Logo Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f9fafb;
+        }
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .logo-image {
+            margin-bottom: 16px;
+        }
+        .logo-text {
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1;
+            margin-top: 8px;
+        }
+        .tagline {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 14px;
+            line-height: 1.2;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <div class="logo-image">
+            <!-- SVG version of the logo -->
+            <svg 
+                width="50" 
+                height="50" 
+                viewBox="0 0 300 300" 
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <!-- Blue curved line at top -->
+                <path d="M50,100 C100,50 200,50 250,100" stroke="#3b82f6" strokeWidth="20" fill="none" />
+                
+                <!-- Red person icon in center -->
+                <circle cx="150" cy="120" r="25" fill="#f43f5e" />
+                <path d="M150,145 C120,145 110,170 110,190 C110,210 120,220 150,220 C180,220 190,210 190,190 C190,170 180,145 150,145" fill="#f43f5e" />
+                
+                <!-- Red curved line (left) -->
+                <path d="M50,100 C30,140 30,180 50,220" stroke="#dc2626" strokeWidth="20" fill="none" />
+                
+                <!-- Green curved line (right) -->
+                <path d="M250,100 C270,140 270,180 250,220" stroke="#16a34a" strokeWidth="20" fill="none" />
+            </svg>
+        </div>
+        
+        <div class="logo-text">
+            <span style="color: black">MOOD</span><span style="color: #dc2626">SYNC</span>
+        </div>
+        
+        <div class="tagline">
+            Connect - Detect - Reflect
+        </div>
+    </div>
+</body>
+</html>
