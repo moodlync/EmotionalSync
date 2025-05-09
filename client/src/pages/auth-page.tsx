@@ -404,14 +404,14 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#EAEAEA]">
       {/* Left side - Auth forms */}
-      <div className="flex-1 flex items-center justify-center p-4 md:p-8">
-        <Card className="w-full max-w-xl">
-          <CardHeader className="space-y-4">
-            <div className="flex flex-col items-center justify-center py-4">
+      <div className="flex-1 flex items-center justify-center p-2 md:p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-2 pb-2">
+            <div className="flex flex-col items-center justify-center py-2">
               {/* Logo with minimal glow and heartbeat effect */}
-              <div className="mb-5">
-                <div className="flex flex-col items-center justify-center gap-4">
-                  <div className="w-[250px] h-[250px]">
+              <div className="mb-2">
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <div className="w-[125px] h-[125px]">
                     <img 
                       src={newLogo} 
                       alt="MoodLync Logo" 
@@ -419,31 +419,31 @@ export default function AuthPage() {
                     />
                   </div>
                   <div className="text-center">
-                    <div className="font-extrabold tracking-tight text-lg leading-none">
+                    <div className="font-extrabold tracking-tight text-base leading-none">
                       <span className="text-black">MOOD</span>
                       <span className="text-red-500">LYNC</span>
                     </div>
-                    <div className="text-black/70 text-sm leading-tight">
+                    <div className="text-black/70 text-xs leading-tight">
                       Connect - Detect - Reflect
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="w-full overflow-hidden rounded-xl shadow-xl relative mb-2">
+              <div className="w-full overflow-hidden rounded-lg shadow-md relative mb-1">
                 <img 
                   src={authImage} 
                   alt="MoodLync Connection" 
-                  className="w-full h-auto object-cover max-h-[300px]"
+                  className="w-full h-auto object-cover max-h-[150px]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent pointer-events-none"></div>
               </div>
             </div>
-            <CardDescription className="text-center text-base">
+            <CardDescription className="text-center text-xs">
               Unlock Your Mood Journey
             </CardDescription>
 
-            <div className="text-center mt-3 mb-6">
-              <h3 className="font-semibold text-lg text-primary">Track, reflect, and grow - your emotions matter here.</h3>
+            <div className="text-center mt-1 mb-2">
+              <h3 className="font-semibold text-sm text-primary">Track, reflect, and grow - your emotions matter here.</h3>
             </div>
             
             <div className="text-center mt-4">
@@ -1277,40 +1277,40 @@ export default function AuthPage() {
       </div>
       
       {/* Right side - Feature showcase with premium benefits */}
-      <div className="flex-1 bg-gradient-to-br from-primary to-secondary p-6 hidden md:block overflow-y-auto">
-        <div className="sticky top-0 z-10 pt-4 pb-2 bg-gradient-to-b from-primary to-transparent">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <Heart className="h-8 w-8 text-white" />
-            <h1 className="text-2xl font-bold text-white dark:text-white">Welcome to Emotional Wellbeing</h1>
+      <div className="flex-1 bg-gradient-to-br from-primary to-secondary p-3 hidden md:block overflow-y-auto">
+        <div className="sticky top-0 z-10 pt-2 pb-1 bg-gradient-to-b from-primary to-transparent">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <Heart className="h-5 w-5 text-white" />
+            <h1 className="text-lg font-bold text-white dark:text-white">Welcome to Emotional Wellbeing</h1>
           </div>
-          <p className="text-center text-white dark:text-white text-sm mb-4">
+          <p className="text-center text-white dark:text-white text-xs mb-2">
             Discover how our platform transforms your emotional wellbeing journey
           </p>
         </div>
         
         {/* Featured Core Features with detailed descriptions */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Badge className="bg-white/20 text-white hover:bg-white/30">
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 mb-4">
+          <div className="flex items-center gap-1 mb-2">
+            <Badge className="bg-white/20 text-white hover:bg-white/30 text-xs">
               Core Features
             </Badge>
-            <h2 className="text-xl font-bold text-white">Connect Through Emotions</h2>
+            <h2 className="text-base font-bold text-white">Connect Through Emotions</h2>
           </div>
           
-          <div className="space-y-6">
-            <div className="bg-white/10 rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Brain className="h-3.5 w-3.5 text-white" />
+          <div className="space-y-2">
+            <div className="bg-white/10 rounded-lg p-2">
+              <h3 className="text-white font-semibold mb-1 flex items-center gap-1 text-xs">
+                <div className="h-4 w-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Brain className="h-2.5 w-2.5 text-white" />
                 </div>
                 Emotion Matching
               </h3>
-              <p className="text-white/80 text-sm mb-3">
-                Connect with others who share your current emotional state for authentic, meaningful conversations using our AI-powered emotion detection system.
+              <p className="text-white/80 text-xs mb-1">
+                Connect with others who share your emotional state for authentic conversations.
               </p>
-              <div className="mt-2">
+              <div className="mt-1">
                 <button 
-                  className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                  className="w-full px-2 py-1 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
                   onClick={() => {
                     toast({
                       title: "Emotion Matching",
