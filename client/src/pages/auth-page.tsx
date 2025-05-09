@@ -1323,19 +1323,19 @@ export default function AuthPage() {
               </div>
             </div>
             
-            <div className="bg-white/10 rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Shield className="h-3.5 w-3.5 text-white" />
+            <div className="bg-white/10 rounded-lg p-2">
+              <h3 className="text-white font-semibold mb-1 flex items-center gap-1 text-xs">
+                <div className="h-4 w-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Shield className="h-2.5 w-2.5 text-white" />
                 </div>
                 Emotional Journal
               </h3>
-              <p className="text-white/80 text-sm mb-3">
-                Track your emotional journey with our comprehensive journaling tools that provide insights and patterns into your emotional wellbeing.
+              <p className="text-white/80 text-xs mb-1">
+                Track your emotional journey with insights into patterns and wellbeing.
               </p>
-              <div className="mt-2">
+              <div className="mt-1">
                 <button 
-                  className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                  className="w-full px-2 py-1 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
                   onClick={() => {
                     toast({
                       title: "Emotional Journal",
@@ -1351,43 +1351,43 @@ export default function AuthPage() {
         </div>
         
         {/* Featured premium benefits */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Badge className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/30">
-              <Star className="h-3 w-3 mr-1" /> Premium
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 mb-3">
+          <div className="flex items-center gap-1 mb-1">
+            <Badge className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-xs">
+              <Star className="h-2 w-2 mr-1" /> Premium
             </Badge>
-            <h2 className="text-xl font-bold text-white">Premium Features</h2>
+            <h2 className="text-base font-bold text-white">Premium Features</h2>
           </div>
           
-          <div className="mt-4 text-center">
-            <span className="text-white text-sm">
+          <div className="mt-1 text-center">
+            <span className="text-white text-xs">
               Exclusive premium features available
             </span>
           </div>
         </div>
         
         {/* Exclusive NFT Feature Description */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Badge className="bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30">
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 mb-3">
+          <div className="flex items-center gap-1 mb-1">
+            <Badge className="bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 text-xs">
               Exclusive
             </Badge>
-            <h2 className="text-xl font-bold text-white">Emotion NFTs</h2>
+            <h2 className="text-base font-bold text-white">Emotion NFTs</h2>
           </div>
           
-          <div className="bg-white/10 rounded-lg p-4">
-            <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
-                <Star className="h-3.5 w-3.5 text-white" />
+          <div className="bg-white/10 rounded-lg p-2">
+            <h3 className="text-white font-semibold mb-1 flex items-center gap-1 text-xs">
+              <div className="h-4 w-4 rounded-full bg-primary/20 flex items-center justify-center">
+                <Star className="h-2.5 w-2.5 text-white" />
               </div>
               Digital Emotional Collectibles
             </h3>
-            <p className="text-white/80 text-sm mb-3">
-              Premium members earn unique NFTs that evolve with your emotional journey, unlocking real-world perks and benefits.
+            <p className="text-white/80 text-xs mb-1">
+              Premium members earn NFTs that evolve with your emotional journey.
             </p>
-            <div className="mt-2">
+            <div className="mt-1">
               <button 
-                className="w-full px-3 py-1.5 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
+                className="w-full px-2 py-1 text-xs bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 rounded"
                 onClick={() => {
                   toast({
                     title: "Emotional NFTs",
@@ -1402,78 +1402,78 @@ export default function AuthPage() {
         </div>
         
         {/* Enhanced feature image */}
-        <div className="relative rounded-lg overflow-hidden shadow-xl mb-6">
-          <div className="bg-gradient-to-r from-primary to-secondary p-4 text-white">
-            <h3 className="text-xl font-bold text-center mb-2">
+        <div className="relative rounded-lg overflow-hidden shadow-md mb-2">
+          <div className="bg-gradient-to-r from-primary to-secondary p-2 text-white">
+            <h3 className="text-base font-bold text-center mb-1">
               Unlock Your Mood Journey
             </h3>
-            <p className="text-sm text-center opacity-90">
+            <p className="text-xs text-center opacity-90">
               Sign in to track, reflect, and grow—your emotions matter here.
             </p>
           </div>
         </div>
         
         {/* Key features list */}
-        <div className="space-y-4 px-2">
-          <h2 className="text-xl font-semibold mb-3 text-white dark:text-white">Explore Our Key Features</h2>
+        <div className="space-y-2 px-2">
+          <h2 className="text-base font-semibold mb-1 text-white dark:text-white">Explore Our Key Features</h2>
           
           <div className="flex items-start">
-            <div className="bg-white/20 p-2 rounded-full mr-3 flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+            <div className="bg-white/20 p-1 rounded-full mr-2 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3 h-3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white dark:text-white">Emotion-Based Matching</h3>
-              <p className="text-white/80 text-sm">Connect with others who share your current emotional state from around the world</p>
+              <h3 className="font-semibold text-white dark:text-white text-xs">Emotion-Based Matching</h3>
+              <p className="text-white/80 text-xs">Connect with others who share your emotional state</p>
             </div>
           </div>
           
           <div className="flex items-start">
-            <div className="bg-white/20 p-2 rounded-full mr-3 flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+            <div className="bg-white/20 p-1 rounded-full mr-2 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3 h-3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white dark:text-white">Mood-Based Chat Rooms</h3>
-              <p className="text-white/80 text-sm">Join group discussions with people who understand exactly how you feel right now</p>
+              <h3 className="font-semibold text-white dark:text-white text-xs">Mood-Based Chat Rooms</h3>
+              <p className="text-white/80 text-xs">Join discussions with people who understand your feelings</p>
             </div>
           </div>
           
           <div className="flex items-start">
-            <div className="bg-white/20 p-2 rounded-full mr-3 flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+            <div className="bg-white/20 p-1 rounded-full mr-2 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3 h-3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white dark:text-white">AI Emotional Support</h3>
-              <p className="text-white/80 text-sm">Get personalized advice and coping strategies based on your current mood and emotional needs</p>
+              <h3 className="font-semibold text-white dark:text-white text-xs">AI Emotional Support</h3>
+              <p className="text-white/80 text-xs">Get personalized advice based on your emotional needs</p>
             </div>
           </div>
           
           <div className="flex items-start">
-            <div className="bg-amber-400/30 p-2 rounded-full mr-3 flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+            <div className="bg-amber-400/30 p-1 rounded-full mr-2 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3 h-3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white dark:text-white">Premium Features</h3>
-              <p className="text-white/80 text-sm">Unlock exclusive content, premium chat rooms, video sharing, and advanced analytics</p>
+              <h3 className="font-semibold text-white dark:text-white text-xs">Premium Features</h3>
+              <p className="text-white/80 text-xs">Exclusive content, premium chat rooms, and analytics</p>
             </div>
           </div>
           
           <div className="flex items-start">
-            <div className="bg-white/20 p-2 rounded-full mr-3 flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+            <div className="bg-white/20 p-1 rounded-full mr-2 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-3 h-3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-white dark:text-white">Gamification & Rewards</h3>
-              <p className="text-white/80 text-sm">Earn tokens and achievements for meaningful interactions and emotional growth</p>
+              <h3 className="font-semibold text-white dark:text-white text-xs">Gamification & Rewards</h3>
+              <p className="text-white/80 text-xs">Earn tokens for meaningful interactions and growth</p>
             </div>
           </div>
         </div>
