@@ -557,10 +557,10 @@ export default function PremiumPlans() {
           highlight: 'border-amber-400 dark:border-amber-600',
           bgGradient: 'from-amber-100 to-transparent dark:from-amber-900/30 dark:to-transparent',
           iconBg: 'bg-amber-100 dark:bg-amber-900/40',
-          textTitle: 'text-amber-800 dark:text-amber-300',
-          textPrice: 'text-amber-800 dark:text-amber-300',
-          textFeature: 'text-amber-700 dark:text-amber-400',
-          textSavings: 'text-amber-600 dark:text-amber-400',
+          textTitle: 'text-amber-800 dark:text-white',
+          textPrice: 'text-amber-800 dark:text-white',
+          textFeature: 'text-amber-700 dark:text-white',
+          textSavings: 'text-amber-600 dark:text-white',
           checkIcon: 'text-amber-500',
           buttonBg: 'bg-amber-500 hover:bg-amber-600',
           badgeBg: 'bg-amber-500',
@@ -571,10 +571,10 @@ export default function PremiumPlans() {
           highlight: 'border-violet-400 dark:border-violet-600',
           bgGradient: 'from-violet-100 to-transparent dark:from-violet-900/30 dark:to-transparent',
           iconBg: 'bg-violet-100 dark:bg-violet-900/40',
-          textTitle: 'text-violet-800 dark:text-violet-300',
-          textPrice: 'text-violet-800 dark:text-violet-300',
-          textFeature: 'text-violet-700 dark:text-violet-400',
-          textSavings: 'text-violet-600 dark:text-violet-400',
+          textTitle: 'text-violet-800 dark:text-white',
+          textPrice: 'text-violet-800 dark:text-white',
+          textFeature: 'text-violet-700 dark:text-white',
+          textSavings: 'text-violet-600 dark:text-white',
           checkIcon: 'text-violet-500',
           buttonBg: 'bg-violet-500 hover:bg-violet-600',
           badgeBg: 'bg-violet-500',
@@ -585,10 +585,10 @@ export default function PremiumPlans() {
           highlight: 'border-blue-400 dark:border-blue-600',
           bgGradient: 'from-blue-100 to-transparent dark:from-blue-900/30 dark:to-transparent',
           iconBg: 'bg-blue-100 dark:bg-blue-900/40',
-          textTitle: 'text-blue-800 dark:text-blue-300',
-          textPrice: 'text-blue-800 dark:text-blue-300',
-          textFeature: 'text-blue-700 dark:text-blue-400',
-          textSavings: 'text-blue-600 dark:text-blue-400',
+          textTitle: 'text-blue-800 dark:text-white',
+          textPrice: 'text-blue-800 dark:text-white',
+          textFeature: 'text-blue-700 dark:text-white',
+          textSavings: 'text-blue-600 dark:text-white',
           checkIcon: 'text-blue-500',
           buttonBg: 'bg-blue-500 hover:bg-blue-600',
           badgeBg: 'bg-blue-500',
@@ -599,10 +599,10 @@ export default function PremiumPlans() {
           highlight: 'border-purple-400 dark:border-purple-600',
           bgGradient: 'from-purple-100 to-transparent dark:from-purple-900/30 dark:to-transparent',
           iconBg: 'bg-purple-100 dark:bg-purple-900/40',
-          textTitle: 'text-purple-800 dark:text-purple-300',
-          textPrice: 'text-purple-800 dark:text-purple-300',
-          textFeature: 'text-purple-700 dark:text-purple-400',
-          textSavings: 'text-purple-600 dark:text-purple-400',
+          textTitle: 'text-purple-800 dark:text-white',
+          textPrice: 'text-purple-800 dark:text-white',
+          textFeature: 'text-purple-700 dark:text-white',
+          textSavings: 'text-purple-600 dark:text-white',
           checkIcon: 'text-purple-500',
           buttonBg: 'bg-purple-500 hover:bg-purple-600',
           badgeBg: 'bg-purple-500',
@@ -674,7 +674,7 @@ export default function PremiumPlans() {
               )}
             </div>
           </div>
-          <CardDescription>{plan.description}</CardDescription>
+          <CardDescription className="dark:text-gray-300">{plan.description}</CardDescription>
         </CardHeader>
         
         <CardContent className="pt-4 flex-grow">
@@ -684,7 +684,7 @@ export default function PremiumPlans() {
                 <div className="mr-2 mt-0.5 shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-green-50 dark:bg-green-900/20 group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors">
                   <Check className={`h-3 w-3 ${colorClass.checkIcon}`} />
                 </div>
-                <span className={colorClass.textFeature}>{feature}</span>
+                <span className={`${colorClass.textFeature} dark:text-white`}>{feature}</span>
               </li>
             ))}
           </ul>
@@ -755,7 +755,7 @@ export default function PremiumPlans() {
           <h3 className={`text-xl font-semibold ${
             planType === 'individual' 
               ? 'text-gray-900 dark:text-gray-100' 
-              : 'text-blue-800 dark:text-blue-300'
+              : 'text-blue-800 dark:text-white'
           }`}>
             {tableTitleText}
           </h3>
@@ -814,14 +814,14 @@ export default function PremiumPlans() {
                           </div>
                           <span className={`font-bold text-lg ${
                             plan.color 
-                              ? `text-${plan.color}-700 dark:text-${plan.color}-400`
-                              : 'text-primary dark:text-primary'
+                              ? `text-${plan.color}-700 dark:text-white`
+                              : 'text-primary dark:text-white'
                           }`}>
                             {plan.name.split(' ')[0]}
                           </span>
                         </div>
                         
-                        <div className="text-xl font-bold">{plan.price}</div>
+                        <div className="text-xl font-bold dark:text-white">{plan.price}</div>
                         
                         {cycle !== 'monthly' && plan.savings && (
                           <Badge 
@@ -860,11 +860,11 @@ export default function PremiumPlans() {
                       {idx >= 3 && idx < 6 && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
                       {idx >= 6 && idx < 9 && <div className="w-2 h-2 rounded-full bg-purple-500"></div>}
                       {idx >= 9 && <div className="w-2 h-2 rounded-full bg-amber-500"></div>}
-                      <span className="text-sm">{feature}</span>
+                      <span className="text-sm dark:text-white">{feature}</span>
                     </div>
                     
                     {planType === 'family' && idx < 3 && (
-                      <Badge variant="outline" className="ml-6 text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+                      <Badge variant="outline" className="ml-6 text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-white dark:font-medium border-blue-200 dark:border-blue-800">
                         <Users className="h-3 w-3 mr-1" />
                         Family Shared
                       </Badge>
@@ -914,7 +914,7 @@ export default function PremiumPlans() {
               
               {/* Action row */}
               <tr>
-                <td className={`p-4 ${tableColors.headerBg} font-medium`}>Subscribe</td>
+                <td className={`p-4 ${tableColors.headerBg} font-medium dark:text-white`}>Subscribe</td>
                 {filteredPlans.map((plan) => {
                   const isCurrentPlan = isActive && tier === plan.tier;
                   
@@ -931,7 +931,7 @@ export default function PremiumPlans() {
                           isCurrentPlan
                             ? 'bg-green-500 hover:bg-green-600'
                             : `bg-${plan.color || 'primary'}-500 hover:bg-${plan.color || 'primary'}-600`
-                        } text-white`}
+                        } text-white font-medium`}
                         onClick={() => handleSubscribe(plan.id)}
                         disabled={isCurrentPlan}
                       >
