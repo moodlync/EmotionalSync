@@ -1,7 +1,7 @@
-// Optimized Netlify Function Handler for MoodLync
-const serverless = require('serverless-http');
-const express = require('express');
-const { registerRoutes } = require('../../server/routes.ts');
+// Optimized Netlify Function Handler for MoodLync (ESM Version)
+import serverless from 'serverless-http';
+import express from 'express';
+import { registerRoutes } from './routes.js';
 
 // Create a minimal Express app for serverless function
 const app = express();
@@ -14,9 +14,10 @@ app.use(express.urlencoded({ extended: true }));
 registerRoutes(app);
 
 // Create handler for Netlify Functions
-const handler = serverless(app);
+const handleRequest = serverless(app);
 
-exports.handler = async (event, context) => {
+// Export handler using ESM syntax
+export const handler = async (event, context) => {
   // Handle preflight requests for CORS
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -30,5 +31,5 @@ exports.handler = async (event, context) => {
   }
   
   // Process the request with our serverless Express app
-  return await handler(event, context);
+  return await handleRequest(event, context);
 };

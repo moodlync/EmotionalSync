@@ -1,6 +1,18 @@
 // Centralized error handler for Netlify functions
 // This utility helps capture and report errors from Netlify Functions
 
+// Standalone handler for Netlify Functions
+export const handler = async (event, context) => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: 'MoodLync error handler utility',
+      path: event.path,
+      timestamp: new Date().toISOString()
+    })
+  };
+};
+
 /**
  * Wraps a Netlify function handler with error handling
  * @param {Function} handler - The original Netlify function handler
