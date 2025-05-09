@@ -82,9 +82,8 @@ app.use((req, res, next) => {
   // Determine which ports to try based on environment
   const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
   
-  // Use port 8080 for Replit which is our main application port
-  const primaryPort = process.env.PORT ? parseInt(process.env.PORT) : 
-                     isReplitEnv ? 8080 : 5001;
+  // Use port 5001 as our primary port for compatibility with all environments
+  const primaryPort = process.env.PORT ? parseInt(process.env.PORT) : 5001;
 
   // For Replit workflow detection, we run a separate script on port 5000
   const workflowPort = 5000;
@@ -111,7 +110,7 @@ app.use((req, res, next) => {
     }
   };
   
-  // Listen on primary port (8080 for Replit or 5001 for local/Netlify)
+  // Listen on primary port (5001 for all environments)
   server.listen(primaryPort, "0.0.0.0", () => {
     const address = server.address();
     const actualPort = typeof address === 'object' && address ? address.port : primaryPort;
