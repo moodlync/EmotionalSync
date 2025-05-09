@@ -60,7 +60,7 @@ export const SEOHead: React.FC<SeoProps> = ({
   title = 'MoodSync - #1 Emotion-Driven Social Network',
   description = 'Connect authentically through shared emotions on MoodSync. Track your moods, earn rewards, and build meaningful relationships based on emotional understanding.',
   keywords = [],
-  ogImage = '/logo-transparent-png.png',
+  ogImage = '/moodlync-logo-new.jpg',
   ogUrl,
   canonicalUrl,
   pageType = 'website',

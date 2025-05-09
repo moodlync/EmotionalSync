@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTheme } from "next-themes";
-import logoImage from '@/assets/new-moodlync-logo.png';
+import logoImage from '@/assets/moodlync-logo-new.jpg';
 
 interface DynamicLogoProps {
   className?: string;
