@@ -408,7 +408,7 @@ export default function AuthPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-2 pb-2">
             <div className="flex flex-col items-center justify-center py-2">
-              {/* Logo with minimal glow and heartbeat effect */}
+              {/* Updated logo with new design */}
               <div className="mb-2 flex items-center justify-center">
                 <AuthPageLogo logoSize={125} vertical showTagline textSize="lg" />
               </div>

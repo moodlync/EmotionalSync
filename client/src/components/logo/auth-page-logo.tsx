@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { useLocation } from 'wouter';
+import newLogoSrc from '@/assets/new-logo.jpg';
 
 interface AuthPageLogoProps {
   className?: string;
@@ -13,7 +14,7 @@ interface AuthPageLogoProps {
 
 export default function AuthPageLogo({
   className,
-  logoSize = 12,
+  logoSize = 125,
   textSize = 'md',
   vertical = false,
   hideText = false,
@@ -22,8 +23,8 @@ export default function AuthPageLogo({
 }: AuthPageLogoProps) {
   const [, navigate] = useLocation();
   
-  // Calculate the size for the logo
-  const finalSize = logoSize || 60;
+  // Reduce size by 75% as requested
+  const reducedSize = Math.floor(logoSize * 0.25);
   
   // Handle logo/text click - navigates to home when authenticated
   const handleLogoClick = () => {
@@ -39,11 +40,6 @@ export default function AuthPageLogo({
     lg: 'text-base',
     xl: 'text-lg'
   };
-  
-  // Font size for the ML text based on logo size
-  const mlTextSize = finalSize >= 100 ? 'text-4xl' : 
-                     finalSize >= 60 ? 'text-2xl' : 
-                     finalSize >= 40 ? 'text-xl' : 'text-base';
 
   return (
     <div className={cn(
@@ -53,13 +49,20 @@ export default function AuthPageLogo({
     )}>
       <div 
         className={cn(
-          "flex items-center justify-center bg-blue-500 text-white font-bold rounded-full",
+          "flex items-center justify-center",
           isAuthenticated && "cursor-pointer"
         )} 
-        style={{ width: `${finalSize}px`, height: `${finalSize}px` }}
         onClick={handleLogoClick}
       >
-        <span className={mlTextSize}>ML</span>
+        <img 
+          src={newLogoSrc} 
+          alt="MoodSync Logo" 
+          style={{ 
+            width: `${reducedSize}px`, 
+            height: `${reducedSize}px`,
+            objectFit: 'contain'
+          }} 
+        />
       </div>
       
       {!hideText && (
@@ -71,15 +74,15 @@ export default function AuthPageLogo({
           onClick={handleLogoClick}
         >
           <div className={cn(
-            'font-extrabold tracking-tight leading-none',
+            'font-extrabold tracking-tight leading-none text-center',
             textClasses[textSize]
           )}>
             <span className="text-black">MOOD</span>
-            <span className="text-red-500">LYNC</span>
+            <span className="text-red-500">SYNC</span>
           </div>
           
           {showTagline && (
-            <div className="text-black/70 text-xs leading-tight">
+            <div className="text-black/70 text-xs leading-tight text-center">
               Connect - Detect - Reflect
             </div>
           )}
