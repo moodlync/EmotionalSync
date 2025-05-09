@@ -1,13 +1,9 @@
-/**
- * MoodLync Combined Server Starter
- */
 
 const { spawn } = require('child_process');
-const http = require('http');
 
-console.log('🚀 Starting MoodLync Combined Server');
+console.log('🚀 Starting MoodLync Server');
 
-// Start the main application directly on port 5000
+// Start the main application on port 5000
 const mainApp = spawn('./node_modules/.bin/tsx', ['server/index.ts'], {
   env: { ...process.env, NODE_ENV: 'development', PORT: '5000' },
   stdio: 'inherit'
