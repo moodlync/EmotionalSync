@@ -115,21 +115,12 @@ app.use((req, res, next) => {
     log(`MoodLync server running on port 5000`);
     // Initialize WebSocket on primary server
     initializeWebSocketIfNeeded(server);
-
-    // For Replit, log environment info
+    
     if (isReplitEnv) {
       log(`Running in Replit environment on port 5000`);
     }
-
-      // Start the workflow detection server
-      workflowServer.listen(workflowPort, '0.0.0.0', () => {
-        log(`Workflow detection server running on port ${workflowPort}`);
-      }).on('error', (err: any) => {
-        console.error(`Failed to start workflow detection server on port ${workflowPort}:`, err.message);
-      });
-    }
   }).on('error', (err: any) => {
-    console.error(`Failed to start server on port ${primaryPort}:`, err.message);
-    console.error(`Server initialization failed. Please check if port ${primaryPort} is already in use.`);
+    console.error(`Failed to start server on port 5000:`, err.message);
+    console.error(`Server initialization failed. Please check if port 5000 is already in use.`);
   });
 })();
