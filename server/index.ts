@@ -117,11 +117,13 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Listen on port 5000 for Replit environment
-  server.listen(5000, "0.0.0.0", () => {
-    log(`MoodLync server running on port 5000`);
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, "0.0.0.0", () => {
+    log(`MoodLync server running on port ${PORT}`);
     if (isReplitEnv) {
-      log(`Running in Replit environment on port 5000`);
+      log(`Running in Replit environment on port ${PORT}`);
     }
+    // Initialize WebSocket server after HTTP server is running
+    initializeWebSocketIfNeeded(server);
   });
 })();

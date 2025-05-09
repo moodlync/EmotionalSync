@@ -1,21 +1,22 @@
 
 const { spawn } = require('child_process');
+const path = require('path');
 
 console.log('🚀 Starting MoodLync Server');
 
-// Start the main application on port 5000
-const mainApp = spawn('./node_modules/.bin/tsx', ['server/index.ts'], {
-  env: { ...process.env, NODE_ENV: 'development', PORT: '5000', REPL_SLUG: process.env.REPL_SLUG },
-  stdio: 'inherit'
+// Start the development server
+const app = spawn('npm', ['run', 'dev'], {
+  stdio: 'inherit',
+  env: { ...process.env, PORT: '5000' }
 });
 
-mainApp.on('error', (err) => {
-  console.error('Failed to start main application:', err);
+app.on('error', (err) => {
+  console.error(`Failed to start application: ${err.message}`);
   process.exit(1);
 });
 
-// Handle cleanup
 process.on('SIGINT', () => {
-  mainApp.kill('SIGINT');
+  console.log('Shutting down...');
+  app.kill('SIGINT');
   process.exit(0);
 });
