@@ -1,67 +1,77 @@
 /**
- * Simple Port Helper for Replit Workflow
+ * Simple Port Helper for Replit
  * 
- * This minimal script creates an HTTP server on port 5000
- * to help the Replit workflow detect our application.
+ * This script creates a very minimal HTTP server on port 5000
+ * that Replit can detect for the workflow and preview.
  */
 
 const http = require('http');
-const fs = require('fs');
 
-// Log file setup
-const logStream = fs.createWriteStream('./port-helper.log', { flags: 'a' });
-function log(message) {
-  const timestamp = new Date().toISOString();
-  const logLine = `[${timestamp}] ${message}\n`;
-  logStream.write(logLine);
-  console.log(logLine.trim());
-}
+console.log('🚀 Starting Simple Port Helper for Replit on port 5000');
 
-// Create a simple HTTP server on port 5000
-try {
-  log('Starting simple port helper on port 5000...');
-  
-  const server = http.createServer((req, res) => {
-    log(`Received request: ${req.method} ${req.url}`);
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('MoodLync application is running. Please visit port 8080 for the full application.');
+// Create a minimal HTTP server on port 5000
+const server = http.createServer((req, res) => {
+  console.log(`Request received on port 5000: ${req.url}`);
+
+  // Return a basic HTML page with an iframe embedding the actual app
+  res.writeHead(200, { 
+    'Content-Type': 'text/html',
+    'Cache-Control': 'no-cache'
   });
   
-  // Handle errors
-  server.on('error', (err) => {
-    log(`ERROR: ${err.message}`);
-    if (err.code === 'EADDRINUSE') {
-      log('Port 5000 is already in use. Exiting gracefully.');
-      process.exit(0);
-    } else {
-      process.exit(1);
-    }
+  // Get the current hostname from the request
+  const hostname = req.headers.host.split(':')[0];
+  
+  res.end(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>MoodLync Application</title>
+        <style>
+          body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            overflow: hidden;
+          }
+          iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+          }
+        </style>
+      </head>
+      <body>
+        <iframe src="http://${hostname}:5001/" allow="microphone; camera"></iframe>
+      </body>
+    </html>
+  `);
+});
+
+// Start the server
+server.listen(5000, '0.0.0.0', () => {
+  console.log('✅ Port helper is running on port 5000');
+  console.log('✅ Replit preview should now work correctly');
+  
+  // Output regular health checks to keep the connection active
+  setInterval(() => {
+    console.log(`[${new Date().toISOString()}] Port helper active on port 5000`);
+  }, 30000); // Every 30 seconds
+});
+
+// Handle errors
+server.on('error', (err) => {
+  console.error(`Error in port helper: ${err.message}`);
+  if (err.code === 'EADDRINUSE') {
+    console.log('Port 5000 is already in use. This might be okay if another service is already using it.');
+  }
+});
+
+// Handle graceful shutdown
+process.on('SIGINT', () => {
+  console.log('Shutting down port helper...');
+  server.close(() => {
+    console.log('Port helper shut down successfully');
+    process.exit(0);
   });
-  
-  // Start listening
-  server.listen(5000, '0.0.0.0', () => {
-    log('✅ Successfully listening on port 5000');
-    
-    // Regular health check
-    setInterval(() => {
-      log('Port helper is still active on port 5000');
-    }, 10000);
-  });
-  
-  // Prevent the process from exiting
-  process.stdin.resume();
-  
-  // Handle termination
-  process.on('SIGINT', () => {
-    log('Received SIGINT signal. Shutting down...');
-    server.close(() => {
-      log('Server closed successfully');
-      process.exit(0);
-    });
-  });
-  
-  log('Port helper initialization complete');
-} catch (error) {
-  log(`FATAL ERROR: ${error.message}`);
-  process.exit(1);
-}
+});

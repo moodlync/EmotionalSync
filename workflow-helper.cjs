@@ -1,106 +1,112 @@
 /**
- * MoodLync Workflow Helper
+ * Workflow Helper for Replit Preview
  * 
- * This script starts a port listener on port 5000 to help Replit's workflow
- * detect our application which runs on port 8080.
- * 
- * Run this helper before or alongside the main application to ensure proper
- * workflow detection.
+ * This script helps connect port 5000 to the main application
+ * to ensure that Replit preview works correctly.
  */
 
 const http = require('http');
-const fs = require('fs');
+const { spawn } = require('child_process');
 
-// Create a log file
-const logFile = fs.createWriteStream('./workflow-helper.log', { flags: 'a' });
-const logTimestamp = () => new Date().toISOString();
+// First, check if our application is already running on port 5001
+console.log('🔄 Checking for running application on port 5001...');
 
-// Redirect console output to both console and log file
-const originalConsoleLog = console.log;
-console.log = function() {
-  const args = Array.from(arguments);
-  const timestamp = `[${logTimestamp()}] `;
+const checkApp = http.request({
+  host: 'localhost',
+  port: 5001,
+  path: '/',
+  method: 'HEAD',
+  timeout: 1000
+}, (res) => {
+  console.log(`✅ Application detected on port 5001 (status: ${res.statusCode})`);
+  startPortHelper();
+});
+
+checkApp.on('error', (err) => {
+  console.log(`❌ No application detected on port 5001: ${err.message}`);
+  console.log('🚀 Starting main application on port 5001...');
   
-  originalConsoleLog.apply(console, [timestamp, ...args]);
-  logFile.write(timestamp + args.join(' ') + '\n');
-};
-
-console.error = function() {
-  const args = Array.from(arguments);
-  const timestamp = `[${logTimestamp()}] ERROR: `;
-  
-  originalConsoleLog.apply(console, [timestamp, ...args]);
-  logFile.write(timestamp + args.join(' ') + '\n');
-};
-
-console.log('🚀 Starting MoodLync Workflow Helper');
-
-// Create a simple HTTP server on port 5000 for Replit workflow detection
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 
-    'Content-Type': 'text/html',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
+  const app = spawn('npm', ['run', 'dev'], {
+    stdio: 'inherit',
+    env: { ...process.env, PORT: '5001' }
   });
   
-  res.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>MoodLync - Application Running</title>
-        <meta http-equiv="refresh" content="0;url=http://${req.headers.host.replace('5000', '8080')}" />
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-          h1 { color: #4F46E5; }
-          p { margin: 20px 0; }
-          .redirect { color: #9333EA; font-weight: bold; }
-        </style>
-      </head>
-      <body>
-        <h1>MoodLync Application</h1>
-        <p>The application is running on port 8080.</p>
-        <p class="redirect">Redirecting you to the main application...</p>
-        <script>
-          window.location.href = "http://" + window.location.host.replace('5000', '8080');
-        </script>
-      </body>
-    </html>
-  `);
-  res.end();
-});
-
-// Start the server on port 5000
-server.listen(5000, '0.0.0.0', () => {
-  console.log('✅ Successfully started workflow helper on port 5000');
-  console.log('✅ Replit workflow should now detect the application');
-  
-  // Keep the console active with periodic messages
-  setInterval(() => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] Workflow helper active on port 5000`);
-  }, 5000);
-});
-
-// Handle server errors
-server.on('error', (error) => {
-  console.error(`❌ Error starting workflow helper: ${error.message}`);
-  
-  if (error.code === 'EADDRINUSE') {
-    console.log('Port 5000 is already in use. This may be fine if another helper is running.');
-    process.exit(0);
-  } else {
+  app.on('error', (appErr) => {
+    console.error(`Failed to start application: ${appErr.message}`);
     process.exit(1);
-  }
+  });
+  
+  // Give the app a moment to start before starting the port helper
+  setTimeout(startPortHelper, 2000);
 });
 
-// Keep the process running indefinitely
-process.stdin.resume();
+checkApp.end();
+
+function startPortHelper() {
+  console.log('🚀 Starting port helper on port 5000 for Replit preview...');
+  
+  // Create a minimal HTTP server on port 5000
+  const server = http.createServer((req, res) => {
+    console.log(`Request received on port 5000: ${req.url}`);
+    
+    // Return a basic HTML page with an iframe
+    res.writeHead(200, { 
+      'Content-Type': 'text/html',
+      'Cache-Control': 'no-cache'
+    });
+    
+    // Get the current hostname from the request
+    const hostname = req.headers.host.split(':')[0];
+    
+    res.end(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>MoodLync Application</title>
+          <style>
+            body, html { 
+              margin: 0; 
+              padding: 0; 
+              height: 100%; 
+              overflow: hidden;
+            }
+            iframe {
+              width: 100%;
+              height: 100%;
+              border: none;
+            }
+          </style>
+        </head>
+        <body>
+          <iframe src="http://${hostname}:5001/" allow="microphone; camera"></iframe>
+        </body>
+      </html>
+    `);
+  });
+  
+  // Start the server
+  server.listen(5000, '0.0.0.0', () => {
+    console.log('✅ Port helper is running on port 5000');
+    console.log('✅ Replit preview should now work correctly');
+    
+    // Output periodic health checks to keep the workflow alive
+    setInterval(() => {
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] Port helper active on port 5000`);
+    }, 30000); // Every 30 seconds
+  });
+  
+  // Handle errors
+  server.on('error', (err) => {
+    console.error(`Error in port helper: ${err.message}`);
+    if (err.code === 'EADDRINUSE') {
+      console.log('Port 5000 is already in use by another process');
+    }
+  });
+}
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
   console.log('Shutting down workflow helper...');
-  server.close(() => {
-    console.log('Workflow helper shut down successfully');
-    process.exit(0);
-  });
+  process.exit(0);
 });
