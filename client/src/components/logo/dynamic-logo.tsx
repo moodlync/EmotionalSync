@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTheme } from "next-themes";
-import logoImage from '@/assets/logo-transparent-png.png';
+import logoImage from '@/assets/new-logo.jpg';
 
 interface DynamicLogoProps {
   className?: string;
@@ -13,7 +13,7 @@ interface DynamicLogoProps {
 
 export default function DynamicLogo({ 
   className, 
-  size = 143,
+  size = 36, // Reduced by 75% from original size of 143
   isAnimating: propIsAnimating = false,
   pulseEffect = false,
   heartbeatEffect = false

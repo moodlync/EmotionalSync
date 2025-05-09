@@ -433,7 +433,7 @@ export default function AuthPage() {
                 <img 
                   src={authImage} 
                   alt="MoodLync Connection" 
-                  className="w-full h-auto object-contain min-h-[150px]"
+                  className="w-full h-auto object-cover max-h-[150px]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent pointer-events-none"></div>
               </div>

@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { useLocation } from 'wouter';
-import logoImage from '@/assets/logo-transparent-png.png';
+import logoImage from '@/assets/new-logo.jpg';
 
 interface AuthPageLogoProps {
   className?: string;
@@ -16,7 +16,7 @@ interface AuthPageLogoProps {
 
 export default function AuthPageLogo({
   className,
-  logoSize = 48,
+  logoSize = 12, // Reduced by 75% from original size of 48
   textSize = 'md',
   vertical = false,
   hideText = false,

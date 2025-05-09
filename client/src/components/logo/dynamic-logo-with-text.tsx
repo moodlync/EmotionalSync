@@ -15,7 +15,7 @@ interface DynamicLogoWithTextProps {
 
 export default function DynamicLogoWithText({
   className,
-  logoSize = 53, // Increased by 10% (from 48 to 53)
+  logoSize = 13, // Reduced by 75% from 53
   textSize = 'sm', // Default to smaller text
   vertical = false,
   hideText = false,
