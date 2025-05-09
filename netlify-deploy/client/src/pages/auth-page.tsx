@@ -377,8 +377,28 @@ export default function AuthPage() {
     }
   };
 
+  // Force light mode in auth page
+  useEffect(() => {
+    // Save previous theme for restoration when navigating away
+    const prevTheme = localStorage.getItem('theme');
+    localStorage.setItem('prev-theme', prevTheme || 'light');
+    localStorage.setItem('theme', 'light');
+    document.documentElement.classList.remove('dark');
+    
+    return () => {
+      // Restore previous theme when component unmounts
+      const savedTheme = localStorage.getItem('prev-theme');
+      if (savedTheme) {
+        localStorage.setItem('theme', savedTheme);
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      }
+    };
+  }, []);
+  
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#EAEAEA] dark:bg-gray-950">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#EAEAEA]">
       {/* Left side - Auth forms */}
       <div className="flex-1 flex items-center justify-center p-4 md:p-8">
         <Card className="w-full max-w-xl">

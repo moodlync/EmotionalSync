@@ -31,6 +31,11 @@ mkdir -p $DEPLOY_DIR/netlify/functions
 touch $DEPLOY_DIR/netlify/functions/.npmrc
 chmod +x $DEPLOY_DIR/netlify/functions/install.js
 
+# Copy Netlify pre-build setup script
+echo "Copying Netlify pre-build setup script..."
+cp netlify/netlify-build-setup.cjs $DEPLOY_DIR/netlify/
+chmod +x $DEPLOY_DIR/netlify/netlify-build-setup.cjs
+
 # Ensure CJS fallback files are included
 if [ -f netlify/functions/api.cjs ]; then
   echo "Including serverless-http CJS fallback solutions..."
