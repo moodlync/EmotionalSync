@@ -25,7 +25,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import FeedbackForm from "@/components/feedback/feedback-form";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import logoImage from '@/assets/moodlync-logo.png';
+import logoImage from '@/assets/logo-transparent-png.png';
 
 export default function Footer() {
   const { user } = useAuth();
