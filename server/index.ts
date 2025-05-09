@@ -78,10 +78,10 @@ app.use((req, res, next) => {
 
   // Global variables to track the server state
   let websocketInitialized = false;
-  
+
   // Determine which ports to try based on environment
   const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
-  
+
   // Use port 5001 as our primary port for compatibility with all environments
   const primaryPort = process.env.PORT ? parseInt(process.env.PORT) : 5001;
 
@@ -90,11 +90,11 @@ app.use((req, res, next) => {
 
   // Simple direct server listen approach
   log(`Starting MoodLync server on port ${primaryPort}...`);
-  
+
   // Create a function to initialize WebSocket server
   const initializeWebSocketIfNeeded = (server: http.Server) => {
     if (websocketInitialized) return;
-    
+
     // @ts-ignore - Access dynamically exported function
     const initializeWebSocketServer = server['initializeWebSocketServer'];
     if (typeof initializeWebSocketServer === 'function') {
@@ -109,27 +109,27 @@ app.use((req, res, next) => {
       console.warn('WebSocket server initialization function not found');
     }
   };
-  
+
   // Listen on primary port (5001 for all environments)
   server.listen(primaryPort, "0.0.0.0", () => {
     const address = server.address();
     const actualPort = typeof address === 'object' && address ? address.port : primaryPort;
     log(`MoodLync server running on port ${actualPort}`);
-    
+
     // Initialize WebSocket on primary server
     initializeWebSocketIfNeeded(server);
-    
+
     // For Replit, set up a workflow detection server on port 5000
     if (isReplitEnv) {
       log(`Running in Replit environment on port ${actualPort}`);
-      
+
       // Create a simple HTTP server on port 5000 for Replit workflow detection
       const workflowPort = 5000;
       const workflowServer = createServer((req: any, res: any) => {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end(`MoodLync is running on port ${actualPort}. Please visit that port for the application.`);
       });
-      
+
       // Start the workflow detection server
       workflowServer.listen(workflowPort, '0.0.0.0', () => {
         log(`Workflow detection server running on port ${workflowPort}`);

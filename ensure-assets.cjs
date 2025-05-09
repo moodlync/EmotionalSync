@@ -132,3 +132,40 @@ if (fs.existsSync(attachedAssetsDir)) {
 
 console.log(`\n${colors.green}✅ Asset management completed${colors.reset}`);
 console.log(`${colors.cyan}===== End of MoodLync Asset Management Script =====${colors.reset}`);
+const fs = require('fs');
+const path = require('path');
+
+// Check for required asset directories
+const requiredDirs = [
+  'client/src/assets',
+  'client/public/assets'
+];
+
+requiredDirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Created ${dir}`);
+  }
+});
+
+// Check for logo files
+const logoSources = [
+  'attached_assets/logo-transparent-png.png',
+  'public/logo-transparent-png.png',
+  'client/src/assets/moodlync-logo-enhanced.png'
+];
+
+let logoFound = false;
+for (const source of logoSources) {
+  if (fs.existsSync(source)) {
+    // Copy to client assets
+    fs.copyFileSync(source, 'client/src/assets/new-logo.png');
+    logoFound = true;
+    console.log(`Copied logo from ${source}`);
+    break;
+  }
+}
+
+if (!logoFound) {
+  console.error('Warning: Could not find logo file');
+}
