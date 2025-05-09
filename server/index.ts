@@ -117,7 +117,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const PORT = process.env.PORT || 5000;
+  // Ensure PORT is a number for TypeScript type checking
+  const PORT: number = typeof process.env.PORT === 'string' ? parseInt(process.env.PORT, 10) : 5000;
   server.listen(PORT, "0.0.0.0", () => {
     log(`MoodLync server running on port ${PORT}`);
     if (isReplitEnv) {
@@ -127,6 +128,6 @@ app.use((req, res, next) => {
     initializeWebSocketIfNeeded(server);
   });
   
-  // Export the server for Netlify functions
-  export { app, server };
+  // For Netlify functions, we'll assign to module.exports in a CommonJS setting
+  // or use export default if needed in a separate file
 })();
