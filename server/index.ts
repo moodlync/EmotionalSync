@@ -126,4 +126,7 @@ app.use((req, res, next) => {
     // Initialize WebSocket server after HTTP server is running
     initializeWebSocketIfNeeded(server);
   });
+  
+  // Export the server for Netlify functions
+  export { app, server };
 })();
