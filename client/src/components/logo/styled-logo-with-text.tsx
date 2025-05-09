@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { useLocation } from 'wouter';
-import logoImage from '@/assets/moodlync-logo-icon.png';
+import logoImage from '@/assets/new-logo.jpeg';
 
 interface StyledLogoWithTextProps {
   className?: string;
@@ -31,26 +31,27 @@ export default function StyledLogoWithText({
   const [mounted, setMounted] = useState(false);
   const [, navigate] = useLocation();
   
-  // Calculate the adjusted size (85% larger)
-  const adjustedLogoSize = Math.floor(logoSize * 1.85);
+  // Calculate the adjusted size (make logo 50% larger)
+  const adjustedLogoSize = Math.floor(logoSize * 2.5);
   
   // Avoid hydration mismatch by only rendering after mount
   useEffect(() => {
     setMounted(true);
   }, []);
   
+  // 50% smaller text sizes as requested
   const textSizeClasses = {
-    sm: 'text-2xl', // Increased by 85%
-    md: 'text-3xl', // Increased by 85%
-    lg: 'text-4xl', // Increased by 85%
-    xl: 'text-5xl'  // Increased by 85%
+    sm: 'text-xs', // 50% smaller
+    md: 'text-sm', // 50% smaller
+    lg: 'text-base', // 50% smaller
+    xl: 'text-lg'  // 50% smaller
   };
 
   const taglineSizeClasses = {
-    sm: 'text-sm',  // Increased by 85%
-    md: 'text-base', // Increased by 85%
-    lg: 'text-lg',  // Increased by 85%
-    xl: 'text-xl'   // Increased by 85%
+    sm: 'text-xs',  // 50% smaller
+    md: 'text-xs', // 50% smaller
+    lg: 'text-sm',  // 50% smaller
+    xl: 'text-base'   // 50% smaller
   };
 
   // Determine if we're in dark mode

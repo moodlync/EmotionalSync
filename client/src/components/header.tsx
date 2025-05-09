@@ -95,7 +95,7 @@ export default function Header() {
         <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
             <StyledLogoWithText 
-              logoSize={45} 
+              logoSize={70} 
               textSize="lg" 
               hideText={false}
               enableHeartbeat={true}

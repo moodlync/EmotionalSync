@@ -383,8 +383,8 @@ export default function AuthPage() {
               <div className="mb-5">
                 <div className="flex items-center justify-center">
                   <StyledLogoWithText 
-                    logoSize={70} 
-                    textSize="xl" 
+                    logoSize={100} 
+                    textSize="lg" 
                     enableHeartbeat={true}
                     enableSpin={true}
                     showTagline={true}
