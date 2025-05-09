@@ -90,9 +90,8 @@ export default function WelcomePage() {
       <header className="w-full bg-white dark:bg-gray-900 border-b dark:border-gray-800 py-5 px-6 shadow-sm sticky top-0 z-50 backdrop-blur-sm bg-white/90 dark:bg-gray-900/90">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
-            <div className="relative group">
-              <div className="absolute inset-[-10%] bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md relative">
+            <div className="relative">
+              <div className="p-3 relative">
                 <StyledLogoWithText 
                   logoSize={48} 
                   textSize="lg" 
