@@ -21,7 +21,7 @@ export default function DynamicLogoWithText({
   hideText = false,
   showTagline = true, // Always show tagline by default
   isWelcomeScreen = false, // Special enhanced mode for welcome screen
-  enableHeartbeat = true // Heartbeat animation effect enabled as requested
+  enableHeartbeat = false // Disable heartbeat animation effect per user request
 }: DynamicLogoWithTextProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [highlightedWord, setHighlightedWord] = useState(0);
@@ -40,15 +40,10 @@ export default function DynamicLogoWithText({
     }
   }, [isWelcomeScreen]);
   
-  // Animate the logo on welcome screen load
+  // No animation on logo load per user request
   useEffect(() => {
     if (isWelcomeScreen) {
-      setIsAnimating(true);
-      const timeout = setTimeout(() => {
-        setIsAnimating(false);
-      }, 1500);
-      
-      return () => clearTimeout(timeout);
+      setIsAnimating(false); // Disable animation
     }
   }, [isWelcomeScreen]);
   
@@ -84,9 +79,9 @@ export default function DynamicLogoWithText({
       <div className="relative flex-shrink-0"> {/* Added flex-shrink-0 for mobile */}
         <DynamicLogo 
           size={welcomeLogoSize} 
-          isAnimating={isAnimating || isWelcomeScreen}
-          pulseEffect={isWelcomeScreen}
-          heartbeatEffect={enableHeartbeat}
+          isAnimating={false}
+          pulseEffect={false}
+          heartbeatEffect={false}
           className="z-10"
         />
       </div>

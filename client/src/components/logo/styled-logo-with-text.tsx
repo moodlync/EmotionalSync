@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { useLocation } from 'wouter';
-import logoImage from '@/assets/new-logo.png';
+import logoImage from '@/assets/new-moodlync-logo.png';
 
 interface StyledLogoWithTextProps {
   className?: string;
@@ -77,10 +77,7 @@ export default function StyledLogoWithText({
         <img 
           src={logoImage} 
           alt="MoodLync Logo" 
-          className={cn(
-            "w-full h-full object-contain",
-            "animate-very-slow-spin"
-          )}
+          className="w-full h-full object-contain"
         />
       </div>
       

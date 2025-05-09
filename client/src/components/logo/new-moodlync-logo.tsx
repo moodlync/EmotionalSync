@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logoImage from '@/assets/moodlync-logo.png';
+import logoImage from '@/assets/new-moodlync-logo.png';
 
 interface NewMoodLyncLogoProps {
   className?: string;
