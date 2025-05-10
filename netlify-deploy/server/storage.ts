@@ -7647,4 +7647,13 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Import the simplified storage
+import { simpleStorage } from './simplified-storage';
+
+// Create the default storage instance
+const memStorage = new MemStorage();
+
+// Export the appropriate storage based on environment variable
+export const storage = process.env.USE_SIMPLIFIED_AUTH === 'true' 
+  ? simpleStorage 
+  : memStorage;

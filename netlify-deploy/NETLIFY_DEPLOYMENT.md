@@ -69,14 +69,20 @@ After deployment, you need to set up environment variables in Netlify:
 2. Navigate to Site settings > Environment variables
 3. Add the following environment variables:
    - `NODE_VERSION`: 20 (required)
+   - `NPM_CONFIG_LEGACY_PEER_DEPS`: true (recommended for build optimization)
+   - `BROWSERSLIST_IGNORE_OLD_DATA`: true (prevents browserslist warnings)
    - `DATABASE_URL`: Your database connection string (if using a database)
+   - `SESSION_SECRET`: A long random string for securing session cookies 
    - `SENDGRID_API_KEY`: Your SendGrid API key (if using email functionality)
    - `ANTHROPIC_API_KEY`: Your Anthropic API key (if using AI functionality)
    - `OPENAI_API_KEY`: Your OpenAI API key (if using AI functionality)
    - `STRIPE_SECRET_KEY`: Your Stripe secret key (if using payment functionality)
    - `VITE_STRIPE_PUBLIC_KEY`: Your Stripe public key (if using payment functionality)
+   - `PERPLEXITY_API_KEY`: Your Perplexity API key (if using AI chat functionality)
 
 4. After setting environment variables, trigger a new deployment by clicking "Trigger deploy" in the Netlify dashboard
+
+You can use the included `netlify-env-setup.sh` script for guidance on setting up these variables.
 
 ## Troubleshooting
 
@@ -100,7 +106,10 @@ If you're getting "Page not found" errors when navigating to routes in your depl
 
 If your frontend can't connect to the API endpoints:
 
-1. Ensure the API redirects are properly configured in `netlify.toml`:
+1. Check your environment detection settings by accessing the new debug endpoint at `<your-site-url>/api/environment`
+   This will show you detailed information about how the environment is being detected.
+
+2. Ensure the API redirects are properly configured in `netlify.toml`:
    ```toml
    [[redirects]]
      from = "/api/*"
@@ -109,9 +118,19 @@ If your frontend can't connect to the API endpoints:
      force = true
    ```
 
-2. Check if your API functions are being deployed correctly by accessing `<your-site-url>/.netlify/functions/api/healthcheck`
+3. Test your API functions directly by accessing:
+   - `<your-site-url>/.netlify/functions/api/health` (API health check)
+   - `<your-site-url>/api/health` (Redirected health check)
+   - `<your-site-url>/netlify-debug` (Netlify environment diagnostics)
 
-3. Verify that all required environment variables for your API are set in the Netlify dashboard
+4. Verify CORS headers are properly set in browser dev tools (Network tab)
+   The responses should include the following headers:
+   - `Access-Control-Allow-Origin: *`
+   - `Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With`
+
+5. Verify that all required environment variables for your API are set in the Netlify dashboard
+
+6. Check for any errors in the Netlify function logs (accessible from your Netlify dashboard under Functions)
 
 ### Build Failures
 

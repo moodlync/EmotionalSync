@@ -1,8 +1,4 @@
 import { cn } from '@/lib/utils';
-import DynamicLogo from './dynamic-logo';
-import { useState, useEffect } from 'react';
-import { useTheme } from "next-themes";
-import logoImage from '@/assets/moodlync-logo-new.jpg';
 
 interface HeaderLogoWithTextProps {
   className?: string;
@@ -10,7 +6,6 @@ interface HeaderLogoWithTextProps {
   textSize?: 'sm' | 'md' | 'lg' | 'xl';
   vertical?: boolean;
   hideText?: boolean;
-  enableHeartbeat?: boolean;
   isWelcomeScreen?: boolean;
 }
 
@@ -20,27 +15,10 @@ export default function HeaderLogoWithText({
   textSize = 'md',
   vertical = false,
   hideText = false,
-  enableHeartbeat = true,
   isWelcomeScreen = false
 }: HeaderLogoWithTextProps) {
-  const [isAnimating, setIsAnimating] = useState(false);
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  // Avoid hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  const textSizeClasses = {
-    sm: 'text-xs font-semibold',
-    md: 'text-sm font-semibold',
-    lg: 'text-base font-semibold',
-    xl: 'text-lg font-semibold'
-  };
-
-  // Determine if we're in dark mode
-  const isDarkMode = mounted && (theme === 'dark');
+  // Calculate font size based on logo size
+  const fontSize = Math.max(14, Math.floor(logoSize / 3));
 
   return (
     <div className={cn(
@@ -53,25 +31,32 @@ export default function HeaderLogoWithText({
         {isWelcomeScreen ? (
           <div className="relative group">
             <div className="absolute inset-[-10%] bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
-            <img 
-              src={logoImage} 
-              alt="MoodLync Logo" 
-              className="object-contain relative"
-              style={{
+            <div className="relative" style={{
                 boxShadow: '0 6px 16px rgba(96, 82, 199, 0.3)',
-                backgroundColor: 'white',
                 width: `${logoSize * 1.5}px`,
-                height: `${logoSize * 0.75}px`,
-                borderRadius: '9999px',
+                height: `${logoSize * 1.5}px`,
                 padding: '10px',
+                borderRadius: '50%',
+                backgroundColor: 'white',
                 border: '2px solid rgba(96, 82, 199, 0.2)'
-              }}
-            />
+              }}>
+              <img 
+                src="/assets/moodlync-logo-resized.jpg" 
+                alt="MoodLync Logo" 
+                className="w-full h-full object-contain"
+                style={{ borderRadius: '50%' }}
+              />
+            </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center" style={{ width: `${logoSize}px`, height: `${logoSize}px` }}>
+          <div className="flex items-center justify-center rounded-full" 
+            style={{ 
+              width: `${logoSize}px`, 
+              height: `${logoSize}px`,
+              backgroundColor: 'white'
+            }}>
             <img 
-              src={logoImage} 
+              src="/assets/moodlync-logo-resized.jpg" 
               alt="MoodLync Logo" 
               className="w-full h-full object-contain rounded-full" 
             />

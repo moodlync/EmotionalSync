@@ -95,6 +95,14 @@ const AdminBackupPage = lazy(() => import("@/pages/admin/admin-backup-page"));
 const AdminStudyPage = lazy(() => import("@/pages/admin/admin-study-page"));
 const AdminDirectAccess = lazy(() => import("@/pages/admin-direct-access"));
 
+// Emotion Story pages
+const EmotionStoriesPage = lazy(() => import("@/pages/emotion-stories-page"));
+const EmotionStoryDetailsPage = lazy(() => import("@/pages/emotion-story-details-page"));
+const CreateEmotionStoryPage = lazy(() => import("@/pages/create-emotion-story-page"));
+
+// Testing components
+const InteractiveElementsDemo = lazy(() => import("@/components/testing/interactive-elements-demo"));
+
 // Loading indicator for lazy-loaded components
 const LazyLoadingIndicator = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -146,6 +154,7 @@ const RouterComponent = () => {
     { path: "/faq", component: FAQPage },
     { path: "/roadmap", component: RoadmapPage },
     { path: "/premium/compare", component: PremiumComparisonPage },
+    { path: "/demo", component: InteractiveElementsDemo },
   ];
   
   const protectedRoutes = [
@@ -178,6 +187,9 @@ const RouterComponent = () => {
     { path: "/personalization", component: PersonalizationPage },
     { path: "/security-center", component: SecurityCenterPage },
     { path: "/community", component: CommunityFeedPage },
+    { path: "/emotion-stories", component: EmotionStoriesPage },
+    { path: "/emotion-stories/create", component: CreateEmotionStoryPage },
+    { path: "/emotion-stories/:id", component: EmotionStoryDetailsPage },
   ];
   
   const adminRoutes = [

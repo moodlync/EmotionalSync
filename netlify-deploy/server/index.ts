@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import cors from 'cors';
 import * as http from 'http';
 import { createServer } from 'http';
+import { startPortForwarder } from "./port-forward";
 
 const app = express();
 app.use(express.json());
@@ -67,14 +68,8 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
+  // Note: Vite setup will be done later in the code
+  // This helps prevent duplicate setup
 
   // Global variables to track the server state
   let websocketInitialized = false;
@@ -124,16 +119,63 @@ app.use((req, res, next) => {
   app.get('/api/healthcheck', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'MoodLync server is running!' });
   });
+  
+  // Add a test registration endpoint for debugging
+  app.post('/api/test-register', (req, res) => {
+    console.log('Test registration request received:', {
+      body: req.body,
+      headers: req.headers['content-type'],
+      method: req.method
+    });
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Registration data received for testing',
+      data: req.body
+    });
+  });
 
   // Clearer logging for server start
   log(`Starting MoodLync server on port ${usePort}...`);
+  
+  // Enhanced debug information for Replit environment
+  if (isReplitEnv) {
+    log("=== Replit Environment Information ===");
+    log(`PORT: ${process.env.PORT || 'Not set'}`);
+    log(`REPL_ID: ${process.env.REPL_ID || 'Not set'}`);
+    log(`REPL_SLUG: ${process.env.REPL_SLUG || 'Not set'}`);
+    log(`REPL_OWNER: ${process.env.REPL_OWNER || 'Not set'}`);
+    log("=====================================");
+  }
   
   // Use 0.0.0.0 instead of localhost to bind to all interfaces
   server.listen(usePort, "0.0.0.0", () => {
     log(`MoodLync server running on port ${usePort}`);
     if (isReplitEnv) {
       log(`Running in Replit environment on port ${usePort}`);
+      
+      // Start the port forwarder in Replit environment
+      try {
+        const forwarder = startPortForwarder();
+        log("Port forwarder started to expose application to the internet");
+        
+        // We need to handle process termination properly
+        process.on('SIGINT', () => {
+          log('SIGINT received, closing port forwarder...');
+          forwarder.close();
+          process.exit(0);
+        });
+        
+        process.on('SIGTERM', () => {
+          log('SIGTERM received, closing port forwarder...');
+          forwarder.close();
+          process.exit(0);
+        });
+      } catch (error) {
+        log(`Failed to start port forwarder: ${error instanceof Error ? error.message : String(error)}`);
+      }
     }
+    
     // Initialize WebSocket server after HTTP server is running
     initializeWebSocketIfNeeded(server);
   });

@@ -1,7 +1,4 @@
-import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { useTheme } from "next-themes";
-import logoImage from '@/assets/moodlync-logo-new.jpg';
 
 interface DynamicLogoProps {
   className?: string;
@@ -13,48 +10,36 @@ interface DynamicLogoProps {
 
 export default function DynamicLogo({ 
   className, 
-  size = 143,
-  isAnimating: propIsAnimating = false,
+  size = 36,
+  isAnimating = false,
   pulseEffect = false,
   heartbeatEffect = false
 }: DynamicLogoProps) {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  // Avoid hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  // Determine if we're in dark mode
-  const isDarkMode = mounted && (theme === 'dark');
-  
   return (
     <div 
       className={cn(
-        "relative cursor-pointer flex items-center justify-center",
+        "flex items-center justify-center relative",
+        pulseEffect && "animate-pulse",
+        heartbeatEffect && "animate-heartbeat",
         className
       )} 
       style={{ 
         width: size, 
-        height: size,
-        backgroundColor: 'transparent',
-        borderRadius: '50%'
+        height: size
       }}
     >
-      {/* Simple transparent logo with no effects */}
-      <div 
-        className="w-full h-full rounded-full flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundColor: 'transparent'
-        }}
-      >
-        <img 
-          src={logoImage} 
-          alt="MoodLync Logo" 
-          className="w-full h-full object-contain" 
-        />
-      </div>
+      {/* Using the actual image directly */}
+      <img 
+        src="/assets/moodlync-logo-resized.jpg" 
+        alt="MoodLync Logo" 
+        width={size} 
+        height={size} 
+        className={cn(
+          "object-contain",
+          isAnimating && "transition-transform duration-300",
+          heartbeatEffect && "animate-heartbeat"
+        )}
+      />
     </div>
   );
 }

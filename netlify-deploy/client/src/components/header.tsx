@@ -1,7 +1,6 @@
-import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle } from "lucide-react";
+import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle, PenLine } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import newLogo from "@/assets/moodlync-logo-new.jpg";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   DropdownMenu,
@@ -90,24 +89,39 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-primary dark:bg-primary text-white shadow-md">
+    <header className="bg-gradient-to-r from-[#D7D7FC] via-[#4D4DE3] to-[#1A1A2E] dark:from-[#4D4DE3] dark:via-[#1A1A2E] dark:to-[#0D0D15] text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link to="/" className="flex items-center cursor-pointer">
           <div className="hover:scale-105 transition-transform duration-300 ease-in-out">
             <div className="flex flex-row items-center gap-2">
-              <div className="w-[60px] h-[60px]">
-                <img 
-                  src={newLogo} 
-                  alt="MoodLync Logo" 
-                  className="w-full h-full object-contain"
-                />
+              <div className="w-[60px] h-[60px] flex items-center justify-center">
+                {/* SVG version of the logo using the exact design from the provided image */}
+                <svg 
+                  width="50" 
+                  height="50" 
+                  viewBox="0 0 300 300" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Blue curved line at top */}
+                  <path d="M50,100 C100,50 200,50 250,100" stroke="#0096FF" strokeWidth="20" fill="none" />
+                  
+                  {/* Red person icon in center */}
+                  <circle cx="150" cy="120" r="25" fill="#FF4D6A" />
+                  <path d="M150,145 C120,145 110,170 110,190 C110,210 120,220 150,220 C180,220 190,210 190,190 C190,170 180,145 150,145" fill="#FF4D6A" />
+                  
+                  {/* Red curved line (left) */}
+                  <path d="M50,100 C30,140 30,180 50,220" stroke="#BF0000" strokeWidth="20" fill="none" />
+                  
+                  {/* Green curved line (right) */}
+                  <path d="M250,100 C270,140 270,180 250,220" stroke="#008F00" strokeWidth="20" fill="none" />
+                </svg>
               </div>
-              <div className="flex flex-col">
-                <div className="font-extrabold tracking-tight text-lg leading-none text-white">
-                  <span>MOOD</span>
-                  <span className="text-red-300">LYNC</span>
+              <div className="flex flex-col ml-2">
+                <div className="font-extrabold tracking-tight text-lg leading-none">
+                  <span className="text-black">MOOD</span>
+                  <span className="text-red-600">LYNC</span>
                 </div>
-                <div className="text-white/70 text-xs leading-tight">
+                <div className="text-white/80 text-xs leading-tight font-medium">
                   Connect - Detect - Reflect
                 </div>
               </div>
@@ -143,10 +157,10 @@ export default function Header() {
           {/* Desktop Search Component - Only visible on desktop */}
           {user && (
             <div className="hidden md:flex items-center relative">
-              <div className={`flex items-center ${isSearchOpen ? 'w-64' : 'w-10'} transition-all duration-300 bg-gray-100 dark:bg-white rounded-full overflow-hidden`}>
+              <div className={`flex items-center ${isSearchOpen ? 'w-64' : 'w-10'} transition-all duration-300 bg-white/90 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full overflow-hidden shadow-sm`}>
                 <button 
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="flex items-center justify-center h-10 w-10 text-gray-500 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-800"
+                  className="flex items-center justify-center h-10 w-10 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   <Search className="h-4 w-4" />
                 </button>
@@ -157,7 +171,7 @@ export default function Header() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search MoodLync..."
-                    className="flex-1 h-10 px-2 bg-transparent border-none focus:outline-none text-sm dark:text-gray-800"
+                    className="flex-1 h-10 px-2 bg-transparent border-none focus:outline-none text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 )}
               </div>
@@ -167,10 +181,10 @@ export default function Header() {
           {/* Mobile Search Component - Only visible on mobile */}
           {user && (
             <div className="flex md:hidden items-center relative">
-              <div className={`flex items-center ${isSearchOpen ? 'w-32' : 'w-8'} transition-all duration-300 bg-gray-100 dark:bg-white rounded-full overflow-hidden`}>
+              <div className={`flex items-center ${isSearchOpen ? 'w-32' : 'w-8'} transition-all duration-300 bg-white/90 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full overflow-hidden shadow-sm`}>
                 <button 
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="flex items-center justify-center h-8 w-8 text-gray-500 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-800"
+                  className="flex items-center justify-center h-8 w-8 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   <Search className="h-3.5 w-3.5" />
                 </button>
@@ -181,7 +195,7 @@ export default function Header() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search..."
-                    className="flex-1 h-8 px-2 bg-transparent border-none focus:outline-none text-xs dark:text-gray-800"
+                    className="flex-1 h-8 px-2 bg-transparent border-none focus:outline-none text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 )}
               </div>
@@ -323,6 +337,12 @@ export default function Header() {
                     <Heart className="h-4 w-4 mr-2 text-pink-400 flex-shrink-0" />
                     <span className="truncate">Emotional Imprints</span>
                     {user?.isPremium && <Badge variant="outline" className="ml-2 text-xs flex-shrink-0">Premium</Badge>}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/emotion-stories" className="w-full flex items-center">
+                    <PenLine className="h-4 w-4 mr-2 text-indigo-500 flex-shrink-0" />
+                    <span className="truncate">Emotion Stories</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">

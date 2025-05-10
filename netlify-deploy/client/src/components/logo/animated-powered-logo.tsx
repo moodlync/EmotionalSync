@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import logoImage from '@/assets/moodlync-logo-new.jpg';
 
 interface AnimatedPoweredLogoProps {
   width?: number;
@@ -91,14 +90,10 @@ export default function AnimatedPoweredLogo({ width = 80 }: AnimatedPoweredLogoP
             <div className="absolute w-full h-full rounded-full bg-primary/10 blur-md"></div>
           </motion.div>
           <div 
-            className="flex items-center justify-center rounded-full bg-primary/10 shadow-md border border-gray-100"
+            className="flex items-center justify-center rounded-full bg-blue-500 text-white font-bold shadow-md border border-gray-100"
             style={{ width: `${width}px`, height: `${width}px` }} 
           >
-            <img 
-              src={logoImage} 
-              alt="MoodLync Logo" 
-              className="w-full h-full object-contain rounded-full" 
-            />
+            <span className="text-lg">ML</span>
           </div>
         </motion.div>
         

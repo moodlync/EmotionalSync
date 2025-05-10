@@ -7,8 +7,8 @@ echo "Setting up essential Netlify environment variables..."
 
 echo "=== NODE VERSION SETTINGS ==="
 echo "Variable: NODE_VERSION"
-echo "Value: 18.18.0"
-echo "This ensures Netlify uses a valid Node.js version during build"
+echo "Value: 20"
+echo "This ensures Netlify uses the latest LTS Node.js version during build"
 echo ""
 
 echo "=== BUILD OPTIMIZATION SETTINGS ==="

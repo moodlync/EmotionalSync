@@ -5,6 +5,7 @@ import cors from 'cors';
 import * as http from 'http';
 import { createServer } from 'http';
 import { startPortForwarder } from "./port-forward";
+import { startESMPortForwarder } from "./esm-port-forward";
 
 const app = express();
 app.use(express.json());
@@ -75,13 +76,19 @@ app.use((req, res, next) => {
   let websocketInitialized = false;
 
   // Determine which ports to try based on environment
-  const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
+  const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG || process.env.REPLIT_ENVIRONMENT || process.env.IS_REPLIT);
+  
+  // Set Replit environment variables for downstream components
+  if (isReplitEnv) {
+    process.env.REPLIT_ENVIRONMENT = 'true';
+    process.env.IS_REPLIT = 'true';
+  }
 
-  // Switch back to port 5000 for Replit compatibility
+  // Use port 5000 for our application server
   const primaryPort = 5000;
   
-  // Keep the workflow port the same
-  const workflowPort = 5000;
+  // This is the port that Replit webview will access via the port forwarder (3000)
+  const webviewPort = 3000;
 
   // Simple direct server listen approach
   log(`Starting MoodLync server on port ${primaryPort}...`);
@@ -145,7 +152,33 @@ app.use((req, res, next) => {
     log(`REPL_ID: ${process.env.REPL_ID || 'Not set'}`);
     log(`REPL_SLUG: ${process.env.REPL_SLUG || 'Not set'}`);
     log(`REPL_OWNER: ${process.env.REPL_OWNER || 'Not set'}`);
+    log(`REPLIT_ENVIRONMENT: ${process.env.REPLIT_ENVIRONMENT || 'Not set'}`);
+    log(`IS_REPLIT: ${process.env.IS_REPLIT || 'Not set'}`);
+    log(`Application Port: ${primaryPort}`);
+    log(`Webview Port: ${webviewPort}`);
+    log(`Node.js Version: ${process.version}`);
+    log(`Process ID: ${process.pid}`);
     log("=====================================");
+    
+    // Add a diagnostic API route with detailed environment info
+    app.get('/api/environment', (req, res) => {
+      res.json({
+        environment: 'replit',
+        isReplit: true,
+        isNetlify: false,
+        repl_id: process.env.REPL_ID,
+        repl_slug: process.env.REPL_SLUG,
+        repl_owner: process.env.REPL_OWNER,
+        node_version: process.version,
+        ports: {
+          application: primaryPort,
+          webview: webviewPort,
+          env_port: process.env.PORT
+        },
+        headers: req.headers,
+        timestamp: new Date().toISOString()
+      });
+    });
   }
   
   // Use 0.0.0.0 instead of localhost to bind to all interfaces
@@ -153,24 +186,81 @@ app.use((req, res, next) => {
     log(`MoodLync server running on port ${usePort}`);
     if (isReplitEnv) {
       log(`Running in Replit environment on port ${usePort}`);
+      log(`Application available at http://localhost:${usePort}`);
+      log(`Webview will access application via port ${webviewPort}`);
       
       // Start the port forwarder in Replit environment
       try {
-        const forwarder = startPortForwarder();
-        log("Port forwarder started to expose application to the internet");
-        
-        // We need to handle process termination properly
-        process.on('SIGINT', () => {
-          log('SIGINT received, closing port forwarder...');
-          forwarder.close();
-          process.exit(0);
+        // Create a lightweight HTTP healthcheck endpoint on port 3000
+        // This ensures Replit webview can detect our application
+        // Note: Using the already imported http module - no need for require
+        const healthServer = createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          
+          // Forward requests to our main app except for basic healthcheck
+          if (req.url === '/' || req.url === '/health') {
+            res.writeHead(200);
+            res.end(JSON.stringify({
+              status: 'ok',
+              message: 'MoodLync is running',
+              port: usePort,
+              webviewPort: webviewPort,
+              timestamp: new Date().toISOString()
+            }));
+          } else {
+            // Tell client to redirect to our main port
+            res.writeHead(307, {
+              'Location': `http://localhost:${usePort}${req.url}`
+            });
+            res.end();
+          }
         });
         
-        process.on('SIGTERM', () => {
-          log('SIGTERM received, closing port forwarder...');
-          forwarder.close();
-          process.exit(0);
-        });
+        // Try to start the ESM-compatible port forwarder first
+        try {
+          // Start the port forwarder using ESM syntax
+          const esmForwarder = startESMPortForwarder();
+          log("✅ ESM Port forwarder started to expose application to the internet");
+          
+          // We need to handle process termination properly
+          process.on('SIGINT', () => {
+            log('SIGINT received, closing servers...');
+            esmForwarder.close();
+            process.exit(0);
+          });
+          
+          process.on('SIGTERM', () => {
+            log('SIGTERM received, closing servers...');
+            esmForwarder.close();
+            process.exit(0);
+          });
+        } catch (esmError) {
+          log(`Error with ESM port forwarder: ${esmError instanceof Error ? esmError.message : String(esmError)}`);
+          
+          // Fallback to webview healthcheck
+          try {
+            // Start the webview healthcheck server on port 3000
+            healthServer.listen(webviewPort, '0.0.0.0', () => {
+              log(`✅ Webview healthcheck running on port ${webviewPort}`);
+            });
+            
+            // We need to handle process termination properly
+            process.on('SIGINT', () => {
+              log('SIGINT received, closing servers...');
+              healthServer.close();
+              process.exit(0);
+            });
+            
+            process.on('SIGTERM', () => {
+              log('SIGTERM received, closing servers...');
+              healthServer.close();
+              process.exit(0);
+            });
+          } catch (healthError) {
+            log(`Failed to start health server: ${healthError instanceof Error ? healthError.message : String(healthError)}`);
+          }
+        }
       } catch (error) {
         log(`Failed to start port forwarder: ${error instanceof Error ? error.message : String(error)}`);
       }

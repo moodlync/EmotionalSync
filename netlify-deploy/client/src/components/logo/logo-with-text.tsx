@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils';
-import AnimatedLogo from './animated-logo';
 
 interface LogoWithTextProps {
   className?: string;
@@ -31,6 +30,9 @@ export default function LogoWithText({
     lg: 'text-base',
     xl: 'text-lg'
   };
+  
+  // Calculate font size based on logo size
+  const fontSize = Math.max(12, Math.floor(logoSize / 3));
 
   return (
     <div className={cn(
@@ -38,16 +40,31 @@ export default function LogoWithText({
       vertical && 'flex-col',
       className
     )}>
-      <AnimatedLogo size={logoSize} />
+      <div 
+        className="flex items-center justify-center hover:scale-105 transition-transform duration-200"
+        style={{ 
+          height: logoSize, 
+          width: logoSize
+        }}
+      >
+        <img 
+          src="/assets/moodlync-logo-resized.jpg" 
+          alt="MoodLync Logo" 
+          className="w-full h-full object-contain"
+          style={{ maxHeight: `${textSize === 'sm' ? 24 : textSize === 'md' ? 28 : textSize === 'lg' ? 32 : 36}px` }}
+        />
+      </div>
+      
       {!hideText && (
         <div className="flex flex-col">
           <div className={cn(
-            'font-extrabold tracking-tight leading-none text-black dark:text-white',
+            'font-extrabold tracking-tight leading-none',
             textSize === 'sm' ? 'text-xl' : 
             textSize === 'md' ? 'text-2xl' : 
             textSize === 'lg' ? 'text-3xl' : 'text-4xl'
           )}>
-            MoodLync
+            <span className="text-black">MOOD</span>
+            <span className="text-red-600">LYNC</span>
           </div>
           
           {showTagline && (

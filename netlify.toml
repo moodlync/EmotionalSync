@@ -5,13 +5,46 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NPM_CONFIG_LEGACY_PEER_DEPS = "true"
+  BROWSERSLIST_IGNORE_OLD_DATA = "true"
 
+[dev]
+  framework = "#static"
+  targetPort = 5000
+  autoLaunch = false
+  
+# Set security headers for all pages
+[[headers]]
+  for = "/*"
+    [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://*.netlify.app https://*.replit.dev https://*.replit.app https://*.repl.co https://api.stripe.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; object-src 'none'; frame-src https://js.stripe.com;"
+
+# API redirects
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
+# Special health check endpoint
+[[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/api/health"
+  status = 200
+  force = true
+
+# Environment check endpoint
+[[redirects]]
+  from = "/api/environment"
+  to = "/.netlify/functions/api/environment"
+  status = 200
+  force = true
+  
+# Diagnostic endpoints
 [[redirects]]
   from = "/netlify-debug"
   to = "/.netlify/functions/netlify-debug"
@@ -19,11 +52,31 @@
   force = true
 
 [[redirects]]
-  from = "/api/healthcheck"
-  to = "/.netlify/functions/api/healthcheck"
+  from = "/api/debug"
+  to = "/.netlify/functions/netlify-debug"
   status = 200
   force = true
 
+# Authentication endpoints
+[[redirects]]
+  from = "/api/login"
+  to = "/.netlify/functions/api/login"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/register"
+  to = "/.netlify/functions/api/register"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/user"
+  to = "/.netlify/functions/api/user"
+  status = 200
+  force = true
+
+# Handle all other routes with client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"

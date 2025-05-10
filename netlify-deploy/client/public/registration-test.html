@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync Registration Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #4D4DE3;
+    }
+    .test-container {
+      margin-bottom: 25px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+    }
+    button {
+      background-color: #4D4DE3;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      margin: 10px 0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #3737a8;
+    }
+    #console {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      height: 300px;
+      overflow-y: auto;
+      margin-top: 20px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    .test-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+    }
+    .endpoint {
+      font-weight: bold;
+      color: #4D4DE3;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    .info {
+      color: #4D4DE3;
+    }
+    #clear-console {
+      background-color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <h1>MoodLync API Registration Test</h1>
+  
+  <div class="test-container">
+    <h2>Validation Test</h2>
+    <p>Test whether the registration data passes validation checks without actually creating a user.</p>
+    <button id="run-validation">Run Validation Test</button>
+  </div>
+  
+  <div class="test-container">
+    <h2>API Health Check</h2>
+    <p>Check if the API is responding correctly.</p>
+    <button id="run-health-check">Run Health Check</button>
+  </div>
+  
+  <div class="test-container">
+    <h2>Full Registration Flow Test</h2>
+    <p>Test complete registration, login, profile retrieval, and logout process.</p>
+    <button id="run-full-test">Run Full Test</button>
+  </div>
+  
+  <button id="clear-console">Clear Console</button>
+  
+  <div id="console">MoodLync API Test Console</div>
+  
+  <script>
+    // Store any important test data
+    let testUserData = {
+      username: `testuser${Math.floor(Math.random() * 10000)}`,
+      password: "Password123!",
+      email: `testuser${Math.floor(Math.random() * 10000)}@example.com`,
+      firstName: "Test",
+      lastName: "User",
+      middleName: "",
+      gender: "prefer_not_to_say",
+      state: "Victoria",
+      country: "Australia"
+    };
+    
+    // Console element reference
+    const consoleEl = document.getElementById('console');
+    
+    // Helper function to log to the console
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      consoleEl.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+    
+    // Clear console
+    document.getElementById('clear-console').addEventListener('click', () => {
+      consoleEl.innerHTML = 'Console cleared.';
+    });
+    
+    // Helper function to make API requests
+    async function makeApiRequest(url, method, data) {
+      try {
+        log(`Making ${method} request to <span class="endpoint">${url}</span>`);
+        if (data) {
+          log(`Request data: ${JSON.stringify(data)}`, 'info');
+        }
+        
+        const options = {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include' // For cookies to work
+        };
+        
+        if (data) {
+          options.body = JSON.stringify(data);
+        }
+        
+        const response = await fetch(url, options);
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        
+        if (isJson) {
+          const jsonData = await response.json();
+          log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+          log(`Response data: ${JSON.stringify(jsonData, null, 2)}`, 'info');
+          return { success: response.ok, data: jsonData };
+        } else {
+          const text = await response.text();
+          log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+          log(`Response text: ${text}`, 'info');
+          return { success: response.ok, data: { text } };
+        }
+      } catch (error) {
+        log(`Error making request: ${error.message}`, 'error');
+        return { success: false, error: error.message };
+      }
+    }
+    
+    // Run validation test
+    document.getElementById('run-validation').addEventListener('click', async () => {
+      log('Running validation test...', 'info');
+      
+      // Update test user with random values to ensure uniqueness
+      testUserData.username = `testuser${Math.floor(Math.random() * 10000)}`;
+      testUserData.email = `testuser${Math.floor(Math.random() * 10000)}@example.com`;
+      
+      log(`Test user: ${testUserData.username}`, 'info');
+      
+      const result = await makeApiRequest('/api/test-register', 'POST', testUserData);
+      
+      if (result.success) {
+        log('Validation test passed!', 'success');
+      } else {
+        log('Validation test failed!', 'error');
+      }
+    });
+    
+    // Run health check
+    document.getElementById('run-health-check').addEventListener('click', async () => {
+      log('Running API health check...', 'info');
+      
+      const result = await makeApiRequest('/api/healthcheck', 'GET');
+      
+      if (result.success) {
+        log('API health check passed!', 'success');
+      } else {
+        log('API health check failed!', 'error');
+      }
+    });
+    
+    // Run full registration flow test
+    document.getElementById('run-full-test').addEventListener('click', async () => {
+      log('Running full registration flow test...', 'info');
+      
+      // Update test user with random values to ensure uniqueness
+      testUserData.username = `testuser${Math.floor(Math.random() * 10000)}`;
+      testUserData.email = `testuser${Math.floor(Math.random() * 10000)}@example.com`;
+      
+      log(`Test user: ${testUserData.username}`, 'info');
+      
+      // Step 1: Validation
+      log('STEP 1: Validation', 'info');
+      const validationResult = await makeApiRequest('/api/test-register', 'POST', testUserData);
+      if (!validationResult.success) {
+        log('Validation failed, stopping test', 'error');
+        return;
+      }
+      
+      // Step 2: Register
+      log('STEP 2: Registration', 'info');
+      const registrationResult = await makeApiRequest('/api/register', 'POST', testUserData);
+      if (!registrationResult.success) {
+        log('Registration failed, stopping test', 'error');
+        return;
+      }
+      
+      // Step 3: Login
+      log('STEP 3: Login', 'info');
+      const loginResult = await makeApiRequest('/api/login', 'POST', {
+        username: testUserData.username,
+        password: testUserData.password
+      });
+      if (!loginResult.success) {
+        log('Login failed, stopping test', 'error');
+        return;
+      }
+      
+      // Step 4: Get user profile
+      log('STEP 4: Getting user profile', 'info');
+      const profileResult = await makeApiRequest('/api/user', 'GET');
+      if (!profileResult.success) {
+        log('Profile fetch failed, stopping test', 'error');
+        return;
+      }
+      
+      // Step 5: Logout
+      log('STEP 5: Logout', 'info');
+      const logoutResult = await makeApiRequest('/api/logout', 'POST');
+      if (!logoutResult.success) {
+        log('Logout failed, stopping test', 'error');
+        return;
+      }
+      
+      log('Full registration flow test completed successfully!', 'success');
+    });
+  </script>
+</body>
+</html>

@@ -2,8 +2,11 @@ import type { Express, Request, Response, NextFunction } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+// Import both auth systems but default to the simplified one
 import { setupAuth } from "./auth";
-import { hashPassword } from "./auth";
+import { hashPassword as originalHashPassword } from "./auth";
+import { setupSimplifiedAuth } from "./simplified-auth";
+import { hashPassword } from "./simplified-auth";
 import { storage } from "./storage";
 import { testController } from "./test-controller";
 import { z } from "zod";
@@ -296,6 +299,22 @@ function setupTrialCheckSchedule() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up simplified authentication first
+  // Use environment variable to determine which auth system to use
+  const useSimplified = process.env.USE_SIMPLIFIED_AUTH === 'true';
+  
+  if (useSimplified) {
+    console.log('Using simplified authentication system');
+    setupSimplifiedAuth(app);
+  } else {
+    console.log('Using regular authentication system');
+    setupAuth(app);
+  }
+  
+  // Import and register test routes
+  const testRoutes = (await import('./routes/test-routes')).default;
+  app.use('/api', testRoutes);
+  
   // Add a debug route at the very top level, before any authentication or other middleware
   app.get('/debug', (req, res) => {
     console.log('Debug route accessed at:', new Date().toISOString());
@@ -304,6 +323,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       serverTime: new Date().toISOString(),
       message: 'Server is running correctly'
     });
+  });
+  
+  // Add health check endpoint for the port forwarder and monitoring
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      message: 'MoodLync server is healthy and running'
+    });
+  });
+  
+  // Add a more visible test endpoint for browser verification
+  app.get('/test', (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>MoodLync Port Forwarding Test</title>
+          <style>
+            body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+            .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 4px; }
+            .details { background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <h1>MoodLync Test Page</h1>
+          <div class="success">
+            <h2>✅ Port Forwarding Is Working!</h2>
+            <p>The server is successfully accessible through the port forwarder.</p>
+            <p>Current time: ${new Date().toISOString()}</p>
+          </div>
+          <div class="details">
+            <h3>Server Information:</h3>
+            <p>Application running on port: 5000</p>
+            <p>Port forwarder running on port: ${process.env.PORT || 8080}</p>
+            <p>Environment: ${process.env.NODE_ENV || 'development'}</p>
+          </div>
+          <p><a href="/">Go to MoodLync Application</a></p>
+        </body>
+      </html>
+    `);
   });
   
   // Add a route to serve the debug HTML page
@@ -340,6 +402,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Import and register emotional intelligence routes
     const { registerEmotionalIntelligenceRoutes } = await import('./routes/emotional-intelligence-routes');
     registerEmotionalIntelligenceRoutes(app);
+    
+    // Import and register emotion story routes
+    const emotionStoryRoutes = (await import('./routes/emotion-story-routes')).default;
+    app.use(emotionStoryRoutes);
     
     console.log("Account and subscription management routes registered successfully");
     console.log("NFT token pool system routes registered successfully");
@@ -440,8 +506,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/admin-login', (req, res) => {
     res.sendFile(path.join(__dirname, "..", "client", "public", "admin-login.html"));
   });
-  // Set up authentication
-  setupAuth(app);
 
   // Set up static file serving for uploads
   app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -2693,10 +2757,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'Invalid username or password' });
       }
       
-      // For this demo app, we're directly comparing passwords
-      // In production, we would use a secure password hashing method
+      // In a production environment, we would use a secure password hashing method
+      // For now, support both hashed passwords and direct comparison for backward compatibility
       console.log('Comparing passwords...');
-      if (adminUser.password !== password) {
+      let passwordMatches = false;
+      
+      // First try to verify using secure hashing if the password looks hashed
+      if (adminUser.password.includes('.')) {
+        try {
+          // Try to verify using scrypt if it looks like a hashed password
+          passwordMatches = await hashPassword.verifyPassword(password, adminUser.password);
+        } catch (err) {
+          console.log('Error verifying hashed password, falling back to direct comparison');
+          passwordMatches = false;
+        }
+      }
+      
+      // Fall back to direct comparison for backward compatibility
+      if (!passwordMatches) {
+        passwordMatches = adminUser.password === password;
+      }
+      
+      if (!passwordMatches) {
         console.log('Admin login failed: Password mismatch');
         return res.status(401).json({ error: 'Invalid username or password' });
       }
@@ -5556,11 +5638,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
       }
       
+      // Log the feedback for debugging
+      console.log(`Feedback received: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''} (User ID: ${userId || 'anonymous'})`);
+      
       res.status(201).json({ success: true, message: 'Feedback submitted successfully' });
     } catch (error) {
       console.error('Error submitting feedback:', error);
       res.status(500).json({ error: 'Failed to submit feedback' });
     }
+  });
+  
+  // Test feedback page
+  app.get('/test-feedback', (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>MoodLync Feedback Test</title>
+          <style>
+            body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+            .form-group { margin-bottom: 1rem; }
+            label { display: block; margin-bottom: 0.5rem; }
+            textarea { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
+            button { background: linear-gradient(to right, #4F46E5, #7C3AED); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+            .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-top: 10px; display: none; }
+            .error { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin-top: 10px; display: none; }
+          </style>
+        </head>
+        <body>
+          <h1>MoodLync Feedback Test</h1>
+          <p>Use this form to test the feedback submission functionality:</p>
+          
+          <div class="form-group">
+            <label for="feedback">Your Feedback:</label>
+            <textarea id="feedback" rows="5" placeholder="Enter your feedback here..."></textarea>
+          </div>
+          
+          <button id="submitBtn">Submit Feedback</button>
+          
+          <div id="successMessage" class="success">
+            Feedback submitted successfully! Thank you for helping us improve MoodLync.
+          </div>
+          
+          <div id="errorMessage" class="error">
+            Failed to submit feedback. Please try again.
+          </div>
+          
+          <script>
+            document.getElementById('submitBtn').addEventListener('click', async () => {
+              const content = document.getElementById('feedback').value;
+              
+              if (!content.trim()) {
+                document.getElementById('errorMessage').textContent = 'Please enter your feedback.';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                return;
+              }
+              
+              try {
+                const response = await fetch('/api/feedback', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ content }),
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                  document.getElementById('successMessage').style.display = 'block';
+                  document.getElementById('errorMessage').style.display = 'none';
+                  document.getElementById('feedback').value = '';
+                } else {
+                  throw new Error(result.error || 'Failed to submit feedback');
+                }
+              } catch (error) {
+                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+              }
+            });
+          </script>
+        </body>
+      </html>
+    `);
   });
   
   // Admin feedback management endpoints

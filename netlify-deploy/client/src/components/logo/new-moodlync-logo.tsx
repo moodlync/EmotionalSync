@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import logoImage from '@/assets/moodlync-logo-new.jpg';
 
 interface NewMoodLyncLogoProps {
   className?: string;
@@ -23,13 +22,11 @@ export function NewMoodLyncLogo({
         style={{ width, height }}
       >
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center rounded-full w-10 h-10 overflow-hidden">
-            <img 
-              src={logoImage} 
-              alt="MoodLync Logo" 
-              className="w-full h-full object-contain" 
-            />
-          </div>
+          <img 
+            src="/assets/moodlync-logo-resized.jpg" 
+            alt="MoodLync Logo" 
+            className="w-10 h-10 object-contain"
+          />
           {/* Text removed as requested */}
         </div>
       </div>

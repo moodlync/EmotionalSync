@@ -24,12 +24,32 @@ export const handler = async (event, context) => {
       statusCode: 204,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+        'Access-Control-Max-Age': '86400'
       }
     };
   }
   
+  // Add CORS headers to all responses
+  context.callbackWaitsForEmptyEventLoop = false;
+  
+  // Log API request for debugging (excluding health checks)
+  if (!event.path.includes('/health')) {
+    console.log(`Netlify Function Request: ${event.httpMethod} ${event.path}`);
+  }
+  
   // Process the request with our serverless Express app
-  return await handleRequest(event, context);
+  const response = await handleRequest(event, context);
+  
+  // Ensure CORS headers are present in all responses
+  if (!response.headers) {
+    response.headers = {};
+  }
+  
+  // Add CORS headers
+  response.headers['Access-Control-Allow-Origin'] = '*';
+  response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With';
+  
+  return response;
 };

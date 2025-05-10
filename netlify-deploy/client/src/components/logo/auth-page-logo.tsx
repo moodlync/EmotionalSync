@@ -1,8 +1,5 @@
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
-import { useTheme } from "next-themes";
 import { useLocation } from 'wouter';
-import logoImage from '@/assets/moodlync-logo-new.jpg';
 
 interface AuthPageLogoProps {
   className?: string;
@@ -16,40 +13,20 @@ interface AuthPageLogoProps {
 
 export default function AuthPageLogo({
   className,
-  logoSize = 48,
+  logoSize = 125,
   textSize = 'md',
   vertical = false,
   hideText = false,
   showTagline = false,
   isAuthenticated = false
 }: AuthPageLogoProps) {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [, navigate] = useLocation();
   
-  // Calculate the adjusted size for the auth page logo
-  const adjustedLogoSize = Math.floor(logoSize * 2.5);
+  // Calculate size based on text size to match text height (increased by 25%)
+  const reducedSize = textSize === 'sm' ? 38 : 
+                     textSize === 'md' ? 45 : 
+                     textSize === 'lg' ? 53 : 60;
   
-  // Avoid hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  // Text size classes
-  const textSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base',
-    xl: 'text-lg'
-  };
-
-  const taglineSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-xs',
-    lg: 'text-sm',
-    xl: 'text-base'
-  };
-
   // Handle logo/text click - navigates to home when authenticated
   const handleLogoClick = () => {
     if (isAuthenticated) {
@@ -57,48 +34,62 @@ export default function AuthPageLogo({
     }
   };
 
+  // Text size mapping
+  const textClasses = {
+    sm: 'text-xs',
+    md: 'text-sm',
+    lg: 'text-base',
+    xl: 'text-lg'
+  };
+
   return (
     <div className={cn(
-      'flex items-center gap-6',
-      vertical && 'flex-col',
+      'flex items-center gap-2',
+      vertical && 'flex-col items-center',
       className
     )}>
       <div 
         className={cn(
-          "flex items-center justify-center",
+          "flex items-center justify-center mb-0",
           isAuthenticated && "cursor-pointer"
         )} 
-        style={{ width: `${adjustedLogoSize}px`, height: `${adjustedLogoSize}px` }}
+        style={{ display: "flex", alignItems: "center" }}
         onClick={handleLogoClick}
       >
+        {/* Using the actual image directly */}
         <img 
-          src={logoImage} 
+          src="/assets/moodlync-logo-resized.jpg" 
           alt="MoodLync Logo" 
-          className="w-full h-full object-contain"
+          width={reducedSize} 
+          height={reducedSize} 
+          className="object-contain rounded-sm"
+          style={{ 
+            marginBottom: "1px",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
+          }}
         />
       </div>
       
       {!hideText && (
         <div 
           className={cn(
-            "flex flex-col",
+            "flex flex-col mt-0",
             isAuthenticated && "cursor-pointer"
           )}
           onClick={handleLogoClick}
         >
           <div className={cn(
-            'font-extrabold tracking-tight leading-none',
-            textSizeClasses[textSize]
+            'font-extrabold tracking-tight leading-none text-center',
+            textSize === 'sm' ? 'text-md' : 
+            textSize === 'md' ? 'text-lg' : 
+            textSize === 'lg' ? 'text-xl' : 'text-2xl'
           )}>
             <span className="text-black">MOOD</span>
-            <span className="text-red-500">LYNC</span>
+            <span className="text-red-600">LYNC</span>
           </div>
           
           {showTagline && (
-            <div className={cn(
-              'text-black/70 dark:text-white/70 leading-tight',
-              taglineSizeClasses[textSize]
-            )}>
+            <div className="text-black/70 text-xs leading-tight text-center mt-0.5">
               Connect - Detect - Reflect
             </div>
           )}

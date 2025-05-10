@@ -7,7 +7,7 @@ import {
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { getApiPath, isNetlifyEnvironment } from "../lib/netlify-auth-config";
+import { getApiPath, isNetlifyEnvironment, isReplitEnvironment } from "../lib/netlify-auth-config";
 
 type AuthContextType = {
   user: SelectUser | null;
@@ -46,7 +46,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Use our helper to get the correct API path based on environment
   const userApiPath = getApiPath("/api/user");
   
-  console.log(`Using API path for user data: ${userApiPath} (Netlify: ${isNetlifyEnvironment()})`);
+  const isNetlify = isNetlifyEnvironment();
+  const isReplit = isReplitEnvironment();
+  
+  console.log(`Using API path for user data: ${userApiPath} (Netlify: ${isNetlify}, Replit: ${isReplit})`);
+  console.log(`Current hostname: ${window.location.hostname}`);
   
   // Check if user opted to be remembered
   const shouldRememberUser = typeof window !== 'undefined' && localStorage.getItem('moodlync_remember_me') === 'true';
@@ -95,7 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Use helper to get appropriate API path for current environment
         const apiPath = getApiPath("/api/login");
         
-        console.log(`Using API path for login: ${apiPath} (Netlify: ${isNetlifyEnvironment()})`);
+        console.log(`Using API path for login: ${apiPath} (Netlify: ${isNetlify}, Replit: ${isReplit})`);
+        console.log(`Sending login request to: ${apiPath}`);
         
         const res = await apiRequest("POST", apiPath, loginCredentials);
         
@@ -187,7 +192,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Use helper to get appropriate API path for current environment
         const apiPath = getApiPath("/api/register");
         
-        console.log(`Using API path for registration: ${apiPath} (Netlify: ${isNetlifyEnvironment()})`);
+        console.log(`Using API path for registration: ${apiPath} (Netlify: ${isNetlify}, Replit: ${isReplit})`);
+        console.log(`Sending registration request to: ${apiPath}`);
         
         const res = await apiRequest("POST", apiPath, credentials);
         console.log("Registration response status:", res.status, res.statusText);
@@ -302,7 +308,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Use helper to get appropriate API path for current environment
       const apiPath = getApiPath("/api/logout");
       
-      console.log(`Using API path for logout: ${apiPath} (Netlify: ${isNetlifyEnvironment()})`);
+      console.log(`Using API path for logout: ${apiPath} (Netlify: ${isNetlify}, Replit: ${isReplit})`);
+      console.log(`Sending logout request to: ${apiPath}`);
       
       await apiRequest("POST", apiPath);
     },
@@ -341,7 +348,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Use helper to get appropriate API path for current environment
       const apiPath = getApiPath("/api/resend-verification");
       
-      console.log(`Using API path for resending verification: ${apiPath} (Netlify: ${isNetlifyEnvironment()})`);
+      console.log(`Using API path for resending verification: ${apiPath} (Netlify: ${isNetlify}, Replit: ${isReplit})`);
+      console.log(`Sending verification resend request to: ${apiPath}`);
       
       const res = await apiRequest("POST", apiPath);
       if (!res.ok) {
