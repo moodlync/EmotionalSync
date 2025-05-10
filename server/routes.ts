@@ -341,6 +341,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { registerEmotionalIntelligenceRoutes } = await import('./routes/emotional-intelligence-routes');
     registerEmotionalIntelligenceRoutes(app);
     
+    // Import and register emotion story routes
+    const emotionStoryRoutes = (await import('./routes/emotion-story-routes')).default;
+    app.use(emotionStoryRoutes);
+    
     console.log("Account and subscription management routes registered successfully");
     console.log("NFT token pool system routes registered successfully");
     console.log("NFT collection routes registered successfully");

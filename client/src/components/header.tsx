@@ -1,4 +1,4 @@
-import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle } from "lucide-react";
+import { Coins, History, User as UserIcon, CreditCard, Crown, HelpCircle, Share2, Award, Video, Users, Wrench, Heart, Moon, Sun, Sparkles, Search, MessageCircle, PenLine } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -337,6 +337,12 @@ export default function Header() {
                     <Heart className="h-4 w-4 mr-2 text-pink-400 flex-shrink-0" />
                     <span className="truncate">Emotional Imprints</span>
                     {user?.isPremium && <Badge variant="outline" className="ml-2 text-xs flex-shrink-0">Premium</Badge>}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/emotion-stories" className="w-full flex items-center">
+                    <PenLine className="h-4 w-4 mr-2 text-indigo-500 flex-shrink-0" />
+                    <span className="truncate">Emotion Stories</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
