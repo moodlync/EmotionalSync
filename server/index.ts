@@ -118,6 +118,21 @@ app.use((req, res, next) => {
   app.get('/api/healthcheck', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'MoodLync server is running!' });
   });
+  
+  // Add a test registration endpoint for debugging
+  app.post('/api/test-register', (req, res) => {
+    console.log('Test registration request received:', {
+      body: req.body,
+      headers: req.headers['content-type'],
+      method: req.method
+    });
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Registration data received for testing',
+      data: req.body
+    });
+  });
 
   // Clearer logging for server start
   log(`Starting MoodLync server on port ${usePort}...`);

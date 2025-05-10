@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync API Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .test-section {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    button {
+      background-color: #4D4DE3;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    button:hover {
+      background-color: #3a3ab8;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin: 10px 0;
+      font-family: monospace;
+    }
+    #result {
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      padding: 15px;
+      margin-top: 15px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>MoodLync API Test Tool</h1>
+  
+  <div class="test-section">
+    <h2>Test Registration Endpoint</h2>
+    <p>Test the basic functionality of the registration endpoint</p>
+    
+    <textarea id="registrationData">
+{
+  "username": "testuser" + Math.floor(Math.random() * 10000),
+  "password": "Password123!",
+  "email": "testuser" + Math.floor(Math.random() * 10000) + "@example.com",
+  "firstName": "Test",
+  "lastName": "User"
+}
+    </textarea>
+    
+    <div>
+      <button onclick="testRegistration('/api/test-register')">Test Registration API</button>
+      <button onclick="testRegistration('/api/register')">Real Registration API</button>
+      <button onclick="testHealthcheck()">API Healthcheck</button>
+    </div>
+    
+    <div id="result">Results will appear here...</div>
+  </div>
+  
+  <script>
+    // Process the JSON template by evaluating the JavaScript expressions
+    function processJsonTemplate(template) {
+      return template.replace(/("[^"]*"\s*\+\s*[^,\}]+)/g, function(match) {
+        try {
+          // Extract the parts: string and expression
+          const parts = match.split('+');
+          if (parts.length === 2) {
+            // Extract the string part (removing quotes) and the expression part
+            const stringPart = parts[0].trim().slice(1, -1);
+            const expressionPart = parts[1].trim();
+            
+            // Evaluate the expression
+            const evaluatedExpression = eval(expressionPart);
+            
+            // Return the combined result, quoted
+            return `"${stringPart}${evaluatedExpression}"`;
+          }
+          return match;
+        } catch (e) {
+          console.error("Error processing template:", e);
+          return match;
+        }
+      });
+    }
+    
+    // Function to test the healthcheck endpoint
+    async function testHealthcheck() {
+      const resultElem = document.getElementById('result');
+      resultElem.innerHTML = "Checking API health...";
+      
+      try {
+        // Make the API request
+        const response = await fetch('/api/healthcheck');
+        
+        // Get the response details
+        const status = response.status;
+        const statusText = response.statusText;
+        let responseData;
+        
+        try {
+          responseData = await response.json();
+        } catch (e) {
+          responseData = await response.text();
+        }
+        
+        resultElem.innerHTML = 
+          `Status: ${status} ${statusText}\n\n` +
+          `Response:\n${typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2)}`;
+      } catch (error) {
+        resultElem.innerHTML = `Error: ${error.message}`;
+        console.error("Request error:", error);
+      }
+    }
+    
+    // Function to test the registration endpoint
+    async function testRegistration(endpoint) {
+      const resultElem = document.getElementById('result');
+      resultElem.innerHTML = "Sending request...";
+      
+      try {
+        // Get the template and process it
+        const template = document.getElementById('registrationData').value;
+        const processedJson = processJsonTemplate(template);
+        const requestData = JSON.parse(processedJson);
+        
+        console.log("Sending data:", requestData);
+        
+        // Make the API request
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData)
+        });
+        
+        // Get the response details
+        const status = response.status;
+        const statusText = response.statusText;
+        let responseData;
+        
+        try {
+          responseData = await response.json();
+        } catch (e) {
+          responseData = await response.text();
+        }
+        
+        resultElem.innerHTML = 
+          `Status: ${status} ${statusText}\n\n` +
+          `Response:\n${typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2)}`;
+      } catch (error) {
+        resultElem.innerHTML = `Error: ${error.message}`;
+        console.error("Request error:", error);
+      }
+    }
+  </script>
+</body>
+</html>

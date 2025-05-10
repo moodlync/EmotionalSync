@@ -83,7 +83,8 @@ export function setupAuth(app: Express) {
       console.log("Registration request received:", { 
         username: req.body.username,
         email: req.body.email,
-        hasPassword: !!req.body.password 
+        hasPassword: !!req.body.password,
+        reqBody: JSON.stringify(req.body)
       });
       
       // Validate required fields are present
@@ -136,6 +137,13 @@ export function setupAuth(app: Express) {
       }
 
       try {
+        console.log("Creating user with data:", {
+          ...req.body,
+          password: "(HASHED)",
+          ipAddress,
+          isEmailVerified: false
+        });
+      
         // Create the user with hashed password and IP address
         // Set isEmailVerified to false initially
         const user = await storage.createUser({
