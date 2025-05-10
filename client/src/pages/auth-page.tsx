@@ -168,7 +168,7 @@ export default function AuthPage() {
     }
   };
 
-  // Simplified registration submission function
+  // Enhanced registration submission function
   const onRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {
     try {
       // Remove confirmPassword as it's not part of the API schema
@@ -183,6 +183,9 @@ export default function AuthPage() {
         });
         return;
       }
+
+      // Log the data being submitted for debugging
+      console.log("Submitting registration data:", registerData);
       
       // Show loading toast
       toast({
@@ -190,8 +193,18 @@ export default function AuthPage() {
         description: "Please wait while we set up your MoodLync experience...",
       });
       
+      // Ensure all required fields are present
+      const submissionData = {
+        ...registerData,
+        // Make sure optional fields are provided with defaults if not set
+        middleName: registerData.middleName || "",
+        gender: registerData.gender || "prefer_not_to_say",
+        state: registerData.state || "",
+        country: registerData.country || "",
+      };
+      
       // Submit registration data
-      registerMutation.mutate(registerData, {
+      registerMutation.mutate(submissionData, {
         onSuccess: () => {
           toast({
             title: "Success!",

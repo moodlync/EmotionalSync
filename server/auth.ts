@@ -95,7 +95,7 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Simple registration endpoint with minimal validation and functionality
+  // Enhanced registration endpoint with better validation and error handling
   app.post("/api/register", async (req, res, next) => {
     try {
       console.log("Registration request received:", { 
@@ -103,12 +103,22 @@ export function setupAuth(app: Express) {
         email: req.body.email,
         hasPassword: !!req.body.password,
         firstName: req.body.firstName,
-        lastName: req.body.lastName
+        lastName: req.body.lastName,
+        gender: req.body.gender,
+        fullBody: Object.keys(req.body)
       });
       
       // Basic validation
-      if (!req.body.username || !req.body.password) {
-        return res.status(400).json({ error: "Username and password are required" });
+      if (!req.body.username) {
+        return res.status(400).json({ error: "Username is required" });
+      }
+      
+      if (!req.body.password) {
+        return res.status(400).json({ error: "Password is required" });
+      }
+      
+      if (!req.body.email) {
+        return res.status(400).json({ error: "Email is required" });
       }
       
       // Username validation - only check for duplicates
@@ -117,56 +127,85 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ error: "Username already exists" });
       }
 
-      // Create and store the user
-      const user = await storage.createUser({
-        username: req.body.username,
-        password: await hashPassword(req.body.password),
-        email: req.body.email || null,
-        firstName: req.body.firstName || null,
-        lastName: req.body.lastName || null,
-        ipAddress: req.ip || null
-      });
-
-      console.log("User created successfully:", { id: user.id, username: user.username });
-
-      // Log the user in after registration
-      req.login(user, (err) => {
-        if (err) {
-          console.error("Login error after registration:", err);
-          return next(err);
-        }
+      // Create and store the user with all possible fields from the request
+      try {
+        // Convert null values to empty strings for text fields if needed
+        const userData = {
+          username: req.body.username,
+          password: await hashPassword(req.body.password),
+          email: req.body.email || "",
+          firstName: req.body.firstName || "",
+          lastName: req.body.lastName || "",
+          middleName: req.body.middleName || "",
+          gender: req.body.gender || "prefer_not_to_say",
+          state: req.body.state || "",
+          country: req.body.country || "",
+          ipAddress: req.ip || ""
+        };
         
-        console.log("User logged in after registration:", { id: user.id, username: user.username });
-        res.status(201).json(user);
-      });
+        console.log("Creating user with data:", {
+          ...userData,
+          password: "[REDACTED]"
+        });
+        
+        const user = await storage.createUser(userData);
+
+        console.log("User created successfully:", { id: user.id, username: user.username });
+
+        // Log the user in after registration
+        req.login(user, (err) => {
+          if (err) {
+            console.error("Login error after registration:", err);
+            return res.status(500).json({ error: "Login error after registration", details: err instanceof Error ? err.message : "Unknown error" });
+          }
+          
+          console.log("User logged in after registration:", { id: user.id, username: user.username });
+          res.status(201).json(user);
+        });
+      } catch (createError: unknown) {
+        console.error("User creation error:", createError);
+        return res.status(500).json({ 
+          error: "Failed to create user account", 
+          details: createError instanceof Error ? createError.message : "Unknown error"
+        });
+      }
     } catch (err) {
       console.error("Registration error:", err);
-      res.status(500).json({ error: "Failed to register user" });
+      res.status(500).json({ 
+        error: "Failed to register user", 
+        details: err instanceof Error ? err.message : "Unknown error" 
+      });
     }
   });
 
-  // Simple login endpoint
+  // Enhanced login endpoint with better error handling
   app.post("/api/login", (req, res, next) => {
     console.log("Login attempt for username:", req.body.username);
     
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", (err: Error | null, user: SelectUser | false, info: { message: string } | undefined) => {
       if (err) {
         console.error("Login error:", err);
-        return res.status(500).json({ error: 'Login error' });
+        return res.status(500).json({ error: 'Login error', details: err.message });
       }
       
       if (!user) {
         console.log("Authentication failed for username:", req.body.username);
-        return res.status(401).json({ error: 'Invalid username or password' });
+        return res.status(401).json({ 
+          error: 'Invalid username or password',
+          details: info?.message || 'Login failed'
+        });
       }
       
       console.log("User authenticated successfully:", user.username);
       
       // Log the user in
-      req.login(user, (loginErr) => {
+      req.login(user, (loginErr: Error | null) => {
         if (loginErr) {
           console.error("Login session error:", loginErr);
-          return res.status(500).json({ error: 'Failed to create login session' });
+          return res.status(500).json({ 
+            error: 'Failed to create login session',
+            details: loginErr.message
+          });
         }
         
         console.log("Login successful for user:", user.username);
@@ -226,21 +265,28 @@ export function setupAuth(app: Express) {
     }
     
     try {
-      const users = await storage.searchUsers(query);
-      
-      // Filter out the current user and only return necessary user information
-      const safeUserData = users
-        .filter(user => req.user && user.id !== req.user.id) // Don't include current user
-        .map(user => ({
-          id: user.id,
-          username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          profilePicture: user.profilePicture
-        }));
-      
-      return res.status(200).json(safeUserData);
+      // Check if searchUsers exists in the storage implementation
+      if (typeof (storage as any).searchUsers === 'function') {
+        const users = await (storage as any).searchUsers(query);
+        
+        // Filter out the current user and only return necessary user information
+        const safeUserData = users
+          .filter((user: SelectUser) => req.user && user.id !== req.user.id) // Don't include current user
+          .map((user: SelectUser) => ({
+            id: user.id,
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            profilePicture: user.profilePicture
+          }));
+        
+        return res.status(200).json(safeUserData);
+      } else {
+        // Fallback for implementations without searchUsers
+        console.log("searchUsers not implemented in current storage, returning empty array");
+        return res.status(200).json([]);
+      }
     } catch (error) {
       console.error('Error searching users:', error);
       return res.status(500).json({ 
