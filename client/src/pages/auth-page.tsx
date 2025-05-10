@@ -410,27 +410,24 @@ export default function AuthPage() {
   
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#EAEAEA]">
-      {/* Gradient header for auth page */}
-      <div className="w-full h-16 bg-gradient-to-r from-[#D7D7FC] via-[#4D4DE3] to-[#1A1A2E] absolute top-0 left-0 shadow-md"></div>
       {/* Left side - Auth forms */}
-      <div className="flex-1 flex items-center justify-center p-2 md:p-4">
+      <div className="flex-1 flex items-center justify-center p-4 md:p-6 pt-8">
         <Card className="w-full max-w-md">
-          <CardHeader className="space-y-2 pb-2">
-            <div className="flex flex-col items-center justify-center py-2">
+          <CardHeader className="space-y-3 pb-2">
+            <div className="flex flex-col items-center justify-center py-3">
               {/* Updated logo with new design */}
-              <div className="mb-2 flex items-center justify-center">
-                <AuthPageLogo logoSize={200} vertical showTagline textSize="lg" />
+              <div className="mb-4 flex items-center justify-center">
+                <AuthPageLogo logoSize={220} vertical showTagline textSize="lg" />
               </div>
-              <div className="w-full overflow-hidden rounded-lg shadow-md relative mb-1">
+              <div className="w-full overflow-hidden rounded-lg shadow-md relative mb-2">
                 <img 
                   src={authImage} 
                   alt="MoodLync Connection" 
-                  className="w-full h-auto object-cover max-h-[150px]"
+                  className="w-full h-auto object-contain"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-primary/5 to-transparent pointer-events-none"></div>
               </div>
             </div>
-            <CardDescription className="text-center text-xs">
+            <CardDescription className="text-center text-sm">
               Unlock Your Mood Journey
             </CardDescription>
 
@@ -1269,13 +1266,13 @@ export default function AuthPage() {
       </div>
       
       {/* Right side - Feature showcase with premium benefits */}
-      <div className="flex-1 bg-gradient-to-br from-primary to-secondary p-3 hidden md:block overflow-y-auto">
-        <div className="sticky top-0 z-10 pt-2 pb-1 bg-gradient-to-b from-primary to-transparent">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <Heart className="h-5 w-5 text-white" />
-            <h1 className="text-lg font-bold text-white dark:text-white">Welcome to Emotional Wellbeing</h1>
+      <div className="flex-1 bg-gradient-to-br from-primary to-secondary p-5 hidden md:block overflow-y-auto">
+        <div className="sticky top-0 z-10 pt-4 pb-3 bg-gradient-to-b from-primary to-transparent">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Heart className="h-6 w-6 text-white" />
+            <h1 className="text-xl font-bold text-white dark:text-white">Welcome to Emotional Wellbeing</h1>
           </div>
-          <p className="text-center text-white dark:text-white text-xs mb-2">
+          <p className="text-center text-white dark:text-white text-sm mb-3">
             Discover how our platform transforms your emotional wellbeing journey
           </p>
         </div>
