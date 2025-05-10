@@ -403,6 +403,8 @@ export default function AuthPage() {
   
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#EAEAEA]">
+      {/* Gradient header for auth page */}
+      <div className="w-full h-16 bg-gradient-to-r from-[#D7D7FC] via-[#4D4DE3] to-[#1A1A2E] absolute top-0 left-0 shadow-md"></div>
       {/* Left side - Auth forms */}
       <div className="flex-1 flex items-center justify-center p-2 md:p-4">
         <Card className="w-full max-w-md">

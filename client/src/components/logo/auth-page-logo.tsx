@@ -22,10 +22,10 @@ export default function AuthPageLogo({
 }: AuthPageLogoProps) {
   const [, navigate] = useLocation();
   
-  // Calculate size based on text size to match text height
-  const reducedSize = textSize === 'sm' ? 30 : 
-                     textSize === 'md' ? 36 : 
-                     textSize === 'lg' ? 42 : 48;
+  // Calculate size based on text size to match text height (increased by 25%)
+  const reducedSize = textSize === 'sm' ? 38 : 
+                     textSize === 'md' ? 45 : 
+                     textSize === 'lg' ? 53 : 60;
   
   // Handle logo/text click - navigates to home when authenticated
   const handleLogoClick = () => {
@@ -44,7 +44,7 @@ export default function AuthPageLogo({
 
   return (
     <div className={cn(
-      'flex items-center gap-1',
+      'flex items-center gap-2',
       vertical && 'flex-col items-center',
       className
     )}>
@@ -63,7 +63,10 @@ export default function AuthPageLogo({
           width={reducedSize} 
           height={reducedSize} 
           className="object-contain rounded-sm"
-          style={{ marginBottom: "1px" }}
+          style={{ 
+            marginBottom: "1px",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
+          }}
         />
       </div>
       
@@ -77,9 +80,9 @@ export default function AuthPageLogo({
         >
           <div className={cn(
             'font-extrabold tracking-tight leading-none text-center',
-            textSize === 'sm' ? 'text-sm' : 
-            textSize === 'md' ? 'text-md' : 
-            textSize === 'lg' ? 'text-lg' : 'text-xl'
+            textSize === 'sm' ? 'text-md' : 
+            textSize === 'md' ? 'text-lg' : 
+            textSize === 'lg' ? 'text-xl' : 'text-2xl'
           )}>
             <span className="text-black">MOOD</span>
             <span className="text-red-500">LYNC</span>

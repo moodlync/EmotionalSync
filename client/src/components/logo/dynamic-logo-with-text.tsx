@@ -49,13 +49,17 @@ export default function DynamicLogoWithText({
     )}>
       <div className="relative flex-shrink-0">
         <div 
-          className="flex items-center justify-center bg-blue-500 text-white font-bold rounded-full z-10"
+          className="flex items-center justify-center bg-white rounded-full z-10"
           style={{ 
             width: welcomeLogoSize, 
             height: welcomeLogoSize 
           }}
         >
-          <span style={{ fontSize: `${fontSize}px` }}>ML</span>
+          <img 
+            src="/assets/moodlync-logo-resized.jpg" 
+            alt="MoodLync Logo" 
+            className="w-full h-full object-contain rounded-full" 
+          />
         </div>
       </div>
       {!hideText && (

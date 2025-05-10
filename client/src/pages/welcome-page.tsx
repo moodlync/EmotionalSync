@@ -105,18 +105,22 @@ export default function WelcomePage() {
   return (
     <div className="min-h-screen flex flex-col welcome-page bg-[#EAEAEA]">
       {/* Enhanced Header with Animation */}
-      <header className="w-full bg-white border-b py-5 px-6 shadow-sm sticky top-0 z-50 backdrop-blur-sm bg-white/90">
+      <header className="w-full bg-gradient-to-r from-[#D7D7FC] via-[#4D4DE3] to-[#1A1A2E] border-b py-5 px-6 shadow-sm sticky top-0 z-50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <div className="relative">
               <div className="flex flex-row items-center gap-1">
-                <div className="w-[60px] h-[60px] flex items-center justify-center bg-blue-500 text-white font-bold rounded-full">
-                  <span className="text-xl">ML</span>
+                <div className="w-[60px] h-[60px] flex items-center justify-center rounded-full bg-white">
+                  <img 
+                    src="/assets/moodlync-logo-resized.jpg" 
+                    alt="MoodLync Logo" 
+                    className="w-full h-full object-contain rounded-full"
+                  />
                 </div>
                 <div className="flex flex-col">
                   <div className="font-extrabold tracking-tight text-2xl leading-none">
-                    <span className="text-black">MOOD</span>
-                    <span className="text-red-500">LYNC</span>
+                    <span className="text-white">MOOD</span>
+                    <span className="text-rose-300">LYNC</span>
                   </div>
                 </div>
               </div>

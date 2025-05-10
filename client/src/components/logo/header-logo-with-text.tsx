@@ -31,26 +31,35 @@ export default function HeaderLogoWithText({
         {isWelcomeScreen ? (
           <div className="relative group">
             <div className="absolute inset-[-10%] bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
-            <div 
-              className="bg-blue-500 text-white font-bold flex items-center justify-center rounded-full relative"
-              style={{
+            <div className="relative" style={{
                 boxShadow: '0 6px 16px rgba(96, 82, 199, 0.3)',
-                backgroundColor: '#3b82f6',
                 width: `${logoSize * 1.5}px`,
-                height: `${logoSize * 0.75}px`,
+                height: `${logoSize * 1.5}px`,
                 padding: '10px',
+                borderRadius: '50%',
+                backgroundColor: 'white',
                 border: '2px solid rgba(96, 82, 199, 0.2)'
-              }}
-            >
-              <span style={{ fontSize: `${fontSize}px` }}>ML</span>
+              }}>
+              <img 
+                src="/assets/moodlync-logo-resized.jpg" 
+                alt="MoodLync Logo" 
+                className="w-full h-full object-contain"
+                style={{ borderRadius: '50%' }}
+              />
             </div>
           </div>
         ) : (
-          <div 
-            className="flex items-center justify-center bg-blue-500 text-white font-bold rounded-full" 
-            style={{ width: `${logoSize}px`, height: `${logoSize}px` }}
-          >
-            <span style={{ fontSize: `${fontSize}px` }}>ML</span>
+          <div className="flex items-center justify-center rounded-full" 
+            style={{ 
+              width: `${logoSize}px`, 
+              height: `${logoSize}px`,
+              backgroundColor: 'white'
+            }}>
+            <img 
+              src="/assets/moodlync-logo-resized.jpg" 
+              alt="MoodLync Logo" 
+              className="w-full h-full object-contain rounded-full" 
+            />
           </div>
         )}
       </div>

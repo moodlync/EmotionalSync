@@ -45,31 +45,19 @@ export default function Footer() {
               <div className="flex items-center gap-3 mb-2">
                 {/* SVG version of the logo */}
                 <div className="flex items-center justify-center">
-                  <svg 
+                  <img 
+                    src="/assets/moodlync-logo-resized.jpg" 
+                    alt="MoodLync Logo" 
                     width="50" 
                     height="50" 
-                    viewBox="0 0 300 300" 
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    {/* Blue curved line at top */}
-                    <path d="M50,100 C100,50 200,50 250,100" stroke="#3b82f6" strokeWidth="20" fill="none" />
-                    
-                    {/* Red person icon in center */}
-                    <circle cx="150" cy="120" r="25" fill="#f43f5e" />
-                    <path d="M150,145 C120,145 110,170 110,190 C110,210 120,220 150,220 C180,220 190,210 190,190 C190,170 180,145 150,145" fill="#f43f5e" />
-                    
-                    {/* Red curved line (left) */}
-                    <path d="M50,100 C30,140 30,180 50,220" stroke="#dc2626" strokeWidth="20" fill="none" />
-                    
-                    {/* Green curved line (right) */}
-                    <path d="M250,100 C270,140 270,180 250,220" stroke="#16a34a" strokeWidth="20" fill="none" />
-                  </svg>
+                    className="rounded-sm object-contain"
+                  />
                 </div>
                 
                 <div className="flex flex-col ml-2">
                   <div className="font-extrabold tracking-tight text-lg leading-none text-white">
                     <span>MOOD</span>
-                    <span className="text-rose-200">SYNC</span>
+                    <span className="text-rose-200">LYNC</span>
                   </div>
                   <div className="text-white/80 text-xs leading-tight font-medium">
                     Connect - Detect - Reflect
@@ -128,32 +116,32 @@ export default function Footer() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="text-center md:text-left">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-gray-100 mb-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-3">
               Platform
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/user-challenges" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/user-challenges" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Challenges
                 </Link>
               </li>
               <li>
-                <Link to="/premium" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/premium" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Premium
                 </Link>
               </li>
               <li>
-                <Link to="/tokens" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/tokens" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Token Redemption
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/faq" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   FAQ
                 </Link>
               </li>
@@ -161,32 +149,32 @@ export default function Footer() {
           </div>
           
           <div className="text-center">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-gray-100 mb-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-3">
               Legal
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/privacy" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/terms" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link to="/security" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/security" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Security & Privacy
                 </Link>
               </li>
               <li>
-                <Link to="/roadmap" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/roadmap" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Roadmap
                 </Link>
               </li>
               <li>
-                <Link to="/admin/login" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary flex items-center justify-center md:justify-start">
+                <Link to="/admin/login" className="text-gray-200 hover:text-white hover:underline transition-colors flex items-center justify-center md:justify-start">
                   <Lock className="h-3.5 w-3.5 mr-1" />
                   <span className="font-semibold">Admin Access</span>
                 </Link>
@@ -195,35 +183,35 @@ export default function Footer() {
           </div>
           
           <div className="text-center md:text-right">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-gray-100 mb-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-3">
               Connect
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/contact" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/contact" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Contact Support
                 </Link>
               </li>
               <li>
-                <Link to="/referrals" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                <Link to="/referrals" className="text-gray-200 hover:text-white hover:underline transition-colors">
                   Invite Friends
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@moodsync.io" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
-                  support@moodsync.io
+                <a href="mailto:support@moodlync.io" className="text-gray-200 hover:text-white hover:underline transition-colors">
+                  support@moodlync.io
                 </a>
               </li>
             </ul>
           </div>
         </div>
         
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-2">
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400 font-medium">
-            <span className="inline-block">&copy; 2025 MoodSync</span>
-            <span className="mx-1 text-gray-400 dark:text-gray-500">|</span>
+        <div className="border-t border-gray-300 dark:border-gray-400 pt-6 pb-2">
+          <p className="text-center text-sm text-white font-medium">
+            <span className="inline-block">&copy; 2025 MoodLync</span>
+            <span className="mx-1 text-gray-300">|</span>
             <span className="inline-block">Powered by: Rollover Australia Inc.</span>
-            <span className="mx-1 text-gray-400 dark:text-gray-500">|</span>
+            <span className="mx-1 text-gray-300">|</span>
             <span className="inline-block">All rights reserved.</span>
           </p>
         </div>
