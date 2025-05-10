@@ -2,8 +2,11 @@ import type { Express, Request, Response, NextFunction } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+// Import both auth systems but default to the simplified one
 import { setupAuth } from "./auth";
-import { hashPassword } from "./auth";
+import { hashPassword as originalHashPassword } from "./auth";
+import { setupSimplifiedAuth } from "./simplified-auth";
+import { hashPassword } from "./simplified-auth";
 import { storage } from "./storage";
 import { testController } from "./test-controller";
 import { z } from "zod";
@@ -296,8 +299,17 @@ function setupTrialCheckSchedule() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Set up authentication first
-  setupAuth(app);
+  // Set up simplified authentication first
+  // Use environment variable to determine which auth system to use
+  const useSimplified = process.env.USE_SIMPLIFIED_AUTH === 'true';
+  
+  if (useSimplified) {
+    console.log('Using simplified authentication system');
+    setupSimplifiedAuth(app);
+  } else {
+    console.log('Using regular authentication system');
+    setupAuth(app);
+  }
   
   // Import and register test routes
   const testRoutes = (await import('./routes/test-routes')).default;

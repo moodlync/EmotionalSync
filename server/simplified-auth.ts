@@ -6,6 +6,7 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { simpleStorage } from "./simplified-storage";
 import { User as SelectUser } from "@shared/schema";
+import { logger } from "./simplified-logger";
 
 declare global {
   namespace Express {
@@ -29,6 +30,8 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupSimplifiedAuth(app: Express) {
+  logger.info("Initializing simplified authentication system");
+  
   // Session configuration
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "moodsync_secret_key",
@@ -52,24 +55,32 @@ export function setupSimplifiedAuth(app: Express) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
-        console.log(`Authentication attempt for username: ${username}`);
+        logger.info(`Authentication attempt for username: ${username}`);
         
         const user = await simpleStorage.getUserByUsername(username);
         if (!user) {
-          console.log(`User not found: ${username}`);
+          logger.warn(`User not found: ${username}`);
           return done(null, false);
         }
         
         const passwordValid = await comparePasswords(password, user.password);
         if (!passwordValid) {
-          console.log(`Invalid password for user: ${username}`);
+          logger.warn(`Invalid password for user: ${username}`);
           return done(null, false);
         }
         
-        console.log(`Authentication successful for user: ${username}`);
+        logger.info(`Authentication successful for user: ${username}`);
+        
+        // Log detailed authentication event
+        logger.logAuth("LOGIN_SUCCESS", {
+          userId: user.id,
+          username: user.username,
+          timestamp: new Date().toISOString()
+        });
+        
         return done(null, user);
       } catch (err) {
-        console.error(`Authentication error: ${err}`);
+        logger.error(`Authentication error: ${err}`);
         return done(err);
       }
     }),
@@ -77,21 +88,21 @@ export function setupSimplifiedAuth(app: Express) {
 
   // Set up serialization
   passport.serializeUser((user, done) => {
-    console.log(`Serializing user: ${user.id}`);
+    logger.debug(`Serializing user: ${user.id}`);
     done(null, user.id);
   });
   
   passport.deserializeUser(async (id: number, done) => {
     try {
-      console.log(`Deserializing user: ${id}`);
+      logger.debug(`Deserializing user: ${id}`);
       const user = await simpleStorage.getUser(id);
       if (!user) {
-        console.log(`User not found during deserialization: ${id}`);
+        logger.warn(`User not found during deserialization: ${id}`);
         return done(null, false);
       }
       done(null, user);
     } catch (err) {
-      console.error(`Deserialization error: ${err}`);
+      logger.error(`Deserialization error: ${err}`);
       done(err);
     }
   });
