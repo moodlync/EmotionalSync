@@ -91,7 +91,7 @@ export default function StyledLogoWithText({
             textSizeClasses[textSize]
           )}>
             <span className="text-black">MOOD</span>
-            <span className="text-red-500">LYNC</span>
+            <span className="text-red-600">LYNC</span>
           </div>
           
           {showTagline && (

@@ -58,12 +58,13 @@ export default function LogoWithText({
       {!hideText && (
         <div className="flex flex-col">
           <div className={cn(
-            'font-extrabold tracking-tight leading-none text-black dark:text-white',
+            'font-extrabold tracking-tight leading-none',
             textSize === 'sm' ? 'text-xl' : 
             textSize === 'md' ? 'text-2xl' : 
             textSize === 'lg' ? 'text-3xl' : 'text-4xl'
           )}>
-            MoodLync
+            <span className="text-black">MOOD</span>
+            <span className="text-red-600">LYNC</span>
           </div>
           
           {showTagline && (

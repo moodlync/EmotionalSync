@@ -26,7 +26,7 @@ const isDevelopment = import.meta.env.MODE === 'development';
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   rememberMe: z.boolean().default(false),
 });
 
@@ -39,7 +39,7 @@ const registerSchema = insertUserSchema.extend({
   country: z.string().min(1, "Country is required"),
   email: z.string().email("Please enter a valid email address"),
   username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -128,6 +128,13 @@ export default function AuthPage() {
 
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
+      // First, check if there are any validation errors in the form
+      const formErrors = loginForm.formState.errors;
+      if (Object.keys(formErrors).length > 0) {
+        console.log("Login form has validation errors:", formErrors);
+        return; // Don't submit if there are validation errors
+      }
+      
       // Add detailed logs for debugging
       console.log("Login form data being submitted:", {
         username: values.username,
@@ -302,7 +309,7 @@ export default function AuthPage() {
       // Create a loading message
       toast({
         title: "Creating your account",
-        description: "Please wait while we set up your MoodSync experience...",
+        description: "Please wait while we set up your MoodLync experience...",
       });
       
       // The IP address will be captured on the server

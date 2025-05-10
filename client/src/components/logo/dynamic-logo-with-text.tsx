@@ -82,7 +82,10 @@ export default function DynamicLogoWithText({
               </div>
             </>
           ) : (
-            <div></div>
+            <div className="font-extrabold tracking-tight leading-none">
+              <span className="text-black">MOOD</span>
+              <span className="text-red-600">LYNC</span>
+            </div>
           )}
         </div>
       )}

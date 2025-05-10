@@ -754,7 +754,10 @@ export const userFollows = pgTable("user_follows", {
 
 
 
-export const insertUserSchema = createInsertSchema(users).pick({
+export const insertUserSchema = createInsertSchema(users).extend({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+}).pick({
   firstName: true,
   middleName: true,
   lastName: true,
@@ -1048,7 +1051,10 @@ export type PremiumPlan = typeof premiumPlans.$inferSelect;
 export type InsertUserChallengeCompletion = z.infer<typeof insertUserChallengeCompletionSchema>;
 export type UserChallengeCompletion = typeof userChallengeCompletions.$inferSelect;
 // Add insert schemas for admin-related tables
-export const insertAdminUserSchema = createInsertSchema(adminUsers).pick({
+export const insertAdminUserSchema = createInsertSchema(adminUsers).extend({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+}).pick({
   username: true,
   email: true,
   password: true,

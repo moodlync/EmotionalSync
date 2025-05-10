@@ -55,9 +55,9 @@ export default function Footer() {
                 </div>
                 
                 <div className="flex flex-col ml-2">
-                  <div className="font-extrabold tracking-tight text-lg leading-none text-white">
-                    <span>MOOD</span>
-                    <span className="text-rose-200">LYNC</span>
+                  <div className="font-extrabold tracking-tight text-lg leading-none">
+                    <span className="text-black">MOOD</span>
+                    <span className="text-red-600">LYNC</span>
                   </div>
                   <div className="text-white/80 text-xs leading-tight font-medium">
                     Connect - Detect - Reflect
