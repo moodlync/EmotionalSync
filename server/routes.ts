@@ -2693,10 +2693,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'Invalid username or password' });
       }
       
-      // For this demo app, we're directly comparing passwords
-      // In production, we would use a secure password hashing method
+      // In a production environment, we would use a secure password hashing method
+      // For now, support both hashed passwords and direct comparison for backward compatibility
       console.log('Comparing passwords...');
-      if (adminUser.password !== password) {
+      let passwordMatches = false;
+      
+      // First try to verify using secure hashing if the password looks hashed
+      if (adminUser.password.includes('.')) {
+        try {
+          // Try to verify using scrypt if it looks like a hashed password
+          passwordMatches = await hashPassword.verifyPassword(password, adminUser.password);
+        } catch (err) {
+          console.log('Error verifying hashed password, falling back to direct comparison');
+          passwordMatches = false;
+        }
+      }
+      
+      // Fall back to direct comparison for backward compatibility
+      if (!passwordMatches) {
+        passwordMatches = adminUser.password === password;
+      }
+      
+      if (!passwordMatches) {
         console.log('Admin login failed: Password mismatch');
         return res.status(401).json({ error: 'Invalid username or password' });
       }
