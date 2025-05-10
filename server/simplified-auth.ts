@@ -4,7 +4,7 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
+import { simpleStorage } from "./simplified-storage";
 import { User as SelectUser } from "@shared/schema";
 
 declare global {
@@ -28,32 +28,33 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
-export function setupAuth(app: Express) {
-  // Simple session configuration that doesn't rely on storage
+export function setupSimplifiedAuth(app: Express) {
+  // Session configuration
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "moodsync_secret_key",
-    resave: true,             // Save session on every request
-    saveUninitialized: true,  // Create session for unauthenticated users
+    resave: true,
+    saveUninitialized: true,
+    store: simpleStorage.sessionStore,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      secure: false,          // Allow non-secure cookies for development
-      httpOnly: true,         // Prevent client-side JS from reading the cookie
+      secure: false,
+      httpOnly: true,
     }
   };
 
-  // Enable sessions
+  // Set up middleware
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // Configure Passport Local Strategy
+  // Set up authentication strategy
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
         console.log(`Authentication attempt for username: ${username}`);
-        const user = await storage.getUserByUsername(username);
         
+        const user = await simpleStorage.getUserByUsername(username);
         if (!user) {
           console.log(`User not found: ${username}`);
           return done(null, false);
@@ -74,7 +75,7 @@ export function setupAuth(app: Express) {
     }),
   );
 
-  // Configure user serialization/deserialization
+  // Set up serialization
   passport.serializeUser((user, done) => {
     console.log(`Serializing user: ${user.id}`);
     done(null, user.id);
@@ -83,7 +84,7 @@ export function setupAuth(app: Express) {
   passport.deserializeUser(async (id: number, done) => {
     try {
       console.log(`Deserializing user: ${id}`);
-      const user = await storage.getUser(id);
+      const user = await simpleStorage.getUser(id);
       if (!user) {
         console.log(`User not found during deserialization: ${id}`);
         return done(null, false);
@@ -95,30 +96,29 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Simple registration endpoint with minimal validation and functionality
+  // ROUTES
+  
+  // Registration endpoint
   app.post("/api/register", async (req, res, next) => {
     try {
       console.log("Registration request received:", { 
         username: req.body.username,
-        email: req.body.email,
         hasPassword: !!req.body.password,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName
+        email: req.body.email || null
       });
       
-      // Basic validation
       if (!req.body.username || !req.body.password) {
         return res.status(400).json({ error: "Username and password are required" });
       }
       
-      // Username validation - only check for duplicates
-      const existingUser = await storage.getUserByUsername(req.body.username);
+      // Check for existing user
+      const existingUser = await simpleStorage.getUserByUsername(req.body.username);
       if (existingUser) {
         return res.status(400).json({ error: "Username already exists" });
       }
 
-      // Create and store the user
-      const user = await storage.createUser({
+      // Create user
+      const user = await simpleStorage.createUser({
         username: req.body.username,
         password: await hashPassword(req.body.password),
         email: req.body.email || null,
@@ -129,7 +129,7 @@ export function setupAuth(app: Express) {
 
       console.log("User created successfully:", { id: user.id, username: user.username });
 
-      // Log the user in after registration
+      // Log in after registration
       req.login(user, (err) => {
         if (err) {
           console.error("Login error after registration:", err);
@@ -145,11 +145,11 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Simple login endpoint
+  // Login endpoint
   app.post("/api/login", (req, res, next) => {
     console.log("Login attempt for username:", req.body.username);
     
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", (err, user) => {
       if (err) {
         console.error("Login error:", err);
         return res.status(500).json({ error: 'Login error' });
@@ -169,13 +169,21 @@ export function setupAuth(app: Express) {
           return res.status(500).json({ error: 'Failed to create login session' });
         }
         
-        console.log("Login successful for user:", user.username);
-        return res.status(200).json(user);
+        // Save session explicitly
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("Session save error:", saveErr);
+            return res.status(500).json({ error: 'Failed to save session' });
+          }
+          
+          console.log("Login successful for user:", user.username);
+          return res.status(200).json(user);
+        });
       });
     })(req, res, next);
   });
 
-  // Simple logout endpoint
+  // Logout endpoint
   app.post("/api/logout", (req, res, next) => {
     if (req.isAuthenticated()) {
       console.log("Logging out user:", req.user.username);
@@ -191,7 +199,7 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Simple user profile endpoint
+  // User profile endpoint
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) {
       console.log("Unauthorized access to /api/user");
@@ -201,52 +209,41 @@ export function setupAuth(app: Express) {
     res.json(req.user);
   });
   
-  // Add a simple health check endpoint
+  // Health check endpoint
   app.get("/api/healthcheck", (req, res) => {
     res.json({
       status: "ok",
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || "development"
+      environment: process.env.NODE_ENV || "development",
+      auth: "simplified"
     });
   });
   
-  // Search for users by query (username, email, firstname, lastname)
-  app.get("/api/users/search", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
-    
-    const query = req.query.q as string;
-    
-    if (!query || query.length < 2) {
-      return res.status(400).json({ 
-        error: 'Invalid query',
-        message: 'Search query must be at least 2 characters long' 
-      });
-    }
-    
+  // Test endpoint
+  app.get("/api/test-register", async (req, res) => {
     try {
-      const users = await storage.searchUsers(query);
+      const users = [];
+      let count = 0;
+      for (let id = 1; id < 100; id++) {
+        const user = await simpleStorage.getUser(id);
+        if (user) {
+          users.push({
+            id: user.id,
+            username: user.username,
+            email: user.email
+          });
+          count++;
+        }
+        if (count >= 5) break;
+      }
       
-      // Filter out the current user and only return necessary user information
-      const safeUserData = users
-        .filter(user => req.user && user.id !== req.user.id) // Don't include current user
-        .map(user => ({
-          id: user.id,
-          username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          profilePicture: user.profilePicture
-        }));
-      
-      return res.status(200).json(safeUserData);
-    } catch (error) {
-      console.error('Error searching users:', error);
-      return res.status(500).json({ 
-        error: 'Failed to search users',
-        message: error instanceof Error ? error.message : 'Unknown error'
+      res.json({
+        message: "Test endpoint is working",
+        users: users
       });
+    } catch (err) {
+      console.error("Test endpoint error:", err);
+      res.status(500).json({ error: "Test endpoint error" });
     }
   });
 }

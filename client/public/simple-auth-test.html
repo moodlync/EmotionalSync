@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync - Simple Authentication Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    h1 {
+      color: #4D4DE3;
+      margin-bottom: 20px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4D4DE3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #3737a8;
+    }
+    #status {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success {
+      color: #198754;
+    }
+    .error {
+      color: #dc3545;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>MoodLync Authentication Test</h1>
+  
+  <div class="card">
+    <h2>Registration</h2>
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" id="username" placeholder="Enter username">
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" placeholder="Enter password">
+    </div>
+    <div class="form-group">
+      <label for="email">Email (optional):</label>
+      <input type="email" id="email" placeholder="Enter email">
+    </div>
+    <button onclick="register()">Register</button>
+  </div>
+  
+  <div class="card">
+    <h2>Login</h2>
+    <div class="form-group">
+      <label for="login-username">Username:</label>
+      <input type="text" id="login-username" placeholder="Enter username">
+    </div>
+    <div class="form-group">
+      <label for="login-password">Password:</label>
+      <input type="password" id="login-password" placeholder="Enter password">
+    </div>
+    <button onclick="login()">Login</button>
+  </div>
+  
+  <div class="actions">
+    <button onclick="getProfile()">Get Profile</button>
+    <button onclick="logout()">Logout</button>
+    <button onclick="checkHealth()">Health Check</button>
+    <button onclick="clearStatus()">Clear Log</button>
+  </div>
+  
+  <div id="status">Status: Ready to test authentication</div>
+  
+  <script>
+    const statusEl = document.getElementById('status');
+    
+    function log(message, isError = false) {
+      const time = new Date().toLocaleTimeString();
+      const className = isError ? 'error' : '';
+      statusEl.innerHTML += `<div class="${className}">[${time}] ${message}</div>`;
+      statusEl.scrollTop = statusEl.scrollHeight;
+    }
+    
+    function clearStatus() {
+      statusEl.innerHTML = 'Status: Ready to test authentication';
+    }
+    
+    async function makeRequest(url, method, data = null) {
+      try {
+        log(`Making ${method} request to ${url}`);
+        
+        const options = {
+          method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        };
+        
+        if (data) {
+          options.body = JSON.stringify(data);
+          log(`Request payload: ${JSON.stringify(data, null, 2)}`);
+        }
+        
+        const response = await fetch(url, options);
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        
+        let responseData;
+        if (isJson) {
+          responseData = await response.json();
+          log(`Response (${response.status}): ${JSON.stringify(responseData, null, 2)}`);
+        } else {
+          const text = await response.text();
+          log(`Response (${response.status}): ${text}`);
+          responseData = { text };
+        }
+        
+        return {
+          status: response.status,
+          data: responseData,
+          success: response.status >= 200 && response.status < 300
+        };
+      } catch (error) {
+        log(`Error: ${error.message}`, true);
+        return { error: error.message, success: false };
+      }
+    }
+    
+    async function register() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const email = document.getElementById('email').value;
+      
+      if (!username || !password) {
+        return log('Username and password are required', true);
+      }
+      
+      const data = {
+        username,
+        password,
+        email: email || null
+      };
+      
+      const result = await makeRequest('/api/register', 'POST', data);
+      
+      if (result.success) {
+        log('Registration successful!', false);
+      } else {
+        log('Registration failed', true);
+      }
+    }
+    
+    async function login() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      
+      if (!username || !password) {
+        return log('Username and password are required', true);
+      }
+      
+      const data = { username, password };
+      
+      const result = await makeRequest('/api/login', 'POST', data);
+      
+      if (result.success) {
+        log('Login successful!', false);
+      } else {
+        log('Login failed', true);
+      }
+    }
+    
+    async function getProfile() {
+      const result = await makeRequest('/api/user', 'GET');
+      
+      if (result.success) {
+        log('Profile retrieved successfully!', false);
+      } else {
+        log('Failed to get profile. Are you logged in?', true);
+      }
+    }
+    
+    async function logout() {
+      const result = await makeRequest('/api/logout', 'POST');
+      
+      if (result.success) {
+        log('Logout successful!', false);
+      } else {
+        log('Logout failed', true);
+      }
+    }
+    
+    async function checkHealth() {
+      const result = await makeRequest('/api/healthcheck', 'GET');
+      
+      if (result.success) {
+        log('API is healthy!', false);
+      } else {
+        log('API health check failed', true);
+      }
+    }
+  </script>
+</body>
+</html>
