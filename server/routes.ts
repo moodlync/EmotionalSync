@@ -325,6 +325,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
   
+  // Add health check endpoint for the port forwarder and monitoring
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      message: 'MoodLync server is healthy and running'
+    });
+  });
+  
+  // Add a more visible test endpoint for browser verification
+  app.get('/test', (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>MoodLync Port Forwarding Test</title>
+          <style>
+            body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+            .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 4px; }
+            .details { background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <h1>MoodLync Test Page</h1>
+          <div class="success">
+            <h2>✅ Port Forwarding Is Working!</h2>
+            <p>The server is successfully accessible through the port forwarder.</p>
+            <p>Current time: ${new Date().toISOString()}</p>
+          </div>
+          <div class="details">
+            <h3>Server Information:</h3>
+            <p>Application running on port: 5000</p>
+            <p>Port forwarder running on port: ${process.env.PORT || 8080}</p>
+            <p>Environment: ${process.env.NODE_ENV || 'development'}</p>
+          </div>
+          <p><a href="/">Go to MoodLync Application</a></p>
+        </body>
+      </html>
+    `);
+  });
+  
   // Add a route to serve the debug HTML page
   app.get('/debug-page', (req, res) => {
     console.log('Debug HTML page requested');
