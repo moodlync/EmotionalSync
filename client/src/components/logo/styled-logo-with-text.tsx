@@ -20,7 +20,7 @@ export default function StyledLogoWithText({
   vertical = false,
   hideText = false,
   showTagline = false,
-  isAuthenticated = false
+  isAuthenticated = true  // Always authenticated since auth is removed
 }: StyledLogoWithTextProps) {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);

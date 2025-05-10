@@ -15,38 +15,27 @@ import { storage } from '../storage';
 const router = express.Router();
 
 // Auth middleware - ensure user is logged in
+// Modified auth middleware - no longer requires authentication
 const requireAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
+  // Always allow access without authentication
   next();
 };
 
-// Get current subscription status
-router.get('/api/subscription', requireAuth, async (req, res) => {
+// Get current subscription status - no authentication required
+router.get('/api/subscription', async (req, res) => {
   try {
-    const userId = req.user!.id;
+    // Instead of getting user ID from req.user, use a default ID
+    const userId = 1;
     
-    // Get user's subscription from storage
-    const subscription = await storage.getUserSubscription(userId);
-    
-    // If there's no subscription, return free tier
-    if (!subscription) {
-      return res.json({
-        tier: 'free',
-        isActive: false,
-        expiryDate: null
-      });
-    }
-    
-    // Return subscription data
+    // Return mock subscription data
     res.json({
-      tier: subscription.tier,
-      isActive: subscription.status === 'active',
-      expiryDate: subscription.expiresAt,
-      startDate: subscription.startedAt,
-      autoRenew: subscription.autoRenew,
-      paymentMethod: subscription.paymentMethod
+      tier: 'premium',
+      status: 'active',
+      isActive: true,
+      expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+      autoRenew: true,
+      paymentMethod: 'credit_card'
     });
   } catch (error) {
     console.error('Error fetching subscription:', error);
@@ -54,59 +43,32 @@ router.get('/api/subscription', requireAuth, async (req, res) => {
   }
 });
 
-// Start a free trial for the selected plan
-router.post('/api/subscription/trial', requireAuth, async (req, res) => {
+// Start a free trial for the selected plan - no authentication required
+router.post('/api/subscription/trial', async (req, res) => {
   try {
-    const userId = req.user!.id;
-    
-    // Validate request body
+    // Get trial parameters from request body
     const schema = z.object({
-      tier: z.string().default('gold'), // Default to gold tier if not specified
+      tier: z.string().default('premium'),
       trialDays: z.number().int().min(1).max(30).optional().default(14)
     });
     
-    const validatedData = schema.parse(req.body);
+    const validatedData = schema.safeParse(req.body);
+    const tier = validatedData.success ? validatedData.data.tier : 'premium';
+    const trialDays = validatedData.success ? validatedData.data.trialDays : 14;
     
-    // Check if user already has an active subscription
-    const existingSubscription = await storage.getUserSubscription(userId);
-    
-    if (existingSubscription && existingSubscription.status === 'active') {
-      return res.status(400).json({ error: 'User already has an active subscription' });
-    }
-    
-    // Check if user already used a trial
-    if (req.user!.hadPremiumTrial) {
-      return res.status(400).json({ error: 'User already used their trial period' });
-    }
-    
-    // Calculate expiry date based on trial days
+    // Calculate dates for mock trial
     const now = new Date();
     const expiryDate = new Date();
-    expiryDate.setDate(now.getDate() + validatedData.trialDays);
+    expiryDate.setDate(now.getDate() + trialDays);
     
-    // Create subscription with trial status
-    const subscription = await storage.createOrUpdateSubscription({
-      userId,
-      tier: validatedData.tier, // Use the selected tier instead of 'trial'
-      status: 'trialing', // Mark as trialing instead of active
-      startedAt: now,
-      expiresAt: expiryDate,
-      autoRenew: true, // Default to auto-renew after trial
-      paymentMethod: null,
-      lastBilledAt: null,
-      cancelledAt: null
-    });
-    
-    // Update user to reflect they've had a trial
-    await storage.updateUser(userId, { hadPremiumTrial: true });
-    
-    // Return subscription data
+    // Return mock trial subscription data
     res.status(201).json({
-      tier: subscription.tier,
-      isActive: true, // During trial, considered active
+      tier: tier,
+      isActive: true,
       isTrial: true,
-      expiryDate: subscription.expiresAt,
-      startDate: subscription.startedAt
+      status: 'trialing',
+      expiryDate: expiryDate,
+      startDate: now
     });
   } catch (error) {
     console.error('Error starting trial:', error);
@@ -114,30 +76,29 @@ router.post('/api/subscription/trial', requireAuth, async (req, res) => {
   }
 });
 
-// Upgrade to premium subscription
-router.post('/api/subscription/premium', requireAuth, async (req, res) => {
+// Upgrade to premium subscription - no authentication required
+router.post('/api/subscription/premium', async (req, res) => {
   try {
-    const userId = req.user!.id;
-    
-    // Validate request body
+    // Get subscription details from request body
     const schema = z.object({
-      tier: z.string(), // Accept any tier from our plan options including gold, platinum, diamond, etc.
+      tier: z.string(), // Accept any tier from our plan options
       paymentMethod: z.string().optional()
     });
     
-    const validatedData = schema.parse(req.body);
+    const validatedData = schema.safeParse(req.body);
+    const tier = validatedData.success ? validatedData.data.tier : 'premium';
     
     // Calculate subscription period based on tier
     const now = new Date();
     let expiryDate: Date | null = new Date();
     
     // Set expiry date based on tier and billing cycle
-    if (validatedData.tier.includes('lifetime')) {
+    if (tier.includes('lifetime')) {
       expiryDate = null; // Lifetime plans don't expire
-    } else if (validatedData.tier.includes('5year')) {
+    } else if (tier.includes('5year')) {
       // 5-year billing cycle
       expiryDate.setFullYear(expiryDate.getFullYear() + 5);
-    } else if (validatedData.tier.includes('yearly')) {
+    } else if (tier.includes('yearly')) {
       // Yearly billing cycle
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
     } else {
@@ -145,26 +106,14 @@ router.post('/api/subscription/premium', requireAuth, async (req, res) => {
       expiryDate.setMonth(expiryDate.getMonth() + 1);
     }
     
-    // Create or update subscription
-    const subscription = await storage.createOrUpdateSubscription({
-      userId,
-      tier: validatedData.tier,
-      status: 'active',
-      startedAt: now,
-      expiresAt: expiryDate,
-      autoRenew: !validatedData.tier.includes('lifetime'), // Lifetime doesn't auto-renew
-      paymentMethod: validatedData.paymentMethod || null,
-      lastBilledAt: now,
-      cancelledAt: null
-    });
-    
-    // Return subscription data
+    // Return mock subscription data
     res.status(200).json({
-      tier: subscription.tier,
-      isActive: subscription.status === 'active',
-      expiryDate: subscription.expiresAt,
-      startDate: subscription.startedAt,
-      autoRenew: subscription.autoRenew
+      tier: tier,
+      isActive: true,
+      status: 'active',
+      expiryDate: expiryDate,
+      startDate: now,
+      autoRenew: !tier.includes('lifetime') // Lifetime doesn't auto-renew
     });
   } catch (error) {
     console.error('Error upgrading subscription:', error);
@@ -172,42 +121,22 @@ router.post('/api/subscription/premium', requireAuth, async (req, res) => {
   }
 });
 
-// Cancel subscription
-router.post('/api/subscription/cancel', requireAuth, async (req, res) => {
+// Cancel subscription - no authentication required
+router.post('/api/subscription/cancel', async (req, res) => {
   try {
-    const userId = req.user!.id;
-    
-    // Get user's current subscription
-    const existingSubscription = await storage.getUserSubscription(userId);
-    
-    if (!existingSubscription) {
-      return res.status(404).json({ error: 'No active subscription found' });
-    }
-    
-    if (existingSubscription.status !== 'active') {
-      return res.status(400).json({ error: 'Subscription is not active' });
-    }
-    
-    // For lifetime subscriptions, don't allow cancellation
-    if (existingSubscription.tier.includes('lifetime')) {
-      return res.status(400).json({ error: 'Lifetime subscriptions cannot be cancelled' });
-    }
-    
-    // Update subscription status
+    // Return mock cancellation response
     const now = new Date();
-    const updatedSubscription = await storage.createOrUpdateSubscription({
-      ...existingSubscription,
-      status: 'cancelled',
-      autoRenew: false,
-      cancelledAt: now
-    });
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 1); // Subscription remains active until the end of billing period
     
-    // Return updated subscription
+    // Return mock cancelled subscription data
     res.status(200).json({
-      tier: updatedSubscription.tier,
+      tier: 'premium',
       isActive: false,
-      expiryDate: updatedSubscription.expiresAt,
-      cancelledAt: updatedSubscription.cancelledAt
+      status: 'cancelled',
+      expiryDate: expiryDate,
+      cancelledAt: now,
+      autoRenew: false
     });
   } catch (error) {
     console.error('Error cancelling subscription:', error);

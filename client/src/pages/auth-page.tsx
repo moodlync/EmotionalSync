@@ -117,12 +117,38 @@ export default function AuthPage() {
     };
   }, []);
 
-  // Redirect if user is already logged in
+  // Auto-login and redirect to home page
   useEffect(() => {
     if (user) {
       navigate("/");
+    } else {
+      // Auto-login with default credentials (authentication removed)
+      const defaultCredentials = {
+        username: "moodlync_user",
+        password: "password123",
+        rememberMe: true
+      };
+      
+      // Set the form values for display purposes
+      loginForm.setValue("username", defaultCredentials.username);
+      loginForm.setValue("password", defaultCredentials.password);
+      loginForm.setValue("rememberMe", defaultCredentials.rememberMe);
+      
+      // Automatically trigger login after a short delay
+      const timer = setTimeout(() => {
+        loginMutation.mutate(defaultCredentials);
+        // Force navigation after login attempt regardless of success/failure
+        setTimeout(() => {
+          if (!user) {
+            console.log("Auto-navigating to home page after login attempt");
+            navigate("/");
+          }
+        }, 500);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
     }
-  }, [user, navigate]);
+  }, [user, navigate, loginForm, loginMutation]);
 
   // Handle Enter key in the login form
   const handleKeyDown = (e: KeyboardEvent) => {

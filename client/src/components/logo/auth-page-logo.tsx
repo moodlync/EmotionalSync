@@ -18,7 +18,7 @@ export default function AuthPageLogo({
   vertical = false,
   hideText = false,
   showTagline = false,
-  isAuthenticated = false
+  isAuthenticated = true  // Always authenticated since auth is removed
 }: AuthPageLogoProps) {
   const [, navigate] = useLocation();
   

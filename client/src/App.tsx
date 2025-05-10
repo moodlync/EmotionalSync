@@ -15,8 +15,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 // Providers
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
-import { AuthProvider } from "./hooks/use-auth";
-import { SubscriptionProvider } from "./hooks/use-subscription";
+// Auth provider removed
+// Subscription provider removed
 import { WebSocketProvider } from "./hooks/use-websocket";
 import { GamificationProvider } from "./hooks/use-gamification";
 import { MusicPlayerProvider } from "./hooks/use-music-player";
@@ -35,13 +35,11 @@ import { AdminRoute } from "./lib/admin-route";
 import { Toaster } from "@/components/ui/toaster";
 import AutoChallengeUpdater from "@/components/auto-challenge-updater";
 import FloatingChatButton from "@/components/contact/floating-chat-button";
-import SessionHandler from "@/components/session-handler";
 
 // Eagerly loaded core pages
 import NotFound from "@/pages/not-found";
 import WelcomePage from "@/pages/welcome-page";
 import HomePage from "@/pages/home-page";
-import AuthPage from "@/pages/auth-page";
 
 // Lazily loaded pages for better performance
 const ProfilePage = lazy(() => import("@/pages/profile-page"));
@@ -144,7 +142,7 @@ const RouterComponent = () => {
   // Route organization to improve maintenance and readability
   const publicRoutes = [
     { path: "/welcome", component: WelcomePage },
-    { path: "/auth", component: AuthPage },
+    { path: "/", component: HomePage }, // Make the home page public
     { path: "/video/:id", component: VideoPlayerPage },
     { path: "/share/milestone", component: MilestonePage },
     { path: "/terms", component: TermsConditionsPage },
@@ -158,7 +156,7 @@ const RouterComponent = () => {
   ];
   
   const protectedRoutes = [
-    { path: "/", component: HomePage },
+    // Home page is now in public routes
     { path: "/profile", component: ProfilePage },
     { path: "/profile/notifications", component: ProfileNotificationsPage },
     { path: "/tokens", component: TokenRedemptionPage },
@@ -241,28 +239,25 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <HelmetProvider>
-          <AuthProvider>
-            <SubscriptionProvider>
-              <GamificationProvider>
-                <WebSocketProvider>
-                  <MusicPlayerProvider>
-                    <PremiumFeatureModalProvider>
-                      <TooltipProvider>
-                        <MoodProvider>
-                          <Toaster />
-                          <RouterComponent />
-                          <SessionHandler />
-                          <FloatingChatButton />
-                          <AutoChallengeUpdater />
-                          <CapacitorInitializer />
-                        </MoodProvider>
-                      </TooltipProvider>
-                    </PremiumFeatureModalProvider>
-                  </MusicPlayerProvider>
-                </WebSocketProvider>
-              </GamificationProvider>
-            </SubscriptionProvider>
-          </AuthProvider>
+          {/* Auth provider removed */}
+          <GamificationProvider>
+            <WebSocketProvider>
+              <MusicPlayerProvider>
+                <PremiumFeatureModalProvider>
+                  <TooltipProvider>
+                    <MoodProvider>
+                      <Toaster />
+                      <RouterComponent />
+                      {/* Session handler removed */}
+                      <FloatingChatButton />
+                      <AutoChallengeUpdater />
+                      <CapacitorInitializer />
+                    </MoodProvider>
+                  </TooltipProvider>
+                </PremiumFeatureModalProvider>
+              </MusicPlayerProvider>
+            </WebSocketProvider>
+          </GamificationProvider>
         </HelmetProvider>
       </ThemeProvider>
     </QueryClientProvider>

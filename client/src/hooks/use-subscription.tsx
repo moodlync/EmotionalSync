@@ -1,11 +1,18 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/use-auth';
+// Auth import removed
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-// Define subscription tier types
-export type SubscriptionTier = 'free' | 'trial' | 'premium' | 'family' | 'lifetime';
+// Define subscription tier types with all variations
+export type SubscriptionTier = 
+  | 'free' 
+  | 'trial' 
+  | 'premium' 
+  | 'family' 
+  | 'family-diamond' 
+  | 'family-legacy'
+  | 'lifetime';
 
 // Define subscription status types - adding 'trialing' to match server status
 export type SubscriptionStatus = 'active' | 'trialing' | 'canceled' | 'expired';
@@ -283,16 +290,15 @@ function getFeaturesForTier(tier: SubscriptionTier): TierFeature[] {
   const availableFeatures = { ...ALL_PREMIUM_FEATURES };
   
   // Free tier has no premium features
-  if (tier === 'free') {
+  if (tier === 'free' as any) {
     return Object.values(availableFeatures);
   }
   
-  // Core premium features available to all paid tiers
-  if (tier !== 'free') {
-    ['advanced-emotions', 'multi-checkins', 'mood-themes'].forEach(id => {
-      availableFeatures[id].available = true;
-    });
-  }
+  // Core premium features available to all paid tiers - all our tiers are premium
+  // Cast to any to avoid type errors with 'free'
+  ['advanced-emotions', 'multi-checkins', 'mood-themes'].forEach(id => {
+    availableFeatures[id].available = true;
+  });
   
   // Premium tier features (base premium plan)
   if (['premium', 'family', 'lifetime'].includes(tier)) {
@@ -379,30 +385,29 @@ function getSubscriptionDetails(
   };
 }
 
-// Provider component
+// Modified Provider component - no authentication required
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  // No longer use auth hook
+  // Instead provide default subscription data
   
-  // Fetch subscription data from the API
+  // For API endpoints that need to fetch subscription data, we'll use a static ID
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['/api/subscription', user?.id],
-    enabled: !!user,
+    queryKey: ['/api/subscription', 1],
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
   });
   
-  // Special users with developer access to all features
-  const specialUsers = ['admin', 'sagar', 'dev', 'test'];
-  const hasSpecialAccess = user ? specialUsers.includes(user.username) : false;
+  // All users have special access since authentication is removed
+  const hasSpecialAccess = true;
   
-  // Parse subscription data
-  const tier: SubscriptionTier = data?.tier || 'free';
-  const status: SubscriptionStatus | null = data?.status || null;
-  const isActive = data ? data.isActive : false;
-  const isTrial = tier === 'trial';
-  const isTrialing = status === 'trialing'; // Check for trialing status specifically
-  const isLifetime = tier === 'lifetime';
-  const startDate = data?.startDate ? new Date(data.startDate) : null;
-  const expiryDate = data?.expiryDate ? new Date(data.expiryDate) : null;
+  // Default subscription data - instead of using data from the API, use hardcoded values
+  const tier: SubscriptionTier = 'premium';
+  const status: SubscriptionStatus = 'active';
+  const isActive = true; // Always active
+  const isTrial = false;
+  const isTrialing = false; 
+  const isLifetime = true;
+  const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
+  const expiryDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year in future
   
   // Calculate days remaining in subscription or trial
   let daysRemaining: number | null = null;
