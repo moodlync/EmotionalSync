@@ -12,7 +12,7 @@ import { Agent } from 'http';
 // Configuration
 const TARGET_PORT = 5000;
 const WEBVIEW_PORT = 3000;
-const BIND_ADDRESS = '0.0.0.0';
+const BIND_ADDRESS = '0.0.0.0'; // Bind to all interfaces for Replit compatibility
 
 // Log with timestamp
 function log(message: string): void {
@@ -80,6 +80,9 @@ export function startESMPortForwarder(): Server {
       res.end();
       return;
     }
+    
+    // Add replit specific header for webview
+    res.setHeader('X-Replit-Webview-Marker', 'true');
     
     // Basic health check endpoint
     if (req.url === '/health' || req.url === '/') {

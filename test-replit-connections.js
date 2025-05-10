@@ -5,7 +5,7 @@
  * to diagnose Replit webview access issues.
  */
 
-const http = require('http');
+import http from 'http';
 
 // Text formatting for terminal output
 const COLORS = {

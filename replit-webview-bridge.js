@@ -9,9 +9,10 @@
  * and better handling WebSocket connections that our real-time features need.
  */
 
-const http = require('http');
-const httpProxy = require('http-proxy');
-const fs = require('fs');
+// Using ES modules instead of CommonJS for better compatibility
+import http from 'http';
+import { createProxyServer } from 'http-proxy';
+import fs from 'fs';
 
 // Configuration
 const TARGET_PORT = 5000;           // Main application port
@@ -29,7 +30,7 @@ function log(message) {
 }
 
 // Set up a proxy server with special configuration for Replit
-const proxy = httpProxy.createProxyServer({
+const proxy = createProxyServer({
   target: `http://localhost:${TARGET_PORT}`,
   ws: true,                 // Enable WebSocket support
   xfwd: true,               // Pass original client IP
