@@ -33,15 +33,45 @@ export default function Footer() {
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const handleFeedbackSubmit = (data: {
+  const handleFeedbackSubmit = async (data: {
     category: string;
     title: string;
     description: string;
     isAnonymous: boolean;
   }) => {
-    // In a real app, we'd send this to the backend
-    console.log("Feedback submitted:", data);
-    setFeedbackDialogOpen(false);
+    try {
+      // Format content for API
+      const content = `${data.title}\n\nCategory: ${data.category}\n\n${data.description}${data.isAnonymous ? '\n\n[Submitted anonymously]' : ''}`;
+      
+      // Send to the API
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit feedback');
+      }
+      
+      toast({
+        title: "Feedback submitted successfully",
+        description: "Thank you for helping us improve MoodLync!",
+        variant: "default",
+      });
+      
+      setFeedbackDialogOpen(false);
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      toast({
+        title: "Failed to submit feedback",
+        description: "Please try again later or contact support.",
+        variant: "destructive",
+      });
+    }
   };
 
   const footerLinks = [
@@ -119,25 +149,15 @@ export default function Footer() {
               An innovative platform that connects people based on their emotional state,
               fostering authentic conversations and meaningful connections.
             </p>
-            <div className="pt-2">
-              <div className="flex items-center mb-2 text-indigo-600 dark:text-indigo-400">
-                <Sparkles className="h-4 w-4 mr-2" />
-                <span className="font-medium text-sm">Share your feedback</span>
-              </div>
-              <Dialog open={feedbackDialogOpen} onOpenChange={setFeedbackDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Share Feedback
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[550px]">
-                  <FeedbackForm 
-                    onSubmit={handleFeedbackSubmit} 
-                    isAuthenticated={!!user}
-                  />
-                </DialogContent>
-              </Dialog>
+            <div className="pt-2 flex space-x-3">
+              <a href="#" className="text-sm text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center">
+                <Heart className="h-4 w-4 mr-1.5 text-pink-500" />
+                <span>About Us</span>
+              </a>
+              <a href="#" className="text-sm text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center">
+                <Users className="h-4 w-4 mr-1.5 text-indigo-500" />
+                <span>Careers</span>
+              </a>
             </div>
           </div>
 
@@ -176,17 +196,55 @@ export default function Footer() {
 
         {/* Customer Support Section */}
         <div className="mt-12 p-6 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-800/20 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg border border-indigo-100 dark:border-slate-700">
+          <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white flex items-center">
+            <Heart className="h-5 w-5 mr-2 text-pink-500" />
+            We're Here To Help
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Contact Options */}
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg border border-indigo-100 dark:border-slate-700 hover:shadow-md transition-shadow">
                 <Mail className="h-5 w-5 text-indigo-500 mb-2" />
                 <h4 className="font-medium mb-1 text-slate-900 dark:text-slate-100">Email Support</h4>
                 <p className="text-sm text-slate-500 dark:text-slate-400">support@moodlync.com</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Response within 24 hours</p>
               </div>
-              <div className="p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg border border-indigo-100 dark:border-slate-700">
+              <div className="p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg border border-indigo-100 dark:border-slate-700 hover:shadow-md transition-shadow">
                 <MessageCircle className="h-5 w-5 text-indigo-500 mb-2" />
                 <h4 className="font-medium mb-1 text-slate-900 dark:text-slate-100">Live Chat</h4>
                 <p className="text-sm text-slate-500 dark:text-slate-400">Available 24/7</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Typical response in 5 minutes</p>
+              </div>
+              <div className="p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg border border-indigo-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+                <FileText className="h-5 w-5 text-indigo-500 mb-2" />
+                <h4 className="font-medium mb-1 text-slate-900 dark:text-slate-100">Help Center</h4>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Browse our documentation</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Find answers to common questions</p>
+              </div>
+            </div>
+            
+            {/* Feedback Section */}
+            <div className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 p-4 rounded-lg border border-indigo-200 dark:border-indigo-800/30">
+              <div className="text-center mb-3">
+                <Sparkles className="h-6 w-6 text-indigo-600 dark:text-indigo-400 mx-auto mb-2" />
+                <h3 className="font-semibold text-slate-900 dark:text-white">Share Your Feedback</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">
+                  Help us improve your experience
+                </p>
+                <Dialog open={feedbackDialogOpen} onOpenChange={setFeedbackDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full bg-white dark:bg-slate-800 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
+                      <MessageSquare className="h-4 w-4 mr-2 text-indigo-500" />
+                      Give Feedback
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[550px]">
+                    <FeedbackForm 
+                      onSubmit={handleFeedbackSubmit} 
+                      isAuthenticated={!!user}
+                    />
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </div>

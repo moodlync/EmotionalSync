@@ -5638,11 +5638,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
       }
       
+      // Log the feedback for debugging
+      console.log(`Feedback received: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''} (User ID: ${userId || 'anonymous'})`);
+      
       res.status(201).json({ success: true, message: 'Feedback submitted successfully' });
     } catch (error) {
       console.error('Error submitting feedback:', error);
       res.status(500).json({ error: 'Failed to submit feedback' });
     }
+  });
+  
+  // Test feedback page
+  app.get('/test-feedback', (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>MoodLync Feedback Test</title>
+          <style>
+            body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+            .form-group { margin-bottom: 1rem; }
+            label { display: block; margin-bottom: 0.5rem; }
+            textarea { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
+            button { background: linear-gradient(to right, #4F46E5, #7C3AED); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+            .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-top: 10px; display: none; }
+            .error { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin-top: 10px; display: none; }
+          </style>
+        </head>
+        <body>
+          <h1>MoodLync Feedback Test</h1>
+          <p>Use this form to test the feedback submission functionality:</p>
+          
+          <div class="form-group">
+            <label for="feedback">Your Feedback:</label>
+            <textarea id="feedback" rows="5" placeholder="Enter your feedback here..."></textarea>
+          </div>
+          
+          <button id="submitBtn">Submit Feedback</button>
+          
+          <div id="successMessage" class="success">
+            Feedback submitted successfully! Thank you for helping us improve MoodLync.
+          </div>
+          
+          <div id="errorMessage" class="error">
+            Failed to submit feedback. Please try again.
+          </div>
+          
+          <script>
+            document.getElementById('submitBtn').addEventListener('click', async () => {
+              const content = document.getElementById('feedback').value;
+              
+              if (!content.trim()) {
+                document.getElementById('errorMessage').textContent = 'Please enter your feedback.';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                return;
+              }
+              
+              try {
+                const response = await fetch('/api/feedback', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ content }),
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                  document.getElementById('successMessage').style.display = 'block';
+                  document.getElementById('errorMessage').style.display = 'none';
+                  document.getElementById('feedback').value = '';
+                } else {
+                  throw new Error(result.error || 'Failed to submit feedback');
+                }
+              } catch (error) {
+                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+              }
+            });
+          </script>
+        </body>
+      </html>
+    `);
   });
   
   // Admin feedback management endpoints
