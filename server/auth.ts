@@ -84,7 +84,8 @@ export function setupAuth(app: Express) {
         username: req.body.username,
         email: req.body.email,
         hasPassword: !!req.body.password,
-        reqBody: JSON.stringify(req.body)
+        firstName: req.body.firstName,
+        lastName: req.body.lastName
       });
       
       // Validate required fields are present
@@ -96,9 +97,23 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ error: "Password is required" });
       }
       
+      // Password validation - must be at least 8 characters
+      if (req.body.password.length < 8) {
+        return res.status(400).json({ error: "Password must be at least 8 characters" });
+      }
+      
+      // Username validation - only letters, numbers, underscores, hyphens
+      const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+      if (!usernameRegex.test(req.body.username)) {
+        return res.status(400).json({ error: "Username can only contain letters, numbers, underscores and hyphens" });
+      }
+      
       // Validation for email if provided
-      if (req.body.email && !req.body.email.includes('@')) {
-        return res.status(400).json({ error: "Invalid email format" });
+      if (req.body.email) {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(req.body.email)) {
+          return res.status(400).json({ error: "Invalid email format" });
+        }
       }
       
       // Check for duplicate username
@@ -137,21 +152,29 @@ export function setupAuth(app: Express) {
       }
 
       try {
-        console.log("Creating user with data:", {
-          ...req.body,
-          password: "(HASHED)",
-          ipAddress,
-          isEmailVerified: false
-        });
-      
-        // Create the user with hashed password and IP address
-        // Set isEmailVerified to false initially
-        const user = await storage.createUser({
-          ...req.body,
+        // Create a cleaned request body with only the fields we want to allow
+        // This prevents any unexpected fields from client being saved
+        const filteredUserData = {
+          username: req.body.username,
           password: await hashPassword(req.body.password),
+          email: req.body.email,
+          firstName: req.body.firstName || "",
+          lastName: req.body.lastName || "",
+          middleName: req.body.middleName || "",
+          gender: req.body.gender || "prefer_not_to_say",
+          state: req.body.state || "",
+          country: req.body.country || "",
           ipAddress: ipAddress as string,
           isEmailVerified: false
+        };
+        
+        console.log("Creating user with filtered data:", {
+          ...filteredUserData,
+          password: "(HASHED)"
         });
+      
+        // Create the user with the filtered data
+        const user = await storage.createUser(filteredUserData);
 
         console.log("User created successfully:", { id: user.id, username: user.username });
 

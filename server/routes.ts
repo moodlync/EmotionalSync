@@ -299,6 +299,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication first
   setupAuth(app);
   
+  // Import and register test routes
+  const testRoutes = (await import('./routes/test-routes')).default;
+  app.use('/api', testRoutes);
+  
   // Add a debug route at the very top level, before any authentication or other middleware
   app.get('/debug', (req, res) => {
     console.log('Debug route accessed at:', new Date().toISOString());

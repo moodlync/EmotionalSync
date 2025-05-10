@@ -38,7 +38,9 @@ const registerSchema = insertUserSchema.extend({
   state: z.string().min(1, "State is required"),
   country: z.string().min(1, "Country is required"),
   email: z.string().email("Please enter a valid email address"),
-  username: z.string().min(3, "Username must be at least 3 characters"),
+  username: z.string()
+    .min(3, "Username must be at least 3 characters")
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores and hyphens"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
