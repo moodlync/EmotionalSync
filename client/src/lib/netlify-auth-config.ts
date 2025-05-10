@@ -18,9 +18,21 @@ export function isNetlifyEnvironment() {
   return typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
 }
 
+// Helper to determine if we're in Replit environment
+export function isReplitEnvironment() {
+  return typeof window !== 'undefined' && 
+    (window.location.hostname.includes('replit.dev') || 
+     window.location.hostname.includes('repl.co') ||
+     window.location.hostname.includes('replit.app'));
+}
+
 // Helper to get the correct API path based on environment
 export function getApiPath(endpoint: string): string {
   const isNetlify = isNetlifyEnvironment();
+  const isReplit = isReplitEnvironment();
+  
+  console.log(`Environment check - Netlify: ${isNetlify}, Replit: ${isReplit}, Hostname: ${window.location.hostname}`);
+  
   const paths = isNetlify ? getNetlifyAuthPaths() : {
     login: "/api/login",
     logout: "/api/logout",
@@ -48,6 +60,15 @@ export function getApiPath(endpoint: string): string {
     }
   }
   
-  // Return original endpoint for non-Netlify environments
+  // For Replit environment, ensure we're using the correct port
+  if (isReplit) {
+    // Make sure we use the full path with the current origin
+    // This ensures we're connecting to the correct port (3000)
+    const currentOrigin = window.location.origin;
+    console.log(`Using Replit environment with origin: ${currentOrigin}`);
+    return `${currentOrigin}${endpoint}`;
+  }
+  
+  // Return original endpoint for other environments
   return endpoint;
 }

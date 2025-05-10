@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { isNetlifyEnvironment, isReplitEnvironment } from "@/lib/netlify-auth-config";
 import { 
   Loader2, Heart, Eye, EyeOff, Info, ArrowRight, Brain, Shield, Star, AlertCircle, AlertTriangle,
   Sparkles, MapPin, MessageCircle, Users, Gamepad, BarChart3, Crown, Bot, CheckCircle,
@@ -140,6 +141,10 @@ export default function AuthPage() {
   // Login form submission
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
+      const isNetlify = isNetlifyEnvironment();
+      const isReplit = isReplitEnvironment();
+      console.log(`Login submission - hostname: ${window.location.hostname}, origin: ${window.location.origin}`);
+      console.log(`Environment detection: Netlify: ${isNetlify}, Replit: ${isReplit}`);
       loginMutation.mutate(values, {
         onSuccess: () => {
           // Toast notification
@@ -186,6 +191,7 @@ export default function AuthPage() {
 
       // Log the data being submitted for debugging
       console.log("Submitting registration data:", registerData);
+      console.log(`Registration submission - hostname: ${window.location.hostname}, origin: ${window.location.origin}`);
       
       // Show loading toast
       toast({

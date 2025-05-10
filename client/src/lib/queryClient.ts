@@ -1,5 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { getApiPath, isNetlifyEnvironment } from "./netlify-auth-config";
+import { getApiPath, isNetlifyEnvironment, isReplitEnvironment } from "./netlify-auth-config";
 import { 
   handleResponseError, 
   handleError, 
@@ -45,11 +45,16 @@ export async function apiRequest(
   
   const executeRequest = async (): Promise<Response> => {
     try {
-      // Convert API paths for Netlify environment
+      // Convert API paths for current environment
       const apiUrl = getApiPath(url);
       
+      // Get environment info for debugging
+      const isNetlify = isNetlifyEnvironment();
+      const isReplit = isReplitEnvironment();
+      
       // Log request information for debugging
-      console.log(`API Request: ${method} ${apiUrl} ${isNetlifyEnvironment() ? '(Netlify)' : ''}`);
+      console.log(`API Request: ${method} ${apiUrl} (Netlify: ${isNetlify}, Replit: ${isReplit})`);
+      console.log(`Current URL: ${window.location.origin}, Sending to: ${apiUrl}`);
       if (data) {
         console.log('Request data:', JSON.stringify(data).substring(0, 200) + (JSON.stringify(data).length > 200 ? '...' : ''));
       }
@@ -74,6 +79,25 @@ export async function apiRequest(
       });
       
       console.log(`API Response: ${res.status} ${res.statusText} from ${apiUrl}`);
+      
+      // Improved debugging for authentication errors
+      if (res.status === 401) {
+        console.error('Authentication error: Not authorized. Session may be invalid or expired.');
+      } else if (!res.ok) {
+        try {
+          // Try to get response body for more error details
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await res.clone().json();
+            console.error('API Error details:', errorData);
+          } else {
+            const errorText = await res.clone().text();
+            console.error('API Error response:', errorText);
+          }
+        } catch (parseError) {
+          console.error('Could not parse error response:', parseError);
+        }
+      }
       
       return res;
     } catch (error) {
@@ -121,7 +145,12 @@ export const getQueryFn: <T>(options: {
       const url = queryKey[0] as string;
       const apiUrl = getApiPath(url);
       
-      console.log(`Query request: ${apiUrl} ${isNetlifyEnvironment() ? '(Netlify)' : ''}`);
+      // Get environment info for debugging
+      const isNetlify = isNetlifyEnvironment();
+      const isReplit = isReplitEnvironment();
+      
+      console.log(`Query request: ${apiUrl} (Netlify: ${isNetlify}, Replit: ${isReplit})`);
+      console.log(`Environment: ${window.location.hostname}`);
       
       // Check if we're online
       if (!navigator.onLine) {
