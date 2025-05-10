@@ -296,6 +296,9 @@ function setupTrialCheckSchedule() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication first
+  setupAuth(app);
+  
   // Add a debug route at the very top level, before any authentication or other middleware
   app.get('/debug', (req, res) => {
     console.log('Debug route accessed at:', new Date().toISOString());
@@ -444,8 +447,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/admin-login', (req, res) => {
     res.sendFile(path.join(__dirname, "..", "client", "public", "admin-login.html"));
   });
-  // Set up authentication
-  setupAuth(app);
 
   // Set up static file serving for uploads
   app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
