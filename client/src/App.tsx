@@ -16,7 +16,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 // Auth provider removed
-// Subscription provider removed
+import { SubscriptionProvider } from "./hooks/use-subscription";
 import { WebSocketProvider } from "./hooks/use-websocket";
 import { GamificationProvider } from "./hooks/use-gamification";
 import { MusicPlayerProvider } from "./hooks/use-music-player";
@@ -233,6 +233,8 @@ const RouterComponent = () => {
   );
 };
 
+// SubscriptionProvider is already imported above
+
 // Main application component
 function App() {
   // Log initialization for debugging
@@ -245,24 +247,26 @@ function App() {
       <ThemeProvider>
         <HelmetProvider>
           {/* Auth provider removed */}
-          <GamificationProvider>
-            <WebSocketProvider>
-              <MusicPlayerProvider>
-                <PremiumFeatureModalProvider>
-                  <TooltipProvider>
-                    <MoodProvider>
-                      <Toaster />
-                      <RouterComponent />
-                      {/* Session handler removed */}
-                      <FloatingChatButton />
-                      <AutoChallengeUpdater />
-                      <CapacitorInitializer />
-                    </MoodProvider>
-                  </TooltipProvider>
-                </PremiumFeatureModalProvider>
-              </MusicPlayerProvider>
-            </WebSocketProvider>
-          </GamificationProvider>
+          <SubscriptionProvider>
+            <GamificationProvider>
+              <WebSocketProvider>
+                <MusicPlayerProvider>
+                  <PremiumFeatureModalProvider>
+                    <TooltipProvider>
+                      <MoodProvider>
+                        <Toaster />
+                        <RouterComponent />
+                        {/* Session handler removed */}
+                        <FloatingChatButton />
+                        <AutoChallengeUpdater />
+                        <CapacitorInitializer />
+                      </MoodProvider>
+                    </TooltipProvider>
+                  </PremiumFeatureModalProvider>
+                </MusicPlayerProvider>
+              </WebSocketProvider>
+            </GamificationProvider>
+          </SubscriptionProvider>
         </HelmetProvider>
       </ThemeProvider>
     </QueryClientProvider>
