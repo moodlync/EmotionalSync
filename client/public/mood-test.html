@@ -142,74 +142,100 @@
       textColor: '#424242'
     };
     
-    // Get DOM elements
-    const moodDisplay = document.querySelector('.mood-display');
-    const moodButtons = document.querySelectorAll('.mood-button');
-    const randomButton = document.getElementById('random-button');
-    const debugInfo = document.querySelector('.debug-info');
-    
-    // Update the display
-    function updateDisplay() {
-      // Update mood display
-      moodDisplay.textContent = `Current Mood: ${currentState.currentEmotion}`;
-      moodDisplay.style.backgroundColor = currentState.backgroundColor;
-      moodDisplay.style.color = currentState.textColor;
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM fully loaded');
       
-      // Remove all emotion classes
-      emotions.forEach(emotion => {
-        moodDisplay.classList.remove(emotion.toLowerCase());
-      });
+      // Get DOM elements
+      const moodDisplay = document.querySelector('.mood-display');
+      const moodButtons = document.querySelectorAll('.mood-button');
+      const randomButton = document.getElementById('random-button');
+      const debugInfo = document.querySelector('.debug-info');
       
-      // Add current emotion class
-      moodDisplay.classList.add(currentState.currentEmotion.toLowerCase());
+      if (!moodDisplay || !randomButton || !debugInfo) {
+        console.error('Could not find required DOM elements:', {
+          moodDisplay: !!moodDisplay,
+          randomButton: !!randomButton,
+          debugInfo: !!debugInfo
+        });
+        return;
+      }
       
-      // Update debug info
-      debugInfo.textContent = `Current State:\n${JSON.stringify(currentState, null, 2)}`;
+      console.log('Found all required DOM elements');
+      console.log('Mood buttons:', moodButtons.length);
       
-      // Highlight current mood button
+      // Update the display
+      function updateDisplay() {
+        console.log('Updating display with:', currentState);
+        
+        // Update mood display
+        moodDisplay.textContent = `Current Mood: ${currentState.currentEmotion}`;
+        moodDisplay.style.backgroundColor = currentState.backgroundColor;
+        moodDisplay.style.color = currentState.textColor;
+        
+        // Remove all emotion classes
+        emotions.forEach(emotion => {
+          moodDisplay.classList.remove(emotion.toLowerCase());
+        });
+        
+        // Add current emotion class
+        moodDisplay.classList.add(currentState.currentEmotion.toLowerCase());
+        
+        // Update debug info
+        debugInfo.textContent = `Current State:\n${JSON.stringify(currentState, null, 2)}`;
+        
+        // Highlight current mood button
+        moodButtons.forEach(button => {
+          if (button.dataset.emotion === currentState.currentEmotion) {
+            button.style.outline = '3px solid #4D4DE3';
+          } else {
+            button.style.outline = 'none';
+          }
+        });
+      }
+      
+      // Set emotion
+      function setEmotion(emotion) {
+        console.log('Setting emotion to:', emotion);
+        
+        const colorInfo = colorMapping[emotion] || colorMapping.Neutral;
+        
+        currentState = {
+          currentEmotion: emotion,
+          backgroundColor: colorInfo.bg,
+          textColor: colorInfo.text
+        };
+        
+        updateDisplay();
+      }
+      
+      // Set random emotion
+      function setRandomEmotion() {
+        const randomIndex = Math.floor(Math.random() * emotions.length);
+        const randomEmotion = emotions[randomIndex];
+        console.log('Setting random emotion:', randomEmotion);
+        setEmotion(randomEmotion);
+      }
+      
+      // Add event listeners for mood buttons
       moodButtons.forEach(button => {
-        if (button.dataset.emotion === currentState.currentEmotion) {
-          button.style.outline = '3px solid #4D4DE3';
-        } else {
-          button.style.outline = 'none';
-        }
+        console.log('Adding click listener for:', button.dataset.emotion);
+        button.addEventListener('click', function() {
+          console.log('Button clicked:', this.dataset.emotion);
+          setEmotion(this.dataset.emotion);
+        });
       });
-    }
-    
-    // Set emotion
-    function setEmotion(emotion) {
-      const colorInfo = colorMapping[emotion] || colorMapping.Neutral;
       
-      currentState = {
-        currentEmotion: emotion,
-        backgroundColor: colorInfo.bg,
-        textColor: colorInfo.text
-      };
+      // Add event listener for random button
+      randomButton.addEventListener('click', function() {
+        console.log('Random button clicked');
+        setRandomEmotion();
+      });
       
+      // Initialize display
+      console.log('Initializing display');
       updateDisplay();
-      
-      // Log to console for debugging
-      console.log('Emotion updated:', currentState);
-    }
-    
-    // Set random emotion
-    function setRandomEmotion() {
-      const randomIndex = Math.floor(Math.random() * emotions.length);
-      setEmotion(emotions[randomIndex]);
-    }
-    
-    // Event listeners for mood buttons
-    moodButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        setEmotion(button.dataset.emotion);
-      });
     });
-    
-    // Event listener for random button
-    randomButton.addEventListener('click', setRandomEmotion);
-    
-    // Initialize display
-    updateDisplay();
   </script>
 </body>
 </html>
