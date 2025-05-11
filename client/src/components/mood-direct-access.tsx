@@ -10,11 +10,16 @@ import {
   getEmotionColors, 
   normalizeEmotion, 
   getEmotionEmoji,
-  primaryEmotionsList
+  primaryEmotionsList,
+  syncMoodData,
+  getCurrentMood,
+  fetchEmotionData,
+  emotionDescriptions
 } from '@/lib/emotion-bridge';
 
 // Direct-access component for mood functions without dependencies
 // This provides a standalone implementation for mood selection
+// Now integrated with HTML implementations via the emotion bridge
 
 interface DisplayEmotion {
   name: EmotionType;
@@ -37,12 +42,50 @@ export default function MoodDirectAccess() {
   const [isPremium, setIsPremium] = useState<boolean>(true);
   const [emotionHistory, setEmotionHistory] = useState<DisplayEmotion[]>([]);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
+  const [externalMoodUpdates, setExternalMoodUpdates] = useState<number>(0);
   
   // Setup emotions on first load
   useEffect(() => {
     logDebug('Initializing app');
-    // Set the first debug message
-    updateUIWithState();
+    
+    // Try to load emotion data from server
+    fetchEmotionData()
+      .then(data => {
+        logDebug(`Received emotion data from server: ${Object.keys(data).length} emotions`);
+      })
+      .catch(error => {
+        logDebug(`Error fetching emotion data: ${error.message}`);
+      });
+    
+    // Check for stored mood in localStorage (synced from HTML implementations)
+    const savedMood = getCurrentMood();
+    if (savedMood) {
+      logDebug(`Found saved mood: ${savedMood.emotion} (${savedMood.intensity})`);
+      handleSelectEmotion(savedMood.emotion, savedMood.intensity, false);
+    } else {
+      logDebug('No saved mood found, using default');
+      updateUIWithState();
+    }
+    
+    // Set up listener for mood updates from HTML implementations
+    const handleMoodUpdate = (event: CustomEvent) => {
+      const { emotion, intensity } = event.detail;
+      logDebug(`Received external mood update: ${emotion} (${intensity})`);
+      
+      // Only update if it's different from current state
+      if (emotion !== currentEmotion.name || intensity !== intensity) {
+        handleSelectEmotion(emotion, intensity, false);
+        setExternalMoodUpdates(prev => prev + 1);
+      }
+    };
+    
+    // Add event listener for cross-implementation updates
+    window.addEventListener('moodlync:mood-update', handleMoodUpdate as EventListener);
+    
+    // Clean up event listener on unmount
+    return () => {
+      window.removeEventListener('moodlync:mood-update', handleMoodUpdate as EventListener);
+    };
   }, []);
   
   // Add a debug log message
@@ -67,24 +110,16 @@ export default function MoodDirectAccess() {
   
   // Get description for an emotion
   const getEmotionDescription = (emotion: EmotionType): string => {
-    const emotionMap: Record<string, string> = {
-      'Joy': 'Feeling happy and content',
-      'Sadness': 'Feeling down or blue',
-      'Anger': 'Feeling frustrated or mad',
-      'Anxiety': 'Feeling worried or nervous',
-      'Excitement': 'Feeling enthusiastic and eager',
-      'Neutral': 'Feeling neither positive nor negative'
-    };
-    
-    return emotionMap[emotion] || 'Undefined emotional state';
+    return emotionDescriptions[emotion] || 'Undefined emotional state';
   };
 
   // Handle emotion selection
-  const handleSelectEmotion = (emotion: string) => {
+  const handleSelectEmotion = (emotion: string, newIntensity?: number, syncToOtherImplementations = true) => {
     try {
       // Normalize the emotion name
       const normalizedEmotion = normalizeEmotion(emotion);
-      logDebug(`Setting emotion to: ${normalizedEmotion}`);
+      const intensityToUse = newIntensity !== undefined ? newIntensity : intensity;
+      logDebug(`Setting emotion to: ${normalizedEmotion} with intensity: ${intensityToUse}`);
       
       // Get emotion display data
       const colorData = getEmotionColors(normalizedEmotion);
@@ -106,14 +141,23 @@ export default function MoodDirectAccess() {
       
       // Update state
       setCurrentEmotion(newEmotion);
+      if (newIntensity !== undefined) {
+        setIntensity(newIntensity);
+      }
       
       // Add to history (keeping last 10 emotions)
       setEmotionHistory(prev => [newEmotion, ...prev.slice(0, 9)]);
       
+      // Sync to HTML implementations if requested
+      if (syncToOtherImplementations) {
+        syncMoodData(normalizedEmotion, intensityToUse);
+        logDebug(`Synchronized mood data with other implementations`);
+      }
+      
       // Show toast notification
       toast({
         title: `Mood Updated: ${normalizedEmotion}`,
-        description: `Your mood has been set to ${normalizedEmotion} with intensity ${intensity}/10`,
+        description: `Your mood has been set to ${normalizedEmotion} with intensity ${intensityToUse}/10`,
         variant: "default",
         duration: 2000,
       });
@@ -136,13 +180,16 @@ export default function MoodDirectAccess() {
   
   // Handle intensity change
   const handleIntensityChange = (newIntensity: number[]) => {
-    const intensity = newIntensity[0];
-    setIntensity(intensity);
-    logDebug(`Setting intensity to: ${intensity}`);
+    const intensityValue = newIntensity[0];
+    setIntensity(intensityValue);
+    logDebug(`Setting intensity to: ${intensityValue}`);
+    
+    // Sync the intensity change to HTML implementations
+    syncMoodData(currentEmotion.name, intensityValue);
     
     toast({
       title: `Intensity Updated`,
-      description: `Intensity level set to ${intensity}/10`,
+      description: `Intensity level set to ${intensityValue}/10`,
       variant: "default",
       duration: 2000,
     });
@@ -327,9 +374,31 @@ export default function MoodDirectAccess() {
                   currentEmotion,
                   intensity,
                   isPremium,
-                  emotionHistoryCount: emotionHistory.length
+                  emotionHistoryCount: emotionHistory.length,
+                  externalMoodUpdates,
+                  hasStoredMood: !!localStorage.getItem('moodlync_current_mood')
                 }, null, 2)}
               </pre>
+              
+              <div className="mt-4 mb-2 font-bold">Cross-Implementation Connectivity</div>
+              <div className="bg-muted p-2 rounded overflow-auto my-3">
+                <div className="p-2 flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <span>HTML implementations:</span>
+                    <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-800">Connected</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>External updates received:</span>
+                    <span className="font-mono">{externalMoodUpdates}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>localStorage synchronization:</span>
+                    <span className={`px-2 py-1 text-xs rounded ${localStorage.getItem('moodlync_current_mood') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      {localStorage.getItem('moodlync_current_mood') ? 'Active' : 'No data'}
+                    </span>
+                  </div>
+                </div>
+              </div>
               
               <div className="mt-4 mb-2 font-bold">Log Messages:</div>
               <div className="bg-muted p-2 rounded overflow-auto max-h-64 space-y-1">

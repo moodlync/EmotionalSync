@@ -373,6 +373,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Debug HTML page requested');
     res.sendFile(path.join(process.cwd(), 'debug.html'));
   });
+  
+  // HTML-based mood selector implementations
+  app.get('/mood-hub', (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>MoodLync Mood Hub</title>
+          <style>
+            body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            h1 { color: #4D4DE3; text-align: center; }
+            .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+            .buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+            .button { 
+              display: inline-block; padding: 10px 15px; background: #4D4DE3; color: white; 
+              border-radius: 6px; text-decoration: none; transition: all 0.2s;
+            }
+            .button:hover { background: #3535B5; transform: translateY(-2px); }
+            .description { color: #666; margin-bottom: 15px; }
+          </style>
+        </head>
+        <body>
+          <h1>MoodLync Mood Selection Hub</h1>
+          
+          <div class="card">
+            <h2>Mood Selector Options</h2>
+            <p class="description">
+              Select one of our mood selector implementations to test different versions of the mood functionality.
+            </p>
+            
+            <div class="buttons">
+              <a href="/direct-mood-selector.html" class="button">Standalone HTML Version</a>
+              <a href="/mood-test.html" class="button">Legacy Test Page</a>
+              <a href="/mood-selector" class="button">React-based Version</a>
+              <a href="/mood-test" class="button">Testing Page</a>
+              <a href="/mood-standalone" class="button">Standalone React Version</a>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h2>Implementation Details</h2>
+            <ul>
+              <li><strong>Standalone HTML:</strong> Pure HTML/CSS/JavaScript implementation with no dependencies</li>
+              <li><strong>React-based Version:</strong> Full-featured implementation using React components</li>
+              <li><strong>Standalone React:</strong> Independent React component that works without app context</li>
+              <li><strong>Legacy Test:</strong> Simple HTML test page for basic functionality</li>
+              <li><strong>Testing Page:</strong> Developer testing tool for mood functionality</li>
+            </ul>
+          </div>
+          
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="button">Back to Home</a>
+          </div>
+        </body>
+      </html>
+    `);
+  });
+
+  // Direct API endpoint for mood data (JSON format)
+  app.get('/api/mood-data', (req, res) => {
+    // Return consistent emotion data used by all implementations
+    const emotionData = {
+      Joy: { 
+        name: "Joy",
+        emoji: "😊",
+        background: "#FFDE7D", 
+        textColor: "#7A4100",
+        description: "Feeling happy and content",
+        gradient: ["#FFC837", "#FF8008"] 
+      },
+      Sadness: { 
+        name: "Sadness",
+        emoji: "😢",
+        background: "#A0C4FF", 
+        textColor: "#2A3C5F",
+        description: "Feeling down or blue",
+        gradient: ["#9BAFD9", "#6D83B9"] 
+      },
+      Anger: { 
+        name: "Anger",
+        emoji: "😠",
+        background: "#FF7D7D", 
+        textColor: "#6F0000",
+        description: "Feeling frustrated or mad",
+        gradient: ["#FF4141", "#D10000"] 
+      },
+      Anxiety: { 
+        name: "Anxiety",
+        emoji: "😰",
+        background: "#FFD39A", 
+        textColor: "#704200",
+        description: "Feeling worried or nervous",
+        gradient: ["#FFB75E", "#ED8F03"] 
+      },
+      Excitement: { 
+        name: "Excitement",
+        emoji: "🤩",
+        background: "#FFA9F9", 
+        textColor: "#6A008D",
+        description: "Feeling enthusiastic and eager",
+        gradient: ["#FF67FF", "#C840FF"] 
+      },
+      Neutral: { 
+        name: "Neutral",
+        emoji: "😐",
+        background: "#E0E0E0", 
+        textColor: "#424242",
+        description: "Feeling neither positive nor negative",
+        gradient: ["#BDBDBD", "#9E9E9E"] 
+      }
+    };
+    
+    res.json({ 
+      status: 'ok',
+      data: emotionData,
+      timestamp: new Date().toISOString()
+    });
+  });
   // Set up account and subscription management routes
   try {
     const accountManagementRoutes = (await import('./routes/account-management')).default;

@@ -172,3 +172,98 @@ export function normalizeEmotion(emotion: string): CapitalizedEmotionType {
   // If we can't determine the format, default to Neutral
   return 'Neutral';
 }
+
+// Description for each emotion
+export const emotionDescriptions: Record<CapitalizedEmotionType, string> = {
+  'Joy': 'Feeling happy and content',
+  'Sadness': 'Feeling down or blue',
+  'Anger': 'Feeling frustrated or mad',
+  'Anxiety': 'Feeling worried or nervous',
+  'Excitement': 'Feeling enthusiastic and eager',
+  'Neutral': 'Feeling neither positive nor negative',
+  'Fear': 'Feeling scared or threatened',
+  'Surprise': 'Feeling astonished or startled',
+  'Disgust': 'Feeling aversion or revulsion',
+  'Hope': 'Feeling optimistic about the future',
+  'Contentment': 'Feeling satisfied and at ease',
+  'Boredom': 'Feeling uninterested or weary',
+  'Pride': 'Feeling satisfaction from achievement',
+  'Shame': 'Feeling embarrassed or dishonored',
+  'Guilt': 'Feeling remorse for a wrongdoing',
+  'Love': 'Feeling deep affection or attachment',
+  'Gratitude': 'Feeling thankful and appreciative',
+  'Nostalgia': 'Feeling sentimental about the past',
+  'Awe': 'Feeling wonder and reverence',
+  'Curiosity': 'Feeling eager to learn more',
+  'Confusion': 'Feeling uncertain or puzzled',
+  'Overwhelmed': 'Feeling unable to cope with multiple demands',
+  'Relaxed': 'Feeling calm and free from tension'
+};
+
+// Fetch emotion data from the server API
+export async function fetchEmotionData(): Promise<Record<string, any>> {
+  try {
+    const response = await fetch('/api/mood-data');
+    if (!response.ok) {
+      throw new Error(`API response error: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.data || {};
+  } catch (error) {
+    console.error('Error fetching emotion data:', error);
+    // Return default emotion data as fallback
+    return primaryEmotionsList.reduce((acc, emotion) => {
+      acc[emotion] = {
+        name: emotion,
+        emoji: getEmotionEmoji(emotion),
+        background: emotionColors[emotion].bg,
+        textColor: emotionColors[emotion].text,
+        description: emotionDescriptions[emotion as CapitalizedEmotionType] || `Feeling ${emotion.toLowerCase()}`,
+        gradient: emotionColors[emotion].gradient
+      };
+      return acc;
+    }, {} as Record<string, any>);
+  }
+}
+
+// Create a function to synchronize mood data between HTML and React implementations
+export function syncMoodData(emotion: string, intensity: number = 5): void {
+  const normalizedEmotion = normalizeEmotion(emotion);
+  
+  // Store in localStorage for cross-page communication
+  localStorage.setItem('moodlync_current_mood', JSON.stringify({
+    emotion: normalizedEmotion,
+    intensity,
+    timestamp: new Date().toISOString()
+  }));
+  
+  // Broadcast event for other components to listen to
+  const event = new CustomEvent('moodlync:mood-update', {
+    detail: {
+      emotion: normalizedEmotion,
+      intensity,
+      timestamp: new Date().toISOString()
+    }
+  });
+  window.dispatchEvent(event);
+  
+  console.log(`Mood synced: ${normalizedEmotion} (intensity: ${intensity})`);
+}
+
+// Create a function to get the current mood data
+export function getCurrentMood(): { emotion: CapitalizedEmotionType, intensity: number } | null {
+  try {
+    const savedMood = localStorage.getItem('moodlync_current_mood');
+    if (savedMood) {
+      const moodData = JSON.parse(savedMood);
+      return {
+        emotion: normalizeEmotion(moodData.emotion),
+        intensity: parseInt(moodData.intensity) || 5
+      };
+    }
+  } catch (e) {
+    console.error('Error retrieving current mood:', e);
+  }
+  
+  return null;
+}
