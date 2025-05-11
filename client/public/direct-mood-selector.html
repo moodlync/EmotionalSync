@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync - Direct Mood Selector</title>
+  <style>
+    /* Common variables */
+    :root {
+      --joy-color: #FFDE7D;
+      --sadness-color: #A0C4FF;
+      --anger-color: #FF7D7D;
+      --anxiety-color: #FFD39A;
+      --excitement-color: #FFA9F9;
+      --neutral-color: #E0E0E0;
+      --joy-text: #7A4100;
+      --sadness-text: #2A3C5F;
+      --anger-text: #6F0000;
+      --anxiety-text: #704200;
+      --excitement-text: #6A008D;
+      --neutral-text: #424242;
+      --primary-color: #4D4DE3;
+      --border-radius: 8px;
+    }
+    
+    /* Reset and base styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      color: #333;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+    
+    /* Container styles */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    h1, h2, h3 {
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    p {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    /* Card styles */
+    .card {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Current mood display */
+    .mood-display {
+      text-align: center;
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      transition: all 0.3s ease;
+    }
+    
+    .mood-emoji {
+      font-size: 4rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .mood-name {
+      font-size: 1.75rem;
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+    
+    .mood-description {
+      margin-bottom: 1rem;
+    }
+    
+    .intensity-display {
+      font-weight: 500;
+    }
+    
+    /* Emotion grid */
+    .emotion-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    @media (min-width: 640px) {
+      .emotion-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    .emotion-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .emotion-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .emotion-button.selected {
+      border: 3px solid var(--primary-color);
+    }
+    
+    .emotion-button-emoji {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .emotion-button-name {
+      font-weight: 500;
+    }
+    
+    /* Random button */
+    .random-button {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: var(--border-radius);
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      transition: all 0.2s ease;
+    }
+    
+    .random-button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    
+    /* Intensity selector */
+    .intensity-heading {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    
+    .intensity-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+    }
+    
+    .intensity-button {
+      padding: 0.5rem;
+      border-radius: var(--border-radius);
+      background-color: white;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+    }
+    
+    .intensity-button.selected {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    /* Toast notification */
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1000;
+    }
+    
+    .toast {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      max-width: 300px;
+      animation: slideIn 0.3s forwards;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    .toast-title {
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+    
+    .toast-description {
+      font-size: 0.875rem;
+    }
+    
+    /* Debug section */
+    .debug-heading {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .debug-info {
+      font-family: monospace;
+      white-space: pre-wrap;
+      background-color: #2d2d2d;
+      color: #f5f5f5;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      overflow: auto;
+      font-size: 0.875rem;
+    }
+    
+    /* Tab component */
+    .tabs {
+      margin-bottom: 1.5rem;
+    }
+    
+    .tab-buttons {
+      display: flex;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .tab-button {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      flex: 1;
+      text-align: center;
+    }
+    
+    .tab-button.active {
+      border-bottom: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Emotion-specific styles */
+    .joy {
+      background-color: var(--joy-color);
+      color: var(--joy-text);
+    }
+    
+    .sadness {
+      background-color: var(--sadness-color);
+      color: var(--sadness-text);
+    }
+    
+    .anger {
+      background-color: var(--anger-color);
+      color: var(--anger-text);
+    }
+    
+    .anxiety {
+      background-color: var(--anxiety-color);
+      color: var(--anxiety-text);
+    }
+    
+    .excitement {
+      background-color: var(--excitement-color);
+      color: var(--excitement-text);
+    }
+    
+    .neutral {
+      background-color: var(--neutral-color);
+      color: var(--neutral-text);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>MoodLync - Direct Mood Selector</h1>
+    <p>Select your current emotion and adjust its intensity. No authentication or API dependencies.</p>
+    
+    <div class="tabs">
+      <div class="tab-buttons">
+        <div class="tab-button active" data-tab="mood-tab">Mood Selection</div>
+        <div class="tab-button" data-tab="debug-tab">Debug Info</div>
+      </div>
+      
+      <div class="tab-content active" id="mood-tab">
+        <!-- Current mood display -->
+        <div class="card mood-display neutral" id="mood-display">
+          <div class="mood-emoji">😐</div>
+          <div class="mood-name">Neutral</div>
+          <div class="mood-description">Feeling neither positive nor negative</div>
+          <div class="intensity-display">Intensity: <span id="intensity-value">5</span>/10</div>
+        </div>
+        
+        <!-- Emotion selection grid -->
+        <div class="card">
+          <h2>Select Your Mood</h2>
+          <div class="emotion-grid" id="emotion-grid">
+            <!-- Buttons will be added by JS -->
+          </div>
+          
+          <button class="random-button" id="random-button">Set Random Emotion</button>
+        </div>
+        
+        <!-- Intensity selector -->
+        <div class="card">
+          <h3 class="intensity-heading">Adjust Intensity</h3>
+          <div class="intensity-grid" id="intensity-grid">
+            <!-- Buttons will be added by JS -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="debug-tab">
+        <div class="card">
+          <h3 class="debug-heading">Debug Information</h3>
+          <div class="debug-info" id="debug-info">Loading...</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Toast container -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+  
+  <script>
+    // Emotion data
+    const emotions = [
+      { 
+        name: 'Joy', 
+        emoji: '😊',
+        background: 'var(--joy-color)', 
+        textColor: 'var(--joy-text)',
+        description: 'Feeling happy and content'
+      },
+      { 
+        name: 'Sadness', 
+        emoji: '😢',
+        background: 'var(--sadness-color)', 
+        textColor: 'var(--sadness-text)',
+        description: 'Feeling down or blue'
+      },
+      { 
+        name: 'Anger', 
+        emoji: '😠',
+        background: 'var(--anger-color)', 
+        textColor: 'var(--anger-text)',
+        description: 'Feeling frustrated or mad'
+      },
+      { 
+        name: 'Anxiety', 
+        emoji: '😰',
+        background: 'var(--anxiety-color)', 
+        textColor: 'var(--anxiety-text)',
+        description: 'Feeling nervous or worried'
+      },
+      { 
+        name: 'Excitement', 
+        emoji: '🤩',
+        background: 'var(--excitement-color)', 
+        textColor: 'var(--excitement-text)',
+        description: 'Feeling thrilled or enthusiastic'
+      },
+      { 
+        name: 'Neutral', 
+        emoji: '😐',
+        background: 'var(--neutral-color)', 
+        textColor: 'var(--neutral-text)',
+        description: 'Feeling neither positive nor negative'
+      }
+    ];
+    
+    // App state
+    let state = {
+      currentEmotion: emotions[5], // Default to Neutral
+      intensity: 5
+    };
+    
+    // DOM elements
+    const moodDisplay = document.getElementById('mood-display');
+    const emotionGrid = document.getElementById('emotion-grid');
+    const randomButton = document.getElementById('random-button');
+    const intensityGrid = document.getElementById('intensity-grid');
+    const intensityValue = document.getElementById('intensity-value');
+    const debugInfo = document.getElementById('debug-info');
+    const toastContainer = document.getElementById('toast-container');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    // Initialize app
+    function initApp() {
+      console.log('Initializing app');
+      
+      // Create emotion buttons
+      emotions.forEach(emotion => {
+        const button = document.createElement('div');
+        button.className = `emotion-button ${emotion.name.toLowerCase()}`;
+        button.dataset.emotion = emotion.name;
+        button.innerHTML = `
+          <span class="emotion-button-emoji">${emotion.emoji}</span>
+          <span class="emotion-button-name">${emotion.name}</span>
+        `;
+        button.addEventListener('click', () => {
+          selectEmotion(emotion);
+        });
+        emotionGrid.appendChild(button);
+      });
+      
+      // Create intensity buttons
+      for (let i = 1; i <= 10; i++) {
+        const button = document.createElement('button');
+        button.className = `intensity-button ${i === state.intensity ? 'selected' : ''}`;
+        button.textContent = i;
+        button.dataset.intensity = i;
+        button.addEventListener('click', () => {
+          selectIntensity(i);
+        });
+        intensityGrid.appendChild(button);
+      }
+      
+      // Set up random button
+      randomButton.addEventListener('click', () => {
+        const randomIndex = Math.floor(Math.random() * emotions.length);
+        selectEmotion(emotions[randomIndex]);
+      });
+      
+      // Set up tab switching
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabId = button.dataset.tab;
+          
+          // Update active tab button
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          
+          // Show corresponding tab content
+          tabContents.forEach(content => content.classList.remove('active'));
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+      
+      // Update UI for initial state
+      updateUI();
+    }
+    
+    // Select emotion
+    function selectEmotion(emotion) {
+      console.log('Selecting emotion:', emotion.name);
+      state.currentEmotion = emotion;
+      updateUI();
+      showToast(`Mood Updated: ${emotion.name}`, emotion.description);
+    }
+    
+    // Select intensity
+    function selectIntensity(intensity) {
+      console.log('Selecting intensity:', intensity);
+      state.intensity = intensity;
+      updateUI();
+      showToast('Intensity Updated', `Intensity set to ${intensity}/10`);
+    }
+    
+    // Update UI based on current state
+    function updateUI() {
+      console.log('Updating UI with state:', state);
+      
+      // Update mood display
+      moodDisplay.className = `card mood-display ${state.currentEmotion.name.toLowerCase()}`;
+      moodDisplay.style.backgroundColor = state.currentEmotion.background;
+      moodDisplay.style.color = state.currentEmotion.textColor;
+      
+      moodDisplay.querySelector('.mood-emoji').textContent = state.currentEmotion.emoji;
+      moodDisplay.querySelector('.mood-name').textContent = state.currentEmotion.name;
+      moodDisplay.querySelector('.mood-description').textContent = state.currentEmotion.description;
+      intensityValue.textContent = state.intensity;
+      
+      // Update emotion buttons
+      const emotionButtons = document.querySelectorAll('.emotion-button');
+      emotionButtons.forEach(button => {
+        if (button.dataset.emotion === state.currentEmotion.name) {
+          button.classList.add('selected');
+        } else {
+          button.classList.remove('selected');
+        }
+      });
+      
+      // Update intensity buttons
+      const intensityButtons = document.querySelectorAll('.intensity-button');
+      intensityButtons.forEach(button => {
+        if (parseInt(button.dataset.intensity) === state.intensity) {
+          button.classList.add('selected');
+        } else {
+          button.classList.remove('selected');
+        }
+      });
+      
+      // Update debug info
+      debugInfo.textContent = JSON.stringify(state, null, 2);
+    }
+    
+    // Show toast notification
+    function showToast(title, description) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <div class="toast-title">${title}</div>
+        <div class="toast-description">${description}</div>
+      `;
+      
+      toastContainer.appendChild(toast);
+      
+      // Remove toast after 3 seconds
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s forwards';
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 3000);
+    }
+    
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

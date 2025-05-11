@@ -101,6 +101,7 @@ const CreateEmotionStoryPage = lazy(() => import("@/pages/create-emotion-story-p
 // Testing pages
 const MoodTestPage = lazy(() => import("@/pages/mood-test-page"));
 const MoodStandaloneTest = lazy(() => import("@/pages/mood-standalone-test"));
+const MoodSelectorPage = lazy(() => import("@/pages/mood-selector-page"));
 
 // Testing components
 const InteractiveElementsDemo = lazy(() => import("@/components/testing/interactive-elements-demo"));
@@ -159,6 +160,7 @@ const RouterComponent = () => {
     { path: "/demo", component: InteractiveElementsDemo },
     { path: "/mood-test", component: MoodTestPage }, // Add our new mood test page
     { path: "/mood-standalone", component: MoodStandaloneTest }, // Standalone test without dependencies
+    { path: "/mood-selector", component: MoodSelectorPage }, // New React-based selector that works correctly
   ];
   
   const protectedRoutes = [
