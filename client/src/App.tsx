@@ -98,6 +98,10 @@ const EmotionStoriesPage = lazy(() => import("@/pages/emotion-stories-page"));
 const EmotionStoryDetailsPage = lazy(() => import("@/pages/emotion-story-details-page"));
 const CreateEmotionStoryPage = lazy(() => import("@/pages/create-emotion-story-page"));
 
+// Testing pages
+const MoodTestPage = lazy(() => import("@/pages/mood-test-page"));
+const MoodStandaloneTest = lazy(() => import("@/pages/mood-standalone-test"));
+
 // Testing components
 const InteractiveElementsDemo = lazy(() => import("@/components/testing/interactive-elements-demo"));
 
@@ -153,6 +157,8 @@ const RouterComponent = () => {
     { path: "/roadmap", component: RoadmapPage },
     { path: "/premium/compare", component: PremiumComparisonPage },
     { path: "/demo", component: InteractiveElementsDemo },
+    { path: "/mood-test", component: MoodTestPage }, // Add our new mood test page
+    { path: "/mood-standalone", component: MoodStandaloneTest }, // Standalone test without dependencies
   ];
   
   const protectedRoutes = [

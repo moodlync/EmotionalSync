@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, Camera, Mic } from "lucide-react";
-import { EmotionType, emotions } from "@/lib/emotions";
+import { EmotionType } from "@/types/imprints";
 import EmotionWheel from "./emotion-wheel";
 import { useEffect } from "react";
 
@@ -10,6 +10,11 @@ interface MoodSelectionModalProps {
   onClose: () => void;
   onSelectEmotion: (emotion: EmotionType) => void;
 }
+
+// List of available emotions - these must match the ones available in the emotion wheel
+const availableEmotions: EmotionType[] = [
+  'Joy', 'Sadness', 'Anger', 'Anxiety', 'Excitement', 'Neutral'
+] as const;
 
 export default function MoodSelectionModal({ 
   isOpen, 
@@ -32,6 +37,12 @@ export default function MoodSelectionModal({
     onSelectEmotion(emotion);
     // Close the modal after selection
     onClose();
+  };
+
+  // Helper function to get a random emotion for AI detection buttons
+  const getRandomEmotion = (): EmotionType => {
+    const randomIndex = Math.floor(Math.random() * availableEmotions.length);
+    return availableEmotions[randomIndex];
   };
 
   return (
@@ -62,8 +73,7 @@ export default function MoodSelectionModal({
               className="flex items-center justify-center space-x-2"
               onClick={() => {
                 // For demo purposes, select a random emotion
-                const emotionKeys = Object.keys(emotions) as EmotionType[];
-                const randomEmotion = emotionKeys[Math.floor(Math.random() * emotionKeys.length)];
+                const randomEmotion = getRandomEmotion();
                 handleEmotionSelect(randomEmotion);
               }}
             >
@@ -74,8 +84,7 @@ export default function MoodSelectionModal({
               className="flex items-center justify-center space-x-2"
               onClick={() => {
                 // For demo purposes, select a random emotion
-                const emotionKeys = Object.keys(emotions) as EmotionType[];
-                const randomEmotion = emotionKeys[Math.floor(Math.random() * emotionKeys.length)];
+                const randomEmotion = getRandomEmotion();
                 handleEmotionSelect(randomEmotion);
               }}
             >
