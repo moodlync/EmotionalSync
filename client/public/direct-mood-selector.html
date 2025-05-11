@@ -5,566 +5,771 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoodLync - Direct Mood Selector</title>
   <style>
-    /* Common variables */
     :root {
-      --joy-color: #FFDE7D;
-      --sadness-color: #A0C4FF;
-      --anger-color: #FF7D7D;
-      --anxiety-color: #FFD39A;
-      --excitement-color: #FFA9F9;
-      --neutral-color: #E0E0E0;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --primary: #4D4DE3;
+      --primary-hover: #3535B5;
+      --background: #FFFFFF;
+      --foreground: #0F172A;
+      --muted: #F1F5F9;
+      --muted-foreground: #64748B;
+      --card: #FFFFFF;
+      --card-foreground: #0F172A;
+      --border: #E2E8F0;
+      --input: #E2E8F0;
+      --ring: #3535B5;
+      
+      /* Emotion colors */
+      --joy: #FFDE7D;
       --joy-text: #7A4100;
+      --joy-glow: 0 0 15px hsla(40, 100%, 50%, 0.5);
+      
+      --sadness: #A0C4FF;
       --sadness-text: #2A3C5F;
+      --sadness-glow: 0 0 15px hsla(220, 100%, 60%, 0.5);
+      
+      --anger: #FF7D7D;
       --anger-text: #6F0000;
+      --anger-glow: 0 0 15px hsla(0, 100%, 60%, 0.5);
+      
+      --anxiety: #FFD39A;
       --anxiety-text: #704200;
+      --anxiety-glow: 0 0 15px hsla(35, 100%, 60%, 0.5);
+      
+      --excitement: #FFA9F9;
       --excitement-text: #6A008D;
+      --excitement-glow: 0 0 15px hsla(305, 100%, 70%, 0.5);
+      
+      --neutral: #E0E0E0;
       --neutral-text: #424242;
-      --primary-color: #4D4DE3;
-      --border-radius: 8px;
+      --neutral-glow: 0 0 15px hsla(0, 0%, 70%, 0.5);
     }
-    
-    /* Reset and base styles */
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #0F172A;
+        --foreground: #F8FAFC;
+        --muted: #1E293B;
+        --muted-foreground: #94A3B8;
+        --card: #1E293B;
+        --card-foreground: #F8FAFC;
+        --border: #334155;
+        --input: #334155;
+      }
+    }
+
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-    
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-sans);
+      background-color: var(--background);
+      color: var(--foreground);
       line-height: 1.5;
-      color: #333;
-      background-color: #f5f5f5;
-      padding: 20px;
+      padding: 2rem 1rem;
     }
-    
-    /* Container styles */
+
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
     }
-    
-    h1, h2, h3 {
-      font-weight: bold;
-      margin-bottom: 1rem;
-      text-align: center;
+
+    h1, h2, h3, h4 {
+      font-weight: 600;
+      line-height: 1.2;
     }
-    
+
     h1 {
       font-size: 2rem;
       margin-bottom: 1.5rem;
-    }
-    
-    p {
-      margin-bottom: 1.5rem;
       text-align: center;
     }
-    
-    /* Card styles */
-    .card {
-      background-color: white;
-      border-radius: var(--border-radius);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    /* Current mood display */
-    .mood-display {
-      text-align: center;
-      padding: 2rem;
-      border-radius: var(--border-radius);
-      transition: all 0.3s ease;
-    }
-    
-    .mood-emoji {
-      font-size: 4rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .mood-name {
-      font-size: 1.75rem;
-      font-weight: bold;
-      margin-bottom: 0.25rem;
-    }
-    
-    .mood-description {
+
+    h2 {
+      font-size: 1.5rem;
       margin-bottom: 1rem;
     }
-    
-    .intensity-display {
-      font-weight: 500;
+
+    h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
     }
-    
-    /* Emotion grid */
-    .emotion-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
       margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
-    
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-description {
+      color: var(--muted-foreground);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .button-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .button-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .button-outline {
+      background-color: transparent;
+      border-color: var(--border);
+      color: var(--foreground);
+    }
+
+    .button-outline:hover {
+      background-color: var(--muted);
+    }
+
+    .button-block {
+      display: block;
+      width: 100%;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
     @media (min-width: 640px) {
-      .emotion-grid {
+      .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .grid-cols-3 {
         grid-template-columns: repeat(3, 1fr);
       }
     }
-    
+
+    .mood-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+      min-height: 200px;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .emotion-emoji {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .emotion-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
     .emotion-button {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      border-radius: 0.375rem;
       padding: 1rem;
-      border-radius: var(--border-radius);
+      min-height: 100px;
       cursor: pointer;
       transition: all 0.2s ease;
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+      background-color: var(--card);
     }
-    
+
     .emotion-button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
-    .emotion-button.selected {
-      border: 3px solid var(--primary-color);
+
+    .emotion-button.active {
+      border-width: 2px;
+      box-shadow: var(--joy-glow);
     }
-    
-    .emotion-button-emoji {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .emotion-button-name {
-      font-weight: 500;
-    }
-    
-    /* Random button */
-    .random-button {
-      display: block;
-      width: 100%;
-      padding: 0.75rem;
-      border-radius: var(--border-radius);
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      font-weight: 500;
-      cursor: pointer;
-      margin-bottom: 1.5rem;
-      transition: all 0.2s ease;
-    }
-    
-    .random-button:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-    
-    /* Intensity selector */
-    .intensity-heading {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-    }
-    
-    .intensity-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0.5rem;
-    }
-    
-    .intensity-button {
-      padding: 0.5rem;
-      border-radius: var(--border-radius);
-      background-color: white;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      cursor: pointer;
-    }
-    
-    .intensity-button.selected {
-      background-color: var(--primary-color);
-      color: white;
-    }
-    
-    /* Toast notification */
-    .toast-container {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 1000;
-    }
-    
-    .toast {
-      background-color: white;
-      border-radius: var(--border-radius);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      padding: 1rem;
-      margin-bottom: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      max-width: 300px;
-      animation: slideIn 0.3s forwards;
-    }
-    
-    @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-    }
-    
-    .toast-title {
-      font-weight: bold;
-      margin-bottom: 0.25rem;
-    }
-    
-    .toast-description {
-      font-size: 0.875rem;
-    }
-    
-    /* Debug section */
-    .debug-heading {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .debug-info {
-      font-family: monospace;
-      white-space: pre-wrap;
-      background-color: #2d2d2d;
-      color: #f5f5f5;
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      overflow: auto;
-      font-size: 0.875rem;
-    }
-    
-    /* Tab component */
+
     .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
       margin-bottom: 1.5rem;
     }
-    
-    .tab-buttons {
-      display: flex;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
-    }
-    
-    .tab-button {
+
+    .tab {
       padding: 0.75rem 1rem;
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      flex: 1;
-      text-align: center;
     }
-    
-    .tab-button.active {
-      border-bottom: 2px solid var(--primary-color);
-      color: var(--primary-color);
+
+    .tab.active {
+      border-bottom-color: var(--primary);
+      color: var(--primary);
       font-weight: 500;
     }
-    
+
     .tab-content {
       display: none;
     }
-    
+
     .tab-content.active {
       display: block;
     }
-    
-    /* Emotion-specific styles */
-    .joy {
-      background-color: var(--joy-color);
-      color: var(--joy-text);
+
+    .slider {
+      width: 100%;
+      margin: 1rem 0;
     }
-    
-    .sadness {
-      background-color: var(--sadness-color);
-      color: var(--sadness-text);
+
+    /* Toast notification styling */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
     }
-    
-    .anger {
-      background-color: var(--anger-color);
-      color: var(--anger-text);
+
+    .toast {
+      background-color: var(--card);
+      color: var(--card-foreground);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: slide-in 0.3s ease, fade-out 0.5s ease 2.5s forwards;
+      max-width: 350px;
     }
-    
-    .anxiety {
-      background-color: var(--anxiety-color);
-      color: var(--anxiety-text);
+
+    .toast-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
     }
-    
-    .excitement {
-      background-color: var(--excitement-color);
-      color: var(--excitement-text);
+
+    .toast-message {
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
     }
-    
-    .neutral {
-      background-color: var(--neutral-color);
-      color: var(--neutral-text);
+
+    .toast-success {
+      border-left: 4px solid #10B981;
+    }
+
+    .toast-error {
+      border-left: 4px solid #EF4444;
+    }
+
+    @keyframes slide-in {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fade-out {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    .code-block {
+      background-color: var(--muted);
+      padding: 1rem;
+      border-radius: 0.375rem;
+      font-family: monospace;
+      font-size: 0.875rem;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>MoodLync - Direct Mood Selector</h1>
-    <p>Select your current emotion and adjust its intensity. No authentication or API dependencies.</p>
-    
+    <p class="text-center" style="text-align: center; margin-bottom: 2rem; color: var(--muted-foreground); max-width: 600px; margin-left: auto; margin-right: auto;">
+      This standalone implementation demonstrates the mood selection functionality without requiring any framework dependencies.
+    </p>
+
     <div class="tabs">
-      <div class="tab-buttons">
-        <div class="tab-button active" data-tab="mood-tab">Mood Selection</div>
-        <div class="tab-button" data-tab="debug-tab">Debug Info</div>
-      </div>
-      
-      <div class="tab-content active" id="mood-tab">
-        <!-- Current mood display -->
-        <div class="card mood-display neutral" id="mood-display">
-          <div class="mood-emoji">😐</div>
-          <div class="mood-name">Neutral</div>
-          <div class="mood-description">Feeling neither positive nor negative</div>
-          <div class="intensity-display">Intensity: <span id="intensity-value">5</span>/10</div>
-        </div>
-        
-        <!-- Emotion selection grid -->
+      <div class="tab active" data-tab="mood-selector">Mood Selector</div>
+      <div class="tab" data-tab="mood-history">History</div>
+      <div class="tab" data-tab="debug-info">Debug</div>
+    </div>
+
+    <div class="tab-content active" id="mood-selector">
+      <div class="grid grid-cols-2">
         <div class="card">
-          <h2>Select Your Mood</h2>
-          <div class="emotion-grid" id="emotion-grid">
-            <!-- Buttons will be added by JS -->
+          <div class="card-title">Current Mood</div>
+          <div class="card-description">Your current emotional state</div>
+          
+          <div class="mood-display" id="mood-display">
+            <div class="emotion-emoji" id="current-emoji">😐</div>
+            <div class="emotion-name" id="current-emotion">Neutral</div>
+            <div id="emotion-description">Feeling neither positive nor negative</div>
+            <div style="margin-top: 1rem; font-size: 0.875rem;">
+              Intensity: <span id="intensity-value">5</span>/10
+            </div>
           </div>
           
-          <button class="random-button" id="random-button">Set Random Emotion</button>
+          <div>
+            <h3>Emotion Intensity</h3>
+            <input type="range" class="slider" id="intensity-slider" min="1" max="10" value="5">
+          </div>
+          
+          <button class="button button-primary button-block" id="random-emotion">
+            Random Emotion
+          </button>
         </div>
         
-        <!-- Intensity selector -->
-        <div class="card">
-          <h3 class="intensity-heading">Adjust Intensity</h3>
-          <div class="intensity-grid" id="intensity-grid">
-            <!-- Buttons will be added by JS -->
+        <div>
+          <div class="card">
+            <div class="card-title">Select Your Mood</div>
+            <div class="card-description">Choose how you're feeling</div>
+            
+            <div class="grid grid-cols-3" id="emotion-buttons">
+              <!-- Emotion buttons will be inserted here by JavaScript -->
+            </div>
           </div>
-        </div>
-      </div>
-      
-      <div class="tab-content" id="debug-tab">
-        <div class="card">
-          <h3 class="debug-heading">Debug Information</h3>
-          <div class="debug-info" id="debug-info">Loading...</div>
+          
+          <div class="card">
+            <div class="card-title">Premium Status</div>
+            <div class="card-description">Toggle premium features</div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Premium Features:</span>
+              <button class="button button-primary" id="premium-toggle">
+                Enabled
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    
-    <!-- Toast container -->
-    <div class="toast-container" id="toast-container"></div>
+
+    <div class="tab-content" id="mood-history">
+      <div class="card">
+        <div class="card-title">Mood History</div>
+        <div class="card-description">Your recent mood changes</div>
+        
+        <div id="history-container">
+          <div style="text-align: center; padding: 2rem; color: var(--muted-foreground);">
+            No mood history yet. Try selecting some emotions!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="debug-info">
+      <div class="card">
+        <div class="card-title">Debug Information</div>
+        <div class="card-description">Technical details for troubleshooting</div>
+        
+        <div>
+          <h3>Current State:</h3>
+          <div class="code-block" id="current-state">
+            {
+              "currentEmotion": "Neutral",
+              "intensity": 5,
+              "isPremium": true
+            }
+          </div>
+          
+          <h3>Log Messages:</h3>
+          <div class="code-block" id="log-messages" style="max-height: 300px; overflow-y: auto;">
+            <!-- Log messages will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  
+
+  <div class="toast-container" id="toast-container">
+    <!-- Toast notifications will be inserted here -->
+  </div>
+
   <script>
-    // Emotion data
-    const emotions = [
-      { 
-        name: 'Joy', 
-        emoji: '😊',
-        background: 'var(--joy-color)', 
-        textColor: 'var(--joy-text)',
-        description: 'Feeling happy and content'
+    // === Emotion Data ===
+    const emotions = {
+      Joy: {
+        name: "Joy",
+        emoji: "😊",
+        background: "#FFDE7D",
+        textColor: "#7A4100",
+        description: "Feeling happy and content",
+        gradient: ["#FFC837", "#FF8008"]
       },
-      { 
-        name: 'Sadness', 
-        emoji: '😢',
-        background: 'var(--sadness-color)', 
-        textColor: 'var(--sadness-text)',
-        description: 'Feeling down or blue'
+      Sadness: {
+        name: "Sadness",
+        emoji: "😢",
+        background: "#A0C4FF",
+        textColor: "#2A3C5F",
+        description: "Feeling down or blue",
+        gradient: ["#9BAFD9", "#6D83B9"]
       },
-      { 
-        name: 'Anger', 
-        emoji: '😠',
-        background: 'var(--anger-color)', 
-        textColor: 'var(--anger-text)',
-        description: 'Feeling frustrated or mad'
+      Anger: {
+        name: "Anger",
+        emoji: "😠",
+        background: "#FF7D7D",
+        textColor: "#6F0000",
+        description: "Feeling frustrated or mad",
+        gradient: ["#FF4141", "#D10000"]
       },
-      { 
-        name: 'Anxiety', 
-        emoji: '😰',
-        background: 'var(--anxiety-color)', 
-        textColor: 'var(--anxiety-text)',
-        description: 'Feeling nervous or worried'
+      Anxiety: {
+        name: "Anxiety",
+        emoji: "😰",
+        background: "#FFD39A",
+        textColor: "#704200",
+        description: "Feeling worried or nervous",
+        gradient: ["#FFB75E", "#ED8F03"]
       },
-      { 
-        name: 'Excitement', 
-        emoji: '🤩',
-        background: 'var(--excitement-color)', 
-        textColor: 'var(--excitement-text)',
-        description: 'Feeling thrilled or enthusiastic'
+      Excitement: {
+        name: "Excitement",
+        emoji: "🤩",
+        background: "#FFA9F9",
+        textColor: "#6A008D",
+        description: "Feeling enthusiastic and eager",
+        gradient: ["#FF67FF", "#C840FF"]
       },
-      { 
-        name: 'Neutral', 
-        emoji: '😐',
-        background: 'var(--neutral-color)', 
-        textColor: 'var(--neutral-text)',
-        description: 'Feeling neither positive nor negative'
+      Neutral: {
+        name: "Neutral",
+        emoji: "😐",
+        background: "#E0E0E0",
+        textColor: "#424242",
+        description: "Feeling neither positive nor negative",
+        gradient: ["#BDBDBD", "#9E9E9E"]
       }
-    ];
-    
-    // App state
-    let state = {
-      currentEmotion: emotions[5], // Default to Neutral
-      intensity: 5
     };
-    
-    // DOM elements
-    const moodDisplay = document.getElementById('mood-display');
-    const emotionGrid = document.getElementById('emotion-grid');
-    const randomButton = document.getElementById('random-button');
-    const intensityGrid = document.getElementById('intensity-grid');
-    const intensityValue = document.getElementById('intensity-value');
-    const debugInfo = document.getElementById('debug-info');
-    const toastContainer = document.getElementById('toast-container');
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    // Initialize app
-    function initApp() {
-      console.log('Initializing app');
-      
-      // Create emotion buttons
-      emotions.forEach(emotion => {
-        const button = document.createElement('div');
-        button.className = `emotion-button ${emotion.name.toLowerCase()}`;
-        button.dataset.emotion = emotion.name;
-        button.innerHTML = `
-          <span class="emotion-button-emoji">${emotion.emoji}</span>
-          <span class="emotion-button-name">${emotion.name}</span>
-        `;
-        button.addEventListener('click', () => {
-          selectEmotion(emotion);
-        });
-        emotionGrid.appendChild(button);
-      });
-      
-      // Create intensity buttons
-      for (let i = 1; i <= 10; i++) {
-        const button = document.createElement('button');
-        button.className = `intensity-button ${i === state.intensity ? 'selected' : ''}`;
-        button.textContent = i;
-        button.dataset.intensity = i;
-        button.addEventListener('click', () => {
-          selectIntensity(i);
-        });
-        intensityGrid.appendChild(button);
+
+    // === State Management ===
+    let appState = {
+      currentEmotion: "Neutral",
+      intensity: 5,
+      isPremium: true,
+      history: [],
+      logs: []
+    };
+
+    // === DOM Elements ===
+    const moodDisplay = document.getElementById("mood-display");
+    const currentEmoji = document.getElementById("current-emoji");
+    const currentEmotion = document.getElementById("current-emotion");
+    const emotionDescription = document.getElementById("emotion-description");
+    const intensitySlider = document.getElementById("intensity-slider");
+    const intensityValue = document.getElementById("intensity-value");
+    const randomEmotionButton = document.getElementById("random-emotion");
+    const premiumToggle = document.getElementById("premium-toggle");
+    const emotionButtons = document.getElementById("emotion-buttons");
+    const historyContainer = document.getElementById("history-container");
+    const currentStateDisplay = document.getElementById("current-state");
+    const logMessages = document.getElementById("log-messages");
+    const toastContainer = document.getElementById("toast-container");
+
+    // === Helper Functions ===
+    function addLogMessage(message) {
+      console.log(message);
+      appState.logs.unshift(message);
+      if (appState.logs.length > 20) {
+        appState.logs.pop();
       }
-      
-      // Set up random button
-      randomButton.addEventListener('click', () => {
-        const randomIndex = Math.floor(Math.random() * emotions.length);
-        selectEmotion(emotions[randomIndex]);
-      });
-      
-      // Set up tab switching
-      tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const tabId = button.dataset.tab;
-          
-          // Update active tab button
-          tabButtons.forEach(btn => btn.classList.remove('active'));
-          button.classList.add('active');
-          
-          // Show corresponding tab content
-          tabContents.forEach(content => content.classList.remove('active'));
-          document.getElementById(tabId).classList.add('active');
-        });
-      });
-      
-      // Update UI for initial state
-      updateUI();
+      updateLogDisplay();
     }
-    
-    // Select emotion
-    function selectEmotion(emotion) {
-      console.log('Selecting emotion:', emotion.name);
-      state.currentEmotion = emotion;
-      updateUI();
-      showToast(`Mood Updated: ${emotion.name}`, emotion.description);
+
+    function updateLogDisplay() {
+      logMessages.innerHTML = appState.logs.map(log => `<div style="margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">${log}</div>`).join("");
     }
-    
-    // Select intensity
-    function selectIntensity(intensity) {
-      console.log('Selecting intensity:', intensity);
-      state.intensity = intensity;
-      updateUI();
-      showToast('Intensity Updated', `Intensity set to ${intensity}/10`);
-    }
-    
-    // Update UI based on current state
-    function updateUI() {
-      console.log('Updating UI with state:', state);
-      
-      // Update mood display
-      moodDisplay.className = `card mood-display ${state.currentEmotion.name.toLowerCase()}`;
-      moodDisplay.style.backgroundColor = state.currentEmotion.background;
-      moodDisplay.style.color = state.currentEmotion.textColor;
-      
-      moodDisplay.querySelector('.mood-emoji').textContent = state.currentEmotion.emoji;
-      moodDisplay.querySelector('.mood-name').textContent = state.currentEmotion.name;
-      moodDisplay.querySelector('.mood-description').textContent = state.currentEmotion.description;
-      intensityValue.textContent = state.intensity;
-      
-      // Update emotion buttons
-      const emotionButtons = document.querySelectorAll('.emotion-button');
-      emotionButtons.forEach(button => {
-        if (button.dataset.emotion === state.currentEmotion.name) {
-          button.classList.add('selected');
-        } else {
-          button.classList.remove('selected');
-        }
-      });
-      
-      // Update intensity buttons
-      const intensityButtons = document.querySelectorAll('.intensity-button');
-      intensityButtons.forEach(button => {
-        if (parseInt(button.dataset.intensity) === state.intensity) {
-          button.classList.add('selected');
-        } else {
-          button.classList.remove('selected');
-        }
-      });
-      
-      // Update debug info
-      debugInfo.textContent = JSON.stringify(state, null, 2);
-    }
-    
-    // Show toast notification
-    function showToast(title, description) {
-      const toast = document.createElement('div');
-      toast.className = 'toast';
+
+    function showToast(title, message, type = "success") {
+      const toast = document.createElement("div");
+      toast.className = `toast toast-${type}`;
       toast.innerHTML = `
         <div class="toast-title">${title}</div>
-        <div class="toast-description">${description}</div>
+        <div class="toast-message">${message}</div>
       `;
-      
       toastContainer.appendChild(toast);
       
-      // Remove toast after 3 seconds
+      // Remove toast after animation completes
       setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s forwards';
-        setTimeout(() => {
-          toast.remove();
-        }, 300);
+        toast.remove();
       }, 3000);
     }
-    
-    // Initialize when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initApp);
+
+    function updateStateDisplay() {
+      currentStateDisplay.textContent = JSON.stringify({
+        currentEmotion: appState.currentEmotion,
+        intensity: appState.intensity,
+        isPremium: appState.isPremium,
+        historyCount: appState.history.length
+      }, null, 2);
+    }
+
+    function updateMoodDisplay() {
+      const emotion = emotions[appState.currentEmotion];
+      
+      // Update emoji and text
+      currentEmoji.textContent = emotion.emoji;
+      currentEmotion.textContent = emotion.name;
+      emotionDescription.textContent = emotion.description;
+      intensityValue.textContent = appState.intensity.toString();
+      
+      // Update background based on premium status
+      if (appState.isPremium) {
+        moodDisplay.style.background = `linear-gradient(135deg, ${emotion.gradient[0]} 0%, ${emotion.gradient[1]} 100%)`;
+      } else {
+        moodDisplay.style.background = emotion.background;
+      }
+      
+      // Update text color
+      moodDisplay.style.color = emotion.textColor;
+      
+      // Update button highlighting
+      const allButtons = document.querySelectorAll(".emotion-button");
+      allButtons.forEach(button => {
+        button.classList.remove("active");
+        if (button.dataset.emotion === appState.currentEmotion) {
+          button.classList.add("active");
+        }
+      });
+      
+      // Update history display
+      updateHistoryDisplay();
+      
+      // Update state display
+      updateStateDisplay();
+    }
+
+    function updateHistoryDisplay() {
+      if (appState.history.length === 0) {
+        historyContainer.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--muted-foreground);">
+            No mood history yet. Try selecting some emotions!
+          </div>
+        `;
+        return;
+      }
+      
+      historyContainer.innerHTML = `
+        <div class="grid grid-cols-3" style="gap: 0.75rem;">
+          ${appState.history.map((item, index) => {
+            const emotion = emotions[item.emotion];
+            let style = '';
+            
+            if (item.isPremium) {
+              style = `background-image: linear-gradient(135deg, ${emotion.gradient[0]} 0%, ${emotion.gradient[1]} 100%);`;
+            } else {
+              style = `background-color: ${emotion.background};`;
+            }
+            
+            return `
+              <div style="padding: 0.75rem; border-radius: 0.375rem; display: flex; align-items: center; ${style} color: ${emotion.textColor};">
+                <span style="font-size: 1.5rem; margin-right: 0.75rem;">${emotion.emoji}</span>
+                <div>
+                  <div style="font-weight: 500;">${emotion.name}</div>
+                  <div style="font-size: 0.75rem; opacity: 0.9;">
+                    ${index === 0 ? 'Current' : `${index + 1} change${index > 0 ? 's' : ''} ago`}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function setEmotion(emotionName) {
+      try {
+        // Validate emotion
+        if (!emotions[emotionName]) {
+          throw new Error(`Invalid emotion: ${emotionName}`);
+        }
+        
+        addLogMessage(`Setting emotion to: ${emotionName} with intensity: ${appState.intensity}`);
+        
+        // Save previous state for history
+        if (appState.currentEmotion !== emotionName) {
+          appState.history.unshift({
+            emotion: appState.currentEmotion,
+            intensity: appState.intensity,
+            isPremium: appState.isPremium,
+            timestamp: new Date().toISOString()
+          });
+          
+          if (appState.history.length > 10) {
+            appState.history.pop();
+          }
+        }
+        
+        // Update state
+        appState.currentEmotion = emotionName;
+        
+        // Update UI
+        updateMoodDisplay();
+        
+        // Show toast
+        showToast(
+          `Mood Updated: ${emotionName}`, 
+          `Your mood has been set to ${emotionName} with intensity ${appState.intensity}/10`
+        );
+      } catch (error) {
+        console.error("Error setting emotion:", error);
+        addLogMessage(`Error setting emotion: ${error.message}`);
+        
+        showToast(
+          "Error Setting Mood", 
+          "There was a problem updating your mood. Please try again.", 
+          "error"
+        );
+      }
+    }
+
+    function setIntensity(newIntensity) {
+      appState.intensity = newIntensity;
+      intensityValue.textContent = newIntensity.toString();
+      intensitySlider.value = newIntensity;
+      
+      addLogMessage(`Intensity updated to: ${newIntensity}`);
+      
+      showToast(
+        "Intensity Updated", 
+        `Intensity level set to ${newIntensity}/10`
+      );
+      
+      updateStateDisplay();
+    }
+
+    function togglePremium() {
+      appState.isPremium = !appState.isPremium;
+      premiumToggle.textContent = appState.isPremium ? "Enabled" : "Disabled";
+      premiumToggle.className = appState.isPremium 
+        ? "button button-primary" 
+        : "button button-outline";
+      
+      addLogMessage(`Premium status changed to: ${appState.isPremium}`);
+      
+      showToast(
+        appState.isPremium ? "Premium Enabled" : "Premium Disabled",
+        appState.isPremium 
+          ? "You now have access to premium features like gradient backgrounds" 
+          : "You no longer have access to premium features"
+      );
+      
+      updateMoodDisplay();
+    }
+
+    function getRandomEmotion() {
+      const emotionNames = Object.keys(emotions);
+      const randomIndex = Math.floor(Math.random() * emotionNames.length);
+      return emotionNames[randomIndex];
+    }
+
+    // === Initialize App ===
+    function initializeApp() {
+      addLogMessage("Initializing app");
+      
+      // Set up emotion buttons
+      Object.keys(emotions).forEach(emotionName => {
+        const emotion = emotions[emotionName];
+        const button = document.createElement("div");
+        button.className = "emotion-button";
+        button.dataset.emotion = emotionName;
+        button.innerHTML = `
+          <span style="font-size: 1.5rem; margin-bottom: 0.25rem;">${emotion.emoji}</span>
+          <span style="font-size: 0.875rem;">${emotion.name}</span>
+        `;
+        button.addEventListener("click", () => setEmotion(emotionName));
+        emotionButtons.appendChild(button);
+      });
+      
+      // Set up intensity slider
+      intensitySlider.addEventListener("input", (e) => {
+        setIntensity(parseInt(e.target.value));
+      });
+      
+      // Set up random emotion button
+      randomEmotionButton.addEventListener("click", () => {
+        setEmotion(getRandomEmotion());
+      });
+      
+      // Set up premium toggle
+      premiumToggle.addEventListener("click", togglePremium);
+      
+      // Set up tabs
+      const tabs = document.querySelectorAll(".tab");
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          // Remove active class from all tabs and content
+          document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+          document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+          
+          // Add active class to clicked tab
+          tab.classList.add("active");
+          
+          // Show corresponding content
+          const contentId = tab.dataset.tab;
+          document.getElementById(contentId).classList.add("active");
+        });
+      });
+      
+      // Initialize UI
+      updateMoodDisplay();
+      updateStateDisplay();
+      
+      // Show welcome toast
+      setTimeout(() => {
+        showToast(
+          "Mood Selector Ready", 
+          "Welcome to the direct mood selector. Choose an emotion to get started."
+        );
+      }, 500);
+    }
+
+    // Start the app when the page loads
+    document.addEventListener("DOMContentLoaded", initializeApp);
   </script>
 </body>
 </html>

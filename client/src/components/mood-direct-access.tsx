@@ -1,187 +1,351 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { EmotionType } from '@/types/imprints';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
+import { EmotionType } from '@/types/imprints';
+import { 
+  emotionColors, 
+  getEmotionColors, 
+  normalizeEmotion, 
+  getEmotionEmoji,
+  primaryEmotionsList
+} from '@/lib/emotion-bridge';
 
 // Direct-access component for mood functions without dependencies
 // This provides a standalone implementation for mood selection
 
-// Type definitions
-interface EmotionData {
+interface DisplayEmotion {
   name: EmotionType;
   emoji: string;
   background: string;
-  text: string;
-  description: string;
+  textColor: string;
 }
 
-// Emotion color data
-const emotionData: EmotionData[] = [
-  { 
-    name: 'Joy' as EmotionType, 
-    emoji: '😊',
-    background: '#FFDE7D', 
-    text: '#7A4100',
-    description: 'Feeling happy and content'
-  },
-  { 
-    name: 'Sadness' as EmotionType, 
-    emoji: '😢',
-    background: '#A0C4FF', 
-    text: '#2A3C5F',
-    description: 'Feeling down or blue'
-  },
-  { 
-    name: 'Anger' as EmotionType, 
-    emoji: '😠',
-    background: '#FF7D7D', 
-    text: '#6F0000',
-    description: 'Feeling frustrated or mad'
-  },
-  { 
-    name: 'Anxiety' as EmotionType, 
-    emoji: '😰',
-    background: '#FFD39A', 
-    text: '#704200',
-    description: 'Feeling nervous or worried'
-  },
-  { 
-    name: 'Excitement' as EmotionType, 
-    emoji: '🤩',
-    background: '#FFA9F9', 
-    text: '#6A008D',
-    description: 'Feeling thrilled or enthusiastic'
-  },
-  { 
-    name: 'Neutral' as EmotionType, 
-    emoji: '😐',
-    background: '#E0E0E0', 
-    text: '#424242',
-    description: 'Feeling neither positive nor negative'
-  }
-];
+const defaultEmotion: DisplayEmotion = {
+  name: 'Neutral' as EmotionType,
+  emoji: '😐',
+  background: '#E0E0E0',
+  textColor: '#424242'
+};
 
 export default function MoodDirectAccess() {
   const { toast } = useToast();
-  const [currentEmotion, setCurrentEmotion] = useState<EmotionData>(emotionData[5]); // Default to Neutral
+  const [currentEmotion, setCurrentEmotion] = useState<DisplayEmotion>(defaultEmotion);
   const [intensity, setIntensity] = useState<number>(5);
+  const [isPremium, setIsPremium] = useState<boolean>(true);
+  const [emotionHistory, setEmotionHistory] = useState<DisplayEmotion[]>([]);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
   
-  // Handle emotion selection
-  const handleSelectEmotion = (emotion: EmotionData) => {
-    console.log('Selected emotion:', emotion.name);
-    setCurrentEmotion(emotion);
-    
-    toast({
-      title: `Mood Updated: ${emotion.name}`,
-      description: emotion.description,
-      variant: "default",
-    });
+  // Setup emotions on first load
+  useEffect(() => {
+    logDebug('Initializing app');
+    // Set the first debug message
+    updateUIWithState();
+  }, []);
+  
+  // Add a debug log message
+  const logDebug = (message: string) => {
+    console.log(message);
+    setDebugInfo(prev => [message, ...prev.slice(0, 19)]);
   };
   
-  // Set random emotion
-  const setRandomEmotion = () => {
-    const randomIndex = Math.floor(Math.random() * emotionData.length);
-    handleSelectEmotion(emotionData[randomIndex]);
+  // Update UI when state changes
+  const updateUIWithState = () => {
+    logDebug(`Updating UI with state: ${JSON.stringify({
+      currentEmotion: {
+        name: currentEmotion.name,
+        emoji: currentEmotion.emoji,
+        background: currentEmotion.background,
+        textColor: currentEmotion.textColor,
+        description: getEmotionDescription(currentEmotion.name),
+      },
+      intensity: intensity
+    })}`);
+  };
+  
+  // Get description for an emotion
+  const getEmotionDescription = (emotion: EmotionType): string => {
+    const emotionMap: Record<string, string> = {
+      'Joy': 'Feeling happy and content',
+      'Sadness': 'Feeling down or blue',
+      'Anger': 'Feeling frustrated or mad',
+      'Anxiety': 'Feeling worried or nervous',
+      'Excitement': 'Feeling enthusiastic and eager',
+      'Neutral': 'Feeling neither positive nor negative'
+    };
+    
+    return emotionMap[emotion] || 'Undefined emotional state';
+  };
+
+  // Handle emotion selection
+  const handleSelectEmotion = (emotion: string) => {
+    try {
+      // Normalize the emotion name
+      const normalizedEmotion = normalizeEmotion(emotion);
+      logDebug(`Setting emotion to: ${normalizedEmotion}`);
+      
+      // Get emotion display data
+      const colorData = getEmotionColors(normalizedEmotion);
+      const emoji = getEmotionEmoji(normalizedEmotion);
+      
+      // Create background based on premium status
+      let bgColor = colorData.bg;
+      if (isPremium) {
+        bgColor = `linear-gradient(135deg, ${colorData.gradient[0]} 0%, ${colorData.gradient[1]} 100%)`;
+      }
+      
+      // Create the new emotion state
+      const newEmotion: DisplayEmotion = {
+        name: normalizedEmotion,
+        emoji: emoji,
+        background: bgColor,
+        textColor: colorData.text
+      };
+      
+      // Update state
+      setCurrentEmotion(newEmotion);
+      
+      // Add to history (keeping last 10 emotions)
+      setEmotionHistory(prev => [newEmotion, ...prev.slice(0, 9)]);
+      
+      // Show toast notification
+      toast({
+        title: `Mood Updated: ${normalizedEmotion}`,
+        description: `Your mood has been set to ${normalizedEmotion} with intensity ${intensity}/10`,
+        variant: "default",
+        duration: 2000,
+      });
+      
+      // Update UI debug info
+      updateUIWithState();
+      
+    } catch (error) {
+      console.error('Error setting emotion:', error);
+      logDebug(`Error setting emotion: ${error instanceof Error ? error.message : String(error)}`);
+      
+      toast({
+        title: "Error Setting Mood",
+        description: "There was a problem updating your mood. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
   
   // Handle intensity change
-  const handleIntensityChange = (newIntensity: number) => {
-    setIntensity(newIntensity);
+  const handleIntensityChange = (newIntensity: number[]) => {
+    const intensity = newIntensity[0];
+    setIntensity(intensity);
+    logDebug(`Setting intensity to: ${intensity}`);
     
     toast({
-      title: 'Intensity Updated',
-      description: `Intensity set to ${newIntensity}/10`,
+      title: `Intensity Updated`,
+      description: `Intensity level set to ${intensity}/10`,
       variant: "default",
+      duration: 2000,
     });
+    
+    updateUIWithState();
+  };
+  
+  // Set a random emotion (for testing)
+  const setRandomEmotion = () => {
+    const emotions = primaryEmotionsList;
+    const randomIndex = Math.floor(Math.random() * emotions.length);
+    handleSelectEmotion(emotions[randomIndex]);
   };
   
   return (
-    <div className="mx-auto max-w-3xl px-4">
-      <Tabs defaultValue="mood" className="w-full mb-8">
-        <TabsList className="w-full">
-          <TabsTrigger value="mood" className="flex-1">Mood Selection</TabsTrigger>
-          <TabsTrigger value="info" className="flex-1">Debug Info</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="mood" className="pt-4">
-          {/* Current mood display */}
-          <Card 
-            className="p-6 mb-6 flex flex-col items-center justify-center text-center"
-            style={{ 
-              backgroundColor: currentEmotion.background,
-              color: currentEmotion.text,
-              transition: 'all 0.3s ease'
-            }}
-          >
-            <span className="text-5xl mb-2">{currentEmotion.emoji}</span>
-            <h2 className="text-2xl font-bold mb-1">{currentEmotion.name}</h2>
-            <p>{currentEmotion.description}</p>
-            <div className="mt-3 font-medium">Intensity: {intensity}/10</div>
-          </Card>
-          
-          {/* Emotion selection grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-            {emotionData.map((emotion) => (
-              <Button
-                key={emotion.name}
-                className="p-3 h-auto flex flex-col items-center justify-center"
+    <Tabs defaultValue="mood" className="w-full max-w-4xl mx-auto">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="mood">Mood Selector</TabsTrigger>
+        <TabsTrigger value="history">History</TabsTrigger>
+        <TabsTrigger value="debug">Debug Info</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="mood" className="mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Current Mood Display */}
+          <Card className="md:row-span-2">
+            <CardHeader>
+              <CardTitle>Current Mood</CardTitle>
+              <CardDescription>Your current emotional state</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div 
+                className="flex flex-col items-center justify-center p-6 rounded-lg mb-4 transition-all duration-500"
                 style={{ 
-                  backgroundColor: emotion.background,
-                  color: emotion.text,
-                  border: currentEmotion.name === emotion.name ? '3px solid #4D4DE3' : '1px solid rgba(0,0,0,0.1)',
+                  background: currentEmotion.background,
+                  color: currentEmotion.textColor,
+                  minHeight: '180px' 
                 }}
-                onClick={() => handleSelectEmotion(emotion)}
-                variant="outline"
               >
-                <span className="text-2xl mb-1">{emotion.emoji}</span>
-                <span className="font-medium">{emotion.name}</span>
-              </Button>
-            ))}
-          </div>
+                <div className="text-6xl mb-3">{currentEmotion.emoji}</div>
+                <div className="text-xl font-bold mb-2">{currentEmotion.name}</div>
+                <div className="text-center opacity-90">{getEmotionDescription(currentEmotion.name)}</div>
+                <div className="mt-3 text-sm">Intensity: {intensity}/10</div>
+              </div>
+              
+              <div className="mt-6">
+                <h4 className="mb-3 font-medium">Emotion Intensity</h4>
+                <Slider 
+                  value={[intensity]} 
+                  min={1} 
+                  max={10} 
+                  step={1}
+                  onValueChange={handleIntensityChange}
+                  className="mb-6"
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={setRandomEmotion} className="w-full">Random Emotion</Button>
+            </CardFooter>
+          </Card>
           
-          {/* Random emotion button */}
-          <Button 
-            onClick={setRandomEmotion}
-            className="w-full mb-6"
-          >
-            Set Random Emotion
-          </Button>
+          {/* Emotion Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Select Your Mood</CardTitle>
+              <CardDescription>Choose how you're feeling</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {primaryEmotionsList.map((emotion) => (
+                  <Button
+                    key={emotion}
+                    variant="outline"
+                    className="flex flex-col items-center justify-center h-24 p-2"
+                    onClick={() => handleSelectEmotion(emotion)}
+                    style={{
+                      backgroundColor: currentEmotion.name === emotion 
+                        ? getEmotionColors(emotion).bg 
+                        : undefined,
+                      color: currentEmotion.name === emotion 
+                        ? getEmotionColors(emotion).text 
+                        : undefined,
+                    }}
+                  >
+                    <span className="text-2xl mb-1">{getEmotionEmoji(emotion)}</span>
+                    <span className="text-sm">{emotion}</span>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
           
-          {/* Intensity selector */}
-          <Card className="p-4 mb-4">
-            <h3 className="text-lg font-medium mb-3 text-center">Adjust Intensity</h3>
-            <div className="grid grid-cols-5 gap-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(level => (
+          {/* Premium Status Toggle (for testing) */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Premium Status</CardTitle>
+              <CardDescription>Toggle premium features</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span>Premium Features:</span>
                 <Button
-                  key={level}
-                  variant={intensity === level ? "default" : "outline"}
-                  className="h-10"
-                  onClick={() => handleIntensityChange(level)}
+                  variant={isPremium ? "default" : "outline"}
+                  onClick={() => {
+                    setIsPremium(!isPremium);
+                    logDebug(`Premium status changed to: ${!isPremium}`);
+                    
+                    toast({
+                      title: isPremium ? "Premium Disabled" : "Premium Enabled",
+                      description: isPremium 
+                        ? "You no longer have access to premium features" 
+                        : "You now have access to premium features like gradient backgrounds",
+                      variant: "default",
+                    });
+                    
+                    // Reapply current emotion with new premium setting
+                    handleSelectEmotion(currentEmotion.name);
+                  }}
                 >
-                  {level}
+                  {isPremium ? "Enabled" : "Disabled"}
                 </Button>
-              ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
+      
+      <TabsContent value="history" className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Mood History</CardTitle>
+            <CardDescription>Your recent mood changes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {emotionHistory.length === 0 ? (
+              <div className="text-center p-4 border rounded-md text-muted-foreground">
+                No mood history yet. Try selecting some emotions!
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {emotionHistory.map((emotion, index) => (
+                  <div 
+                    key={index}
+                    className="p-3 border rounded-md flex items-center"
+                    style={{
+                      backgroundColor: emotion.background.startsWith('linear') 
+                        ? undefined 
+                        : emotion.background,
+                      backgroundImage: emotion.background.startsWith('linear') 
+                        ? emotion.background 
+                        : undefined,
+                      color: emotion.textColor
+                    }}
+                  >
+                    <span className="text-2xl mr-3">{emotion.emoji}</span>
+                    <div>
+                      <div className="font-medium">{emotion.name}</div>
+                      <div className="text-xs opacity-90">
+                        {index === 0 ? 'Current' : `${index + 1} change${index > 0 ? 's' : ''} ago`}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+      
+      <TabsContent value="debug" className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Debug Information</CardTitle>
+            <CardDescription>Technical details for troubleshooting</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="border rounded-md p-3 font-mono text-xs">
+              <div className="mb-2 font-bold">Current State:</div>
+              <pre className="bg-muted p-2 rounded overflow-auto max-h-32">
+                {JSON.stringify({
+                  currentEmotion,
+                  intensity,
+                  isPremium,
+                  emotionHistoryCount: emotionHistory.length
+                }, null, 2)}
+              </pre>
+              
+              <div className="mt-4 mb-2 font-bold">Log Messages:</div>
+              <div className="bg-muted p-2 rounded overflow-auto max-h-64 space-y-1">
+                {debugInfo.map((message, index) => (
+                  <div key={index} className="border-b border-border/30 pb-1 last:border-0">
+                    {message}
+                  </div>
+                ))}
+                {debugInfo.length === 0 && (
+                  <div className="italic text-muted-foreground">No log messages yet</div>
+                )}
+              </div>
             </div>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="info" className="pt-4">
-          <Card className="p-4 bg-muted">
-            <h3 className="text-lg font-bold mb-2">Debug Information</h3>
-            <pre className="text-xs whitespace-pre-wrap overflow-auto bg-background p-3 rounded">
-              {JSON.stringify({
-                currentEmotion: currentEmotion.name,
-                intensity: intensity,
-                backgroundColor: currentEmotion.background,
-                textColor: currentEmotion.text,
-                description: currentEmotion.description
-              }, null, 2)}
-            </pre>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
   );
 }

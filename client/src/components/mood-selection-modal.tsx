@@ -4,6 +4,7 @@ import { X, Camera, Mic } from "lucide-react";
 import { EmotionType } from "@/types/imprints";
 import EmotionWheel from "./emotion-wheel";
 import { useEffect } from "react";
+import { primaryEmotionsList, normalizeEmotion } from "@/lib/emotion-bridge";
 
 interface MoodSelectionModalProps {
   isOpen: boolean;
@@ -11,10 +12,8 @@ interface MoodSelectionModalProps {
   onSelectEmotion: (emotion: EmotionType) => void;
 }
 
-// List of available emotions - these must match the ones available in the emotion wheel
-const availableEmotions: EmotionType[] = [
-  'Joy', 'Sadness', 'Anger', 'Anxiety', 'Excitement', 'Neutral'
-] as const;
+// List of available emotions from our bridge utility
+const availableEmotions: EmotionType[] = primaryEmotionsList as EmotionType[];
 
 export default function MoodSelectionModal({ 
   isOpen, 
@@ -24,6 +23,7 @@ export default function MoodSelectionModal({
   // This useEffect will force refresh the content when modal opens
   useEffect(() => {
     if (isOpen) {
+      console.log('Mood selection modal opened');
       // Force re-render when modal opens
       const timer = setTimeout(() => {
         document.querySelector('.emotion-wheel')?.classList.add('emotion-wheel-visible');
@@ -33,8 +33,11 @@ export default function MoodSelectionModal({
   }, [isOpen]);
 
   const handleEmotionSelect = (emotion: EmotionType) => {
+    console.log(`Mood modal: selected emotion ${emotion}`);
+    // Normalize emotion to ensure consistent format
+    const normalizedEmotion = normalizeEmotion(emotion as string);
     // Directly call parent callback to update emotion
-    onSelectEmotion(emotion);
+    onSelectEmotion(normalizedEmotion);
     // Close the modal after selection
     onClose();
   };
@@ -42,7 +45,9 @@ export default function MoodSelectionModal({
   // Helper function to get a random emotion for AI detection buttons
   const getRandomEmotion = (): EmotionType => {
     const randomIndex = Math.floor(Math.random() * availableEmotions.length);
-    return availableEmotions[randomIndex];
+    const randomEmotion = availableEmotions[randomIndex];
+    console.log(`Random emotion selected: ${randomEmotion}`);
+    return randomEmotion;
   };
 
   return (

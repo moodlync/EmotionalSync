@@ -1,6 +1,12 @@
 import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react';
 import { EmotionType } from '@/types/imprints';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  emotionColors, 
+  getEmotionColors, 
+  normalizeEmotion, 
+  getEmotionEmoji 
+} from '@/lib/emotion-bridge';
 
 interface MoodContextType {
   background: string;
@@ -8,75 +14,10 @@ interface MoodContextType {
   intensity: number;
   isTransitioning: boolean;
   setEmotionBackground: (emotion: EmotionType, intensity?: number) => void;
+  emotionEmoji: string | null;
 }
 
 const MoodContext = createContext<MoodContextType | null>(null);
-
-// Emotion color mappings for different emotions
-const emotionColors: Record<string, { bg: string, text: string, gradient: string[] }> = {
-  Joy: { 
-    bg: '#FFDE7D', 
-    text: '#7A4100',
-    gradient: ['#FFC837', '#FF8008'] 
-  },
-  Sadness: { 
-    bg: '#A0C4FF', 
-    text: '#2A3C5F',
-    gradient: ['#9BAFD9', '#6D83B9'] 
-  },
-  Anger: { 
-    bg: '#FF7D7D', 
-    text: '#6F0000',
-    gradient: ['#FF4141', '#D10000'] 
-  },
-  Anxiety: { 
-    bg: '#FFD39A', 
-    text: '#704200',
-    gradient: ['#FFB75E', '#ED8F03'] 
-  },
-  Excitement: { 
-    bg: '#FFA9F9', 
-    text: '#6A008D',
-    gradient: ['#FF67FF', '#C840FF'] 
-  },
-  Neutral: { 
-    bg: '#E0E0E0', 
-    text: '#424242',
-    gradient: ['#BDBDBD', '#9E9E9E'] 
-  },
-  // Add other emotions mappings
-  Hope: { 
-    bg: '#B5FFD8', 
-    text: '#0B5437',
-    gradient: ['#84FAB0', '#1BC47D'] 
-  },
-  Surprise: { 
-    bg: '#E5A9FF', 
-    text: '#4B0082',
-    gradient: ['#D373FF', '#9F00FF'] 
-  },
-  Fear: { 
-    bg: '#C8C8FF', 
-    text: '#00008B',
-    gradient: ['#9E9EFF', '#6A6AFF'] 
-  },
-  Love: { 
-    bg: '#FF9A9A', 
-    text: '#8B0000',
-    gradient: ['#FF6B6B', '#FF3333'] 
-  },
-  Contentment: { 
-    bg: '#ADECA8', 
-    text: '#0B5F08',
-    gradient: ['#7AE073', '#38B632'] 
-  },
-  // Default for any other emotions
-  default: { 
-    bg: '#E0E0E0', 
-    text: '#424242',
-    gradient: ['#BDBDBD', '#9E9E9E'] 
-  }
-};
 
 export function MoodProvider({ children }: { children: ReactNode }) {
   // Hardcoded premium status - we can change later if needed
@@ -84,6 +25,7 @@ export function MoodProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   
   const [currentEmotion, setCurrentEmotion] = useState<EmotionType | null>('Neutral' as EmotionType);
+  const [emotionEmoji, setEmotionEmoji] = useState<string | null>('😐');
   const [intensity, setIntensity] = useState<number>(5); // Default medium intensity
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [background, setBackground] = useState<string>(emotionColors.default.bg);
@@ -108,10 +50,14 @@ export function MoodProvider({ children }: { children: ReactNode }) {
     console.log(`Setting emotion to: ${emotion} with intensity: ${newIntensity}`);
     
     try {
-      // Find the color mapping for this emotion
-      const colorMap = emotionColors[emotion] || emotionColors.default;
+      // Ensure consistent emotion format and get color data
+      const normalizedEmotion = normalizeEmotion(emotion as string);
+      const colorMap = getEmotionColors(normalizedEmotion);
+      const emoji = getEmotionEmoji(normalizedEmotion);
       
-      setCurrentEmotion(emotion);
+      // Update state
+      setCurrentEmotion(normalizedEmotion);
+      setEmotionEmoji(emoji);
       setIntensity(newIntensity);
       setIsTransitioning(true);
       
@@ -125,7 +71,7 @@ export function MoodProvider({ children }: { children: ReactNode }) {
       
       // Show toast notification with emotion update
       toast({
-        title: `Mood Updated: ${emotion}`,
+        title: `Mood Updated: ${normalizedEmotion}`,
         description: `Intensity level: ${newIntensity}/10`,
         variant: "default",
         duration: 2000,
@@ -149,6 +95,7 @@ export function MoodProvider({ children }: { children: ReactNode }) {
   const moodContextValue = {
     background,
     currentEmotion,
+    emotionEmoji,
     intensity,
     isTransitioning,
     setEmotionBackground
