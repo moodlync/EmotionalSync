@@ -1,0 +1,326 @@
+MoodLync: Comprehensive FAQ List
+Getting Started
+Account & Basic Setup
+What is MoodLync?
+MoodLync is an emotion-based social platform that helps you track your emotional journey, connect with others based on shared emotional experiences, and develop greater emotional intelligence through various features and tools.
+
+How do I create a MoodLync account?
+You can create an account by visiting our website or downloading our mobile app, then clicking "Sign Up." Follow the prompts to enter your information and set up your profile.
+
+Is MoodLync free to use?
+Yes, MoodLync offers a free basic plan with core emotional tracking and connection features. Premium subscription plans with enhanced features are available at different price points.
+
+What devices and platforms is MoodLync available on?
+MoodLync is available as a web application on all modern browsers and as a mobile app for iOS and Android devices.
+
+How do I reset my password if I forget it?
+Click the "Forgot Password" link on the login page and follow the instructions sent to your registered email address.
+
+Can I use MoodLync in my language?
+MoodLync is currently available in English, Spanish, French, German, Japanese, Portuguese, and Mandarin Chinese, with more languages being added regularly.
+
+How do I customize my notification settings?
+Go to Settings > Notifications to control which alerts you receive and how they're delivered (email, push, in-app, etc.).
+
+Is my data private and secure?
+Yes, MoodLync uses industry-standard encryption and security practices. Your emotional data is private by default, and you control what you share with others.
+
+Emotion Tracking & Selection
+How do I track my emotions on MoodLync?
+Use the Emotion Wheel on your dashboard or the quick-access emotion selector in the header. Select your current emotion and intensity level, then save.
+
+How many times per day can I update my emotional state?
+You can update your emotion as often as you like. We recommend at least once daily, but many users track multiple times for better insights.
+
+What's the difference between manual selection and AI analysis?
+Manual selection allows you to choose your emotion directly. AI analysis (available in premium plans) can suggest your emotion based on facial expression, voice tone, or text analysis.
+
+How does the emotion intensity scale work?
+Rate the strength of your emotion on a scale from 1-10, with 1 being barely noticeable and 10 being the most intense experience of that emotion.
+
+Can I create custom emotions?
+Yes, premium subscribers can create custom emotions beyond our standard library to better reflect their unique emotional experiences.
+
+Why can't I see my emotion history beyond a week?
+Free accounts have access to 7 days of emotion history. Premium plans include unlimited historical access.
+
+How accurate is the AI emotion detection?
+Our AI emotion detection has approximately 85% accuracy compared to self-reported emotions and continues to improve. You can always override AI suggestions.
+
+Can I track multiple emotions simultaneously?
+Yes, you can select primary and secondary emotions to capture more complex emotional states.
+
+Emotional Journal
+What is the Emotion Journal feature?
+The Emotion Journal allows you to write private entries about your emotional experiences, attached to specific emotion recordings for context and future reflection.
+
+Who can see my journal entries?
+Journal entries are completely private by default. You can optionally choose to share specific entries with connections or groups.
+
+Is there a character limit for journal entries?
+No, journal entries can be as short or as long as you need them to be.
+
+Can I add images or media to my journal?
+Yes, you can attach photos, audio clips, and videos to your journal entries to enhance your emotional documentation.
+
+How do I find past journal entries?
+Use the Journal tab to browse chronologically, or use the search and filter features to find entries by date, emotion, keywords, or tags.
+
+What are guided reflection prompts?
+These are thoughtful questions that help you explore your emotions more deeply. Free users receive basic prompts, while premium users access an expanded library.
+
+Can I export my journal entries?
+Yes, premium subscribers can export their journal data in various formats (PDF, text, etc.) for personal records or to share with therapists.
+
+How secure are my journal entries?
+Journal entries are encrypted with advanced security measures and are not accessible to MoodLync staff or third parties.
+
+Connections & Matching
+How does MoodLync connect me with other users?
+MoodLync's matching algorithm connects users based on similar emotional patterns, complementary emotional states, shared interests, and compatible communication styles.
+
+Can I remain anonymous when connecting with others?
+Yes, you can use a pseudonym and limit personal information shared. We also offer fully anonymous connection options in emotion-based chat rooms.
+
+How do I connect with a specific person I know?
+Use the search function to find them by username, then send a connection request. Both parties must accept to establish a connection.
+
+What are Emotion Rooms?
+Emotion Rooms are group spaces organized around specific emotions where you can join conversations with others experiencing similar feelings.
+
+Can I block or report users?
+Yes, you can block any user from contacting you and report inappropriate behavior through our reporting system.
+
+What is the Global Emotion Map?
+The Global Emotion Map displays anonymized, aggregated emotional data from around the world, showing trends and patterns in real-time.
+
+How do connection recommendations work?
+Our algorithm suggests connections based on emotional compatibility, interaction history, shared interests, and community involvement.
+
+What is an Emotional Compatibility Score?
+This score (visible to premium users) indicates potential connection quality based on emotional patterns, communication styles, and interests.
+
+Premium Features & Subscriptions
+What premium subscription plans are available?
+MoodLync offers Essentials ($8.99/month), Plus ($14.99/month), Premium ($24.99/month), and Family ($34.99/month) plans with increasing feature sets.
+
+How do I upgrade to a premium plan?
+Go to Settings > Subscription and select your desired plan. Follow the prompts to complete payment.
+
+Can I switch between premium plans?
+Yes, you can upgrade or downgrade your subscription at any time, with the change taking effect at the next billing cycle.
+
+What happens to my data if I downgrade from a premium plan?
+Your historical data remains stored but may become inaccessible until you reactivate premium features. No data is deleted.
+
+Do you offer discounts for annual subscriptions?
+Yes, all premium plans offer approximately 16% savings with annual billing compared to monthly payments.
+
+Is there a free trial for premium features?
+Yes, new users can try premium features free for 7 days before being charged.
+
+What payment methods do you accept?
+We accept all major credit cards, PayPal, Apple Pay, Google Pay, and select cryptocurrency options.
+
+How do I cancel my premium subscription?
+Go to Settings > Subscription > Cancel Subscription and follow the prompts. You'll retain premium access until the end of your current billing period.
+
+Tokens & Rewards
+What are MoodLync Tokens?
+Tokens are our in-platform currency earned through consistent engagement, completing challenges, and contributing to the community.
+
+How do I earn tokens?
+Earn tokens by checking in daily, recording emotions, journaling, completing challenges, participating in community activities, and reaching emotional milestones.
+
+What can I redeem tokens for?
+Tokens can be redeemed for premium features, custom NFT collectibles, platform customizations, digital items, and real-world partner benefits.
+
+Do tokens expire?
+No, tokens don't expire as long as your account remains active (at least one login every 12 months).
+
+How many tokens do premium subscribers earn?
+Premium subscribers earn tokens at accelerated rates: Essentials (1.25×), Plus (1.5×), and Premium (2×) the standard earning rate.
+
+Can I transfer tokens to other users?
+Family plan members can share tokens within their group. Other transfers are currently not supported.
+
+Where can I see my token balance and history?
+Your current token balance appears in the header. For detailed history, visit the Tokens section in your profile.
+
+Are there limited-time token promotions?
+Yes, we regularly offer double-token events, special challenges, and seasonal promotions with enhanced token rewards.
+
+Emotional NFTs & Collectibles
+What are Emotional NFTs?
+Emotional NFTs are unique digital collectibles that commemorate your emotional journey milestones, featuring beautiful generative art representing your emotional states.
+
+How do I create an Emotional NFT?
+Premium subscribers receive monthly NFT creation credits. Go to the Collectibles section and select "Create New NFT," then follow the customization process.
+
+Can I customize my Emotional NFTs?
+Yes, you can customize colors, patterns, intensity, animation effects, and add personal context to make each NFT unique.
+
+What makes each Emotional NFT unique?
+Each NFT incorporates your unique emotional signature, timestamp data, personal journey elements, and features a unique identification number.
+
+Do Emotional NFTs change over time?
+Yes, many NFTs have evolution capabilities, gradually changing their appearance as you reach new emotional milestones.
+
+Can I share my Emotional NFTs?
+Yes, you can share your collectibles on social media, within MoodLync, or export images to use elsewhere.
+
+Where is my NFT collection stored?
+Your collection is securely stored on MoodLync's platform with redundant backups to ensure you never lose access.
+
+Can I trade or sell my Emotional NFTs?
+Currently, Emotional NFTs are personal collectibles that cannot be traded or sold, preserving their value as personal emotional milestones.
+
+Token Economy & Gamification
+What are Daily Streaks?
+Daily Streaks track consecutive days of emotion logging, with increasing token rewards for maintaining your streak.
+
+How do Challenges work?
+Challenges are emotional growth activities with specific goals and token rewards. New challenges appear regularly in your dashboard.
+
+What are Emotional Growth Badges?
+Badges are achievements awarded for reaching emotional intelligence milestones, displayed on your profile.
+
+How do I join community challenges?
+Browse available challenges in the Challenge Hub and click "Join" on those you want to participate in.
+
+Can I create my own challenges?
+Premium subscribers can create custom challenges for themselves or to share with the community.
+
+What are Milestone Rewards?
+Special rewards (tokens, collectibles, feature access) earned when reaching significant platform engagement milestones.
+
+How does the leaderboard system work?
+Leaderboards show top users in various categories (journaling, challenge completion, etc.) over daily, weekly, and monthly timeframes.
+
+Are there seasonal events or competitions?
+Yes, we host regular seasonal events, emotional growth challenges, and community activities with special rewards.
+
+Privacy & Security
+Who can see my emotional data?
+By default, only you can see your detailed emotional data. You control what aspects to share with connections or groups.
+
+Can MoodLync employees access my private journal?
+No, journal entries are encrypted and not accessible to staff except in rare cases with explicit legal requirements.
+
+What data does MoodLync collect about me?
+We collect account information, emotion tracking data, usage patterns, and content you create. See our Privacy Policy for complete details.
+
+How can I download my personal data?
+Go to Settings > Privacy > Request My Data to receive a comprehensive export of all your information.
+
+How do I delete my account and data?
+Go to Settings > Account > Delete Account and follow the verification process. This permanently removes your data after a 30-day recovery period.
+
+Does MoodLync sell my emotional data?
+No, MoodLync never sells individual user data. We may share anonymous, aggregated trends for research with explicit consent.
+
+How does MoodLync protect children's privacy?
+MoodLync is designed for users 16 and older. We comply with COPPA and other youth protection regulations.
+
+What security certifications does MoodLync have?
+MoodLync adheres to SOC 2 requirements, GDPR compliance, and implements industry-standard security protocols.
+
+Mobile App & Cross-platform
+What's the difference between the web and mobile versions?
+Both offer the same core features, but the mobile app includes additional capabilities like face/voice emotion analysis and push notifications.
+
+Can I use MoodLync offline?
+Yes, the mobile app allows basic emotion tracking and journaling offline, which syncs when you reconnect.
+
+How do I enable push notifications?
+When first installing the app, you'll be prompted to allow notifications. You can also manage this in Settings > Notifications.
+
+Does MoodLync support dark mode?
+Yes, MoodLync offers dark mode, light mode, and automatic switching based on your device settings or time of day.
+
+Can I sync between multiple devices?
+Yes, your MoodLync account automatically syncs across all devices when you sign in.
+
+Is there a desktop application?
+Currently, we offer a web application optimized for desktop browsers rather than a standalone desktop app.
+
+How much storage space does the mobile app require?
+The initial download is approximately 45MB, with additional space needed for offline journal entries and media.
+
+Does the app drain my battery?
+MoodLync is optimized for battery efficiency, using minimal background processes when not actively in use.
+
+Therapeutic & Wellness Integration
+Is MoodLync a replacement for therapy?
+No, MoodLync is a complementary tool for emotional wellness but is not designed to replace professional mental health treatment.
+
+Can I share my MoodLync data with my therapist?
+Yes, premium subscribers can generate shareable reports specifically designed for mental health professionals.
+
+How does MoodLync handle mental health crises?
+We provide crisis resource information and automated detection of concerning patterns, but we're not an emergency service.
+
+Are there professionals involved in MoodLync's development?
+Yes, our development team includes psychologists, therapists, and emotional intelligence experts who guide feature development.
+
+Does MoodLync use evidence-based approaches?
+Yes, our features incorporate principles from positive psychology, cognitive behavioral therapy, mindfulness, and emotional intelligence research.
+
+Can therapists or counselors use MoodLync with clients?
+Yes, we offer MoodLync Professional specifically designed for mental health practitioners to use with clients.
+
+How accurate are the emotional intelligence assessments?
+Our assessments are developed with psychological experts and validated through research, though they're designed for personal growth rather than clinical diagnosis.
+
+Do you offer resources for specific mental health conditions?
+We provide general emotional wellness resources rather than condition-specific guidance. Users should consult health professionals for specific conditions.
+
+Technical Support & Troubleshooting
+Who do I contact for customer support?
+Contact support through the Help Center, email at support@moodlync.com, or in-app chat for premium subscribers.
+
+What should I do if the app crashes?
+Restart the app, ensure your device has the latest updates, and if problems persist, contact support with details about your device and what happened.
+
+How do I report a bug or suggest a feature?
+Use the Feedback option in Settings or email feedback@moodlync.com with detailed information.
+
+What browsers are supported for the web application?
+We support the latest two versions of Chrome, Firefox, Safari, and Edge.
+
+What should I do if I see an error message?
+Take a screenshot of the error, note what you were doing when it appeared, and submit this information to support.
+
+How often is MoodLync updated?
+We release feature updates monthly and bug fixes as needed, typically weekly.
+
+Can I access old versions of the app?
+No, only the current version is supported to ensure security and feature consistency.
+
+What are the minimum device requirements?
+For mobile: iOS 13+ or Android 8+. For web: Any modern browser updated within the last 2 years.
+
+Business & Partnership
+Does MoodLync offer solutions for businesses?
+Yes, MoodLync Business provides workplace emotional wellness tools for teams of 20+ employees.
+
+How can I partner with MoodLync?
+Contact partnerships@moodlync.com to discuss collaboration opportunities.
+
+Do you offer educational discounts?
+Yes, we offer special pricing for educational institutions. Contact education@moodlync.com.
+
+How can I advertise on MoodLync?
+Our Emotional Intelligence Advertising Network accepts partners whose offerings align with emotional wellness. Contact advertising@moodlync.com.
+
+Does MoodLync offer an affiliate program?
+Yes, content creators and wellness advocates can join our affiliate program with commission on referred subscriptions.
+
+Are there enterprise-level solutions available?
+Yes, we offer custom enterprise implementations with dedicated support, SSO, and advanced analytics.
+
+How does MoodLync handle research partnerships?
+We collaborate with academic institutions on emotional intelligence research. Contact research@moodlync.com.
+
+Do you offer white-label or API solutions?
+Yes, for select enterprise partners we offer white-label options and API access. Contact enterprise@moodlync.com.
