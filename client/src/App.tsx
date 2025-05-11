@@ -235,6 +235,11 @@ const RouterComponent = () => {
 
 // Main application component
 function App() {
+  // Log initialization for debugging
+  console.log('MoodLync App initializing...');
+  console.log('Environment:', import.meta.env.MODE);
+  console.log('Base URL:', import.meta.env.BASE_URL);
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

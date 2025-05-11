@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync Diagnostic Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #4D4DE3;
+      border-bottom: 2px solid #D7D7FC;
+      padding-bottom: 0.5rem;
+    }
+    .status-box {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .status-box h2 {
+      margin-top: 0;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+    .button {
+      background-color: #4D4DE3;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .button:hover {
+      background-color: #3a3ab8;
+    }
+    code {
+      background-color: #f5f5f5;
+      padding: 0.2rem 0.4rem;
+      border-radius: 2px;
+      font-family: Menlo, Monaco, 'Courier New', monospace;
+    }
+    #results {
+      white-space: pre-wrap;
+      background-color: #f5f5f5;
+      padding: 1rem;
+      border-radius: 4px;
+      font-family: Menlo, Monaco, 'Courier New', monospace;
+      font-size: 0.9rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>MoodLync Diagnostic Page</h1>
+  <p>This page helps diagnose connectivity issues with the MoodLync application.</p>
+  
+  <div class="status-box">
+    <h2>Server Connection Status</h2>
+    <div id="status">Checking connection...</div>
+  </div>
+  
+  <div class="status-box">
+    <h2>API Health Check</h2>
+    <div id="api-status">Checking API health...</div>
+    <button id="check-api" class="button">Check API Health</button>
+  </div>
+  
+  <div class="status-box">
+    <h2>WebSocket Connection</h2>
+    <div id="ws-status">WebSocket not connected</div>
+    <button id="connect-ws" class="button">Connect WebSocket</button>
+  </div>
+  
+  <div class="status-box">
+    <h2>Environment Information</h2>
+    <div id="env-info">Loading environment information...</div>
+  </div>
+  
+  <div class="status-box">
+    <h2>Console Output</h2>
+    <div id="results"></div>
+  </div>
+  
+  <script>
+    // Logging function
+    function log(message) {
+      const results = document.getElementById('results');
+      const timestamp = new Date().toLocaleTimeString();
+      results.textContent += `[${timestamp}] ${message}\n`;
+      results.scrollTop = results.scrollHeight;
+    }
+    
+    // Check basic connection
+    async function checkConnection() {
+      const statusElement = document.getElementById('status');
+      try {
+        log('Checking server connection...');
+        const response = await fetch('/health');
+        if (response.ok) {
+          const data = await response.json();
+          statusElement.innerHTML = `<span class="success">Connected</span> - Server is running`;
+          log(`Server connection successful. Response: ${JSON.stringify(data)}`);
+        } else {
+          statusElement.innerHTML = `<span class="error">Error</span> - Server returned status ${response.status}`;
+          log(`Server connection error. Status: ${response.status}`);
+        }
+      } catch (error) {
+        statusElement.innerHTML = `<span class="error">Error</span> - Could not connect to server`;
+        log(`Server connection error: ${error.message}`);
+      }
+    }
+    
+    // Check API health
+    async function checkApiHealth() {
+      const apiStatusElement = document.getElementById('api-status');
+      try {
+        log('Checking API health...');
+        const response = await fetch('/api/health');
+        if (response.ok) {
+          const data = await response.json();
+          apiStatusElement.innerHTML = `<span class="success">Healthy</span> - API is responding`;
+          log(`API health check successful. Response: ${JSON.stringify(data)}`);
+        } else {
+          apiStatusElement.innerHTML = `<span class="error">Error</span> - API returned status ${response.status}`;
+          log(`API health check error. Status: ${response.status}`);
+        }
+      } catch (error) {
+        apiStatusElement.innerHTML = `<span class="error">Error</span> - Could not connect to API`;
+        log(`API health check error: ${error.message}`);
+      }
+    }
+    
+    // Connect WebSocket
+    function connectWebSocket() {
+      const wsStatusElement = document.getElementById('ws-status');
+      
+      log('Attempting to connect WebSocket...');
+      wsStatusElement.textContent = 'Connecting...';
+      
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        log(`WebSocket URL: ${wsUrl}`);
+        
+        const socket = new WebSocket(wsUrl);
+        
+        socket.onopen = function() {
+          wsStatusElement.innerHTML = `<span class="success">Connected</span>`;
+          log('WebSocket connection established');
+        };
+        
+        socket.onmessage = function(event) {
+          log(`WebSocket message received: ${event.data}`);
+        };
+        
+        socket.onclose = function() {
+          wsStatusElement.innerHTML = `<span class="error">Disconnected</span>`;
+          log('WebSocket connection closed');
+        };
+        
+        socket.onerror = function(error) {
+          wsStatusElement.innerHTML = `<span class="error">Error</span>`;
+          log(`WebSocket error: ${error.message || 'Unknown error'}`);
+        };
+      } catch (error) {
+        wsStatusElement.innerHTML = `<span class="error">Error</span> - ${error.message}`;
+        log(`WebSocket connection error: ${error.message}`);
+      }
+    }
+    
+    // Get environment information
+    function getEnvironmentInfo() {
+      const envInfoElement = document.getElementById('env-info');
+      const info = {
+        'User Agent': navigator.userAgent,
+        'Window Location': window.location.href,
+        'Protocol': window.location.protocol,
+        'Host': window.location.host
+      };
+      
+      let htmlContent = '<ul>';
+      for (const [key, value] of Object.entries(info)) {
+        htmlContent += `<li><strong>${key}:</strong> ${value}</li>`;
+      }
+      htmlContent += '</ul>';
+      
+      envInfoElement.innerHTML = htmlContent;
+      log('Environment information loaded');
+    }
+    
+    // Initialize page
+    window.addEventListener('DOMContentLoaded', () => {
+      log('Diagnostic page loaded');
+      checkConnection();
+      checkApiHealth();
+      getEnvironmentInfo();
+      
+      // Button event listeners
+      document.getElementById('check-api').addEventListener('click', checkApiHealth);
+      document.getElementById('connect-ws').addEventListener('click', connectWebSocket);
+    });
+  </script>
+</body>
+</html>

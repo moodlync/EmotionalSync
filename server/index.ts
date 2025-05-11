@@ -72,6 +72,11 @@ app.use((req, res, next) => {
   // Note: Vite setup will be done later in the code
   // This helps prevent duplicate setup
 
+  // Add a diagnostics endpoint that serves a static HTML page
+  app.get('/diagnostics', (req, res) => {
+    res.sendFile('diagnostic.html', { root: 'public' });
+  });
+
   // Global variables to track the server state
   let websocketInitialized = false;
 
