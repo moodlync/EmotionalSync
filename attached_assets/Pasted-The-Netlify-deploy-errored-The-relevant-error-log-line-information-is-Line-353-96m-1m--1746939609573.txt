@@ -1,0 +1,95 @@
+The Netlify deploy errored. The relevant error log line information is:
+
+Line 353: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 354: ​
+Line 355: [36m$ npm run build[39m
+Line 356: > rest-express@1.0.0 build
+Line 357: > ./node_modules/.bin/vite build
+Line 358: [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+Line 359: transforming...
+Line 360: [32m✓[39m 3021 modules transformed.
+Line 361: rendering chunks...
+Line 362: [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter]
+Line 363: (!) /opt/build/repo/client/src/hooks/use-toast.ts is dynamically imported by /opt/build/repo/client/src/pages/home-page.tsx, /op
+Line 364: [39m
+Line 365: [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter]
+Line 366: (!) /opt/build/repo/client/src/hooks/use-gamification.tsx is dynamically imported by /opt/build/repo/client/src/pages/home-page.
+Line 367: [39m
+Line 368: computing gzip size...
+Line 369: [2m../dist/public/[22m[32mindex.html                                                 [39m[1m[2m  2.35 kB[22m[1m[22m[2m
+Line 370: [2m../dist/public/[22m[2massets/[22m[32mindividual bad mood Emotional NFt 2-CxnUNpSt.jpg    [39m[1m[2m 54.94 kB[22m[1m
+Line 371: [2m../dist/public/[22m[2massets/[22m[32mindividual for Surprise Emotional NFt-DdguKtzN.jpg  [39m[1m[2m 64.01 kB[22m[1m
+Line 372: [2m../dist/public/[22m[2massets/[22m[32mindividual Emotional NFt 1-CoBniNws.jpg             [39m[1m[2m 74.54 kB[22m[1m
+Line 373: [2m../dist/public/[22m[2massets/[22m[32mindividual for Anger Emotional NFt-fDb1JPHd.jpg     [39m[1m[2m 97.58 kB[22m[1m
+Line 500: [32m✓ built in 8.30s[39m
+Line 501: ​
+Line 502: [90m(build.command completed in 8.7s)[39m
+Line 503: [96m[1m​[22m[39m
+Line 504: [96m[1mFunctions bundling                                            [22m[39m
+Line 505: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 506: ​
+Line 507: Packaging Functions from [36mnetlify/functions[39m directory:
+Line 508:  - api.cjs
+Line 509:  - api.js
+Line 510:  - error-handler.js
+Line 511:  - install.cjs
+Line 512:  - install.js
+Line 513:  - netlify-debug.cjs
+Line 514:  - netlify-debug.js
+Line 515:  - netlify.cjs
+Line 516:  - netlify.js
+Line 517:  - routes.cjs
+Line 518:  - routes.js
+Line 519:  - validate.cjs
+Line 520:  - validate.js
+Line 527: Please download the build files to inspect cache-output.json.
+Line 528: Instructions => http://bit.ly/netlify-dl-cache
+Line 529: [92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[91m×[39m[92m.[39m[92m.
+Line 530:   [91m✖ FAIL load dist/public/mood-hub[39m
+Line 531:   [91m|[39m[96m operator:[39m load
+Line 532:   [91m|[39m[96m expected:[39m 200 dist/public/mood-hub
+Line 533:   [91m|[39m[96m   actual:[39m ENOENT: no such file or directory, open '/opt/build/repo/dist/public/mood-hub'
+Line 534:   [91m|[39m[96m       at:[39m dist/public/direct-mood-selector.html:535:18 <a href="/mood-hub">...</a>
+Line 535:   140 tests
+Line 536:   [92m139 passed[39m
+Line 537:   [91m  1 failed[39m
+Line 538: Failed during stage 'building site': Build script returned non-zero exit code: 2
+Line 539: [91m[1m​[22m[39m
+Line 540: [91m[1mPlugin "netlify-plugin-checklinks" failed                     [22m[39m
+Line 541: [91m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 542: ​
+Line 543:   [31m[1mError message[22m[39m
+Line 544:   Error: Links checking failed
+Line 545: ​
+Line 546:   [31m[1mPlugin details[22m[39m
+Line 547:   Package:        netlify-plugin-checklinks
+Line 548:   Version:        4.1.1
+Line 549:   Repository:     git://github.com/munter/netlify-plugin-checklinks.git
+Line 550:   npm link:       https://www.npmjs.com/package/netlify-plugin-checklinks
+Line 551:   Report issues:  https://github.com/munter/netlify-plugin-checklinks/issues
+Line 552: ​
+Line 553:   [31m[1mError location[22m[39m
+Line 554:   In "onPostBuild" event in "netlify-plugin-checklinks" from Netlify app
+Line 555: ​
+Line 556:   [31m[1mResolved config[22m[39m
+Line 557:   build:
+Line 558:     command: npm run build
+Line 559:     commandOrigin: config
+Line 560:     environment:
+Line 561:       - NODE_VERSION
+Line 562:       - NPM_CONFIG_LEGACY_PEER_DEPS
+Line 563:       - BROWSERSLIST_IGNORE_OLD_DATA
+Line 564:     publish: /opt/build/repo/dist/public
+Line 565:     publishOrigin: config
+Line 566:   functionsDirectory: /opt/build/repo/netlify/functions
+Line 567:   headers:
+Line 568:     - for: /*
+      values:
+        Content-Security-Policy: 'default-src ''self''; connect-src ''self'' https://*.netlify.app h
+Line 569: Build failed due to a user error: Build script returned non-zero exit code: 2
+Line 570: Failing build: Failed to build site
+Line 571: Finished processing build request in 36.388s
+
+Netlify has analyzed the error and provided the following guidance:
+
+Could not generate a solution. Please retry by clicking the "Retry diagnostics" button below.
