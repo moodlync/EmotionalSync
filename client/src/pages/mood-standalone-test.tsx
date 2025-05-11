@@ -1,96 +1,175 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { EmotionType } from '@/types/imprints';
-import MoodDirectAccess from '@/components/mood-direct-access';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { EmotionType } from '@/types/imprints';
 
-// Simplified standalone version that doesn't depend on context providers
+// Simplified emotion color mappings
+const emotionColors: Record<string, { bg: string, text: string }> = {
+  Joy: { bg: '#FFDE7D', text: '#7A4100' },
+  Sadness: { bg: '#A0C4FF', text: '#2A3C5F' },
+  Anger: { bg: '#FF7D7D', text: '#6F0000' },
+  Anxiety: { bg: '#FFD39A', text: '#704200' },
+  Excitement: { bg: '#FFA9F9', text: '#6A008D' },
+  Neutral: { bg: '#E0E0E0', text: '#424242' },
+  default: { bg: '#E0E0E0', text: '#424242' }
+};
+
 export default function MoodStandaloneTest() {
+  const { toast } = useToast();
   const [currentEmotion, setCurrentEmotion] = useState<EmotionType>('Neutral' as EmotionType);
-  const [bgColor, setBgColor] = useState('#E0E0E0');
-  const [textColor, setTextColor] = useState('#424242');
+  const [intensity, setIntensity] = useState(5);
+  const [background, setBackground] = useState(emotionColors.Neutral.bg);
+  const [textColor, setTextColor] = useState(emotionColors.Neutral.text);
   
-  // Color mapping for emotions
-  const emotionColors: Record<string, { bg: string, text: string }> = {
-    'Joy': { bg: '#FFDE7D', text: '#7A4100' },
-    'Sadness': { bg: '#A0C4FF', text: '#2A3C5F' },
-    'Anger': { bg: '#FF7D7D', text: '#6F0000' },
-    'Anxiety': { bg: '#FFD39A', text: '#704200' },
-    'Excitement': { bg: '#FFA9F9', text: '#6A008D' },
-    'Neutral': { bg: '#E0E0E0', text: '#424242' },
-    'Hope': { bg: '#B5FFD8', text: '#0B5437' },
-    'Love': { bg: '#FF9A9A', text: '#8B0000' },
-    'Contentment': { bg: '#ADECA8', text: '#0B5F08' },
-    'Surprise': { bg: '#E5A9FF', text: '#4B0082' },
-  };
+  // Available emotions for our test
+  const availableEmotions: EmotionType[] = [
+    'Joy',
+    'Sadness', 
+    'Anger', 
+    'Anxiety', 
+    'Excitement', 
+    'Neutral'
+  ] as EmotionType[];
   
-  // Update colors when emotion changes
+  // Update background when emotion changes
   useEffect(() => {
-    const colorInfo = emotionColors[currentEmotion] || emotionColors.Neutral;
-    setBgColor(colorInfo.bg);
-    setTextColor(colorInfo.text);
+    const colorData = emotionColors[currentEmotion] || emotionColors.default;
+    setBackground(colorData.bg);
+    setTextColor(colorData.text);
+    
+    // Log for debugging
+    console.log(`Emotion updated to: ${currentEmotion}`);
   }, [currentEmotion]);
   
-  const handleSelectEmotion = (emotion: EmotionType) => {
-    console.log('Selected emotion:', emotion);
+  // Handle emotion selection
+  const handleEmotionSelect = (emotion: EmotionType) => {
     setCurrentEmotion(emotion);
+    
+    toast({
+      title: `Mood Updated`,
+      description: `Your mood has been set to ${emotion}`,
+      variant: "default",
+    });
   };
   
-  const handleRandomEmotion = () => {
-    const emotions = Object.keys(emotionColors) as EmotionType[];
-    const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-    handleSelectEmotion(randomEmotion);
+  // Set a random emotion
+  const setRandomEmotion = () => {
+    const randomIndex = Math.floor(Math.random() * availableEmotions.length);
+    handleEmotionSelect(availableEmotions[randomIndex]);
   };
-
+  
+  // Handle intensity change
+  const handleIntensityChange = (newIntensity: number) => {
+    setIntensity(newIntensity);
+    
+    toast({
+      title: `Intensity Updated`,
+      description: `Intensity level set to ${newIntensity}/10`,
+      variant: "default",
+    });
+  };
+  
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8 text-center">Mood Functions - Standalone Test</h1>
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        MoodLync - Standalone Mood Test
+      </h1>
       
-      <div className="mb-8">
-        <MoodDirectAccess onSelectEmotion={handleSelectEmotion} />
-      </div>
+      {/* Current mood display */}
+      <Card 
+        className="p-6 mb-8 text-center"
+        style={{ 
+          backgroundColor: background,
+          color: textColor,
+          transition: 'background-color 0.5s ease'
+        }}
+      >
+        <h2 className="text-2xl font-bold mb-2">Current Mood</h2>
+        <div className="text-5xl mb-3">{
+          currentEmotion === 'Joy' ? '😊' :
+          currentEmotion === 'Sadness' ? '😢' :
+          currentEmotion === 'Anger' ? '😠' :
+          currentEmotion === 'Anxiety' ? '😰' :
+          currentEmotion === 'Excitement' ? '🤩' :
+          '😐' // Neutral
+        }</div>
+        <div className="text-3xl font-bold mb-3">{currentEmotion}</div>
+        <div className="text-lg">Intensity: {intensity}/10</div>
+      </Card>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Current Mood</CardTitle>
-            <CardDescription>
-              This displays your currently selected mood
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div 
-              className="w-full h-40 rounded-md flex items-center justify-center" 
-              style={{ background: bgColor, color: textColor }}
-            >
-              <span className="text-2xl font-bold">{currentEmotion}</span>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={handleRandomEmotion} className="w-full">
-              Set Random Emotion
-            </Button>
-          </CardFooter>
-        </Card>
+      {/* Emotion selection */}
+      <Card className="p-6 mb-8">
+        <h2 className="text-xl font-bold mb-4 text-center">Select Your Mood</h2>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Debug Information</CardTitle>
-            <CardDescription>
-              Current values of state variables
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm">
-              {JSON.stringify({
-                currentEmotion,
-                backgroundColor: bgColor,
-                textColor,
-              }, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+          {availableEmotions.map((emotion) => (
+            <Button
+              key={emotion}
+              className="p-4 h-auto flex flex-col items-center"
+              style={{ 
+                backgroundColor: emotionColors[emotion]?.bg || emotionColors.default.bg,
+                color: emotionColors[emotion]?.text || emotionColors.default.text
+              }}
+              onClick={() => handleEmotionSelect(emotion)}
+              variant="outline"
+            >
+              <span className="text-2xl mb-1">{
+                emotion === 'Joy' ? '😊' :
+                emotion === 'Sadness' ? '😢' :
+                emotion === 'Anger' ? '😠' :
+                emotion === 'Anxiety' ? '😰' :
+                emotion === 'Excitement' ? '🤩' :
+                '😐' // Neutral
+              }</span>
+              <span>{emotion}</span>
+            </Button>
+          ))}
+        </div>
+        
+        <Button 
+          onClick={setRandomEmotion}
+          className="w-full"
+          variant="default"
+        >
+          Set Random Emotion
+        </Button>
+      </Card>
+      
+      {/* Intensity slider */}
+      <Card className="p-6 mb-8">
+        <h2 className="text-xl font-bold mb-4 text-center">Adjust Intensity</h2>
+        
+        <div className="grid grid-cols-5 gap-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
+            <Button
+              key={level}
+              className={`p-2 ${intensity === level ? 'bg-primary text-primary-foreground' : ''}`}
+              variant={intensity === level ? "default" : "outline"}
+              onClick={() => handleIntensityChange(level)}
+            >
+              {level}
+            </Button>
+          ))}
+        </div>
+      </Card>
+      
+      {/* Debug info */}
+      <Card className="p-6 bg-muted">
+        <h3 className="text-lg font-medium mb-2">Debug Information</h3>
+        <pre className="text-xs overflow-auto">
+          {JSON.stringify(
+            {
+              currentEmotion,
+              intensity,
+              backgroundColor: background,
+              textColor
+            },
+            null,
+            2
+          )}
+        </pre>
+      </Card>
     </div>
   );
 }
