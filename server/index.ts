@@ -191,12 +191,13 @@ app.use((req, res, next) => {
     });
   }
 
-  // Use 0.0.0.0 instead of localhost to bind to all interfaces
-  server.listen(5000, "0.0.0.0", () => {
-    log(`MoodLync server running at http://0.0.0.0:5000`);
+  // Ensure we're binding to all interfaces and setting proper CORS
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, "0.0.0.0", () => {
+    log(`MoodLync server running at http://0.0.0.0:${PORT}`);
     if (isReplitEnv) {
-      log(`Running in Replit environment on port 5000`);
-      log(`Application available at http://0.0.0.0:5000`);
+      log(`Running in Replit environment on port ${PORT}`);
+      log(`Application available at https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
       log(`Webview will access application via port 3000`);
 
       // Start the port forwarder in Replit environment
