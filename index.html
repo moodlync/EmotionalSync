@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodLync - Redirecting...</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            background-color: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .logo {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        .logo span:first-child {
+            color: #fff;
+        }
+        .logo span:last-child {
+            color: #FEC89A;
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: #FEC89A;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        .button {
+            background-color: white;
+            color: #4F46E5;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            background-color: #F9FAFB;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo"><span>MOOD</span><span>LYNC</span></div>
+        <span class="loader"></span>
+        <h1>Launching MoodLync</h1>
+        <p>Please wait while we redirect you to the MoodLync application. This should only take a few seconds...</p>
+        <p>If you're not redirected automatically, please click the button below:</p>
+        <a href="http://localhost:5000" class="button" id="redirect-button">Open MoodLync</a>
+    </div>
+
+    <script>
+        // Function to try different ports to find the application
+        async function findApp() {
+            const ports = [5000, 3000, 8080];
+            const paths = ['/', '/api/health', '/health'];
+            
+            for (const port of ports) {
+                for (const path of paths) {
+                    try {
+                        // Update UI to show which port we're trying
+                        document.querySelector('p').textContent = `Attempting to connect to application on port ${port}...`;
+                        
+                        // Try to fetch from this port
+                        const response = await fetch(`http://localhost:${port}${path}`, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json' },
+                            mode: 'no-cors' // This is needed for cross-origin requests
+                        });
+                        
+                        // If we got here, we found a working port
+                        console.log(`Found app at port ${port}`);
+                        window.location.href = `http://localhost:${port}`;
+                        return;
+                    } catch (error) {
+                        console.log(`Port ${port} with path ${path} failed: ${error.message}`);
+                    }
+                }
+            }
+            
+            // If we got here, we couldn't find the app
+            document.querySelector('h1').textContent = 'Connection Issue';
+            document.querySelector('p').textContent = 'Could not automatically connect to MoodLync. Please try the button below or check if the application is running.';
+        }
+
+        // When the page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // Update the redirect button to use the correct port
+            document.getElementById('redirect-button').href = 'http://localhost:5000';
+            
+            // Start trying to find the application
+            setTimeout(findApp, 1500);
+            
+            // Also add a simple redirect after 3 seconds as a fallback
+            setTimeout(() => {
+                window.location.href = 'http://localhost:5000';
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
