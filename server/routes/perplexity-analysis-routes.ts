@@ -2,9 +2,16 @@
 // These routes provide AI-powered emotional analysis using Perplexity
 
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
 import { analyzeEmotionWithPerplexity } from '../../perplexity-api-client';
 import { storage } from '../storage';
+
+// Import the requireAuth middleware directly from routes.ts
+function requireAuth(req: any, res: any, next: Function) {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  next();
+}
 
 // Create router
 const router = Router();

@@ -76,6 +76,8 @@ export class SimpleMemStorage implements ISimplifiedStorage {
   private users: Map<number, User> = new Map();
   private currentId: number = 1;
   private userEmotions: Map<number, EmotionType> = new Map();
+  private emotionAnalysisResults: Map<number, any[]> = new Map();
+  private nextEmotionAnalysisResultId = 1;
   sessionStore: session.Store;
 
   constructor() {
@@ -125,6 +127,39 @@ export class SimpleMemStorage implements ISimplifiedStorage {
   async getNotificationById(id: number): Promise<any | undefined> {
     // No notifications in simplified auth
     return undefined;
+  }
+  
+  // Perplexity API emotion analysis methods
+  async saveEmotionAnalysisResult(result: any): Promise<any> {
+    const newResult = {
+      id: this.nextEmotionAnalysisResultId++,
+      userId: result.userId,
+      text: result.text,
+      result: result.result,
+      timestamp: result.timestamp || new Date(),
+    };
+    
+    // Add to user's emotion analysis results
+    if (!this.emotionAnalysisResults.has(result.userId)) {
+      this.emotionAnalysisResults.set(result.userId, []);
+    }
+    
+    this.emotionAnalysisResults.get(result.userId)!.push(newResult);
+    
+    return newResult;
+  }
+  
+  async getEmotionAnalysisHistory(userId: number): Promise<any[]> {
+    return this.emotionAnalysisResults.get(userId) || [];
+  }
+  
+  async updateJournalWithAnalysis(journalId: number, analysisResult: any): Promise<any> {
+    // In simplified storage, we just return the analysis result
+    // since we don't have journal entries
+    return {
+      id: journalId,
+      analysis: analysisResult
+    };
   }
 
   async markNotificationAsRead(id: number): Promise<boolean> {
