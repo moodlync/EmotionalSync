@@ -82,7 +82,7 @@ app.use((req, res, next) => {
 
   // Determine which ports to try based on environment
   const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG || process.env.REPLIT_ENVIRONMENT || process.env.IS_REPLIT);
-  
+
   // Set Replit environment variables for downstream components
   if (isReplitEnv) {
     process.env.REPLIT_ENVIRONMENT = 'true';
@@ -91,7 +91,7 @@ app.use((req, res, next) => {
 
   // Use port 5000 for our application server
   const primaryPort = 5000;
-  
+
   // This is the port that Replit webview will access via the port forwarder (3000)
   const webviewPort = 3000;
 
@@ -126,12 +126,12 @@ app.use((req, res, next) => {
 
   // Special handling for Replit environment
   const usePort = typeof process.env.PORT === 'string' ? parseInt(process.env.PORT, 10) : primaryPort;
-  
+
   // Add a healthcheck route to confirm the server is running
   app.get('/api/healthcheck', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'MoodLync server is running!' });
   });
-  
+
   // Add a test registration endpoint for debugging
   app.post('/api/test-register', (req, res) => {
     console.log('Test registration request received:', {
@@ -139,7 +139,7 @@ app.use((req, res, next) => {
       headers: req.headers['content-type'],
       method: req.method
     });
-    
+
     return res.status(200).json({
       success: true,
       message: 'Registration data received for testing',
@@ -149,7 +149,7 @@ app.use((req, res, next) => {
 
   // Clearer logging for server start
   log(`Starting MoodLync server on port ${usePort}...`);
-  
+
   // Enhanced debug information for Replit environment
   if (isReplitEnv) {
     log("=== Replit Environment Information ===");
@@ -164,7 +164,7 @@ app.use((req, res, next) => {
     log(`Node.js Version: ${process.version}`);
     log(`Process ID: ${process.pid}`);
     log("=====================================");
-    
+
     // Add a diagnostic API route with detailed environment info
     app.get('/api/environment', (req, res) => {
       res.json({
@@ -185,15 +185,15 @@ app.use((req, res, next) => {
       });
     });
   }
-  
+
   // Use 0.0.0.0 instead of localhost to bind to all interfaces
-  server.listen(usePort, "0.0.0.0", () => {
-    log(`MoodLync server running on port ${usePort}`);
+  server.listen(5000, "0.0.0.0", () => {
+    log(`MoodLync server running on port 5000`);
     if (isReplitEnv) {
-      log(`Running in Replit environment on port ${usePort}`);
-      log(`Application available at http://localhost:${usePort}`);
-      log(`Webview will access application via port ${webviewPort}`);
-      
+      log(`Running in Replit environment on port 5000`);
+      log(`Application available at http://0.0.0.0:5000`);
+      log(`Webview will access application via port 3000`);
+
       // Start the port forwarder in Replit environment
       try {
         // Create a lightweight HTTP healthcheck endpoint on port 3000
@@ -202,7 +202,7 @@ app.use((req, res, next) => {
         const healthServer = createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
           res.setHeader('Content-Type', 'application/json');
           res.setHeader('Access-Control-Allow-Origin', '*');
-          
+
           // Forward requests to our main app except for basic healthcheck
           if (req.url === '/' || req.url === '/health') {
             res.writeHead(200);
@@ -221,20 +221,20 @@ app.use((req, res, next) => {
             res.end();
           }
         });
-        
+
         // Try to start the ESM-compatible port forwarder first
         try {
           // Start the port forwarder using ESM syntax
           const esmForwarder = startESMPortForwarder();
           log("✅ ESM Port forwarder started to expose application to the internet");
-          
+
           // We need to handle process termination properly
           process.on('SIGINT', () => {
             log('SIGINT received, closing servers...');
             esmForwarder.close();
             process.exit(0);
           });
-          
+
           process.on('SIGTERM', () => {
             log('SIGTERM received, closing servers...');
             esmForwarder.close();
@@ -242,21 +242,21 @@ app.use((req, res, next) => {
           });
         } catch (esmError) {
           log(`Error with ESM port forwarder: ${esmError instanceof Error ? esmError.message : String(esmError)}`);
-          
+
           // Fallback to webview healthcheck
           try {
             // Start the webview healthcheck server on port 3000
             healthServer.listen(webviewPort, '0.0.0.0', () => {
               log(`✅ Webview healthcheck running on port ${webviewPort}`);
             });
-            
+
             // We need to handle process termination properly
             process.on('SIGINT', () => {
               log('SIGINT received, closing servers...');
               healthServer.close();
               process.exit(0);
             });
-            
+
             process.on('SIGTERM', () => {
               log('SIGTERM received, closing servers...');
               healthServer.close();
@@ -270,11 +270,11 @@ app.use((req, res, next) => {
         log(`Failed to start port forwarder: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
-    
+
     // Initialize WebSocket server after HTTP server is running
     initializeWebSocketIfNeeded(server);
   });
-  
+
   // For Netlify functions, we'll assign to module.exports in a CommonJS setting
   // or use export default if needed in a separate file
 })();
