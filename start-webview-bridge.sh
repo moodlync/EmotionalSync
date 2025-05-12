@@ -1,36 +1,31 @@
 #!/bin/bash
-# Start the MoodLync Webview Bridge to connect Replit webview to our application
 
-# Kill any existing processes
-if [ -f webview-bridge.pid ]; then
-  pid=$(cat webview-bridge.pid)
-  if ps -p $pid > /dev/null; then
-    echo "Stopping existing webview bridge (PID: $pid)..."
-    kill $pid
-    sleep 1
-  fi
-  rm webview-bridge.pid
-fi
-
-# Start new instance
+# Start the webview bridge to ensure Replit can access our application
 echo "Starting MoodLync Webview Bridge..."
+
+# Kill any existing bridge processes
+echo "Stopping any existing webview bridge processes..."
+pkill -f "node.*replit-webview-bridge.js" || true
+pkill -f "node.*replit-forwarder.js" || true
+pkill -f "node.*simple-port-forwarder.js" || true
+sleep 1
+
+# Start the bridge in the background
+echo "Starting new webview bridge..."
 node replit-webview-bridge.js > webview-bridge.log 2>&1 &
 
-# Wait for startup and check
+# Store the PID
+WB_PID=$!
+echo $WB_PID > webview-bridge.pid
+echo "Webview bridge started with PID: $WB_PID"
+echo "Log file: webview-bridge.log"
+
+# Check if the bridge is running
 sleep 2
-if [ -f webview-bridge.pid ]; then
-  pid=$(cat webview-bridge.pid)
-  if ps -p $pid > /dev/null; then
-    echo "✅ Webview Bridge started successfully (PID: $pid)"
-    echo "✅ Bridging connections from Replit webview to port 5000"
-    exit 0
-  fi
+if ps -p $WB_PID > /dev/null; then
+  echo "✅ Webview bridge started successfully"
+  echo "You can now view your application in the Replit webview"
+else
+  echo "❌ Failed to start webview bridge"
+  echo "Check webview-bridge.log for errors"
 fi
-
-echo "⚠️ Warning: Bridge may not have started correctly"
-echo "Check webview-bridge.log for details"
-
-# Try fallback on port 3000
-echo "Attempting to start on fallback port 3000..."
-PORT=3000 node replit-webview-bridge.js > webview-bridge-fallback.log 2>&1 &
-echo "Fallback started. Check webview-bridge-fallback.log for details"
