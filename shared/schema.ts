@@ -3,6 +3,22 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export type EmotionType = "happy" | "sad" | "angry" | "anxious" | "excited" | "neutral" | "joy" | "sadness" | "anger" | "surprise" | "surprised";
+
+// Emotion Analysis types for Perplexity integration
+export type EmotionAnalysisResult = {
+  id: number;
+  userId: number;
+  text: string;
+  result: string;
+  timestamp: Date;
+};
+
+export type InsertEmotionAnalysisResult = {
+  userId: number;
+  text: string;
+  result: string;
+  timestamp: Date;
+};
 export type OnlineStatus = "online" | "offline" | "away" | "busy";
 export type ImpressionColor = "amber" | "blue" | "green" | "purple" | "red" | "teal" | "pink" | "orange" | "indigo" | "gray";
 export type ImpressionSound = "ocean" | "rainfall" | "forest" | "vinyl" | "cityscape" | "heartbeat" | "wind" | "thunder" | "birds" | "silence";

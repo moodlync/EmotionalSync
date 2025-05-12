@@ -657,6 +657,44 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
+  // Perplexity API emotion analysis methods
+  async saveEmotionAnalysisResult(result: InsertEmotionAnalysisResult): Promise<EmotionAnalysisResult> {
+    const newResult: EmotionAnalysisResult = {
+      id: this.nextEmotionAnalysisResultId++,
+      userId: result.userId,
+      text: result.text,
+      result: result.result,
+      timestamp: result.timestamp || new Date(),
+    };
+    
+    // Add to user's emotion analysis results
+    if (!this.emotionAnalysisResults.has(result.userId)) {
+      this.emotionAnalysisResults.set(result.userId, []);
+    }
+    
+    this.emotionAnalysisResults.get(result.userId)!.push(newResult);
+    
+    return newResult;
+  }
+  
+  async getEmotionAnalysisHistory(userId: number): Promise<EmotionAnalysisResult[]> {
+    return this.emotionAnalysisResults.get(userId) || [];
+  }
+  
+  async updateJournalWithAnalysis(journalId: number, analysisResult: any): Promise<any> {
+    // Find the journal entry
+    for (const [userId, entries] of this.journalEntries.entries()) {
+      const entry = entries.find(e => e.id === journalId);
+      if (entry) {
+        // Add analysis to the journal entry
+        (entry as any).analysis = analysisResult;
+        return entry;
+      }
+    }
+    
+    throw new Error(`Journal entry with ID ${journalId} not found`);
+  }
+  
   // Emotional Intelligence Quiz methods
   async saveEmotionalIntelligenceResults(result: InsertEmotionalIntelligenceResult): Promise<EmotionalIntelligenceResult> {
     const newResult: EmotionalIntelligenceResult = {

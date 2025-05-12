@@ -1,0 +1,31 @@
+The Netlify deploy errored. The relevant error log line information is:
+
+Line 354: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 355: ​
+Line 356: [36m$ npm run build[39m
+Line 357: > rest-express@1.0.0 build
+Line 358: > ./node_modules/.bin/vite build
+Line 359: [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+Line 360: transforming...
+Line 361: [32m✓[39m 3021 modules transformed.
+Line 362: rendering chunks...
+Line 363: [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter]
+Line 364: (!) /opt/build/repo/client/src/hooks/use-toast.ts is dynamically imported by /opt/build/repo/client/src/pages/home-page.tsx, /op
+Line 365: [39m
+Line 366: [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter]
+Line 367: (!) /opt/build/repo/client/src/hooks/use-gamification.tsx is dynamically imported by /opt/build/repo/client/src/pages/home-page.
+Line 368: [39m
+Line 369: computing gzip size...
+Line 370: [2m../dist/public/[22m[32mindex.html                                                 [39m[1m[2m  2.35 kB[22m[1m[22m[2m
+Line 371: [2m../dist/public/[22m[2massets/[22m[32mindividual bad mood Emotional NFt 2-CxnUNpSt.jpg    [39m[1m[2m 54.94 kB[22m[1m
+Line 372: [2m../dist/public/[22m[2massets/[22m[32mindividual for Surprise Emotional NFt-DdguKtzN.jpg  [39m[1m[2m 64.01 kB[22m[1m
+Line 373: [2m../dist/public/[22m[2massets/[22m[32mindividual Emotional NFt 1-CoBniNws.jpg             [39m[1m[2m 74.54 kB[22m[1m
+Line 374: [2m../dist/public/[22m[2massets/[22m[32mindividual for Anger Emotional NFt-fDb1JPHd.jpg     [39m[1m[2m 97.58 kB[22m[1m
+
+Netlify has analyzed the error and provided the following guidance:
+
+**Diagnosis:**
+The build failure is caused by dynamically imported files `use-toast.ts` and `use-gamification.tsx` that are not resolved correctly.
+
+**Solution:**
+To fix this error, verify that the files `use-toast.ts` and `use-gamification.tsx` are either present in the `package.json` dependencies or have been committed to the repository. If they are part of the project dependencies, add them to the `external` configuration in the Vite build options. Make sure the paths are correct and the files are accessible during the build process.
