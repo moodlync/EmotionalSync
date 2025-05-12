@@ -16,7 +16,7 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
 import { useSubscription } from '@/hooks/use-subscription';
 import { useRewards } from '@/hooks/use-rewards';
-import { useGamification } from '@/hooks/use-gamification';
+import { useGamification, toast } from '@/hooks/index';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import DynamicFeatures from '@/components/subscription/dynamic-features';
 import SubscriptionBanner from '@/components/subscription/subscription-banner';
@@ -72,13 +72,11 @@ export default function HomePage() {
       
       try {
         // Also trigger streak check-in when emotion is updated
-        const { useGamification } = await import('@/hooks/use-gamification');
         const { checkInStreak } = useGamification();
         const streakResult = await checkInStreak(emotion);
         
         if (streakResult.streakIncreased) {
           // Show toast for streak increase
-          const { toast } = await import('@/hooks/use-toast');
           toast({
             title: `${streakResult.currentStreak}-Day Streak!`,
             description: `You earned ${streakResult.tokensAwarded} tokens for maintaining your streak!`,
@@ -94,7 +92,6 @@ export default function HomePage() {
           }
         } else if (streakResult.streakReset && streakResult.currentStreak === 1) {
           // Show toast for new streak
-          const { toast } = await import('@/hooks/use-toast');
           toast({
             title: 'New Streak Started!',
             description: `You earned ${streakResult.tokensAwarded} tokens for checking in today.`,
