@@ -155,6 +155,22 @@ interface EmotionalNFT {
   expiresAt?: Date;
 }
 
+// Interface for emotion analysis results
+interface EmotionAnalysisResult {
+  id: number;
+  userId: number;
+  text: string;
+  result: string; // JSON stringified analysis result
+  timestamp: Date;
+}
+
+interface InsertEmotionAnalysisResult {
+  userId: number;
+  text: string;
+  result: string; // JSON stringified analysis result
+  timestamp: Date;
+}
+
 // modify the interface with any CRUD methods
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -165,6 +181,11 @@ export interface IStorage {
   createUser(user: InsertUser & { ipAddress?: string }): Promise<User>;
   updateUser(userId: number, userData: Partial<User>): Promise<User>;
   removeUser(userId: number): Promise<boolean>;
+  
+  // Emotion analysis with Perplexity API
+  saveEmotionAnalysisResult(result: InsertEmotionAnalysisResult): Promise<EmotionAnalysisResult>;
+  getEmotionAnalysisHistory(userId: number): Promise<EmotionAnalysisResult[]>;
+  updateJournalWithAnalysis(journalId: number, analysisResult: any): Promise<any>;
   
   // Emotional Intelligence Quiz
   saveEmotionalIntelligenceResults(result: InsertEmotionalIntelligenceResult): Promise<EmotionalIntelligenceResult>;
@@ -699,6 +720,10 @@ export class MemStorage implements IStorage {
   public notifications: Map<number, Notification> = new Map();
   public emotionalIntelligenceResults: Map<number, EmotionalIntelligenceResult[]> = new Map();
   private nextEmotionalIntelligenceResultId = 1;
+  
+  // Emotion analysis storage with Perplexity
+  public emotionAnalysisResults: Map<number, EmotionAnalysisResult[]> = new Map();
+  private nextEmotionAnalysisResultId = 1;
   public userNotifications: Map<number, number[]> = new Map(); // userId -> notificationIds
   public deletionRequests: Map<number, DeletionRequest> = new Map();
   public userDeletionRequests: Map<number, number[]> = new Map(); // userId -> deletionRequestIds
