@@ -2,7 +2,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from 'cors';
-import * * as http from 'http';
 import { createServer } from 'http';
 import { startPortForwarder } from "./port-forward";
 
