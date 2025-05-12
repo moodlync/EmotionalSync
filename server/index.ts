@@ -12,19 +12,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Enable CORS for all routes
+// Enable CORS for all routes with more permissive settings
 app.use(cors({
-  origin: true, // Allow any origin
-  credentials: true, // Allow credentials
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Add headers for Replit compatibility
+// Additional headers for broader compatibility
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
   next();
 });
 
@@ -188,7 +193,7 @@ app.use((req, res, next) => {
 
   // Use 0.0.0.0 instead of localhost to bind to all interfaces
   server.listen(5000, "0.0.0.0", () => {
-    log(`MoodLync server running on port 5000`);
+    log(`MoodLync server running at http://0.0.0.0:5000`);
     if (isReplitEnv) {
       log(`Running in Replit environment on port 5000`);
       log(`Application available at http://0.0.0.0:5000`);
