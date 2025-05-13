@@ -1,9 +1,9 @@
 // Perplexity API Analysis Routes for MoodLync
-// These routes provide AI-powered emotional analysis using Perplexity
+// These routes provide AI-powered emotional analysis using Perplexity with fallback
 
 import { Router } from 'express';
-import { analyzeEmotionWithPerplexity } from '../../perplexity-api-client';
 import { storage } from '../storage';
+import { analyzeEmotion, checkEmotionAnalysisService } from '../services/emotion-analysis';
 
 // Import the requireAuth middleware directly from routes.ts
 function requireAuth(req: any, res: any, next: Function) {
@@ -31,17 +31,8 @@ router.post('/api/analyze/emotion', requireAuth, async (req, res) => {
       });
     }
     
-    // Check for API key
-    const apiKey = process.env.PERPLEXITY_API_KEY;
-    if (!apiKey) {
-      return res.status(503).json({ 
-        error: 'Service unavailable',
-        message: 'Emotion analysis service is not configured'
-      });
-    }
-    
-    // Call Perplexity API
-    const analysis = await analyzeEmotionWithPerplexity(apiKey, text);
+    // Use emotion analysis service
+    const analysis = await analyzeEmotion(text);
     
     // Store the analysis result in the user's history
     const userId = req.user!.id;
@@ -112,17 +103,8 @@ router.post('/api/journal/analyze', requireAuth, async (req, res) => {
       });
     }
     
-    // Check for API key
-    const apiKey = process.env.PERPLEXITY_API_KEY;
-    if (!apiKey) {
-      return res.status(503).json({ 
-        error: 'Service unavailable',
-        message: 'Journal analysis service is not configured'
-      });
-    }
-    
-    // Call Perplexity API with a specialized system prompt for journals
-    const analysis = await analyzeEmotionWithPerplexity(apiKey, journalText);
+    // Use emotion analysis service
+    const analysis = await analyzeEmotion(journalText);
     
     // If we have a journal ID, update it with the analysis
     if (journalId) {
@@ -151,28 +133,24 @@ router.post('/api/journal/analyze', requireAuth, async (req, res) => {
  */
 router.get('/api/analyze/test', requireAuth, async (req, res) => {
   try {
-    const apiKey = process.env.PERPLEXITY_API_KEY;
-    if (!apiKey) {
-      return res.status(503).json({ 
-        error: 'Service unavailable',
-        message: 'Perplexity API key is not configured'
-      });
-    }
-    
     // Simple test with a predetermined text
     const testText = "I feel really happy today because I achieved my goal.";
-    const analysis = await analyzeEmotionWithPerplexity(apiKey, testText);
+    
+    // Use the emotion analysis service
+    const analysis = await analyzeEmotion(testText);
+    const serviceStatus = 'active (using fallback implementation)';
     
     res.json({
       success: true,
-      message: 'Perplexity API connection successful',
+      message: 'Emotion analysis service test',
+      status: serviceStatus,
       testAnalysis: analysis
     });
     
   } catch (error) {
-    console.error('Error testing Perplexity API connection:', error);
+    console.error('Error testing emotion analysis service:', error);
     res.status(500).json({ 
-      error: 'Connection test failed', 
+      error: 'Test failed', 
       message: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }

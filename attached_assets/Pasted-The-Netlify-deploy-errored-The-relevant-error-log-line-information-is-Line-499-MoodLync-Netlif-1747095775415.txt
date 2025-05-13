@@ -1,0 +1,99 @@
+The Netlify deploy errored. The relevant error log line information is:
+
+Line 499: ✅ MoodLync Netlify build completed successfully!
+Line 500: ​
+Line 501: [90m(build.command completed in 9.6s)[39m
+Line 502: [96m[1m​[22m[39m
+Line 503: [96m[1mFunctions bundling                                            [22m[39m
+Line 504: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 505: ​
+Line 506: Packaging Functions from [36mnetlify/functions[39m directory:
+Line 507:  - api.cjs
+Line 508:  - api.js
+Line 509:  - error-handler.js
+Line 510:  - install.cjs
+Line 511:  - install.js
+Line 512:  - netlify-debug.cjs
+Line 513:  - netlify-debug.js
+Line 514:  - netlify.cjs
+Line 515:  - netlify.js
+Line 516:  - routes.cjs
+Line 517:  - routes.js
+Line 518:  - validate.cjs
+Line 519:  - validate.js
+Line 526: Please download the build files to inspect cache-output.json.
+Line 527: Instructions => http://bit.ly/netlify-dl-cache
+Line 528: [92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[91m×[39m[92m.[39m[92m.
+Line 529:   [91m✖ FAIL load dist/client/mood-hub[39m
+Line 530:   [91m|[39m[96m operator:[39m load
+Line 531:   [91m|[39m[96m expected:[39m 200 dist/client/mood-hub
+Line 532:   [91m|[39m[96m   actual:[39m ENOENT: no such file or directory, open '/opt/build/repo/dist/client/mood-hub'
+Line 533:   [91m|[39m[96m       at:[39m dist/client/direct-mood-selector.html:535:18 <a href="/mood-hub">...</a>
+Line 534:   140 tests
+Line 535:   [92m139 passed[39m
+Line 536:   [91m  1 failed[39m
+Line 537: [91m[1m​[22m[39m
+Line 538: [91m[1mPlugin "netlify-plugin-checklinks" failed                     [22m[39m
+Line 539: [91m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 540: ​
+Line 541:   [31m[1mError message[22m[39m
+Line 542:   Error: Links checking failed
+Line 543: ​
+Line 544:   [31m[1mPlugin details[22m[39m
+Line 545:   Package:        netlify-plugin-checklinks
+Line 546:   Version:        4.1.1
+Line 547:   Repository:     git://github.com/munter/netlify-plugin-checklinks.git
+Line 548:   npm link:       https://www.npmjs.com/package/netlify-plugin-checklinks
+Line 549:   Report issues:  https://github.com/munter/netlify-plugin-checklinks/issues
+Line 550: ​
+Line 551:   [31m[1mError location[22m[39m
+Line 552:   In "onPostBuild" event in "netlify-plugin-checklinks" from Netlify app
+Line 553: ​
+Line 554:   [31m[1mResolved config[22m[39m
+Line 555:   build:
+Line 556:     command: ./netlify-build.sh
+Line 557:     commandOrigin: config
+Line 558:     processing:
+Line 559:       skip_processing: true
+Line 560:     publish: /opt/build/repo/dist/client
+Line 561:     publishOrigin: config
+Line 571:       origin: ui
+Line 572:       package: '@netlify/plugin-sitemap'
+Line 573:     - inputs: {}
+Line 574:       origin: ui
+Line 575:       package: netlify-plugin-subfont
+Line 576:     - inputs: {}
+Line 577:       origin: ui
+Line 578:       package: '@netlify/plugin-lighthouse'
+Line 579:   redirects:
+Line 580:     - from: /*
+      status: 200
+      to: /index.html
+  redirectsOrigin: config
+Line 581: Build failed due to a user error: Build script returned non-zero exit code: 2
+Line 582: Failing build: Failed to build site
+Line 583: Finished processing build request in 37.548s
+Line 584: Failed during stage 'building site': Build script returned non-zero exit code: 2
+
+Netlify has analyzed the error and provided the following guidance:
+
+**Diagnosis:**
+The build failed with the following error:
+```
+✖ FAIL load dist/client/mood-hub
+|   operator: load
+|   expected: 200 dist/client/mood-hub
+|     actual: ENOENT: no such file or directory, open '/opt/build/repo/dist/client/mood-hub'
+```
+
+**Cause of the Error:**
+The build failed to load the file `dist/client/mood-hub` as it was not found.
+
+**Solution:**
+1. Verify that the file `dist/client/mood-hub` is being generated and included in the build output correctly.
+2. If the file is missing, check if it is part of the build configuration or if there are any issues with the file generation process.
+3. Ensure that the necessary build steps are correctly generating the required file.
+4. If `mood-hub` is a custom file, make sure it is included in the build process to be generated.
+5. If `mood-hub` is a static file that needs to be served, ensure it is present in the correct location within the project directory.
+
+After verifying the above points, run the build process again to check if the issue is resolved.

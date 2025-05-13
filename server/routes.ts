@@ -526,14 +526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const emotionStoryRoutes = (await import('./routes/emotion-story-routes')).default;
     app.use(emotionStoryRoutes);
     
-    // Import and register Perplexity AI emotion analysis routes
-    try {
-      const perplexityAnalysisRoutes = (await import('./routes/perplexity-analysis-routes')).default;
-      app.use(perplexityAnalysisRoutes);
-      console.log("Perplexity AI emotion analysis routes registered successfully");
-    } catch (error) {
-      console.error("Error registering Perplexity analysis routes:", error);
-    }
+    // Perplexity AI emotion analysis routes removed
     
     console.log("Account and subscription management routes registered successfully");
     console.log("NFT token pool system routes registered successfully");

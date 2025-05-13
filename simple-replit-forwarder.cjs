@@ -4,8 +4,8 @@
  * to solve Replit WebView connectivity issues.
  */
 
-import http from 'http';
-import { writeFileSync } from 'fs';
+const http = require('http');
+const fs = require('fs');
 
 // Log helper
 function log(message) {
@@ -52,7 +52,7 @@ server.listen(3000, '0.0.0.0', () => {
   log('MoodLync port forwarder running on port 3000, forwarding to port 5000');
   
   // Save the process ID for easy termination
-  writeFileSync('simple-forwarder.pid', process.pid.toString());
+  fs.writeFileSync('simple-forwarder.pid', process.pid.toString());
   
   log('PID saved to simple-forwarder.pid');
 });

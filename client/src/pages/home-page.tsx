@@ -13,6 +13,7 @@ import MainLayout from '@/components/layout/main-layout';
 import Footer from '@/components/footer';
 import { EmotionType as LibEmotionType, emotions } from '@/lib/emotions';
 import { EmotionType as ImprintEmotionType } from '@/types/imprints';
+import { capitalizedToLowercase, normalizeEmotion } from '@/lib/emotion-bridge';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
 import { useSubscription } from '@/hooks/use-subscription';
@@ -112,8 +113,19 @@ export default function HomePage() {
     },
   });
 
-  const handleEmotionChange = (emotion: LibEmotionType) => {
-    updateEmotionMutation.mutate(emotion);
+  // Use a bridge function to handle the type conversion between the two emotion type formats
+  const handleEmotionChange = (emotion: any) => {
+    // We're getting a capitalized emotion name from the modal but need lowercase for our API
+    let normalizedEmotion: string = 'neutral';
+    
+    if (typeof emotion === 'string') {
+      // Use the emotion bridge to normalize between formats
+      normalizedEmotion = normalizeEmotion(emotion).toLowerCase();
+      // Convert first letter to lowercase for our API
+      normalizedEmotion = normalizedEmotion.charAt(0).toLowerCase() + normalizedEmotion.slice(1);
+    }
+    
+    updateEmotionMutation.mutate(normalizedEmotion as LibEmotionType);
     setIsModalOpen(false);
   };
 
