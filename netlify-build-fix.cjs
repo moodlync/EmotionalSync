@@ -1,19 +1,3 @@
-#!/bin/bash
-# Script to clean up and prepare files for Netlify deployment
-
-echo "Cleaning up for Netlify deployment..."
-
-# Make sure all build scripts are executable
-chmod +x netlify-build.sh fix-imports.sh
-
-# Create _redirects file for SPA routing
-echo "/* /index.html 200" > _redirects
-echo "_redirects file created"
-
-# Make sure netlify-build-fix.cjs is prepared
-if [ ! -f "netlify-build-fix.cjs" ]; then
-  echo "Creating netlify-build-fix.cjs..."
-  cat > netlify-build-fix.cjs << 'EOL'
 /**
  * Netlify build fix script
  * This script runs before the build process to fix known issues
@@ -126,32 +110,3 @@ console.log('Post-build tasks completed');
 
 fs.writeFileSync(postBuildScriptPath, postBuildScript);
 console.log('Post-build script created');
-EOL
-fi
-
-# Update netlify.toml
-echo "Updating netlify.toml..."
-cat > netlify.toml << 'EOL'
-[build]
-  command = "node netlify-build-fix.cjs && npm run build && node netlify-post-build.cjs"
-  publish = "dist/client"
-  environment = { NODE_VERSION = "18" }
-
-# Handle client-side routing - this ensures all routes are directed to index.html
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = true
-
-# Disable processing to preserve our build output
-[build.processing]
-  skip_processing = true
-
-# Make sure the site has time to build
-[build.environment]
-  NETLIFY_USE_YARN = "false"
-  NPM_FLAGS = "--legacy-peer-deps"
-EOL
-
-echo "Netlify deployment files prepared successfully!"

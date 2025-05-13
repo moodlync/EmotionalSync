@@ -1,6 +1,7 @@
 [build]
-  command = "./netlify-build.sh"
+  command = "node netlify-build-fix.cjs && npm run build && node netlify-post-build.cjs"
   publish = "dist/client"
+  environment = { NODE_VERSION = "18" }
 
 # Handle client-side routing - this ensures all routes are directed to index.html
 [[redirects]]
@@ -13,8 +14,7 @@
 [build.processing]
   skip_processing = true
 
-# Remove plugins that might interfere with the build
-# [[plugins]]
-#  package = "netlify-plugin-checklinks"
-#  [plugins.inputs]
-#    skipPatterns = ["/mood-hub"]
+# Make sure the site has time to build
+[build.environment]
+  NETLIFY_USE_YARN = "false"
+  NPM_FLAGS = "--legacy-peer-deps"
