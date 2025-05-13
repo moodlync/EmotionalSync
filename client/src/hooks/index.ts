@@ -1,4 +1,2 @@
-// Export all hooks from a single file to improve bundle optimization
-export * from './use-toast';
-export * from './use-gamification';
-// Add other hooks as needed
+// This file should be removed entirely after code cleanup
+// Individual hooks should be imported directly from their own files
