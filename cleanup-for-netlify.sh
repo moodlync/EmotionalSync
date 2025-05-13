@@ -135,7 +135,6 @@ cat > netlify.toml << 'EOL'
 [build]
   command = "node netlify-build-fix.cjs && npm run build && node netlify-post-build.cjs"
   publish = "dist/client"
-  environment = { NODE_VERSION = "18" }
 
 # Handle client-side routing - this ensures all routes are directed to index.html
 [[redirects]]
@@ -150,6 +149,7 @@ cat > netlify.toml << 'EOL'
 
 # Make sure the site has time to build
 [build.environment]
+  NODE_VERSION = "18"
   NETLIFY_USE_YARN = "false"
   NPM_FLAGS = "--legacy-peer-deps"
 EOL
