@@ -7,7 +7,7 @@
  * 3. Providing hooks and utilities for emotion data consistency
  */
 
-import { emotions, validateEmotion } from './emotions';
+import { emotions, validateEmotion, getEmotionIcon } from './emotions';
 
 // Types
 export interface MoodData {
@@ -111,8 +111,7 @@ export function capitalizedToLowercase(emotion: string): string {
  * Legacy support for emotion wheel component
  */
 export function getEmotionEmoji(emotion: string): string {
-  // Forward to emotions library
-  const { getEmotionIcon } = require('./emotions');
+  // Forward to emotions library - using import instead of require for ES modules
   return getEmotionIcon(emotion);
 }
 
