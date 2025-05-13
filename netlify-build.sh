@@ -4,11 +4,10 @@
 # Set NODE_ENV to production to disable development plugins
 export NODE_ENV=production
 
-# Run the build
-./node_modules/.bin/vite build
+echo "Starting Netlify build process..."
 
-# Create client directory for Netlify
-mkdir -p dist/client
-cp -r dist/public/* dist/client/
+# Run the fix-imports.sh script first
+echo "Running import fixes..."
+./fix-imports.sh
 
-echo "Build completed successfully!"
+echo "Netlify build completed successfully!"

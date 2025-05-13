@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync - Emotion Hub</title>
+  <style>
+    /* Core styles */
+    :root {
+      --primary: #4D4DE3;
+      --primary-hover: #3535B5;
+      --background: #FFFFFF;
+      --foreground: #0F172A;
+      --muted: #F1F5F9;
+      --muted-foreground: #64748B;
+      --card: #FFFFFF;
+      --card-foreground: #0F172A;
+      --border: #E2E8F0;
+      --input: #E2E8F0;
+      --border-radius: 8px;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.2s ease;
+    }
+    
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #0F172A;
+        --foreground: #F8FAFC;
+        --muted: #1E293B;
+        --muted-foreground: #94A3B8;
+        --card: #1E293B;
+        --card-foreground: #F8FAFC;
+        --border: #334155;
+        --input: #334155;
+      }
+    }
+    
+    /* Base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      line-height: 1.5;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, #4D4DE3 0%, #7878FF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+    
+    .header p {
+      color: var(--muted-foreground);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 20px;
+    }
+    
+    @media (min-width: 640px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    .card {
+      background-color: var(--card);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      margin-bottom: 16px;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .card-description {
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+    }
+    
+    .card-content {
+      margin-bottom: 16px;
+    }
+    
+    .card-footer {
+      margin-top: 16px;
+    }
+    
+    .button {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 10px 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+      text-decoration: none;
+      width: 100%;
+    }
+    
+    .button:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    .emotion-tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+    
+    .tag-happy {
+      background-color: #FFD700;
+      color: #7A4100;
+    }
+    
+    .tag-sad {
+      background-color: #A0C4FF;
+      color: #2A3C5F;
+    }
+    
+    .tag-angry {
+      background-color: #FF7D7D;
+      color: #6F0000;
+    }
+    
+    .tag-anxious {
+      background-color: #FFD39A;
+      color: #704200;
+    }
+    
+    .tag-excited {
+      background-color: #FFA9F9;
+      color: #6A008D;
+    }
+    
+    .tag-neutral {
+      background-color: #E0E0E0;
+      color: #424242;
+    }
+    
+    .footer {
+      margin-top: 60px;
+      text-align: center;
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+    }
+    
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Emotion Hub</h1>
+      <p>Your central destination for all emotion-related tools, insights, and connections.</p>
+    </div>
+    
+    <div class="grid">
+      <!-- Emotion Tracking Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Emotion Tracking</div>
+          <div class="card-description">Record and monitor your emotional journey</div>
+        </div>
+        <div class="card-content">
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px;">
+            <span class="emotion-tag tag-happy">Happy</span>
+            <span class="emotion-tag tag-sad">Sad</span>
+            <span class="emotion-tag tag-angry">Angry</span>
+            <span class="emotion-tag tag-anxious">Anxious</span>
+            <span class="emotion-tag tag-excited">Excited</span>
+            <span class="emotion-tag tag-neutral">Neutral</span>
+          </div>
+          <p style="font-size: 0.875rem; color: var(--muted-foreground);">
+            Track your emotions over time and gain insights into your emotional patterns and triggers.
+          </p>
+        </div>
+        <div class="card-footer">
+          <a href="/emotion-tracker" class="button">Track Now</a>
+        </div>
+      </div>
+
+      <!-- Mood-Based Chat Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Mood-Based Chat</div>
+          <div class="card-description">Connect with others feeling similar emotions</div>
+        </div>
+        <div class="card-content">
+          <p style="font-size: 0.875rem; color: var(--muted-foreground);">
+            Join chat rooms based on your current emotional state and connect with others who understand exactly how you feel.
+          </p>
+        </div>
+        <div class="card-footer">
+          <a href="#" class="button" onclick="alert('Feature coming soon!'); return false;">Enter Chat</a>
+        </div>
+      </div>
+
+      <!-- Emotional Journal Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Emotional Journal</div>
+          <div class="card-description">Document your emotional experiences</div>
+        </div>
+        <div class="card-content">
+          <p style="font-size: 0.875rem; color: var(--muted-foreground);">
+            Keep a private journal of your emotional experiences, triggers, and reflections to promote greater self-awareness.
+          </p>
+        </div>
+        <div class="card-footer">
+          <a href="/journal" class="button">Start Writing</a>
+        </div>
+      </div>
+
+      <!-- Global Emotion Map Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Global Emotion Map</div>
+          <div class="card-description">See emotions around the world</div>
+        </div>
+        <div class="card-content">
+          <p style="font-size: 0.875rem; color: var(--muted-foreground);">
+            Explore a real-time visualization of emotions being experienced by users across the globe.
+          </p>
+        </div>
+        <div class="card-footer">
+          <a href="#" class="button" onclick="alert('Feature coming soon!'); return false;">View Map</a>
+        </div>
+      </div>
+
+      <!-- Token Economy Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Token Economy</div>
+          <div class="card-description">Earn rewards for emotional growth</div>
+        </div>
+        <div class="card-content">
+          <p style="font-size: 0.875rem; color: var(--muted-foreground);">
+            Earn tokens through consistent tracking, journaling, and participation that can be redeemed for premium features.
+          </p>
+        </div>
+        <div class="card-footer">
+          <a href="/token-center" class="button">Token Center</a>
+        </div>
+      </div>
+
+      <!-- Emotional NFTs Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Emotional NFTs</div>
+          <div class="card-description">Exclusive digital collectibles</div>
+        </div>
+        <div class="card-content">
+          <p style="font-size: 0.875rem; color: var(--muted-foreground);">
+            Premium members earn unique NFTs that evolve with your emotional journey and reflect your growth.
+          </p>
+        </div>
+        <div class="card-footer">
+          <a href="#" class="button" onclick="alert('Feature coming soon!'); return false;">View Collection</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>
+        <a href="/">MoodLync Home</a> &bull;
+        <a href="/profile">My Profile</a> &bull;
+        <a href="/premium">Premium Features</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

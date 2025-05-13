@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync - Direct Mood Selector</title>
+  <style>
+    /* CSS Variables */
+    :root {
+      /* Core colors */
+      --primary: #4D4DE3;
+      --primary-hover: #3535B5;
+      --background: #FFFFFF;
+      --foreground: #0F172A;
+      --muted: #F1F5F9;
+      --muted-foreground: #64748B;
+      --card: #FFFFFF;
+      --card-foreground: #0F172A;
+      --border: #E2E8F0;
+      --input: #E2E8F0;
+      
+      /* Emotion-specific colors */
+      --joy-color: #FFDE7D;
+      --joy-gradient-start: #FFC837;
+      --joy-gradient-end: #FF8008;
+      --joy-text: #7A4100;
+      
+      --sadness-color: #A0C4FF;
+      --sadness-gradient-start: #9BAFD9;
+      --sadness-gradient-end: #6D83B9;
+      --sadness-text: #2A3C5F;
+      
+      --anger-color: #FF7D7D;
+      --anger-gradient-start: #FF4141;
+      --anger-gradient-end: #D10000;
+      --anger-text: #6F0000;
+      
+      --anxiety-color: #FFD39A;
+      --anxiety-gradient-start: #FFB75E;
+      --anxiety-gradient-end: #ED8F03;
+      --anxiety-text: #704200;
+      
+      --excitement-color: #FFA9F9;
+      --excitement-gradient-start: #FF67FF;
+      --excitement-gradient-end: #C840FF;
+      --excitement-text: #6A008D;
+      
+      --neutral-color: #E0E0E0;
+      --neutral-gradient-start: #BDBDBD;
+      --neutral-gradient-end: #9E9E9E;
+      --neutral-text: #424242;
+      
+      /* Other variables */
+      --container-width: 600px;
+      --border-radius: 8px;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.2s ease;
+    }
+    
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #0F172A;
+        --foreground: #F8FAFC;
+        --muted: #1E293B;
+        --muted-foreground: #94A3B8;
+        --card: #1E293B;
+        --card-foreground: #F8FAFC;
+        --border: #334155;
+        --input: #334155;
+      }
+    }
+    
+    /* Base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      line-height: 1.5;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: var(--container-width);
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, #4D4DE3 0%, #F64B88 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+    
+    .header p {
+      color: var(--muted-foreground);
+      font-size: 1rem;
+    }
+    
+    /* Card styles */
+    .card {
+      background-color: var(--card);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: var(--transition);
+      border: 1px solid var(--border);
+    }
+    
+    .card-header {
+      margin-bottom: 16px;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .card-description {
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+    }
+    
+    /* Emotion wheel styles */
+    .emotion-wheel {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    
+    .emotion-button {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+      overflow: hidden;
+    }
+    
+    .emotion-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+      border-radius: var(--border-radius);
+    }
+    
+    .emotion-button:hover::before {
+      opacity: 1;
+    }
+    
+    .emotion-button.selected {
+      transform: scale(1.05);
+    }
+    
+    .emotion-button.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: var(--primary);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .emotion-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+    
+    .emotion-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    
+    /* Emotion-specific styles */
+    .emotion-joy::before {
+      background: linear-gradient(135deg, var(--joy-gradient-start), var(--joy-gradient-end));
+    }
+    
+    .emotion-joy {
+      color: var(--joy-text);
+    }
+    
+    .emotion-sadness::before {
+      background: linear-gradient(135deg, var(--sadness-gradient-start), var(--sadness-gradient-end));
+    }
+    
+    .emotion-sadness {
+      color: var(--sadness-text);
+    }
+    
+    .emotion-anger::before {
+      background: linear-gradient(135deg, var(--anger-gradient-start), var(--anger-gradient-end));
+    }
+    
+    .emotion-anger {
+      color: var(--anger-text);
+    }
+    
+    .emotion-anxiety::before {
+      background: linear-gradient(135deg, var(--anxiety-gradient-start), var(--anxiety-gradient-end));
+    }
+    
+    .emotion-anxiety {
+      color: var(--anxiety-text);
+    }
+    
+    .emotion-excitement::before {
+      background: linear-gradient(135deg, var(--excitement-gradient-start), var(--excitement-gradient-end));
+    }
+    
+    .emotion-excitement {
+      color: var(--excitement-text);
+    }
+    
+    .emotion-neutral::before {
+      background: linear-gradient(135deg, var(--neutral-gradient-start), var(--neutral-gradient-end));
+    }
+    
+    .emotion-neutral {
+      color: var(--neutral-text);
+    }
+    
+    /* Intensity slider styles */
+    .slider-container {
+      margin-bottom: 24px;
+    }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .slider-label span {
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+    }
+    
+    .intensity-slider {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--muted);
+      border-radius: 4px;
+      outline: none;
+    }
+    
+    .intensity-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .intensity-slider::-webkit-slider-thumb:hover {
+      background: var(--primary-hover);
+      transform: scale(1.1);
+    }
+    
+    .intensity-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+    }
+    
+    .intensity-slider::-moz-range-thumb:hover {
+      background: var(--primary-hover);
+      transform: scale(1.1);
+    }
+    
+    /* Current mood display */
+    .current-mood {
+      padding: 24px;
+      border-radius: var(--border-radius);
+      margin-bottom: 24px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    
+    .mood-emoji {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+    
+    .mood-details h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .mood-description {
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+    
+    .mood-intensity {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    /* Button styles */
+    .button {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 12px 24px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+      width: 100%;
+    }
+    
+    .button:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+    
+    /* Note styles */
+    .note {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      text-align: center;
+    }
+    
+    /* Footer styles */
+    .footer {
+      margin-top: 48px;
+      text-align: center;
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+    }
+    
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--card);
+      border-left: 4px solid var(--primary);
+      color: var(--card-foreground);
+      padding: 16px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 320px;
+      z-index: 1000;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .toast-message {
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+    }
+    
+    /* Sync indicator styles */
+    .sync-indicator {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: rgba(77, 77, 227, 0.9);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+    
+    .sync-indicator.active {
+      opacity: 1;
+    }
+    
+    .sync-icon {
+      display: inline-block;
+      font-size: 16px;
+      animation: spin 1s infinite linear;
+    }
+    
+    /* Animations */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>MoodLync Direct Mood Selector</h1>
+      <p>Select your current emotional state to track and connect with others</p>
+    </div>
+    
+    <div class="card fade-in">
+      <div class="card-header">
+        <div class="card-title">Your Current Mood</div>
+        <div class="card-description">This is how you're feeling right now</div>
+      </div>
+      
+      <div id="current-mood" class="current-mood">
+        <span id="mood-emoji" class="mood-emoji">😐</span>
+        <div class="mood-details">
+          <h3 id="mood-name">Neutral</h3>
+          <p id="mood-description" class="mood-description">Feeling neither positive nor negative</p>
+          <div class="mood-intensity">
+            Intensity: <span id="intensity-display">5</span> out of 10
+          </div>
+        </div>
+      </div>
+      
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>Mild</span>
+          <span>Moderate</span>
+          <span>Intense</span>
+        </div>
+        <input 
+          type="range" 
+          min="1" 
+          max="10" 
+          value="5" 
+          class="intensity-slider" 
+          id="intensity-slider"
+          oninput="updateIntensity(this.value)"
+        >
+      </div>
+    </div>
+    
+    <div class="card fade-in">
+      <div class="card-header">
+        <div class="card-title">How Are You Feeling?</div>
+        <div class="card-description">Select your current emotional state</div>
+      </div>
+      
+      <div class="emotion-wheel" id="emotion-wheel">
+        <!-- Emotion buttons will be added via JavaScript -->
+      </div>
+      
+      <button class="button" id="save-button">
+        Save Mood
+      </button>
+      
+      <div class="note">
+        Your emotional data is stored securely and used to provide personalized experiences.
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>
+        <a href="/mood-hub">Back to Mood Hub</a> &bull;
+        <a href="/">MoodLync Home</a>
+      </p>
+    </div>
+  </div>
+  
+  <div id="toast" class="toast">
+    <div class="toast-title" id="toast-title">Mood Updated</div>
+    <div class="toast-message" id="toast-message">Your mood has been saved successfully!</div>
+  </div>
+  
+  <!-- Sync indicator -->
+  <div id="sync-indicator" class="sync-indicator">
+    <span class="sync-icon">↻</span>
+    <span class="sync-text">Syncing with other selectors...</span>
+  </div>
+  
+  <!-- Include shared mood functions -->
+  <script src="/assets/js/mood-shared.js"></script>
+  
+  <script>
+    // DOM Elements
+    const emotionWheel = document.getElementById('emotion-wheel');
+    const currentMood = document.getElementById('current-mood');
+    const moodEmoji = document.getElementById('mood-emoji');
+    const moodName = document.getElementById('mood-name');
+    const moodDescription = document.getElementById('mood-description');
+    const intensityDisplay = document.getElementById('intensity-display');
+    const intensitySlider = document.getElementById('intensity-slider');
+    const saveButton = document.getElementById('save-button');
+    const toast = document.getElementById('toast');
+    const toastTitle = document.getElementById('toast-title');
+    const toastMessage = document.getElementById('toast-message');
+    const syncIndicator = document.getElementById('sync-indicator');
+    
+    // App state - using the shared library
+    let currentEmotion = "Neutral";
+    let currentIntensity = 5;
+    
+    // Mapping from emotion name to CSS class
+    const emotionToClass = {
+      'Joy': 'emotion-joy',
+      'Sadness': 'emotion-sadness',
+      'Anger': 'emotion-anger',
+      'Anxiety': 'emotion-anxiety',
+      'Excitement': 'emotion-excitement',
+      'Neutral': 'emotion-neutral'
+    };
+    
+    // Initialize the emotion wheel
+    function initEmotionWheel() {
+      let wheelHTML = '';
+      
+      for (const key of MoodLyncShared.PRIMARY_EMOTIONS) {
+        const emotion = MoodLyncShared.EMOTIONS[key];
+        wheelHTML += `
+          <div 
+            class="emotion-button ${emotionToClass[key]} ${key === currentEmotion ? 'selected' : ''}" 
+            data-emotion="${key}"
+          >
+            <span class="emotion-icon">${emotion.emoji}</span>
+            <span class="emotion-name">${emotion.name}</span>
+          </div>
+        `;
+      }
+      
+      emotionWheel.innerHTML = wheelHTML;
+      
+      // Add event listeners to emotion buttons
+      document.querySelectorAll('.emotion-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const emotion = button.getAttribute('data-emotion');
+          selectEmotion(emotion);
+        });
+      });
+    }
+    
+    // Select an emotion
+    function selectEmotion(emotionKey, syncToOtherImplementations = true) {
+      if (!MoodLyncShared.EMOTIONS[emotionKey]) return;
+      
+      currentEmotion = emotionKey;
+      
+      // Update the current mood display
+      updateMoodDisplay();
+      
+      // Update the selected button
+      document.querySelectorAll('.emotion-button').forEach(button => {
+        button.classList.toggle('selected', button.getAttribute('data-emotion') === emotionKey);
+      });
+      
+      // Sync to other implementations if requested
+      if (syncToOtherImplementations) {
+        MoodLyncShared.saveMoodToLocalStorage(emotionKey, currentIntensity);
+        console.log(`Synced mood to other implementations: ${emotionKey} (${currentIntensity})`);
+      }
+    }
+    
+    // Update intensity
+    function updateIntensity(value, syncToOtherImplementations = true) {
+      currentIntensity = parseInt(value);
+      intensityDisplay.textContent = currentIntensity;
+      
+      // Sync to other implementations if requested and we have a current emotion
+      if (syncToOtherImplementations && currentEmotion) {
+        MoodLyncShared.saveMoodToLocalStorage(currentEmotion, currentIntensity);
+        console.log(`Synced intensity to other implementations: ${currentEmotion} (${currentIntensity})`);
+      }
+    }
+    
+    // Update the mood display
+    function updateMoodDisplay() {
+      const emotion = MoodLyncShared.EMOTIONS[currentEmotion];
+      
+      moodEmoji.textContent = emotion.emoji;
+      moodName.textContent = emotion.name;
+      moodDescription.textContent = emotion.description;
+      
+      // Update the background color
+      currentMood.className = `current-mood ${emotionToClass[currentEmotion]}`;
+    }
+    
+    // Save the mood using the shared library
+    function saveMood() {
+      // Show sync indicator animation
+      showSyncIndicator();
+      
+      // Save mood using shared function
+      MoodLyncShared.trackMoodSelection(currentEmotion, currentIntensity);
+      
+      // Dispatch custom event for other components to detect
+      const moodUpdateEvent = new CustomEvent('moodlync:mood-update', {
+        detail: {
+          emotion: currentEmotion,
+          intensity: currentIntensity,
+          source: 'direct-mood-selector.html'
+        },
+        bubbles: true
+      });
+      window.dispatchEvent(moodUpdateEvent);
+      console.log('Dispatched mood update event to other components');
+      
+      // Show toast notification
+      showToast('Mood Saved', `Your ${currentEmotion.toLowerCase()} mood has been recorded with intensity ${currentIntensity}/10`);
+    }
+    
+    // Show toast notification using shared library
+    function showToast(title, message) {
+      // Use shared implementation for toast notifications
+      MoodLyncShared.showToast(title, message);
+      
+      // Also update the DOM-based toast for this specific implementation
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+      
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Show the sync indicator
+    function showSyncIndicator() {
+      if (syncIndicator) {
+        syncIndicator.classList.add('active');
+        
+        // Automatically hide after 2 seconds
+        setTimeout(() => {
+          hideSyncIndicator();
+        }, 2000);
+      }
+    }
+    
+    // Hide the sync indicator
+    function hideSyncIndicator() {
+      if (syncIndicator) {
+        syncIndicator.classList.remove('active');
+      }
+    }
+    
+    // Also log to console for debugging
+    console.log('Sync indicator functions registered');
+    
+    // Initialize the app
+    async function init() {
+      try {
+        // Try to fetch emotion data from server first
+        const emotionData = await MoodLyncShared.fetchMoodData();
+        console.log('Emotion data fetched from server:', emotionData);
+        
+        // Set up the emotion wheel
+        initEmotionWheel();
+        
+        // Set up the save button
+        saveButton.addEventListener('click', saveMood);
+        
+        // Set up intensity slider event listener
+        intensitySlider.addEventListener('input', (event) => {
+          updateIntensity(event.target.value);
+        });
+        
+        // Set up listener for mood updates from other implementations (React components)
+        window.addEventListener('moodlync:mood-update', (event) => {
+          const { emotion, intensity, source } = event.detail;
+          console.log(`Received external mood update: ${emotion} (${intensity}) from ${source}`);
+          
+          // Only update if it's different from current state
+          if (emotion !== currentEmotion || intensity !== currentIntensity) {
+            // Show sync indicator animation
+            showSyncIndicator();
+            
+            currentEmotion = MoodLyncShared.normalizeEmotion(emotion);
+            currentIntensity = intensity;
+            
+            // Update UI without triggering another update event
+            selectEmotion(currentEmotion, false);
+            updateIntensity(currentIntensity);
+            intensitySlider.value = currentIntensity;
+            
+            showToast('Mood Synchronized', `Your mood has been updated to ${currentEmotion} (${currentIntensity}/10) from another selector`);
+          }
+        });
+        
+        // Load existing mood data if available
+        const savedMood = MoodLyncShared.loadMoodFromLocalStorage();
+        if (savedMood) {
+          currentEmotion = MoodLyncShared.normalizeEmotion(savedMood.emotion);
+          currentIntensity = savedMood.intensity || 5;
+          
+          // Update UI
+          selectEmotion(currentEmotion);
+          updateIntensity(currentIntensity);
+          intensitySlider.value = currentIntensity;
+        } else {
+          // Set initial mood display if no saved data
+          updateMoodDisplay();
+        }
+        
+        // Set default intensity if not loaded from storage
+        if (!savedMood) {
+          intensitySlider.value = currentIntensity;
+          intensityDisplay.textContent = currentIntensity;
+        }
+        
+        console.log('Direct mood selector initialized successfully');
+      } catch (error) {
+        console.error('Error initializing direct mood selector:', error);
+      }
+    }
+    
+    // Run the initialization when the DOM is ready
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

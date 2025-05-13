@@ -1,0 +1,95 @@
+Create a feedback section in the footer under connect section below customer support options. User feedback loops are essential. Letting free users suggest features makes them feel involved and can guide future development. Plus, it shows that the company values their input.
+
+Very important:
+
+In the user account in the profile section under profile picture when a user try to upload their picture on their profile by taking a picture, once the picture is successfully taken it should be automatically uploaded.
+
+Under account information:  create
+
+Here’s a structured approach to designing the profile section for your app (e.g., MoodSync), including editable fields and locked fields that users cannot modify themselves. This balance ensures security, consistency, and user autonomy while maintaining critical account integrity.
+
+Editable Profile Form Entries
+Allow users to customize their experience while keeping sensitive/immutable data locked.
+1. Personal Information
+* Display Name
+    * Input Type: Text field
+    * Validation: Allow letters, numbers, and spaces; limit to 30 characters.
+* Profile Picture
+    * Input Type: Image upload (crop/resize tool included).
+    * Validation: Accept JPG/PNG, max 5MB.
+* Bio/Description
+    * Input Type: Textarea with character counter.
+    * Validation: Limit to 250 characters.
+2. Preferences
+* Theme/Aesthetic
+    * Input Type: Dropdown or color picker (light/dark mode, accent colors).
+* Notification Preferences
+    * Input Type: Toggles for "Daily Mood Reminders," "Weekly Insights," etc.
+* Language
+    * Input Type: Dropdown with app-supported languages.
+3. Social Integration (Optional)
+* Linked Social Accounts
+    * Input Type: "Connect" buttons for Google, Apple, Spotify, etc.
+    * Note: Users can disconnect accounts but not edit third-party credentials.
+* Public Profile Link
+    * Input Type: Custom URL slug (e.g., moodsync.com/@username).
+    * Validation: Unique, alphanumeric, underscores allowed.
+4. Wellness Goals
+* Mood Goals
+    * Input Type: Pre-set options (e.g., "Improve mindfulness," "Track stress triggers").
+* Daily Check-In Time
+    * Input Type: Time picker for reminders.
+
+Locked Fields (Immutable Data)
+These fields are set during account creation and cannot be changed by users to prevent fraud, data corruption, or security risks.
+1. Account Identification
+* User ID
+    * Example: USR-5X9P2LM (auto-generated unique identifier).
+* Registered Email
+    * Reason: Critical for login and account recovery.
+    * Note: Allow email changes only via support request with verification.
+* Username (if applicable)
+    * Reason: Prevents impersonation and ensures unique identifiers.
+2. Security & Compliance
+* Account Creation Date
+    * Display: Read-only field (e.g., "Member since Jan 2023").
+* Two-Factor Authentication (2FA) Method
+    * Example: "Authenticator app" or "SMS" – users can enable/disable 2FA but not edit the method without re-verification.
+3. Third-Party Data
+* OAuth Provider
+    * Example: "Signed up with Google" – users can’t switch providers without creating a new account.
+* Third-Party User ID
+    * Example: Google’s internal user ID – hidden from users but stored for integration.
+4. Usage Metadata
+* Account Tier
+    * Example: "Free" or "Premium" – users can’t self-upgrade/downgrade without payment.
+* Data Region
+    * Example: "EU" (for GDPR compliance) – set based on signup location.
+
+Form Design & UX Tips
+1. Locked Fields UI
+    * Display locked fields as read-only with a tooltip explaining why they can’t be edited (e.g., "Contact support to update this").
+    * Use muted colors or a lock icon (🔒) to indicate immutability.
+2. Validation & Feedback
+    * Show real-time validation for editable fields (e.g., "Username is available!").
+    * Add a "Revert Changes" button to discard edits.
+3. Security Assurance
+    * Include a note: "Your security is our priority. Locked fields protect your account from unauthorized changes."
+
+Example Profile Form Mockup
+Section 1: Personal Info
+* Profile Picture: [Upload Button]
+* Display Name: [JohnDoe_123] (editable)
+* Bio: [A passionate mood tracker! 🌟] (editable)
+Section 2: Account Security
+* Email: john@example.com (locked 🔒)
+* 2FA Method: Authenticator App (toggle on/off)
+Section 3: Preferences
+* Theme: Dark Mode (dropdown)
+* Daily Check-In Time: 8:00 PM (time picker)
+
+Why This Works
+* User Empowerment: Editable fields let users personalize their experience.
+* Security: Locked fields prevent fraud and accidental data corruption.
+* Transparency: Clear UI cues explain why certain fields are restricted.
+For implementation, use tools like Figma for prototyping or React Hook Form for dynamic validation in development.

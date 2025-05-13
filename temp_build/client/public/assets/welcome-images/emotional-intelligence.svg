@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradViolet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+    <linearGradient id="gradRadial" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#1E293B" stop-opacity="0" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <circle cx="200" cy="200" r="180" fill="#0F172A" opacity="0.9" />
+  <circle cx="200" cy="200" r="160" fill="url(#gradRadial)" />
+  
+  <!-- Brain Visualization -->
+  <g filter="url(#glow)">
+    <!-- Left Hemisphere -->
+    <path d="M160,120 C100,130 120,200 140,240 C160,280 175,290 190,290 C197,290 200,270 200,250" 
+          fill="none" stroke="url(#gradViolet)" stroke-width="5" opacity="0.8"
+          stroke-linecap="round" stroke-linejoin="round" />
+          
+    <!-- Right Hemisphere -->
+    <path d="M240,120 C300,130 280,200 260,240 C240,280 225,290 210,290 C203,290 200,270 200,250" 
+          fill="none" stroke="#6366F1" stroke-width="5" opacity="0.8"
+          stroke-linecap="round" stroke-linejoin="round" />
+          
+    <!-- Brain Connections -->
+    <g opacity="0.9">
+      <line x1="155" y1="150" x2="175" y2="155" stroke="white" stroke-width="1.5" />
+      <line x1="160" y1="180" x2="185" y2="175" stroke="white" stroke-width="1.5" />
+      <line x1="170" y1="210" x2="190" y2="200" stroke="white" stroke-width="1.5" />
+      <line x1="180" y1="240" x2="195" y2="225" stroke="white" stroke-width="1.5" />
+      
+      <line x1="245" y1="150" x2="225" y2="155" stroke="white" stroke-width="1.5" />
+      <line x1="240" y1="180" x2="215" y2="175" stroke="white" stroke-width="1.5" />
+      <line x1="230" y1="210" x2="210" y2="200" stroke="white" stroke-width="1.5" />
+      <line x1="220" y1="240" x2="205" y2="225" stroke="white" stroke-width="1.5" />
+    </g>
+  </g>
+  
+  <!-- Digital Neural Network -->
+  <g>
+    <!-- Data Points -->
+    <circle cx="120" cy="100" r="5" fill="#F472B6" />
+    <circle cx="280" cy="100" r="5" fill="#34D399" />
+    <circle cx="100" cy="200" r="5" fill="#60A5FA" />
+    <circle cx="300" cy="200" r="5" fill="#FBBF24" />
+    <circle cx="120" cy="300" r="5" fill="#A78BFA" />
+    <circle cx="280" cy="300" r="5" fill="#F87171" />
+    
+    <!-- Neural Connections -->
+    <line x1="120" y1="100" x2="200" y2="200" stroke="#F472B6" stroke-width="1" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="3s" repeatCount="indefinite" />
+    </line>
+    <line x1="280" y1="100" x2="200" y2="200" stroke="#34D399" stroke-width="1" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="2.7s" repeatCount="indefinite" />
+    </line>
+    <line x1="100" y1="200" x2="200" y2="200" stroke="#60A5FA" stroke-width="1" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="3.2s" repeatCount="indefinite" />
+    </line>
+    <line x1="300" y1="200" x2="200" y2="200" stroke="#FBBF24" stroke-width="1" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="2.9s" repeatCount="indefinite" />
+    </line>
+    <line x1="120" y1="300" x2="200" y2="200" stroke="#A78BFA" stroke-width="1" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="3.5s" repeatCount="indefinite" />
+    </line>
+    <line x1="280" y1="300" x2="200" y2="200" stroke="#F87171" stroke-width="1" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="3.1s" repeatCount="indefinite" />
+    </line>
+  </g>
+  
+  <!-- Central AI Hub -->
+  <g>
+    <circle cx="200" cy="200" r="30" fill="#1E293B" stroke="url(#gradViolet)" stroke-width="3" />
+    <!-- AI Symbol -->
+    <path d="M180,185 L220,185 M185,215 L215,215 M180,185 L185,215 M220,185 L215,215 M200,185 L200,215" 
+          stroke="white" stroke-width="2" fill="none" />
+    
+    <!-- Scanning Circle -->
+    <circle cx="200" cy="200" r="40" stroke="url(#gradViolet)" stroke-width="1.5" fill="none" opacity="0.6">
+      <animate attributeName="r" values="40;45;40" dur="3s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.6;0.2;0.6" dur="3s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="200" cy="200" r="50" stroke="url(#gradViolet)" stroke-width="1" fill="none" opacity="0.4">
+      <animate attributeName="r" values="50;55;50" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.4;0.1;0.4" dur="4s" repeatCount="indefinite" />
+    </circle>
+  </g>
+  
+  <!-- Emotion Icons -->
+  <g>
+    <circle cx="130" cy="130" r="15" fill="#0F172A" stroke="#F87171" stroke-width="2" />
+    <path d="M124,134 C124,138 136,138 136,134" stroke="#F87171" stroke-width="2" fill="none" />
+    <circle cx="270" cy="130" r="15" fill="#0F172A" stroke="#60A5FA" stroke-width="2" />
+    <path d="M264,126 C264,130 276,130 276,126" stroke="#60A5FA" stroke-width="2" fill="none" transform="rotate(180, 270, 128)" />
+    <circle cx="130" cy="270" r="15" fill="#0F172A" stroke="#FBBF24" stroke-width="2" />
+    <path d="M124,270 L136,270" stroke="#FBBF24" stroke-width="2" />
+    <circle cx="270" cy="270" r="15" fill="#0F172A" stroke="#34D399" stroke-width="2" />
+    <path d="M264,270 C264,266 276,266 276,270" stroke="#34D399" stroke-width="2" fill="none" />
+  </g>
+  
+  <!-- Moving Data Particles -->
+  <g>
+    <circle cx="140" cy="150" r="2" fill="white" opacity="0.8">
+      <animate attributeName="cx" values="140;180;140" dur="7s" repeatCount="indefinite" />
+      <animate attributeName="cy" values="150;190;150" dur="7s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="260" cy="150" r="2" fill="white" opacity="0.8">
+      <animate attributeName="cx" values="260;220;260" dur="6s" repeatCount="indefinite" />
+      <animate attributeName="cy" values="150;190;150" dur="6s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="150" cy="250" r="2" fill="white" opacity="0.8">
+      <animate attributeName="cx" values="150;180;150" dur="8s" repeatCount="indefinite" />
+      <animate attributeName="cy" values="250;210;250" dur="8s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="250" cy="250" r="2" fill="white" opacity="0.8">
+      <animate attributeName="cx" values="250;220;250" dur="7.5s" repeatCount="indefinite" />
+      <animate attributeName="cy" values="250;210;250" dur="7.5s" repeatCount="indefinite" />
+    </circle>
+  </g>
+</svg>

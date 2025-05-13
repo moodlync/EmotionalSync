@@ -1,0 +1,1 @@
+export type FriendStatus = "accepted" | "pending_sent" | "pending_received" | "blocked" | "none";

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync Registration Flow Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.5;
+      color: #333;
+    }
+    h1 {
+      color: #4D4DE3;
+      margin-bottom: 0.5em;
+    }
+    h2 {
+      color: #1A1A2E;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    button {
+      background-color: #4D4DE3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover {
+      background-color: #3737a8;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    #console {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      max-height: 500px;
+      overflow-y: auto;
+      margin-top: 20px;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .success {
+      color: #22c55e;
+      font-weight: bold;
+    }
+    .error {
+      color: #ef4444;
+      font-weight: bold;
+    }
+    .info {
+      color: #3b82f6;
+    }
+    .warning {
+      color: #f59e0b;
+    }
+    .step {
+      font-weight: bold;
+      color: #6366f1;
+    }
+    .clear-button {
+      background-color: #6b7280;
+      margin-right: 10px;
+    }
+    .clear-button:hover {
+      background-color: #4b5563;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    .checkpoint {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .test-data {
+      background-color: #f8fafc;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px dashed #cbd5e1;
+      margin-bottom: 20px;
+    }
+    pre {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>MoodLync Registration Flow Test</h1>
+  <p>This utility helps test the complete user registration flow, step by step.</p>
+  
+  <div class="card">
+    <h2>Test Configuration</h2>
+    <div class="checkpoints">
+      <div class="checkpoint">
+        <input type="checkbox" id="validateOnly" name="validateOnly">
+        <label for="validateOnly">Validation only (don't actually register a user)</label>
+      </div>
+      <div class="checkpoint">
+        <input type="checkbox" id="autoGenerate" name="autoGenerate" checked>
+        <label for="autoGenerate">Auto-generate test user data</label>
+      </div>
+    </div>
+    
+    <div id="testDataContainer" class="test-data">
+      <pre id="testData">{}</pre>
+    </div>
+    
+    <div class="actions">
+      <button class="clear-button" onclick="clearConsole()">Clear Console</button>
+      <button onclick="runTests()">Run Full Registration Test</button>
+      <button onclick="generateNewUser()">Generate New Test User</button>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>Test Console</h2>
+    <div id="console">
+      MoodLync registration test console initialized.
+      Click "Run Full Registration Test" to begin.
+    </div>
+  </div>
+
+  <script>
+    // Console output element
+    const consoleElement = document.getElementById('console');
+    const testDataElement = document.getElementById('testData');
+    
+    // Test user data
+    let testUser = generateTestUser();
+    updateTestDataDisplay();
+    
+    // Helper to log to the console element
+    function log(message, type = '') {
+      const line = document.createElement('div');
+      line.className = type;
+      line.textContent = message;
+      consoleElement.appendChild(line);
+      consoleElement.scrollTop = consoleElement.scrollHeight;
+    }
+    
+    // Clear the console
+    function clearConsole() {
+      consoleElement.innerHTML = 'Console cleared.';
+    }
+    
+    // Generate a unique test user
+    function generateTestUser() {
+      const randomNum = Math.floor(Math.random() * 100000);
+      return {
+        username: `testuser${randomNum}`,
+        password: "Password123!",
+        email: `testuser${randomNum}@example.com`,
+        firstName: "Test",
+        lastName: "User",
+        middleName: "",
+        gender: "prefer_not_to_say",
+        state: "Victoria",
+        country: "Australia"
+      };
+    }
+    
+    // Generate a new test user and update display
+    function generateNewUser() {
+      testUser = generateTestUser();
+      updateTestDataDisplay();
+      log('Generated new test user data', 'info');
+    }
+    
+    // Update the test data display
+    function updateTestDataDisplay() {
+      testDataElement.textContent = JSON.stringify(testUser, null, 2);
+    }
+    
+    // Helper function to make API requests
+    async function makeRequest(url, method, data) {
+      try {
+        log(`Making ${method} request to ${url}`, 'info');
+        if (data) {
+          log(`Request data: ${JSON.stringify(data, null, 2)}`, 'info');
+        }
+        
+        const options = {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        };
+        
+        if (data) {
+          options.body = JSON.stringify(data);
+        }
+        
+        const response = await fetch(url, options);
+        log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+        
+        let responseData;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          responseData = await response.json();
+          log(`Response data: ${JSON.stringify(responseData, null, 2)}`, 'info');
+        } else {
+          const text = await response.text();
+          log(`Response text: ${text.substring(0, 200)}${text.length > 200 ? '...' : ''}`, 'info');
+          responseData = { text: text };
+        }
+        
+        return { 
+          status: response.status, 
+          data: responseData,
+          success: response.status >= 200 && response.status < 300
+        };
+      } catch (error) {
+        log(`Error making request: ${error.message}`, 'error');
+        return { error: error.message };
+      }
+    }
+    
+    // Test the validation endpoint
+    async function testValidation(userData) {
+      log('\nSTEP 1: Testing validation endpoint', 'step');
+      const result = await makeRequest('/api/test-register', 'POST', userData);
+      
+      if (!result.success) {
+        log('Validation test failed', 'error');
+        return false;
+      }
+      
+      log('Validation test passed', 'success');
+      return true;
+    }
+    
+    // Test the health check endpoint
+    async function testHealthCheck() {
+      log('\nSTEP 2: Testing API health check', 'step');
+      const result = await makeRequest('/api/healthcheck', 'GET');
+      
+      if (!result.success) {
+        log('Health check failed', 'error');
+        return false;
+      }
+      
+      log('Health check passed', 'success');
+      return true;
+    }
+    
+    // Test the actual registration endpoint
+    async function testRegistration(userData) {
+      log('\nSTEP 3: Testing actual registration', 'step');
+      const result = await makeRequest('/api/register', 'POST', userData);
+      
+      if (!result.success) {
+        log('Registration failed', 'error');
+        return false;
+      }
+      
+      log('Registration successful', 'success');
+      return true;
+    }
+    
+    // Test login after registration
+    async function testLogin(username, password) {
+      log('\nSTEP 4: Testing login with registered credentials', 'step');
+      const result = await makeRequest('/api/login', 'POST', { 
+        username, 
+        password 
+      });
+      
+      if (!result.success) {
+        log('Login failed', 'error');
+        return false;
+      }
+      
+      log('Login successful', 'success');
+      return true;
+    }
+    
+    // Test user profile endpoint
+    async function testUserProfile() {
+      log('\nSTEP 5: Testing user profile endpoint', 'step');
+      const result = await makeRequest('/api/user', 'GET');
+      
+      if (!result.success) {
+        log('User profile fetch failed', 'error');
+        return false;
+      }
+      
+      log('User profile fetch successful', 'success');
+      return true;
+    }
+    
+    // Test logout
+    async function testLogout() {
+      log('\nSTEP 6: Testing logout', 'step');
+      const result = await makeRequest('/api/logout', 'POST');
+      
+      if (!result.success) {
+        log('Logout failed', 'error');
+        return false;
+      }
+      
+      log('Logout successful', 'success');
+      return true;
+    }
+    
+    // Run the full registration flow test
+    async function runTests() {
+      clearConsole();
+      log('🚀 Starting registration flow test', 'success');
+      log('======================================');
+      
+      // Use auto-generated user or generate a new one
+      if (document.getElementById('autoGenerate').checked) {
+        testUser = generateTestUser();
+        updateTestDataDisplay();
+      }
+      
+      log(`Test user data: ${JSON.stringify(testUser, null, 2)}`, 'info');
+      
+      // Run validation test
+      const validationPassed = await testValidation(testUser);
+      if (!validationPassed) {
+        log('\nTest sequence stopped due to validation failure', 'error');
+        return;
+      }
+      
+      // Run health check
+      const healthCheckPassed = await testHealthCheck();
+      if (!healthCheckPassed) {
+        log('\nTest sequence stopped due to health check failure', 'error');
+        return;
+      }
+      
+      // If validate-only is checked, stop here
+      if (document.getElementById('validateOnly').checked) {
+        log('\n✅ Validation-only test completed successfully', 'success');
+        return;
+      }
+      
+      // Test registration
+      const registrationPassed = await testRegistration(testUser);
+      if (!registrationPassed) {
+        log('\nTest sequence stopped due to registration failure', 'error');
+        return;
+      }
+      
+      // Test login
+      const loginPassed = await testLogin(testUser.username, testUser.password);
+      if (!loginPassed) {
+        log('\nTest sequence stopped due to login failure', 'error');
+        return;
+      }
+      
+      // Test user profile
+      const profilePassed = await testUserProfile();
+      if (!profilePassed) {
+        log('\nTest sequence stopped due to user profile fetch failure', 'error');
+        return;
+      }
+      
+      // Test logout
+      const logoutPassed = await testLogout();
+      if (!logoutPassed) {
+        log('\nTest sequence stopped due to logout failure', 'error');
+        return;
+      }
+      
+      log('\n✨ SUCCESS: Full registration flow test completed successfully!', 'success');
+      log('User registered, logged in, profile retrieved, and logged out.', 'success');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+This is a placeholder for the app-features.mp4 file.
+
+For the welcome page video to work properly, you need to:
+
+1. Add an MP4 video file named "app-features.mp4" to the /client/public/assets/ directory
+2. The video should have an audio track with futuristic music that complements the app's theme
+
+The poster image and controls for the video have already been set up.
