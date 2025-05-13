@@ -1,5 +1,5 @@
 [build]
-  command = "node netlify-build-fix.cjs && npm run build && node netlify-post-build.cjs"
+  command = "./netlify-build.sh"
   publish = "dist/client"
 
 # Handle client-side routing - this ensures all routes are directed to index.html
@@ -18,3 +18,6 @@
   NODE_VERSION = "18"
   NETLIFY_USE_YARN = "false"
   NPM_FLAGS = "--legacy-peer-deps"
+  NODE_ENV = "production"
+  # Set build logging to verbose
+  DEBUG = "netlify:build:*"
