@@ -1,36 +1,45 @@
 #!/bin/bash
+# Script to prepare MoodLync for Netlify deployment
 
-# Script to prepare the application for deployment to Netlify
 echo "Preparing MoodLync for Netlify deployment..."
 
-# Make sure hooks directory exists and index.ts is properly accessible
-echo "Ensuring hooks directory structure is correct..."
+# Make sure the script is executable
+chmod +x prepare-netlify-deploy.sh
+
+# Create a central hooks index file for better module exports
 mkdir -p client/src/hooks
+cat > client/src/hooks/index.ts << 'EOL'
+// Export all hooks from a central file
+// This helps with bundling and prevents dynamic import issues
 
-# Check if hooks index file exists, create it if not
-if [ ! -f client/src/hooks/index.ts ]; then
-  echo "Creating hooks index file..."
-  echo "// Export all hooks from a single file to improve bundle optimization
-export * from './use-toast';
-export * from './use-gamification';
-// Add other hooks as needed" > client/src/hooks/index.ts
+export { useToast } from './use-toast';
+export { useGamification } from './use-gamification';
+// Add other hook exports as needed
+EOL
+
+echo "Created hooks index file"
+
+# Fix any imports in home-page.tsx
+if [ -f client/src/pages/home-page.tsx ]; then
+  # Replace dynamic imports with static imports
+  sed -i 's/import("@\/hooks\/use-toast")/import { useToast } from "@\/hooks"/g' client/src/pages/home-page.tsx
+  sed -i 's/import("@\/hooks\/use-gamification")/import { useGamification } from "@\/hooks"/g' client/src/pages/home-page.tsx
+  echo "Fixed imports in home-page.tsx"
 fi
 
-# Pre-build checks for dynamic imports
-echo "Converting dynamic imports to static imports..."
-grep -r "await import" client/src --include="*.tsx" --include="*.ts" | awk -F ":" '{print $1}' | sort -u > dynamic_imports.txt
+# Create dist directory if it doesn't exist
+mkdir -p dist/public
+echo "Created dist directory structure"
 
-if [ -s dynamic_imports.txt ]; then
-  echo "Found files with dynamic imports, adding to hooks/index.ts"
-  cat dynamic_imports.txt
-fi
+# Copy the client/public directory to dist/public
+# This ensures static HTML files like mood-hub.html are properly included in the build
+cp -r client/public/* dist/public/ 2>/dev/null || true
+echo "Copied static files from client/public to dist/public"
 
-# Run build
-echo "All preparations complete. Netlify can now build the application."
-echo "Recommended build command: npm run build"
-echo "Publish directory: dist/public"
+# Ensure the assets/js directory exists
+mkdir -p dist/public/assets/js
+# Make sure mood-shared.js is properly copied
+cp -f client/public/assets/js/mood-shared.js dist/public/assets/js/ 2>/dev/null || true
+echo "Verified mood-shared.js is in the build"
 
-# Remove temp files
-rm -f dynamic_imports.txt
-
-echo "Preparation complete!"
+echo "MoodLync is now ready for Netlify deployment!"

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoodLync - Mood Hub</title>
+  <style>
+    /* CSS Variables */
+    :root {
+      /* Core colors */
+      --primary: #4D4DE3;
+      --primary-hover: #3535B5;
+      --background: #FFFFFF;
+      --foreground: #0F172A;
+      --muted: #F1F5F9;
+      --muted-foreground: #64748B;
+      --card: #FFFFFF;
+      --card-foreground: #0F172A;
+      --border: #E2E8F0;
+      --input: #E2E8F0;
+    }
+    
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #0F172A;
+        --foreground: #F8FAFC;
+        --muted: #1E293B;
+        --muted-foreground: #94A3B8;
+        --card: #1E293B;
+        --card-foreground: #F8FAFC;
+        --border: #334155;
+        --input: #334155;
+      }
+    }
+    
+    /* Base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      line-height: 1.5;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, #4D4DE3 0%, #F64B88 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+    
+    .header p {
+      color: var(--muted-foreground);
+      font-size: 1.125rem;
+    }
+    
+    /* Card styles */
+    .card {
+      background-color: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border);
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      margin-bottom: 20px;
+    }
+    
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .card-description {
+      color: var(--muted-foreground);
+      font-size: 1rem;
+    }
+    
+    /* Button styles */
+    .button {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      margin-top: 16px;
+    }
+    
+    .button:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+    
+    /* Link styles */
+    .link {
+      color: var(--primary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Grid layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    
+    /* Footer styles */
+    .footer {
+      margin-top: 48px;
+      text-align: center;
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+      padding: 24px 0;
+    }
+    
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header fade-in">
+      <h1>MoodLync Mood Hub</h1>
+      <p>Track, analyze and connect through your emotional journey</p>
+    </div>
+    
+    <div class="grid fade-in">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Mood Tracker</div>
+          <div class="card-description">Track your emotional state throughout the day</div>
+        </div>
+        <p>Record your emotions and their intensity to gain insights into your emotional patterns over time.</p>
+        <a href="/direct-mood-selector.html" class="button">Track Mood</a>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Emotion Analysis</div>
+          <div class="card-description">Get insights into your emotional patterns</div>
+        </div>
+        <p>View customized analytics and insights based on your emotional data over time.</p>
+        <a href="#" class="button">View Analytics</a>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Connect & Share</div>
+          <div class="card-description">Connect with others based on emotional resonance</div>
+        </div>
+        <p>Find and connect with people experiencing similar emotions or complement your current mood.</p>
+        <a href="#" class="button">Find Connections</a>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>
+        <a href="/">MoodLync Home</a> &bull;
+        <a href="/privacy">Privacy Policy</a> &bull;
+        <a href="/help">Help & Support</a>
+      </p>
+      <p style="margin-top: 8px;">© 2024 MoodLync. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>

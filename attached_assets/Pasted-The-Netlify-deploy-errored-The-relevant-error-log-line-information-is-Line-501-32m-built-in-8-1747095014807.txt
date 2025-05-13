@@ -1,0 +1,103 @@
+The Netlify deploy errored. The relevant error log line information is:
+
+Line 501: [32m✓ built in 8.18s[39m
+Line 502: ​
+Line 503: [90m(build.command completed in 8.6s)[39m
+Line 504: [96m[1m​[22m[39m
+Line 505: [96m[1mFunctions bundling                                            [22m[39m
+Line 506: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 507: ​
+Line 508: Packaging Functions from [36mnetlify/functions[39m directory:
+Line 509:  - api.cjs
+Line 510:  - api.js
+Line 511:  - error-handler.js
+Line 512:  - install.cjs
+Line 513:  - install.js
+Line 514:  - netlify-debug.cjs
+Line 515:  - netlify-debug.js
+Line 516:  - netlify.cjs
+Line 517:  - netlify.js
+Line 518:  - routes.cjs
+Line 519:  - routes.js
+Line 520:  - validate.cjs
+Line 521:  - validate.js
+Line 522: ​
+Line 523: ​
+Line 524: [90m(Functions bundling completed in 1.3s)[39m
+Line 525: Saving cache file manifest for debugging...
+Line 526: Cache file count: 0
+Line 527: Cache manifest saved to dist/public/cache-output.json
+Line 528: Please download the build files to inspect cache-output.json.
+Line 529: Instructions => http://bit.ly/netlify-dl-cache
+Line 530: Failed during stage 'building site': Build script returned non-zero exit code: 2
+Line 531: [92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[91m×[39m[92m.[39m[92m.
+Line 532:   [91m✖ FAIL load dist/public/mood-hub[39m
+Line 533:   [91m|[39m[96m operator:[39m load
+Line 534:   [91m|[39m[96m expected:[39m 200 dist/public/mood-hub
+Line 535:   [91m|[39m[96m   actual:[39m ENOENT: no such file or directory, open '/opt/build/repo/dist/public/mood-hub'
+Line 536:   [91m|[39m[96m       at:[39m dist/public/direct-mood-selector.html:535:18 <a href="/mood-hub">...</a>
+Line 537:   140 tests
+Line 538:   [92m139 passed[39m
+Line 539:   [91m  1 failed[39m
+Line 540: [91m[1m​[22m[39m
+Line 541: [91m[1mPlugin "netlify-plugin-checklinks" failed                     [22m[39m
+Line 542: [91m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 543: ​
+Line 544:   [31m[1mError message[22m[39m
+Line 545:   Error: Links checking failed
+Line 546: ​
+Line 547:   [31m[1mPlugin details[22m[39m
+Line 548:   Package:        netlify-plugin-checklinks
+Line 549:   Version:        4.1.1
+Line 550:   Repository:     git://github.com/munter/netlify-plugin-checklinks.git
+Line 551:   npm link:       https://www.npmjs.com/package/netlify-plugin-checklinks
+Line 552:   Report issues:  https://github.com/munter/netlify-plugin-checklinks/issues
+Line 553: ​
+Line 554:   [31m[1mError location[22m[39m
+Line 555:   In "onPostBuild" event in "netlify-plugin-checklinks" from Netlify app
+Line 556: ​
+Line 557:   [31m[1mResolved config[22m[39m
+Line 558:   build:
+Line 559:     command: npm run build
+Line 560:     commandOrigin: config
+Line 561:     publish: /opt/build/repo/dist/public
+Line 562:     publishOrigin: config
+Line 563:   functionsDirectory: /opt/build/repo/netlify/functions
+Line 564:   plugins:
+Line 572:       origin: ui
+Line 573:       package: '@netlify/plugin-sitemap'
+Line 574:     - inputs: {}
+Line 575:       origin: ui
+Line 576:       package: netlify-plugin-subfont
+Line 577:     - inputs: {}
+Line 578:       origin: ui
+Line 579:       package: '@netlify/plugin-lighthouse'
+Line 580:   redirects:
+Line 581:     - from: /assets/*
+      status: 200
+      to: /assets/:splat
+    - from: /*
+      status: 200
+      to: /index.html
+  redire
+Line 582: Build failed due to a user error: Build script returned non-zero exit code: 2
+Line 583: Failing build: Failed to build site
+Line 584: Finished processing build request in 37.435s
+
+Netlify has analyzed the error and provided the following guidance:
+
+### Diagnosis
+The build failed at line 532 with the following error:
+```
+FAIL load dist/public/mood-hub
+operator: load
+expected: 200 dist/public/mood-hub
+actual: ENOENT: no such file or directory, open '/opt/build/repo/dist/public/mood-hub'
+```
+This error indicates that the file `dist/public/mood-hub` is expected but not found during the build process.
+
+### Solution
+1. Verify that the `mood-hub` file is correctly generated in the `dist/public` directory as expected.
+2. If the file is missing, ensure that the build script correctly generates the `mood-hub` file.
+3. If the file is present locally but not correctly deployed to Netlify, review the publish settings to ensure the file is included in the deployment.
+4. Check if there are any special configurations in the build script that might be affecting the generation or deployment of the `mood-hub` file.
