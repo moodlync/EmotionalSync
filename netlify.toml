@@ -1,5 +1,6 @@
 [build]
-  command = "./netlify-build.sh"
+  # Use simplified build approach to bypass dependency issues
+  command = "node netlify-simplified-build.cjs"
   publish = "dist/client"
 
 # Handle client-side routing - this ensures all routes are directed to index.html
