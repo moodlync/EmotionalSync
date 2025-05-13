@@ -11,7 +11,8 @@ import StreakReminder from '@/components/gamification/streak-reminder';
 import BottomNavigation from '@/components/bottom-navigation';
 import MainLayout from '@/components/layout/main-layout';
 import Footer from '@/components/footer';
-import { EmotionType, emotions } from '@/lib/emotions';
+import { EmotionType as LibEmotionType, emotions } from '@/lib/emotions';
+import { EmotionType as ImprintEmotionType } from '@/types/imprints';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
 import { useSubscription } from '@/hooks/use-subscription';
@@ -47,7 +48,7 @@ export default function HomePage() {
 
   // Mutation to update the user's emotion
   const updateEmotionMutation = useMutation({
-    mutationFn: async (emotion: EmotionType) => {
+    mutationFn: async (emotion: LibEmotionType) => {
       console.log("Updating emotion to:", emotion);
       const res = await apiRequest('POST', '/api/emotion', { emotion });
       return res.json();
@@ -111,7 +112,7 @@ export default function HomePage() {
     },
   });
 
-  const handleEmotionChange = (emotion: EmotionType) => {
+  const handleEmotionChange = (emotion: LibEmotionType) => {
     updateEmotionMutation.mutate(emotion);
     setIsModalOpen(false);
   };
@@ -119,7 +120,7 @@ export default function HomePage() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const emotionKey = (currentEmotion || 'neutral') as EmotionType;
+  const emotionKey = (currentEmotion || 'neutral') as LibEmotionType;
   const emotion = emotions[emotionKey];
 
   return (
