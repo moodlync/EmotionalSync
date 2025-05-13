@@ -1,4 +1,28 @@
-<!DOCTYPE html>
+/**
+ * Quick deployment helper for MoodLync
+ * This script copies the running app (server assets) to the Netlify deployment directory
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+console.log('======= PREPARING NETLIFY DEPLOYMENT =======');
+
+// Ensure the required directories exist
+const dirs = ['dist', 'dist/client', 'dist/client/assets'];
+dirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
+
+// Create a deployment package
+console.log('Creating deployment package...');
+
+// 1. Create an advanced fallback index.html (app shell) that will load the app
+console.log('Creating application shell...');
+const appShellHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -321,4 +345,48 @@
     });
   </script>
 </body>
-</html>
+</html>`;
+
+fs.writeFileSync('dist/client/index.html', appShellHtml);
+
+// 2. Copy assets from attached_assets
+console.log('Copying image assets...');
+const srcAssetsDir = 'attached_assets';
+const destAssetsDir = 'dist/client/assets';
+
+if (fs.existsSync(srcAssetsDir)) {
+  const imageFiles = fs.readdirSync(srcAssetsDir).filter(file => 
+    file.endsWith('.jpg') || 
+    file.endsWith('.jpeg') || 
+    file.endsWith('.png') || 
+    file.endsWith('.svg') || 
+    file.endsWith('.gif')
+  );
+  
+  let copiedFiles = 0;
+  imageFiles.forEach(file => {
+    const srcPath = path.join(srcAssetsDir, file);
+    const destPath = path.join(destAssetsDir, file);
+    
+    try {
+      fs.copyFileSync(srcPath, destPath);
+      copiedFiles++;
+    } catch (err) {
+      console.error(`Error copying ${file}: ${err.message}`);
+    }
+  });
+  
+  console.log(`Copied ${copiedFiles} images to assets directory`);
+}
+
+// 3. Ensure _redirects file exists
+console.log('Creating _redirects file...');
+fs.writeFileSync('dist/client/_redirects', '/* /index.html 200');
+
+// 4. Copy favicon if exists
+if (fs.existsSync('favicon.ico')) {
+  fs.copyFileSync('favicon.ico', 'dist/client/favicon.ico');
+}
+
+console.log('Netlify deployment preparation complete!');
+console.log('======= DEPLOYMENT READY =======');

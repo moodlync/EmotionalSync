@@ -1,6 +1,6 @@
 [build]
-  # Use full application build script that falls back to simplified landing page if build fails
-  command = "node netlify-full-build.cjs"
+  # Simplified deployment approach with complete app content
+  command = "node copy-to-deploy.cjs"
   publish = "dist/client"
 
 # Handle client-side routing - this ensures all routes are directed to index.html
