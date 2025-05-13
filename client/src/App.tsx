@@ -40,6 +40,7 @@ import FloatingChatButton from "@/components/contact/floating-chat-button";
 import NotFound from "@/pages/not-found";
 import WelcomePage from "@/pages/welcome-page";
 import HomePage from "@/pages/home-page";
+import MoodHub from "@/pages/mood-hub";
 
 // Lazily loaded pages for better performance
 const ProfilePage = lazy(() => import("@/pages/profile-page"));
@@ -148,6 +149,7 @@ const RouterComponent = () => {
   const publicRoutes = [
     { path: "/welcome", component: WelcomePage },
     { path: "/", component: HomePage }, // Make the home page public
+    { path: "/mood-hub", component: MoodHub }, // Add the MoodHub page
     { path: "/video/:id", component: VideoPlayerPage },
     { path: "/share/milestone", component: MilestonePage },
     { path: "/terms", component: TermsConditionsPage },
