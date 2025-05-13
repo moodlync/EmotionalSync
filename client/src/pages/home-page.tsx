@@ -13,7 +13,7 @@ import MainLayout from '@/components/layout/main-layout';
 import Footer from '@/components/footer';
 import { EmotionType as LibEmotionType, emotions } from '@/lib/emotions';
 import { EmotionType as ImprintEmotionType } from '@/types/imprints';
-import { capitalizedToLowercase, normalizeEmotion } from '@/lib/emotion-bridge';
+import { capitalizedToLowercase, normalizeEmotion, syncMoodData } from '@/lib/emotion-bridge';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
 import { useSubscription } from '@/hooks/use-subscription';
@@ -47,6 +47,9 @@ export default function HomePage() {
   // Extract the emotion from the data - API returns { emotion: 'value' } format
   const currentEmotion = emotionData?.emotion || 'neutral';
 
+  // Get gamification hooks outside of mutation
+  const { checkInStreak } = useGamification();
+  
   // Mutation to update the user's emotion
   const updateEmotionMutation = useMutation({
     mutationFn: async (emotion: LibEmotionType) => {
@@ -58,12 +61,18 @@ export default function HomePage() {
       const { emotion, tokensEarned } = response;
       console.log("Emotion update successful:", emotion);
       
-      // Update emotion in the cache with the correct format
+      // Update the client cache optimistically
       queryClient.setQueryData(['/api/emotion', user?.id], { emotion });
+      queryClient.setQueryData(['/api/emotion'], { emotion });
       
-      // Force invalidation to ensure the UI updates - this is crucial
-      queryClient.invalidateQueries({ queryKey: ['/api/emotion'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/emotion', user?.id] });
+      // Sync emotion data for cross-page communication
+      syncMoodData(emotion, 5);
+      
+      // Force invalidation to ensure the UI updates
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['/api/emotion'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/emotion', user?.id] });
+      }, 100);
       
       // Show tokens earned notification if any
       if (tokensEarned > 0) {
@@ -75,7 +84,6 @@ export default function HomePage() {
       
       try {
         // Also trigger streak check-in when emotion is updated
-        const { checkInStreak } = useGamification();
         const streakResult = await checkInStreak(emotion);
         
         if (streakResult.streakIncreased) {
@@ -115,6 +123,8 @@ export default function HomePage() {
 
   // Use a bridge function to handle the type conversion between the two emotion type formats
   const handleEmotionChange = (emotion: any) => {
+    console.log("handleEmotionChange called with:", emotion);
+    
     // We're getting a capitalized emotion name from the modal but need lowercase for our API
     let normalizedEmotion: string = 'neutral';
     
@@ -125,7 +135,17 @@ export default function HomePage() {
       normalizedEmotion = normalizedEmotion.charAt(0).toLowerCase() + normalizedEmotion.slice(1);
     }
     
-    updateEmotionMutation.mutate(normalizedEmotion as LibEmotionType);
+    console.log("Normalized emotion for API:", normalizedEmotion);
+    
+    // Update UI immediately for better user experience
+    const emotionKey = normalizedEmotion as LibEmotionType;
+    
+    // Update the client cache optimistically before API call
+    queryClient.setQueryData(['/api/emotion', user?.id], { emotion: normalizedEmotion });
+    queryClient.setQueryData(['/api/emotion'], { emotion: normalizedEmotion });
+    
+    // Call API to update the server
+    updateEmotionMutation.mutate(emotionKey);
     setIsModalOpen(false);
   };
 

@@ -34,12 +34,20 @@ export default function MoodSelectionModal({
 
   const handleEmotionSelect = (emotion: EmotionType) => {
     console.log(`Mood modal: selected emotion ${emotion}`);
+    
     // Normalize emotion to ensure consistent format
     const normalizedEmotion = normalizeEmotion(emotion as string);
-    // Directly call parent callback to update emotion
-    onSelectEmotion(normalizedEmotion);
-    // Close the modal after selection
-    onClose();
+    console.log(`Mood modal: normalized emotion ${normalizedEmotion}`);
+    
+    // Add a small delay before calling the parent callback
+    // This helps ensure that the React state and rendering cycle completes
+    setTimeout(() => {
+      // Directly call parent callback to update emotion
+      onSelectEmotion(normalizedEmotion);
+      
+      // Close the modal after selection
+      onClose();
+    }, 10);
   };
 
   // Helper function to get a random emotion for AI detection buttons

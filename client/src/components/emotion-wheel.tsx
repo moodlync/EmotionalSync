@@ -91,6 +91,14 @@ export default function EmotionWheel({ onSelectEmotion }: EmotionWheelProps) {
     const normalizedEmotion = normalizeEmotion(emotion);
     console.log(`Emotion wheel: selected ${emotion}, normalized to ${normalizedEmotion}`);
     
+    // Add debug info to help track the emotion through the pipeline
+    console.log({
+      originalEmotion: emotion,
+      normalizedEmotion: normalizedEmotion,
+      emotionType: typeof normalizedEmotion,
+      isValid: primaryEmotionsList.includes(normalizedEmotion as any)
+    });
+    
     // Pass the normalized emotion to the parent component
     onSelectEmotion(normalizedEmotion);
   };
