@@ -1,14 +1,15 @@
 /**
- * Combined starter script for MoodLync
- * This script starts both the application and the port forwarder
+ * Reliable starter script for MoodLync
+ * This script ensures clean server startup in the Replit environment
  */
 
 const { spawn } = require('child_process');
 const http = require('http');
+const { main: stopServers } = require('./stop-servers');
 
 // Port configuration
 const REPLIT_PORT = 3000;  // Replit WebView expects this port
-const APP_PORT = 5173;     // Our application runs on this port 
+const APP_PORT = 5173;     // Our application runs on this port
 
 // Log timestamp prefix
 function getTimestamp() {
@@ -19,23 +20,8 @@ function log(message) {
   console.log(`[${getTimestamp()}] ${message}`);
 }
 
-// Start the app
-log('Starting MoodLync application...');
-const appProcess = spawn('npm', ['run', 'dev'], {
-  stdio: 'inherit',
-  env: { 
-    ...process.env,
-    PORT: APP_PORT.toString()
-  }
-});
-
-appProcess.on('error', (err) => {
-  log(`Failed to start application: ${err.message}`);
-  process.exit(1);
-});
-
-// Give the app a moment to start before setting up the forwarder
-setTimeout(() => {
+// Start the port forwarding server
+function startPortForwarder() {
   // Create a proxy server
   log('Starting port forwarder...');
   const server = http.createServer((req, res) => {
@@ -116,12 +102,6 @@ setTimeout(() => {
     }
   });
   
-  // Start the server
-  server.listen(REPLIT_PORT, '0.0.0.0', () => {
-    log(`Port forwarder running at http://0.0.0.0:${REPLIT_PORT}`);
-    log(`Forwarding requests from port ${REPLIT_PORT} to port ${APP_PORT}`);
-  });
-  
   // Handle server errors
   server.on('error', (err) => {
     log(`Server error: ${err.message}`);
@@ -131,14 +111,69 @@ setTimeout(() => {
     }
   });
   
-  // Handle process termination
-  process.on('SIGINT', () => {
-    log('Shutting down...');
-    server.close();
-    appProcess.kill();
-    process.exit(0);
+  // Start the server
+  server.listen(REPLIT_PORT, '0.0.0.0', () => {
+    log(`Port forwarder running at http://0.0.0.0:${REPLIT_PORT}`);
+    log(`Forwarding requests from port ${REPLIT_PORT} to port ${APP_PORT}`);
   });
   
-}, 3000); // Wait 3 seconds before starting the forwarder
+  return server;
+}
 
-log('Combined startup script is running...');
+// Start the actual application
+function startApplication() {
+  log('Starting MoodLync application...');
+  const appProcess = spawn('node', ['--require', 'tsx/cjs', 'server/index.ts'], {
+    stdio: 'inherit',
+    env: { 
+      ...process.env,
+      NODE_ENV: 'development',
+      PORT: APP_PORT.toString()
+    }
+  });
+
+  appProcess.on('error', (err) => {
+    log(`Failed to start application: ${err.message}`);
+    process.exit(1);
+  });
+  
+  return appProcess;
+}
+
+// Main startup function
+async function main() {
+  try {
+    log('Starting MoodLync with reliable launcher...');
+    
+    // First, stop any running servers
+    log('Stopping any existing servers...');
+    await stopServers();
+    
+    // Wait a bit for all processes to fully terminate
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Start the application
+    const appProcess = startApplication();
+    
+    // Wait for app to start before creating port forwarder
+    setTimeout(() => {
+      const forwarder = startPortForwarder();
+      
+      // Handle process termination
+      process.on('SIGINT', () => {
+        log('Shutting down...');
+        if (forwarder) forwarder.close();
+        if (appProcess) appProcess.kill();
+        process.exit(0);
+      });
+    }, 3000);
+    
+    log('MoodLync reliable launcher is running.');
+  } catch (error) {
+    log(`Error during startup: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+// Start the application
+main();

@@ -9,7 +9,7 @@ import { log } from './vite';
 export function startPortForwarder() {
   // Setup port forwarding for Replit environment
   const REPLIT_PORT = 3000;  // Replit expects the app on this port
-  const APP_PORT = 5000;     // Our application runs on this port
+  const APP_PORT = 5173;     // Our application runs on this port
   
   try {
     const server = http.createServer((req, res) => {
@@ -36,7 +36,9 @@ export function startPortForwarder() {
       };
       
       const proxyReq = http.request(options, (proxyRes) => {
-        res.writeHead(proxyRes.statusCode, proxyRes.headers);
+        // Make sure we have a valid status code (default to 502 if undefined)
+        const statusCode = proxyRes.statusCode || 502;
+        res.writeHead(statusCode, proxyRes.headers);
         proxyRes.pipe(res);
       });
       
@@ -95,7 +97,7 @@ export function startPortForwarder() {
     });
     
     // Handle server errors
-    server.on('error', (err) => {
+    server.on('error', (err: NodeJS.ErrnoException) => {
       log(`Port forwarder error: ${err.message}`, 'port-forward');
       
       if (err.code === 'EADDRINUSE') {
@@ -104,8 +106,10 @@ export function startPortForwarder() {
     });
     
     return server;
-  } catch (error) {
-    log(`Failed to start port forwarder: ${error.message}`, 'port-forward');
+  } catch (error: unknown) {
+    // Safe error handling for unknown error types
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`Failed to start port forwarder: ${errorMessage}`, 'port-forward');
     return null;
   }
 }

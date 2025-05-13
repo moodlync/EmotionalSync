@@ -1,38 +1,26 @@
 #!/bin/bash
 
-# Ensure we capture errors
-set -e
-
-# Stop any existing forwarder
-if [ -f replit-forwarder.pid ]; then
-  echo "Stopping existing forwarder..."
-  ./stop-replit-forwarder.sh
-fi
-
-# Create log file
-LOG_FILE="replit-forwarder.log"
-touch $LOG_FILE
-echo "[$(date)] Starting Replit forwarder..." >> $LOG_FILE
-
-# Start the Replit forwarder and redirect output to log file
+# Start the Replit forwarder
 echo "Starting Replit forwarder..."
-node replit-forwarder.js >> $LOG_FILE 2>&1 &
 
-# Store the process ID
-FORWARDER_PID=$!
-echo $FORWARDER_PID > replit-forwarder.pid
+# Kill any existing forwarder processes
+pkill -f "node.*forwarder" || true
 
-echo "Replit forwarder started (PID: $FORWARDER_PID)"
-echo "Forwarder PID saved to replit-forwarder.pid"
-echo "Logs available in $LOG_FILE"
+# Start the forwarder in the background
+nohup node replit-simple-forwarder.js > replit-forwarder.log 2>&1 &
 
-# Wait a moment to see if process dies immediately
+# Save the process ID
+echo $! > replit-forwarder.pid
+
+echo "Forwarder started with PID: $(cat replit-forwarder.pid)"
+
+# Wait a moment for it to start
 sleep 2
-if ! ps -p $FORWARDER_PID > /dev/null; then
-  echo "ERROR: Forwarder stopped immediately. Check $LOG_FILE for details"
-  echo "Last 10 lines of log:"
-  tail -10 $LOG_FILE
+
+# Test if it's running
+if ps -p $(cat replit-forwarder.pid) > /dev/null; then
+  echo "Forwarder is running successfully."
+else
+  echo "Failed to start forwarder. Check replit-forwarder.log for details."
   exit 1
 fi
-
-echo "Forwarder running successfully"

@@ -22,8 +22,8 @@ app.get('/__replit_health', (req, res) => {
   res.status(200).json({ status: 'healthy' });
 });
 
-// Set environment variables
-const PORT = Number(process.env.PORT || 5000);
+// Set environment variables - use port 5173 to avoid conflicts
+const PORT = Number(process.env.PORT || 5173);
 const HOST = '0.0.0.0';
 
 // Main async function for setup
