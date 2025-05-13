@@ -7,11 +7,61 @@
  * 3. Providing hooks and utilities for emotion data consistency
  */
 
+import { emotions, validateEmotion } from './emotions';
+
 // Types
 export interface MoodData {
   emotion: string;
   intensity: number;
   timestamp: string;
+}
+
+// Export the emotion colors for use in mood context
+export const emotionColors = {
+  default: {
+    bg: '#E0E0E0', // Default neutral background
+    text: '#333333'
+  },
+  happy: {
+    bg: '#FFD700',
+    text: '#333333',
+    gradient: ['#FFD700', '#FFA500']
+  },
+  sad: {
+    bg: '#A0C4FF',
+    text: '#333333',
+    gradient: ['#A0C4FF', '#6B8EAE']
+  },
+  angry: {
+    bg: '#FF7D7D',
+    text: '#FFFFFF',
+    gradient: ['#FF7D7D', '#DB4B4B']
+  },
+  anxious: {
+    bg: '#FFD39A',
+    text: '#333333',
+    gradient: ['#FFD39A', '#E6B56D']
+  },
+  excited: {
+    bg: '#FFA9F9',
+    text: '#333333',
+    gradient: ['#FFA9F9', '#E980E1']
+  },
+  neutral: {
+    bg: '#E0E0E0',
+    text: '#333333',
+    gradient: ['#E0E0E0', '#C0C0C0']
+  }
+};
+
+/**
+ * Get emotion colors by emotion name
+ * @param emotion The emotion to get colors for
+ * @returns The color object for the specified emotion
+ */
+export function getEmotionColors(emotion: string) {
+  const normalizedEmotion = validateEmotion(emotion.toLowerCase());
+  return emotionColors[normalizedEmotion] || emotionColors.default;
 }
 
 // Storage key for local state

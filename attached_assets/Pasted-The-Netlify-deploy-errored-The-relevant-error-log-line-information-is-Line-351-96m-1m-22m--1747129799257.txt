@@ -1,0 +1,63 @@
+The Netlify deploy errored. The relevant error log line information is:
+
+Line 351: [96m[1m​[22m[39m
+Line 352: [96m[1mbuild.command from netlify.toml                               [22m[39m
+Line 353: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 354: ​
+Line 355: [36m$ npm run build && mkdir -p dist/client && cp -r dist/public/* dist/client/[39m
+Line 356: > rest-express@1.0.0 build
+Line 357: > ./node_modules/.bin/vite build
+Line 358: [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+Line 359: transforming...
+Line 360: [32m✓[39m 3022 modules transformed.
+Line 361: [31mx[39m Build failed in 5.46s
+Line 362: [31merror during build:
+Line 363: [31mclient/src/hooks/use-mood-context.tsx (5:2): "emotionColors" is not exported by "client/src/lib/emotion-bridge.ts", importe
+Line 364: file: [36m/opt/build/repo/client/src/hooks/use-mood-context.tsx:5:2[31m
+Line 365: [33m
+Line 366: 3: import { useToast } from '@/hooks/use-toast';
+Line 367: 4: import {
+Line 368: 5:   emotionColors,
+Line 369:      ^
+Line 370: 6:   getEmotionColors,
+Line 371: 7:   normalizeEmotion,
+Line 372: [31m
+Line 373:     at getRollupError (file:///opt/build/repo/node_modules/rollup/dist/es/shared/parseAst.js:396:41)
+Line 374:     at error (file:///opt/build/repo/node_modules/rollup/dist/es/shared/parseAst.js:392:42)
+Line 375:     at Module.error (file:///opt/build/repo/node_modules/rollup/dist/es/shared/node-entry.js:15588:16)
+Line 376:     at Module.traceVariable (file:///opt/build/repo/node_modules/rollup/dist/es/shared/node-entry.js:16037:29)
+Line 377:     at ModuleScope.findVariable (file:///opt/build/repo/node_modules/rollup/dist/es/shared/node-entry.js:13820:39)
+Line 378:     at FunctionScope.findVariable (file:///opt/build/repo/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+Line 379:     at FunctionBodyScope.findVariable (file:///opt/build/repo/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+Line 380:     at MemberExpression.bind (file:///opt/build/repo/node_modules/rollup/dist/es/shared/node-entry.js:6922:49)
+Line 381:     at CallExpression.bind (file:///opt/build/repo/node_modules/rollup/dist/es/shared/node-entry.js:2649:28)
+Line 382:     at CallExpression.bind (file:///opt/build/repo/node_modules/rollup/dist/es/shared/node-entry.js:11284:15)[39m
+Line 383: [91m[1m​[22m[39m
+Line 384: [91m[1m"build.command" failed                                        [22m[39m
+Line 385: [91m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 386: ​
+Line 387:   [31m[1mError message[22m[39m
+Line 388:   Command failed with exit code 1: npm run build && mkdir -p dist/client && cp -r dist/public/* dist/client/
+​
+  [31m[1mError 
+Line 389:   build:
+Line 390: Failed during stage 'building site': Build script returned non-zero exit code: 2
+Line 391:     command: npm run build && mkdir -p dist/client && cp -r dist/public/* dist/client/
+    commandOrigin: config
+    processing:
+Line 392: Build failed due to a user error: Build script returned non-zero exit code: 2
+Line 393: Failing build: Failed to build site
+Line 394: Finished processing build request in 37.227s
+
+Netlify has analyzed the error and provided the following guidance:
+
+### Diagnosis:
+The build failure is due to an error in the file `client/src/hooks/use-mood-context.tsx` at line 5. The error states that `"emotionColors"` is not exported by `"client/src/lib/emotion-bridge.ts"`.
+
+### Solution:
+1. Verify that the variable `emotionColors` is correctly exported from `client/src/lib/emotion-bridge.ts`.
+2. Ensure that `emotionColors` is declared and exported as a named export in `client/src/lib/emotion-bridge.ts`. If it is missing, add the export statement:
+   ```javascript
+   export const emotionColors = ...
+   ```
+3. After making sure of the above, retry the build to confirm the issue is resolved.
