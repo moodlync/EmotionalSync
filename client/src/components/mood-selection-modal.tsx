@@ -1,110 +1,82 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Camera, Mic } from "lucide-react";
-import { EmotionType } from "@/types/imprints";
-import EmotionWheel from "./emotion-wheel";
-import { useEffect } from "react";
-import { primaryEmotionsList, normalizeEmotion } from "@/lib/emotion-bridge";
+import { getEmotionNames, getEmotionIcon, getEmotionLabel, getEmotionColor, validateEmotion, type EmotionType } from "@/lib/emotions";
 
 interface MoodSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectEmotion: (emotion: EmotionType) => void;
+  currentEmotion?: EmotionType;
 }
 
-// List of available emotions from our bridge utility
-const availableEmotions: EmotionType[] = primaryEmotionsList as EmotionType[];
-
-export default function MoodSelectionModal({ 
-  isOpen, 
+export default function MoodSelectionModal({
+  isOpen,
   onClose,
-  onSelectEmotion 
+  onSelectEmotion,
+  currentEmotion = "neutral",
 }: MoodSelectionModalProps) {
-  // This useEffect will force refresh the content when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      console.log('Mood selection modal opened');
-      // Force re-render when modal opens
-      const timer = setTimeout(() => {
-        document.querySelector('.emotion-wheel')?.classList.add('emotion-wheel-visible');
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+  // Get list of all emotions
+  const emotionList = getEmotionNames();
+  
+  // Track the currently selected emotion 
+  const [selectedEmotion, setSelectedEmotion] = useState<EmotionType>(
+    validateEmotion(currentEmotion)
+  );
 
+  // Handle emotion selection from the grid
   const handleEmotionSelect = (emotion: EmotionType) => {
     console.log(`Mood modal: selected emotion ${emotion}`);
     
-    // Normalize emotion to ensure consistent format
-    const normalizedEmotion = normalizeEmotion(emotion as string);
-    console.log(`Mood modal: normalized emotion ${normalizedEmotion}`);
-    
-    // Add a small delay before calling the parent callback
-    // This helps ensure that the React state and rendering cycle completes
-    setTimeout(() => {
-      // Directly call parent callback to update emotion
-      onSelectEmotion(normalizedEmotion);
-      
-      // Close the modal after selection
-      onClose();
-    }, 10);
+    // Update local state
+    setSelectedEmotion(emotion);
   };
 
-  // Helper function to get a random emotion for AI detection buttons
-  const getRandomEmotion = (): EmotionType => {
-    const randomIndex = Math.floor(Math.random() * availableEmotions.length);
-    const randomEmotion = availableEmotions[randomIndex];
-    console.log(`Random emotion selected: ${randomEmotion}`);
-    return randomEmotion;
+  // Handle confirm button click
+  const handleConfirm = () => {
+    console.log(`Mood modal: confirming emotion ${selectedEmotion}`);
+    
+    // Notify parent component of selection
+    onSelectEmotion(selectedEmotion);
+    
+    // Close the modal
+    onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="flex justify-between items-center">
-            <DialogTitle className="text-xl font-semibold">How are you feeling?</DialogTitle>
-            <DialogClose asChild>
-              <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700">
-                <X className="h-4 w-4" />
-              </Button>
-            </DialogClose>
-          </div>
-          <DialogDescription>
-            Select your current emotion
-          </DialogDescription>
+          <DialogTitle>How are you feeling?</DialogTitle>
         </DialogHeader>
         
-        <div className="mb-6">
-          <EmotionWheel onSelectEmotion={handleEmotionSelect} />
+        {/* Emotion Selection Grid */}
+        <div className="grid grid-cols-3 gap-4 my-4">
+          {emotionList.map((emotion) => (
+            <Button
+              key={emotion}
+              variant="outline"
+              className={`flex flex-col h-24 p-2 items-center justify-center transition-all ${
+                selectedEmotion === emotion ? "ring-2 ring-primary" : ""
+              }`}
+              style={{ 
+                backgroundColor: selectedEmotion === emotion 
+                  ? getEmotionColor(emotion) 
+                  : 'transparent',
+                color: selectedEmotion === emotion ? '#fff' : 'inherit'
+              }}
+              onClick={() => handleEmotionSelect(emotion)}
+            >
+              <span className="text-2xl mb-1">{getEmotionIcon(emotion)}</span>
+              <span className="text-sm font-medium">{getEmotionLabel(emotion)}</span>
+            </Button>
+          ))}
         </div>
         
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2">Or use AI detection</h3>
-          <div className="flex flex-col space-y-3">
-            <Button 
-              className="flex items-center justify-center space-x-2"
-              onClick={() => {
-                // For demo purposes, select a random emotion
-                const randomEmotion = getRandomEmotion();
-                handleEmotionSelect(randomEmotion);
-              }}
-            >
-              <Camera className="w-5 h-5 mr-2" />
-              <span>Take a Selfie</span>
-            </Button>
-            <Button 
-              className="flex items-center justify-center space-x-2"
-              onClick={() => {
-                // For demo purposes, select a random emotion
-                const randomEmotion = getRandomEmotion();
-                handleEmotionSelect(randomEmotion);
-              }}
-            >
-              <Mic className="w-5 h-5 mr-2" />
-              <span>Voice Analysis</span>
-            </Button>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-2 mt-4">
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={handleConfirm}>Confirm</Button>
         </div>
       </DialogContent>
     </Dialog>

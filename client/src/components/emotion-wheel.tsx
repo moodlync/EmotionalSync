@@ -1,4 +1,4 @@
-import { EmotionType } from "@/types/imprints";
+import { EmotionType } from "@/lib/emotions";
 import { 
   getEmotionEmoji, 
   normalizeEmotion, 
@@ -100,7 +100,8 @@ export default function EmotionWheel({ onSelectEmotion }: EmotionWheelProps) {
     });
     
     // Pass the normalized emotion to the parent component
-    onSelectEmotion(normalizedEmotion);
+    // Cast to EmotionType since we know it's a valid emotion
+    onSelectEmotion(normalizedEmotion.toLowerCase() as EmotionType);
   };
 
   return (

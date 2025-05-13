@@ -8,12 +8,22 @@ import { log } from './vite';
 
 export function startPortForwarder() {
   // Setup port forwarding for Replit environment
-  const REPLIT_PORT = 3000;  // Replit expects the app on this port
-  const APP_PORT = 5173;     // Our application runs on this port
+  // Create two forwarders to support both workflow and webview
+  setupPortForwarder(5000, 5173); // For Replit workflow (waitForPort)
+  setupPortForwarder(3000, 5173); // For Replit WebView
+  
+  // Port constants kept for backward compatibility
+  const REPLIT_PORT = 5000;
+  const APP_PORT = 5173;
+  
+  return true;
+}
+
+function setupPortForwarder(fromPort: number, toPort: number) {
   
   try {
     const server = http.createServer((req, res) => {
-      log(`Forwarding: ${req.method} ${req.url}`, 'port-forward');
+      log(`Forwarding [${fromPort} → ${toPort}]: ${req.method} ${req.url}`, 'port-forward');
       
       // Handle CORS for browser requests
       res.setHeader('Access-Control-Allow-Origin', '*');
@@ -29,7 +39,7 @@ export function startPortForwarder() {
       // Forward the request to the actual application
       const options = {
         hostname: 'localhost',
-        port: APP_PORT,
+        port: toPort,
         path: req.url,
         method: req.method,
         headers: req.headers
@@ -91,9 +101,9 @@ export function startPortForwarder() {
     });
     
     // Start the server
-    server.listen(REPLIT_PORT, '0.0.0.0', () => {
-      log(`Port forwarder running at http://0.0.0.0:${REPLIT_PORT}`, 'port-forward');
-      log(`Forwarding requests from port ${REPLIT_PORT} to port ${APP_PORT}`, 'port-forward');
+    server.listen(fromPort, '0.0.0.0', () => {
+      log(`Port forwarder running at http://0.0.0.0:${fromPort}`, 'port-forward');
+      log(`Forwarding requests from port ${fromPort} to port ${toPort}`, 'port-forward');
     });
     
     // Handle server errors
@@ -101,7 +111,7 @@ export function startPortForwarder() {
       log(`Port forwarder error: ${err.message}`, 'port-forward');
       
       if (err.code === 'EADDRINUSE') {
-        log(`Port ${REPLIT_PORT} already in use, assuming another forwarder is running`, 'port-forward');
+        log(`Port ${fromPort} already in use, assuming another forwarder is running`, 'port-forward');
       }
     });
     
@@ -109,7 +119,7 @@ export function startPortForwarder() {
   } catch (error: unknown) {
     // Safe error handling for unknown error types
     const errorMessage = error instanceof Error ? error.message : String(error);
-    log(`Failed to start port forwarder: ${errorMessage}`, 'port-forward');
+    log(`Failed to start port forwarder ${fromPort} → ${toPort}: ${errorMessage}`, 'port-forward');
     return null;
   }
 }

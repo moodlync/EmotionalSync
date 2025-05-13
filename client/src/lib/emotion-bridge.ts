@@ -1,269 +1,129 @@
-// Emotion bridge module to fix the naming inconsistencies between emotion types
+/**
+ * Emotion Bridge - Centralizes emotion state management across components
+ * 
+ * This module handles:
+ * 1. Synchronizing emotion state between components via events
+ * 2. Persisting emotion state to localStorage for page reloads
+ * 3. Providing hooks and utilities for emotion data consistency
+ */
 
-import { EmotionType } from "@/types/imprints";
-
-// Types using capitalized format (from types/imprints.ts)
-export type CapitalizedEmotionType = EmotionType;
-
-// Types using lowercase format (from lib/emotions.ts)
-export type LowercaseEmotionType = 'happy' | 'sad' | 'angry' | 'anxious' | 'excited' | 'neutral';
-
-// Primary emotions present in both systems
-export const primaryEmotions = ['Joy', 'Sadness', 'Anger', 'Anxiety', 'Excitement', 'Neutral'] as const;
-
-// Mapping from lowercase to capitalized
-export const lowercaseToCapitalized: Record<LowercaseEmotionType, CapitalizedEmotionType> = {
-  'happy': 'Joy',
-  'sad': 'Sadness',
-  'angry': 'Anger',
-  'anxious': 'Anxiety',
-  'excited': 'Excitement',
-  'neutral': 'Neutral'
-};
-
-// Mapping from capitalized to lowercase
-export const capitalizedToLowercase: Record<string, LowercaseEmotionType> = {
-  'Joy': 'happy',
-  'Sadness': 'sad',
-  'Anger': 'angry',
-  'Anxiety': 'anxious',
-  'Excitement': 'excited',
-  'Neutral': 'neutral'
-};
-
-// Convert lowercase emotion to capitalized format
-export function toCapitalized(emotion: LowercaseEmotionType): CapitalizedEmotionType {
-  return lowercaseToCapitalized[emotion];
+// Types
+export interface MoodData {
+  emotion: string;
+  intensity: number;
+  timestamp: string;
 }
 
-// Convert capitalized emotion to lowercase format
-export function toLowercase(emotion: CapitalizedEmotionType): LowercaseEmotionType | undefined {
-  return capitalizedToLowercase[emotion] as LowercaseEmotionType;
-}
+// Storage key for local state
+const MOOD_STORAGE_KEY = 'moodlync_current_mood';
 
-// Type guard to check if a string is a valid CapitalizedEmotionType
-export function isCapitalizedEmotion(emotion: string): emotion is CapitalizedEmotionType {
-  return Object.keys(capitalizedToLowercase).includes(emotion);
-}
+// Event names for pub/sub pattern
+export const MOOD_UPDATE_EVENT = 'moodlync:mood-update';
 
-// Type guard to check if a string is a valid LowercaseEmotionType
-export function isLowercaseEmotion(emotion: string): emotion is LowercaseEmotionType {
-  return Object.keys(lowercaseToCapitalized).includes(emotion);
-}
-
-// Emotion color mappings for different emotions
-export const emotionColors: Record<string, { bg: string, text: string, gradient: string[] }> = {
-  Joy: { 
-    bg: '#FFDE7D', 
-    text: '#7A4100',
-    gradient: ['#FFC837', '#FF8008'] 
-  },
-  Sadness: { 
-    bg: '#A0C4FF', 
-    text: '#2A3C5F',
-    gradient: ['#9BAFD9', '#6D83B9'] 
-  },
-  Anger: { 
-    bg: '#FF7D7D', 
-    text: '#6F0000',
-    gradient: ['#FF4141', '#D10000'] 
-  },
-  Anxiety: { 
-    bg: '#FFD39A', 
-    text: '#704200',
-    gradient: ['#FFB75E', '#ED8F03'] 
-  },
-  Excitement: { 
-    bg: '#FFA9F9', 
-    text: '#6A008D',
-    gradient: ['#FF67FF', '#C840FF'] 
-  },
-  Neutral: { 
-    bg: '#E0E0E0', 
-    text: '#424242',
-    gradient: ['#BDBDBD', '#9E9E9E'] 
-  },
-  // Add other emotions mappings
-  Hope: { 
-    bg: '#B5FFD8', 
-    text: '#0B5437',
-    gradient: ['#84FAB0', '#1BC47D'] 
-  },
-  Surprise: { 
-    bg: '#E5A9FF', 
-    text: '#4B0082',
-    gradient: ['#D373FF', '#9F00FF'] 
-  },
-  Fear: { 
-    bg: '#C8C8FF', 
-    text: '#00008B',
-    gradient: ['#9E9EFF', '#6A6AFF'] 
-  },
-  Love: { 
-    bg: '#FF9A9A', 
-    text: '#8B0000',
-    gradient: ['#FF6B6B', '#FF3333'] 
-  },
-  Contentment: { 
-    bg: '#ADECA8', 
-    text: '#0B5F08',
-    gradient: ['#7AE073', '#38B632'] 
-  },
-  // Default for any other emotions
-  default: { 
-    bg: '#E0E0E0', 
-    text: '#424242',
-    gradient: ['#BDBDBD', '#9E9E9E'] 
-  }
-};
-
-// Get emotion color data regardless of format
-export function getEmotionColors(emotion: string) {
-  // First check if it's a capitalized format
-  if (emotionColors[emotion]) {
-    return emotionColors[emotion];
-  }
+/**
+ * Saves mood data to localStorage and dispatches an update event
+ * @param moodDataOrEmotion Either a MoodData object or a string representing the emotion
+ * @param intensity Optional intensity value (1-10) when passing emotion as string
+ */
+export function syncMoodData(moodDataOrEmotion: MoodData | string, intensity?: number): void {
+  let moodData: MoodData;
   
-  // If it's lowercase, try to convert
-  if (isLowercaseEmotion(emotion as LowercaseEmotionType)) {
-    const capitalizedEmotion = toCapitalized(emotion as LowercaseEmotionType);
-    return emotionColors[capitalizedEmotion];
-  }
-  
-  // Default fallback
-  return emotionColors.default;
-}
-
-// Get emoji for an emotion
-export function getEmotionEmoji(emotion: string): string {
-  const normalizedEmotion = isLowercaseEmotion(emotion as LowercaseEmotionType) 
-    ? toCapitalized(emotion as LowercaseEmotionType)
-    : emotion;
-    
-  switch(normalizedEmotion) {
-    case 'Joy': return '😊';
-    case 'Sadness': return '😢';
-    case 'Anger': return '😠';
-    case 'Anxiety': return '😰';
-    case 'Excitement': return '🤩';
-    case 'Neutral': return '😐';
-    case 'Hope': return '🌟';
-    case 'Love': return '❤️';
-    case 'Surprise': return '😲';
-    case 'Fear': return '😨';
-    case 'Contentment': return '😌';
-    default: return '😐';
-  }
-}
-
-// The six primary emotions that are present in both the emotion wheel and the mood selector
-export const primaryEmotionsList = ['Joy', 'Sadness', 'Anger', 'Anxiety', 'Excitement', 'Neutral'];
-
-// Get a standardized emotion type regardless of input format
-export function normalizeEmotion(emotion: string): CapitalizedEmotionType {
-  if (isCapitalizedEmotion(emotion as CapitalizedEmotionType)) {
-    return emotion as CapitalizedEmotionType;
-  }
-  
-  if (isLowercaseEmotion(emotion as LowercaseEmotionType)) {
-    return toCapitalized(emotion as LowercaseEmotionType);
-  }
-  
-  // If we can't determine the format, default to Neutral
-  return 'Neutral';
-}
-
-// Description for each emotion
-export const emotionDescriptions: Record<CapitalizedEmotionType, string> = {
-  'Joy': 'Feeling happy and content',
-  'Sadness': 'Feeling down or blue',
-  'Anger': 'Feeling frustrated or mad',
-  'Anxiety': 'Feeling worried or nervous',
-  'Excitement': 'Feeling enthusiastic and eager',
-  'Neutral': 'Feeling neither positive nor negative',
-  'Fear': 'Feeling scared or threatened',
-  'Surprise': 'Feeling astonished or startled',
-  'Disgust': 'Feeling aversion or revulsion',
-  'Hope': 'Feeling optimistic about the future',
-  'Contentment': 'Feeling satisfied and at ease',
-  'Boredom': 'Feeling uninterested or weary',
-  'Pride': 'Feeling satisfaction from achievement',
-  'Shame': 'Feeling embarrassed or dishonored',
-  'Guilt': 'Feeling remorse for a wrongdoing',
-  'Love': 'Feeling deep affection or attachment',
-  'Gratitude': 'Feeling thankful and appreciative',
-  'Nostalgia': 'Feeling sentimental about the past',
-  'Awe': 'Feeling wonder and reverence',
-  'Curiosity': 'Feeling eager to learn more',
-  'Confusion': 'Feeling uncertain or puzzled',
-  'Overwhelmed': 'Feeling unable to cope with multiple demands',
-  'Relaxed': 'Feeling calm and free from tension'
-};
-
-// Fetch emotion data from the server API
-export async function fetchEmotionData(): Promise<Record<string, any>> {
-  try {
-    const response = await fetch('/api/mood-data');
-    if (!response.ok) {
-      throw new Error(`API response error: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.data || {};
-  } catch (error) {
-    console.error('Error fetching emotion data:', error);
-    // Return default emotion data as fallback
-    return primaryEmotionsList.reduce((acc, emotion) => {
-      acc[emotion] = {
-        name: emotion,
-        emoji: getEmotionEmoji(emotion),
-        background: emotionColors[emotion].bg,
-        textColor: emotionColors[emotion].text,
-        description: emotionDescriptions[emotion as CapitalizedEmotionType] || `Feeling ${emotion.toLowerCase()}`,
-        gradient: emotionColors[emotion].gradient
-      };
-      return acc;
-    }, {} as Record<string, any>);
-  }
-}
-
-// Create a function to synchronize mood data between HTML and React implementations
-export function syncMoodData(emotion: string, intensity: number = 5): void {
-  const normalizedEmotion = normalizeEmotion(emotion);
-  
-  // Store in localStorage for cross-page communication
-  localStorage.setItem('moodlync_current_mood', JSON.stringify({
-    emotion: normalizedEmotion,
-    intensity,
-    timestamp: new Date().toISOString()
-  }));
-  
-  // Broadcast event for other components to listen to
-  const event = new CustomEvent('moodlync:mood-update', {
-    detail: {
-      emotion: normalizedEmotion,
-      intensity,
+  // Handle legacy format
+  if (typeof moodDataOrEmotion === 'string') {
+    moodData = {
+      emotion: moodDataOrEmotion,
+      intensity: intensity ?? 5,
       timestamp: new Date().toISOString()
-    }
-  });
+    };
+  } else {
+    moodData = moodDataOrEmotion;
+  }
+  
+  // Save to localStorage
+  localStorage.setItem(MOOD_STORAGE_KEY, JSON.stringify(moodData));
+  
+  // Broadcast event for other components
+  const event = new CustomEvent(MOOD_UPDATE_EVENT, { detail: moodData });
   window.dispatchEvent(event);
   
-  console.log(`Mood synced: ${normalizedEmotion} (intensity: ${intensity})`);
+  console.log("Mood data synced:", moodData);
 }
 
-// Create a function to get the current mood data
-export function getCurrentMood(): { emotion: CapitalizedEmotionType, intensity: number } | null {
+/**
+ * Legacy support for different format
+ */
+export function capitalizedToLowercase(emotion: string): string {
+  if (!emotion) return 'neutral';
+  return emotion.toLowerCase();
+}
+
+/**
+ * Legacy support for emotion wheel component
+ */
+export function getEmotionEmoji(emotion: string): string {
+  // Forward to emotions library
+  const { getEmotionIcon } = require('./emotions');
+  return getEmotionIcon(emotion);
+}
+
+/**
+ * Legacy support for primary emotions list
+ */
+export const primaryEmotionsList = [
+  "happy", "sad", "angry", "anxious", "excited", "neutral"
+];
+
+/**
+ * Retrieves mood data from localStorage
+ */
+export function getMoodData(): MoodData | null {
   try {
-    const savedMood = localStorage.getItem('moodlync_current_mood');
-    if (savedMood) {
-      const moodData = JSON.parse(savedMood);
-      return {
-        emotion: normalizeEmotion(moodData.emotion),
-        intensity: parseInt(moodData.intensity) || 5
-      };
-    }
+    const storedData = localStorage.getItem(MOOD_STORAGE_KEY);
+    if (!storedData) return null;
+    
+    return JSON.parse(storedData) as MoodData;
   } catch (e) {
-    console.error('Error retrieving current mood:', e);
+    console.error("Error retrieving mood data:", e);
+    return null;
+  }
+}
+
+/**
+ * Subscribes to mood update events
+ */
+export function subscribeMoodUpdates(callback: (moodData: MoodData) => void): () => void {
+  const handler = (event: CustomEvent) => callback(event.detail);
+  
+  // Add event listener
+  window.addEventListener(MOOD_UPDATE_EVENT, handler as EventListener);
+  
+  // Return unsubscribe function
+  return () => {
+    window.removeEventListener(MOOD_UPDATE_EVENT, handler as EventListener);
+  };
+}
+
+/**
+ * Normalizes emotion strings for consistent formatting
+ * @param emotion The emotion string to normalize
+ * @param preserveCase Optional: If true, preserves the case of the emotion (default: false)
+ * @returns The normalized emotion string
+ */
+export function normalizeEmotion(emotion: string, preserveCase: boolean = false): string {
+  if (!emotion) return "neutral";
+  
+  // Convert to lowercase first
+  const normalized = emotion.toLowerCase();
+  
+  // Check if it's a valid emotion
+  const validEmotions = ["happy", "sad", "angry", "anxious", "excited", "neutral"];
+  if (!validEmotions.includes(normalized)) {
+    console.warn(`Unknown emotion: ${emotion}, defaulting to neutral`);
+    return preserveCase ? "neutral" : "Neutral";
   }
   
-  return null;
+  // Format appropriately based on preserveCase
+  return preserveCase 
+    ? normalized 
+    : normalized.charAt(0).toUpperCase() + normalized.slice(1);
 }
