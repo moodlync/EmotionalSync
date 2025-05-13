@@ -133,8 +133,8 @@ fi
 echo "Updating netlify.toml..."
 cat > netlify.toml << 'EOL'
 [build]
-  # Use simplified build approach to bypass dependency issues
-  command = "node netlify-simplified-build.cjs"
+  # Use full application build script that falls back to simplified landing page if build fails
+  command = "node netlify-full-build.cjs"
   publish = "dist/client"
 
 # Handle client-side routing - this ensures all routes are directed to index.html
@@ -158,12 +158,11 @@ cat > netlify.toml << 'EOL'
   DEBUG = "netlify:build:*"
 EOL
 
-# Create simplified build script for Netlify
-echo "Creating simplified Netlify build script..."
-cat > netlify-simplified-build.cjs << 'EOL'
+# Create full build script for Netlify with fallback option
+echo "Creating enhanced Netlify build script..."
+cat > netlify-full-build.cjs << 'EOL'
 /**
- * Simplified Netlify build script that focuses on producing a minimal working build
- * without unnecessary complexity
+ * Complete Netlify build script that properly bundles and deploys the full application
  */
 
 const fs = require('fs');

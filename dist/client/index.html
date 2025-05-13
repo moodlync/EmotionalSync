@@ -6,91 +6,131 @@
   <title>MoodLync</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(to bottom right, #4a00e0, #8e2de2);
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
       color: white;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
       text-align: center;
     }
     .logo {
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: bold;
       margin-bottom: 1rem;
+      background: linear-gradient(to right, #ffffff, #a3bded);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .container {
-      max-width: 800px;
-      padding: 2rem;
+    .subtitle {
+      font-size: 1.5rem;
+      margin-bottom: 3rem;
     }
-    .card {
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    .feature-card {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-bottom: 2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 2rem;
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
-    .feature {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 1rem;
-      border-radius: 8px;
-      text-align: center;
+    .feature-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #ffffff;
     }
-    .button {
+    .feature-description {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+    }
+    .cta-button {
       display: inline-block;
-      background: #ffffff;
-      color: #6c11d3;
-      padding: 0.75rem 1.5rem;
-      border-radius: 50px;
+      background: white;
+      color: #6a11cb;
       font-weight: bold;
-      margin-top: 1rem;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      margin-top: 2rem;
       text-decoration: none;
-      transition: all 0.2s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
-    .button:hover {
+    .cta-button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
-    h1, h2, h3 {
-      margin-top: 0;
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="logo">MoodLync</div>
-    <div class="card">
-      <h1>Emotion-Intelligent Social Networking</h1>
-      <p>Our application is being deployed and will be available soon. Thank you for your patience.</p>
-      <a href="/" class="button">Refresh Page</a>
+    <div class="header">
+      <div class="badge">Platform Coming Soon</div>
+      <div class="logo">MoodLync</div>
+      <div class="subtitle">Emotion-Intelligent Social Networking</div>
+      <a href="/" class="cta-button">Join the Waitlist</a>
     </div>
-    <div class="features">
-      <div class="feature">
-        <h3>Emotional Tracking</h3>
-        <p>Monitor and analyze your emotional patterns</p>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3 class="feature-title">Real-time Emotional Analysis</h3>
+        <p class="feature-description">Connect with others based on emotional states rather than profiles. Find people who understand exactly how you're feeling.</p>
       </div>
-      <div class="feature">
-        <h3>AI Companion</h3>
-        <p>Get personalized emotional support</p>
+      
+      <div class="feature-card">
+        <h3 class="feature-title">Global Emotion Mapping</h3>
+        <p class="feature-description">Visualize emotional patterns across communities and regions with our interactive emotion map.</p>
       </div>
-      <div class="feature">
-        <h3>Global Map</h3>
-        <p>See emotional trends worldwide</p>
+      
+      <div class="feature-card">
+        <h3 class="feature-title">AI-Powered Companion</h3>
+        <p class="feature-description">Receive personalized insights and therapeutic support from our advanced AI companion.</p>
       </div>
-      <div class="feature">
-        <h3>Token Rewards</h3>
-        <p>Earn rewards for engagement</p>
+      
+      <div class="feature-card">
+        <h3 class="feature-title">Token Rewards System</h3>
+        <p class="feature-description">Earn tokens for participation and emotional growth that can be redeemed for premium features.</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3 class="feature-title">Emotional NFTs</h3>
+        <p class="feature-description">Collect unique digital assets that evolve with your emotional journey as a premium member.</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3 class="feature-title">Mood-Based Chat Rooms</h3>
+        <p class="feature-description">Join themed chat rooms tailored to specific emotions and experiences for meaningful connections.</p>
       </div>
     </div>
   </div>
