@@ -11,3 +11,8 @@
 # Disable link checking plugin
 [build.processing]
   skip_processing = true
+
+[[plugins]]
+  package = "netlify-plugin-checklinks"
+  [plugins.inputs]
+    skipPatterns = ["/mood-hub"]
