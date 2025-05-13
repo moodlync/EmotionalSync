@@ -139,6 +139,13 @@ export function getMoodData(): MoodData | null {
 }
 
 /**
+ * Get the current mood (alias for getMoodData for backward compatibility)
+ */
+export function getCurrentMood(): MoodData | null {
+  return getMoodData();
+}
+
+/**
  * Subscribes to mood update events
  */
 export function subscribeMoodUpdates(callback: (moodData: MoodData) => void): () => void {
