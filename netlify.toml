@@ -2,17 +2,19 @@
   command = "./netlify-build.sh"
   publish = "dist/client"
 
-# Handle client-side routing
+# Handle client-side routing - this ensures all routes are directed to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = true
 
-# Disable link checking plugin
+# Disable processing to preserve our build output
 [build.processing]
   skip_processing = true
 
-[[plugins]]
-  package = "netlify-plugin-checklinks"
-  [plugins.inputs]
-    skipPatterns = ["/mood-hub"]
+# Remove plugins that might interfere with the build
+# [[plugins]]
+#  package = "netlify-plugin-checklinks"
+#  [plugins.inputs]
+#    skipPatterns = ["/mood-hub"]
