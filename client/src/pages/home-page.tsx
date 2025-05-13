@@ -5,6 +5,7 @@ import JournalTab from '@/components/journal-tab';
 import AICompanionTab from '@/components/ai-companion-tab';
 import PremiumTab from '@/components/premium-tab';
 import GamificationTab from '@/components/gamification-tab';
+import FeatureShowcaseTab from '@/components/feature-showcase-tab';
 import RewardsCard from '@/components/rewards-card';
 import MoodSelectionModal from '@/components/mood-selection-modal';
 import StreakReminder from '@/components/gamification/streak-reminder';
@@ -609,6 +610,29 @@ export default function HomePage() {
                 </button>
                 
                 <button 
+                  onClick={() => setActiveTab('features')}
+                  className={`py-2 px-3 rounded-t-lg font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 ${
+                    activeTab === 'features' 
+                    ? 'text-purple-500 bg-purple-50 dark:bg-purple-900/30 border-b-2 border-purple-500' 
+                    : 'text-purple-600 hover:text-purple-700 hover:bg-purple-50/50 dark:text-purple-400 dark:hover:text-purple-300 dark:hover:bg-purple-900/20'
+                  }`}
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="w-4 h-4"
+                  >
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                  </svg>
+                  <span>Features</span>
+                </button>
+                
+                <button 
                   onClick={() => setActiveTab('gamification')}
                   className={`py-2 px-3 rounded-t-lg font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 ${
                     activeTab === 'gamification' 
@@ -641,6 +665,7 @@ export default function HomePage() {
         {activeTab === 'journal' && <JournalTab />}
         {activeTab === 'ai' && <AICompanionTab currentEmotion={emotionKey} />}
         {activeTab === 'premium' && <PremiumTab />}
+        {activeTab === 'features' && <FeatureShowcaseTab />}
         {activeTab === 'gamification' && (
           <div>
             <GamificationTab />

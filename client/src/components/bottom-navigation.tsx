@@ -1,4 +1,4 @@
-import { UsersRound, Globe, BookMarked, Sparkles, Crown, Trophy } from "lucide-react";
+import { UsersRound, Globe, BookMarked, Sparkles, Crown, Trophy, Layers } from "lucide-react";
 import { TabType } from '@/types/app-types';
 
 interface BottomNavigationProps {
@@ -44,6 +44,13 @@ export default function BottomNavigation({ activeTab, onTabChange }: BottomNavig
         >
           <Crown className="w-6 h-6" />
           <span className="text-xs mt-1">Premium</span>
+        </button>
+        <button 
+          className={`flex flex-col items-center p-2 ${activeTab === 'features' ? 'text-purple-500' : 'text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300'}`}
+          onClick={() => onTabChange('features')}
+        >
+          <Layers className="w-6 h-6" />
+          <span className="text-xs mt-1">Features</span>
         </button>
         <button 
           className={`flex flex-col items-center p-2 ${activeTab === 'gamification' ? 'text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary'}`}
