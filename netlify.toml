@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build && mkdir -p dist/client && cp -r dist/public/* dist/client/"
+  command = "./netlify-build.sh"
   publish = "dist/client"
 
 # Handle client-side routing
